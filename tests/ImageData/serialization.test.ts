@@ -1,27 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
   deserializeImageData,
-  deserializeNullableImageData, type SerializedImageData,
+  deserializeNullableImageData,
+  type SerializedImageData,
   serializeImageData,
   serializeNullableImageData,
 } from '../../src'
 
 describe('ImageData Serialization Utilities', () => {
-
-  // Mocking ImageData for Node environment if not using jsdom
-  if (typeof ImageData === 'undefined') {
-    global.ImageData = class {
-      width: number
-      height: number
-      data: Uint8ClampedArray
-
-      constructor(data: Uint8ClampedArray, width: number, height: number) {
-        this.width = width
-        this.height = height
-        this.data = data
-      }
-    } as any
-  }
 
   // Helper to create a dummy ImageData object
   const createMockImageData = (w: number, h: number) => {
@@ -83,7 +69,7 @@ describe('ImageData Serialization Utilities', () => {
       const data: SerializedImageData = {
         width: 1,
         height: 1,
-        data: btoa(String.fromCharCode(...new Uint8Array([255, 0, 0, 255])))
+        data: btoa(String.fromCharCode(...new Uint8Array([255, 0, 0, 255]))),
       }
       const result = deserializeNullableImageData(data)
       expect(result).toBeInstanceOf(ImageData)
@@ -112,7 +98,7 @@ describe('ImageData Serialization Utilities', () => {
         width: 1,
         height: 1,
         data: new Uint8ClampedArray([1, 2, 3, 4]),
-        colorSpace: 'srgb'
+        colorSpace: 'srgb',
       } as ImageData
 
       const result = serializeImageData(customImg)
