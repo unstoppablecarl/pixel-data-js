@@ -1,37 +1,48 @@
-export type SerializedImageData = {
-  width: number,
-  height: number,
-  data: string,
+import type { Base64EncodedUInt8Array, ImageDataLike, SerializedImageData } from '../_types'
+
+export function base64EncodeArrayBuffer(buffer: ArrayBufferLike): Base64EncodedUInt8Array {
+  const binary = String.fromCharCode(...new Uint8Array(buffer))
+  return btoa(binary) as Base64EncodedUInt8Array
+}
+
+export function base64DecodeArrayBuffer(encoded: Base64EncodedUInt8Array): Uint8ClampedArray {
+  const binary = atob(encoded)
+  const bytes = new Uint8ClampedArray(binary.length)
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i)
+  }
+  return bytes
 }
 
 /**
- * Serialize for use in JSON. Stored as base64 encoded string.
+ * Serialize for use in JSON. Pixel data is stored as base64 encoded string.
  */
-export function serializeImageData<T extends ImageData>(imageData: T): SerializedImageData {
-  const binary = String.fromCharCode(...new Uint8Array(imageData.data.buffer))
-  const base64 = btoa(binary)
-
+export function serializeImageData<T extends ImageDataLike>(imageData: T): SerializedImageData {
   return {
     width: imageData.width,
     height: imageData.height,
-    data: base64,
+    data: base64EncodeArrayBuffer(imageData.data.buffer),
   }
 }
 
-export function serializeNullableImageData<T extends ImageData | null>(imageData: T): T extends null ? null : SerializedImageData {
+export function serializeNullableImageData<T extends ImageDataLike | null>(imageData: T): T extends null ? null : SerializedImageData {
   if (!imageData) return null as any
 
   return serializeImageData(imageData) as any
 }
 
-export function deserializeImageData<T extends SerializedImageData>(serialized: T): ImageData {
-  const binary = atob(serialized.data as string)
-  const bytes = new Uint8ClampedArray(binary.length)
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i)
+export function deserializeRawImageData<T extends SerializedImageData>(serialized: T): ImageDataLike {
+  return {
+    width: serialized.width,
+    height: serialized.height,
+    data: base64DecodeArrayBuffer(serialized.data as Base64EncodedUInt8Array),
   }
+}
 
-  return new ImageData(bytes, serialized.width, serialized.height) as any
+export function deserializeImageData<T extends SerializedImageData>(serialized: T): ImageData {
+  const data = base64DecodeArrayBuffer(serialized.data as Base64EncodedUInt8Array)
+
+  return new ImageData(data as ImageDataArray, serialized.width, serialized.height) as any
 }
 
 export function deserializeNullableImageData<T extends SerializedImageData | null>(serialized: T): T extends null ? null : ImageData {

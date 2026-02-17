@@ -1,90 +1,107 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { getImageDataPixelAsRGBA, setImageDataPixelRGBA } from '../../src/ImageData/read-write'
-import type { RGBA } from '../../src/types'
+import type { Color32, ImageDataLike } from '../../src/_types'
+import { makeImageDataColor32Adapter } from '../../src/ImageData/read-write-pixels'
 
-describe('ImageData Pixel Manipulation', () => {
-  let mockImageData: ImageData
-  const width = 10
-  const height = 10
+describe('makeImageDataColor32Adapter', () => {
+  let mockImageData: ImageDataLike
+  const width = 4
+  const height = 4
 
   beforeEach(() => {
-    // Create a 10x10 transparent black image
-    const data = new Uint8ClampedArray(width * height * 4).fill(0)
-    mockImageData = new ImageData(data, width, height)
+    // Create a 4x4 image (16 pixels, 64 bytes)
+    const buffer = new ArrayBuffer(width * height * 4)
+    mockImageData = {
+      width,
+      height,
+      data: new Uint8ClampedArray(buffer),
+    }
   })
 
-  describe('setImageDataPixelRGBA', () => {
-    it('should set the correct color at (0, 0)', () => {
-      const color: RGBA = { r: 255, g: 128, b: 64, a: 200 }
-      setImageDataPixelRGBA(mockImageData, 0, 0, color)
-
-      // Manual check of the underlying buffer
-      expect(mockImageData.data[0]).toBe(255) // R
-      expect(mockImageData.data[1]).toBe(128) // G
-      expect(mockImageData.data[2]).toBe(64)  // B
-      expect(mockImageData.data[3]).toBe(200) // A
-    })
-
-    it('should set the correct color at a specific coordinate (5, 2)', () => {
-      const color: RGBA = { r: 10, g: 20, b: 30, a: 40 }
-      setImageDataPixelRGBA(mockImageData, 5, 2, color)
-
-      // Index calculation: (2 * 10 + 5) * 4 = 100
-      expect(mockImageData.data[100]).toBe(10)
-      expect(mockImageData.data[103]).toBe(40)
-    })
-
-    it('should handle the last pixel in the image', () => {
-      const color: RGBA = { r: 1, g: 2, b: 3, a: 4 }
-      setImageDataPixelRGBA(mockImageData, 9, 9, color)
-
-      const lastIndex = (9 * 10 + 9) * 4
-      expect(mockImageData.data[lastIndex]).toBe(1)
+  describe('Initialization', () => {
+    it('should create a Uint32Array view of the same buffer', () => {
+      const adapter = makeImageDataColor32Adapter(mockImageData)
+      expect(adapter.data32).toBeInstanceOf(Uint32Array)
+      expect(adapter.data32.length).toBe(width * height)
+      expect(adapter.data32.buffer).toBe(mockImageData.data.buffer)
     })
   })
 
-  describe('getImageDataPixelAsRGBA', () => {
-    it('should retrieve the correct RGBA values', () => {
-      // Manually seed data
-      const index = (3 * width + 4) * 4 // x=4, y=3
-      mockImageData.data[index] = 255
-      mockImageData.data[index + 1] = 0
-      mockImageData.data[index + 2] = 100
-      mockImageData.data[index + 3] = 255
+  describe('inBounds', () => {
+    it('should return true for coordinates outside the image', () => {
+      const adapter = makeImageDataColor32Adapter(mockImageData)
+      expect(adapter.inBounds(-1, 0)).toBe(true)
+      expect(adapter.inBounds(width, 0)).toBe(true)
+      expect(adapter.inBounds(0, -1)).toBe(true)
+      expect(adapter.inBounds(0, height)).toBe(true)
+    })
 
-      const result = getImageDataPixelAsRGBA(mockImageData, 4, 3)
-      expect(result).toEqual({ r: 255, g: 0, b: 100, a: 255 })
+    it('should return false for coordinates inside the image', () => {
+      const adapter = makeImageDataColor32Adapter(mockImageData)
+      expect(adapter.inBounds(0, 0)).toBe(false)
+      expect(adapter.inBounds(width - 1, height - 1)).toBe(false)
     })
   })
 
-  describe('Round-trip Integration', () => {
-    it('should return exactly what was set', () => {
-      const testColor: RGBA = { r: 50, g: 150, b: 250, a: 100 }
-      const x = 7
-      const y = 8
+  describe('setPixel and getPixel', () => {
+    it('should set and get a 32-bit color correctly', () => {
+      const adapter = makeImageDataColor32Adapter(mockImageData)
+      const color = 0xFFAABBCC as Color32 // A: 255, B: 170, G: 187, R: 204
 
-      setImageDataPixelRGBA(mockImageData, x, y, testColor)
-      const retrieved = getImageDataPixelAsRGBA(mockImageData, x, y)
+      adapter.setPixel(1, 1, color)
+      expect(adapter.getPixel(1, 1)).toBe(color)
+    })
 
-      expect(retrieved).toEqual(testColor)
+    it('should update the underlying Uint8ClampedArray', () => {
+      const adapter = makeImageDataColor32Adapter(mockImageData)
+      // 0xAABBGGRR -> In Little Endian R is first byte
+      const color = 0xFF332211 as Color32
+
+      adapter.setPixel(0, 0, color)
+
+      // index (0,0) starts at byte 0
+      expect(mockImageData.data[0]).toBe(0x11) // R
+      expect(mockImageData.data[1]).toBe(0x22) // G
+      expect(mockImageData.data[2]).toBe(0x33) // B
+      expect(mockImageData.data[3]).toBe(0xFF) // A
+    })
+
+    it('should return undefined when getting out of bounds', () => {
+      const adapter = makeImageDataColor32Adapter(mockImageData)
+      expect(adapter.getPixel(99, 99)).toBeUndefined()
+    })
+
+    it('should not throw or modify data when setting out of bounds', () => {
+      const adapter = makeImageDataColor32Adapter(mockImageData)
+      const color = 0xFFFFFFFF as Color32
+
+      adapter.setPixel(-1, -1, color)
+
+      // Verify no data was changed in the buffer
+      const allZeros = Array.from(mockImageData.data).every(v => v === 0)
+      expect(allZeros).toBe(true)
     })
   })
 
-  describe('Boundary / Edge Cases', () => {
-    it('should return undefined or throw if coordinates are out of bounds (Native behavior check)', () => {
-      // Depending on your preference, you might want these functions to throw.
-      // Currently, they will return {r: undefined, ...} or NaN due to array access.
-      const outOfBounds = getImageDataPixelAsRGBA(mockImageData, 11, 11)
+  describe('Edge Cases', () => {
+    it('should handle a 1x1 image', () => {
+      const tinyData: ImageDataLike = {
+        width: 1,
+        height: 1,
+        data: new Uint8ClampedArray(4),
+      }
+      const adapter = makeImageDataColor32Adapter(tinyData)
+      const color = 0x12345678 as Color32
 
-      expect(outOfBounds.r).toBeUndefined()
+      adapter.setPixel(0, 0, color)
+      expect(adapter.getPixel(0, 0)).toBe(color)
     })
 
-    it('should correctly handle a 1x1 image', () => {
-      const tinyImg = new ImageData(new Uint8ClampedArray(4), 1, 1)
-      const color: RGBA = { r: 255, g: 255, b: 255, a: 255 }
+    it('should reflect changes made directly to data32', () => {
+      const adapter = makeImageDataColor32Adapter(mockImageData)
+      const color = 0xDEADC0DE as Color32
 
-      setImageDataPixelRGBA(tinyImg, 0, 0, color)
-      expect(getImageDataPixelAsRGBA(tinyImg, 0, 0)).toEqual(color)
+      adapter.data32[0] = color
+      expect(adapter.getPixel(0, 0)).toBe(color)
     })
   })
 })
