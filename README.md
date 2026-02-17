@@ -14,11 +14,13 @@ This package is designed to be a tree-shake friendly list of functions.
 ## Building
 
 `$ pnpm install`
+
 `$ pnpm run build`
 
 ## Testing
 
 `$ pnpm run test`
+
 `$ pnpm run test:mutation`
 
 ## Releases Automation
