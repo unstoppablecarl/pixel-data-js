@@ -1,0 +1,72 @@
+{
+  "name": "pixel-data-js",
+  "type": "module",
+  "version": "0.0.1",
+  "packageManager": "pnpm@10.30.0",
+  "description": "JS Pixel and ImageData operations",
+  "author": {
+    "name": "Carl Olsen",
+    "email": "unstoppablecarlolsen@gmail.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "ImageData",
+    "pixel",
+    "blit",
+    "image"
+  ],
+  "main": "./dist/index.prod.cjs",
+  "module": "./dist/index.prod.js",
+  "source": "./src/index.ts",
+  "types": "./dist/index.prod.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.prod.d.ts",
+      "source": "./src/index.ts",
+      "development": {
+        "require": "./dist/index.dev.cjs",
+        "import": "./dist/index.dev.js"
+      },
+      "production": {
+        "require": "./dist/index.prod.cjs",
+        "import": "./dist/index.prod.js"
+      },
+      "require": "./dist/index.prod.cjs",
+      "import": "./dist/index.prod.js"
+    }
+  },
+  "files": [
+    "dist/*",
+    "src/*",
+    "pnpm-lock.yaml",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest --coverage",
+    "test:mutation": "stryker run",
+    "docs": "npx typedoc --entryPointStrategy Expand src"
+  },
+  "devDependencies": {
+    "@stryker-mutator/core": "^9.5.1",
+    "@stryker-mutator/typescript-checker": "^9.5.1",
+    "@stryker-mutator/vitest-runner": "^9.5.1",
+    "@types/node": "^25.2.3",
+    "@vitest/coverage-v8": "^4.0.18",
+    "esbuild": "^0.27.3",
+    "happy-dom": "^20.6.1",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typedoc": "^0.28.17",
+    "typescript": "^5.9.3",
+    "vitest": "4.0.18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/unstoppablecarl/pixel-data-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/unstoppablecarl/pixel-data-js/issues"
+  }
+}
