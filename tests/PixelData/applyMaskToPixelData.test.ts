@@ -26,7 +26,7 @@ describe('applyMaskToPixelData', () => {
     it('handles negative x, y offsets with mask synchronization', () => {
       const dst = makeTestPixelData(1, 1, RED)
       // 2x2 mask, only index [3] is 0 (fully transparent)
-      const mask = new Uint8Array([255, 255, 255, 0]) as BinaryMask
+      const mask = new Uint8Array([1, 1, 1, 0]) as BinaryMask
 
       // Clip: x:-1, y:-1 means we sample mask at (1,1) -> index 3
       applyMaskToPixelData(dst, mask, {
@@ -46,7 +46,7 @@ describe('applyMaskToPixelData', () => {
   describe('Masking Logic (Binary & Alpha)', () => {
     it('handles BinaryMask pass/fail and inversion', () => {
       const dst = makeTestPixelData(2, 1, RED)
-      const mask = new Uint8Array([255, 0]) as BinaryMask
+      const mask = new Uint8Array([1, 0]) as BinaryMask
 
       // Normal: first pixel stays, second pixel cleared
       applyMaskToPixelData(dst, mask, {
@@ -89,12 +89,12 @@ describe('applyMaskToPixelData', () => {
 
     it('accurately applies mask across a complex grid', () => {
       const dst = makeTestPixelData(DW, DH, BLUE)
-      const mask = new Uint8Array(DW * DH) as AlphaMask
+      const mask = new Uint8Array(DW * DH) as BinaryMask
 
       // Checkerboard mask
       for (let i = 0; i < mask.length; i++) {
         mask[i] = i % 2 === 0
-          ? 255
+          ? 1
           : 0
       }
 
@@ -118,7 +118,7 @@ describe('applyMaskToPixelData', () => {
     it('covers clipping from the right/bottom edge', () => {
       const dst = makeTestPixelData(2, 2, RED)
       // 5x5 mask, only (1,1) is 0
-      const mask = new Uint8Array(25).fill(255) as BinaryMask
+      const mask = new Uint8Array(25).fill(1) as BinaryMask
       mask[6] = 0 // (1,1) in a 5x5 grid
 
       // Apply a 5x5 mask area starting at (0,0) on a 2x2 dst
@@ -140,7 +140,7 @@ describe('applyMaskToPixelData', () => {
     it('prevents memory wrap-around when mask width exceeds bounds', () => {
       const dst = makeTestPixelData(3, 3, RED)
       // Mask width 10, but actualW will be 2 (x:1 to dst.width:3)
-      const mask = new Uint8Array(100).fill(255) as AlphaMask
+      const mask = new Uint8Array(100).fill(1) as BinaryMask
 
       // Set a "trap" pixel in the mask row 1 at index 10 (start of next logical row if pitch was 10)
       // If stride math is wrong, this might be applied to dst row 2.
@@ -179,5 +179,109 @@ describe('applyMaskToPixelData', () => {
       const isUntouched = Array.from(dst.data32).every((p) => p === RED)
       expect(isUntouched).toBe(true)
     })
+  })
+  it('covers AlphaMask short-circuit (effectiveM === 0)', () => {
+    const dst = makeTestPixelData(1, 1, RED)
+    const mask = new Uint8Array([0]) as AlphaMask
+
+    applyMaskToPixelData(dst, mask, {
+      maskType: MaskType.ALPHA,
+      invertMask: false,
+    })
+
+    // effectiveM is 0, alpha should be cleared
+    expect(dst.data32[0] >>> 24).toBe(0)
+  })
+
+  it('covers AlphaMask inversion (effectiveM = 255 - mVal)', () => {
+    const dst = makeTestPixelData(1, 1, RED)
+    const mask = new Uint8Array([255]) as AlphaMask
+
+    applyMaskToPixelData(dst, mask, {
+      maskType: MaskType.ALPHA,
+      invertMask: true,
+    })
+
+    // 255 inverted is 0, alpha should be cleared
+    expect(dst.data32[0] >>> 24).toBe(0)
+  })
+
+  it('covers globalAlpha scaling logic (weight calculation)', () => {
+    const dst = makeTestPixelData(1, 1, RED)
+    const mask = new Uint8Array([255]) as AlphaMask
+    const globalAlpha = 128
+
+    applyMaskToPixelData(dst, mask, {
+      maskType: MaskType.ALPHA,
+      alpha: globalAlpha, // weight = (255 * 128 + 128) >> 8 = 128
+    })
+
+    // dst was 255, weight is 128. Identity (da === 255) makes result 128.
+    expect(dst.data32[0] >>> 24).toBe(128)
+  })
+
+  it('covers weight === 0 clearing branch', () => {
+    const dst = makeTestPixelData(1, 1, RED)
+    const mask = new Uint8Array([1]) as AlphaMask
+    const globalAlpha = 10
+
+    // weight = (1 * 10 + 128) >> 8 = 0
+    applyMaskToPixelData(dst, mask, {
+      maskType: MaskType.ALPHA,
+      alpha: globalAlpha,
+    })
+
+    expect(dst.data32[0] >>> 24).toBe(0)
+  })
+
+  it('covers identity logic (da === 255)', () => {
+    const dst = makeTestPixelData(1, 1, RED) // Opaque RED (da=255)
+    const mask = new Uint8Array([100]) as AlphaMask
+
+    applyMaskToPixelData(dst, mask, {
+      maskType: MaskType.ALPHA,
+      alpha: 255, // weight = 100
+    })
+
+    // Since da was 255, finalAlpha should be exactly the weight (100)
+    expect(dst.data32[0] >>> 24).toBe(100)
+  })
+
+  it('covers identity logic (weight === 255)', () => {
+    const dst = makeTestPixelData(1, 1, HALF_RED) // da = 128
+    const mask = new Uint8Array([255]) as AlphaMask
+
+    applyMaskToPixelData(dst, mask, {
+      maskType: MaskType.ALPHA,
+      alpha: 255, // weight = 255
+    })
+
+    // Since weight is 255, da should remain 128
+    expect(dst.data32[0] >>> 24).toBe(128)
+  })
+
+  it('covers already transparent destination (da === 0)', () => {
+    const transparentPixel = pack(0, 0, 0, 0)
+    const dst = makeTestPixelData(1, 1, transparentPixel)
+    const mask = new Uint8Array([255]) as AlphaMask
+
+    applyMaskToPixelData(dst, mask, {
+      maskType: MaskType.ALPHA,
+    })
+
+    // da was 0, should stay 0
+    expect(dst.data32[0] >>> 24).toBe(0)
+  })
+
+  it('covers globalAlpha === 0 short-circuit', () => {
+    const dst = makeTestPixelData(1, 1, RED)
+    const mask = new Uint8Array([255]) as AlphaMask
+
+    applyMaskToPixelData(dst, mask, {
+      alpha: 0,
+    })
+
+    // Should skip processing and stay RED
+    expect(dst.data32[0]).toBe(RED)
   })
 })

@@ -98,7 +98,6 @@ export function blendPixelData(
 
   for (let iy = 0; iy < actualH; iy++) {
     for (let ix = 0; ix < actualW; ix++) {
-      let weight = globalAlpha
       const baseSrcColor = src32[sIdx] as Color32
       const baseSrcAlpha = (baseSrcColor >>> 24)
 
@@ -110,34 +109,50 @@ export function blendPixelData(
         continue
       }
 
+      let weight = globalAlpha
+
       if (mask) {
         const mVal = mask[mIdx]
-        const effectiveM = invertMask
-          ? 255 - mVal
-          : mVal
 
-        // If mask is transparent, skip
-        if (effectiveM === 0) {
-          dIdx++
-          sIdx++
-          mIdx++
-          continue
-        }
-
-        // Calculate combined weight (Mask * GlobalAlpha)
         if (isAlphaMask) {
+          const effectiveM = invertMask
+            ? 255 - mVal
+            : mVal
+
+          // If mask is transparent, skip
+          if (effectiveM === 0) {
+            dIdx++
+            sIdx++
+            mIdx++
+            continue
+          }
+
+          // globalAlpha is not a factor
           if (globalAlpha === 255) {
             weight = effectiveM
-          } else if (effectiveM < 255) {
+            // mask is not a factor
+          } else if (effectiveM === 255) {
+            weight = globalAlpha
+          } else {
+            // use rounding-corrected multiplication
             weight = (effectiveM * globalAlpha + 128) >> 8
           }
         } else {
-          // Binary Mask: if effectiveM is not 0 (covered by check above),
-          // then weight is just globalAlpha
+          const isHit = invertMask
+            ? mVal === 0
+            : mVal === 1
+
+          if (!isHit) {
+            dIdx++
+            sIdx++
+            mIdx++
+            continue
+          }
+
           weight = globalAlpha
         }
 
-        // Final safety check for weight
+        // Final safety check for weight (can be 0 if globalAlpha or alphaMask rounds down)
         if (weight === 0) {
           dIdx++
           sIdx++

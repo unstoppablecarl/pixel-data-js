@@ -1,4 +1,4 @@
-import type { Color32, PixelOptions } from '../_types'
+import type { Color32, Rect } from '../_types'
 import type { PixelData } from '../PixelData'
 import { fillPixelData } from './fillPixelData'
 
@@ -8,7 +8,7 @@ import { fillPixelData } from './fillPixelData'
  */
 export function clearPixelData(
   dst: PixelData,
-  opts: PixelOptions = {},
+  rect?: Partial<Rect>,
 ): void {
-  fillPixelData(dst, 0 as Color32, opts)
+  fillPixelData(dst, 0 as Color32, rect)
 }

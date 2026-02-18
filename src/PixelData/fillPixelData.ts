@@ -1,7 +1,4 @@
-import type {
-  Color32,
-  PixelOptions,
-} from '../_types'
+import type { Color32, Rect } from '../_types'
 import type { PixelData } from '../PixelData'
 
 /**
@@ -10,14 +7,14 @@ import type { PixelData } from '../PixelData'
 export function fillPixelData(
   dst: PixelData,
   color: Color32,
-  opts: PixelOptions = {},
+  rect?: Partial<Rect>,
 ): void {
   const {
     x: targetX = 0,
     y: targetY = 0,
     w: width = dst.width,
     h: height = dst.height,
-  } = opts
+  } = rect || {}
 
   let x = targetX
   let y = targetY

@@ -41,7 +41,7 @@ describe('mergeMasks', () => {
 
     it('handles BinaryMask as a "cookie cutter"', () => {
       const dst = new Uint8Array([255, 255]) as AlphaMask
-      const src = new Uint8Array([255, 0]) as BinaryMask
+      const src = new Uint8Array([1, 0]) as BinaryMask
 
       mergeMasks(dst, 2, src, {
         w: 2,
@@ -278,5 +278,83 @@ describe('mergeMasks', () => {
     expect(dst[0]).toBe(0)
     // Index 1: 255 * 128 = 128 (Identity logic)
     expect(dst[1]).toBe(128)
+  })
+  describe('Binary Mask Logic', () => {
+    it('treats 1 as opaque and 0 as transparent in Binary mode', () => {
+      const dst = new Uint8Array([255, 255]) as AlphaMask
+      const src = new Uint8Array([1, 0]) as BinaryMask
+
+      mergeMasks(dst, 2, src, {
+        w: 2,
+        h: 1,
+        maskType: MaskType.BINARY,
+      })
+
+      expect(dst[0]).toBe(255) // 1 hit, kept original
+      expect(dst[1]).toBe(0)   // 0 hit, cleared
+    })
+
+    it('inverts 1/0 logic correctly', () => {
+      const dst = new Uint8Array([255, 255]) as AlphaMask
+      const src = new Uint8Array([1, 0]) as BinaryMask
+
+      mergeMasks(dst, 2, src, {
+        w: 2,
+        h: 1,
+        maskType: MaskType.BINARY,
+        invertMask: true,
+      })
+
+      expect(dst[0]).toBe(0)   // 1 becomes 0 (cleared)
+      expect(dst[1]).toBe(255) // 0 becomes 1 (kept)
+    })
+
+    it('applies global alpha to binary hits', () => {
+      const dst = new Uint8Array([255]) as AlphaMask
+      const src = new Uint8Array([1]) as BinaryMask
+
+      mergeMasks(dst, 1, src, {
+        w: 1,
+        h: 1,
+        maskType: MaskType.BINARY,
+        alpha: 128,
+      })
+
+      expect(dst[0]).toBe(128)
+    })
+  })
+
+  describe('Alpha Mask Logic', () => {
+    it('maintains 0-255 scale for AlphaMasks', () => {
+      const dst = new Uint8Array([255]) as AlphaMask
+      const src = new Uint8Array([128]) as AlphaMask
+
+      mergeMasks(dst, 1, src, {
+        w: 1,
+        h: 1,
+        maskType: MaskType.ALPHA,
+      })
+
+      expect(dst[0]).toBe(128)
+    })
+  })
+
+  describe('Coordinate Clipping', () => {
+    it('handles out-of-bounds target coordinates', () => {
+      const dst = new Uint8Array(4).fill(255) as AlphaMask
+      const src = new Uint8Array([0]) as BinaryMask // This is a "clear" pixel
+
+      mergeMasks(dst, 2, src, {
+        x: 1,
+        y: 1,
+        w: 1,
+        h: 1,
+        maskType: MaskType.BINARY,
+      })
+
+      // Only index 3 (bottom-right) should be cleared
+      expect(dst[0]).toBe(255)
+      expect(dst[3]).toBe(0)
+    })
   })
 })
