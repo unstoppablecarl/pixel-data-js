@@ -13,6 +13,7 @@ import {
   sourceOverColor32,
 } from '../../src'
 import { PixelData } from '../../src/PixelData'
+import { createTestImageData, expectPixelToMatch } from '../_helpers'
 
 const pack = (
   r: number,
@@ -26,7 +27,7 @@ const BLUE = pack(0, 0, 255, 255)
 const WHITE = pack(255, 255, 255, 255)
 const TRANSPARENT = pack(0, 0, 0, 0)
 
-const createImg = (
+const makeTestPixelData = (
   w: number,
   h: number,
   fill: number = 0,
@@ -48,8 +49,8 @@ const copyBlend = (s: Color32) => s
 describe('blendPixelData', () => {
   describe('Guard Conditions & Early Exits', () => {
     it('skips all work for invalid globalAlpha or out-of-bounds targets', () => {
-      const dst = createImg(1, 1, BLUE)
-      const src = createImg(1, 1, RED)
+      const dst = makeTestPixelData(1, 1, BLUE)
+      const src = makeTestPixelData(1, 1, RED)
 
       // Merge: alpha 0 and out-of-bounds checks
       blendPixelData(dst, src, { alpha: 0 })
@@ -62,8 +63,8 @@ describe('blendPixelData', () => {
     })
 
     it('bypasses blendFn for transparent source pixels', () => {
-      const dst = createImg(1, 1, BLUE)
-      const src = createImg(1, 1, TRANSPARENT)
+      const dst = makeTestPixelData(1, 1, BLUE)
+      const src = makeTestPixelData(1, 1, TRANSPARENT)
       const mockBlend = vi.fn(sourceOverColor32)
 
       blendPixelData(dst, src, { blendFn: mockBlend })
@@ -74,8 +75,8 @@ describe('blendPixelData', () => {
 
   describe('Masking Logic (Binary & Alpha)', () => {
     it('handles BinaryMask skip/pass and inversion', () => {
-      const dst = createImg(4, 1, BLUE)
-      const src = createImg(4, 1, RED)
+      const dst = makeTestPixelData(4, 1, BLUE)
+      const src = makeTestPixelData(4, 1, RED)
       // Combined: pass/skip mixed values and inversion logic
       const mask = new Uint8Array([
         255,
@@ -103,8 +104,8 @@ describe('blendPixelData', () => {
     })
 
     it('scales AlphaMask and handles bit-perfect pass-through', () => {
-      const dst = createImg(3, 1, BLUE)
-      const src = createImg(3, 1, WHITE)
+      const dst = makeTestPixelData(3, 1, BLUE)
+      const src = makeTestPixelData(3, 1, WHITE)
       const mask = new Uint8Array([
         0,
         128,
@@ -127,8 +128,8 @@ describe('blendPixelData', () => {
     })
 
     it('aligns mask using dx/dy and custom pitch', () => {
-      const dst = createImg(10, 10, BLUE)
-      const src = createImg(2, 2, RED)
+      const dst = makeTestPixelData(10, 10, BLUE)
+      const src = makeTestPixelData(2, 2, RED)
       const mask = new Uint8Array(16).fill(0) as BinaryMask
       mask[10] = 255 // Local (2,2) of 4x4 mask
 
@@ -147,8 +148,8 @@ describe('blendPixelData', () => {
     })
 
     it('covers the weight === 0 branch inside the mask block', () => {
-      const dst = createImg(1, 1, BLUE)
-      const src = createImg(1, 1, RED)
+      const dst = makeTestPixelData(1, 1, BLUE)
+      const src = makeTestPixelData(1, 1, RED)
       // weight = (effectiveM * weight + 128) >> 8
       // To hit weight === 0 while effectiveM > 0:
       // mask value 1, globalAlpha 100 -> (1 * 100 + 128) >> 8 = 0
@@ -167,8 +168,8 @@ describe('blendPixelData', () => {
 
   describe('Coordinate Clipping Logic', () => {
     it('handles complex cross-clipping (negative x, sx, y, sy)', () => {
-      const dst = createImg(2, 2, BLUE)
-      const src = createImg(2, 2, RED)
+      const dst = makeTestPixelData(2, 2, BLUE)
+      const src = makeTestPixelData(2, 2, RED)
 
       // Simultaneous negative clips
       blendPixelData(dst, src, {
@@ -184,8 +185,8 @@ describe('blendPixelData', () => {
     })
 
     it('clips w/h when blit exceeds source or destination bounds', () => {
-      const dst = createImg(2, 2, BLUE)
-      const src = createImg(2, 2, RED)
+      const dst = makeTestPixelData(2, 2, BLUE)
+      const src = makeTestPixelData(2, 2, RED)
 
       // Partial right-side/bottom-side clip
       blendPixelData(dst, src, {
@@ -202,8 +203,8 @@ describe('blendPixelData', () => {
 
   describe('Destination Clipping (x, y) - Coverage', () => {
     it('covers clipping width from the left (x < 0)', () => {
-      const dst = createImg(2, 2, BLUE)
-      const src = createImg(2, 2, RED)
+      const dst = makeTestPixelData(2, 2, BLUE)
+      const src = makeTestPixelData(2, 2, RED)
 
       // Drawing at x: -1.
       // Logic should: sx += 1, w -= 1, x = 0.
@@ -218,8 +219,8 @@ describe('blendPixelData', () => {
     })
 
     it('covers clipping height from the top (y < 0)', () => {
-      const dst = createImg(2, 2, BLUE)
-      const src = createImg(2, 2, RED)
+      const dst = makeTestPixelData(2, 2, BLUE)
+      const src = makeTestPixelData(2, 2, RED)
 
       // Drawing at y: -1.
       // Logic should: sy += 1, h -= 1, y = 0.
@@ -234,8 +235,8 @@ describe('blendPixelData', () => {
     })
 
     it('covers clipping from the right/bottom edge', () => {
-      const dst = createImg(2, 2, BLUE)
-      const src = createImg(5, 5, RED)
+      const dst = makeTestPixelData(2, 2, BLUE)
+      const src = makeTestPixelData(5, 5, RED)
 
       // Draw a 5x5 square at (1,1).
       // actualW = Math.min(5, 2 - 1) = 1.
@@ -255,8 +256,8 @@ describe('blendPixelData', () => {
 
   describe('Precision & Re-packing', () => {
     it('prevents alpha bleed and handles weight rounding skips', () => {
-      const dst = createImg(1, 1, BLUE)
-      const src = createImg(1, 1, pack(255, 0, 0, 1))
+      const dst = makeTestPixelData(1, 1, BLUE)
+      const src = makeTestPixelData(1, 1, pack(255, 0, 0, 1))
       const mockBlend = vi.fn(copyBlend)
 
       // 1. Skip: (1 * 100 + 128) >> 8 = 0
@@ -267,7 +268,7 @@ describe('blendPixelData', () => {
       expect(mockBlend).not.toHaveBeenCalled()
 
       // 2. Re-pack: (255 * 128 + 128) >> 8 = 128
-      const src2 = createImg(1, 1, pack(255, 255, 255, 255))
+      const src2 = makeTestPixelData(1, 1, pack(255, 255, 255, 255))
       blendPixelData(dst, src2, {
         alpha: 128,
         blendFn: mockBlend,
@@ -275,6 +276,104 @@ describe('blendPixelData', () => {
       const callArgs = mockBlend.mock.calls[0]
       expect((callArgs[0] >>> 24) & 0xff).toBe(128)
       expect(callArgs[0] & 0x00ffffff).toBe(WHITE & 0x00ffffff)
+    })
+  })
+  describe('Grid Checks', () => {
+    const DW = 10
+    const DH = 10
+    const SW = 5
+    const SH = 5
+
+    it('accurately maps every pixel in a complex clipped blit', () => {
+      const dst = makeTestPixelData(DW, DH, BLUE)
+      const src = new PixelData(createTestImageData(SW, SH))
+
+      const targetX = 2
+      const targetY = 2
+      const sourceX = 1
+      const sourceY = 1
+      const drawW = 3
+      const drawH = 3
+
+      blendPixelData(dst, src as any, {
+        x: targetX,
+        y: targetY,
+        sx: sourceX,
+        sy: sourceY,
+        w: drawW,
+        h: drawH,
+        blendFn: (s) => s, // Copy mode for bit-perfect check
+      })
+
+      const d = dst.imageData.data
+      const s = (src as any).data
+
+      for (let dy = 0; dy < DH; dy++) {
+        for (let dx = 0; dx < DW; dx++) {
+          const dIdx = (dy * DW + dx) * 4
+
+          // Determine if this destination pixel is within the "Hit Zone"
+          const isInsideX = dx >= targetX && dx < targetX + drawW
+          const isInsideY = dy >= targetY && dy < targetY + drawH
+
+          if (isInsideX && isInsideY) {
+            // Calculate which source pixel should have landed here
+            const localX = dx - targetX
+            const localY = dy - targetY
+            const expectedSrcX = sourceX + localX
+            const expectedSrcY = sourceY + localY
+
+            expectPixelToMatch(
+              dst.imageData,
+              dx,
+              dy,
+              expectedSrcX,
+              expectedSrcY,
+            )
+          } else {
+            // Pixel is outside the draw rect; should remain BLUE
+            const val = (d[dIdx] << 0) | (d[dIdx + 1] << 8) | (d[dIdx + 2] << 16) | (d[dIdx + 3] << 24)
+
+            // BLUE is pack(0, 0, 255, 255)
+            expect(d[dIdx]).toBe(0)
+            expect(d[dIdx + 1]).toBe(0)
+            expect(d[dIdx + 2]).toBe(255)
+            expect(d[dIdx + 3]).toBe(255)
+          }
+        }
+      }
+    })
+
+    it('verifies multi-row mask alignment across every pixel', () => {
+      const dst = makeTestPixelData(5, 5, 0)
+      const src = new PixelData(createTestImageData(5, 5))
+
+      // Checkered binary mask: 1 at (even, even), 0 elsewhere
+      const mask = new Uint8Array(25) as BinaryMask
+      for (let i = 0; i < 25; i++) {
+        mask[i] = i % 2 === 0
+          ? 255
+          : 0
+      }
+
+      blendPixelData(dst, src as any, {
+        mask,
+        maskType: MaskType.BINARY,
+        blendFn: (s) => s,
+      })
+
+      for (let y = 0; y < 5; y++) {
+        for (let x = 0; x < 5; x++) {
+          const mIdx = y * 5 + x
+          const dIdx = (y * 5 + x) * 4
+
+          if (mask[mIdx] === 255) {
+            expectPixelToMatch(dst.imageData, x, y, x, y)
+          } else {
+            expect(dst.imageData.data[dIdx + 3]).toBe(0) // Should be empty
+          }
+        }
+      }
     })
   })
 })
