@@ -11,7 +11,7 @@ export default defineConfig({
     setupFiles: [
       fileURLToPath(new URL('./tests/vitest-setup.ts', import.meta.url)),
     ],
-    environment: 'happy-dom',
+    environment: 'node',
     typecheck: {
       enabled: true,
       tsconfig: 'tsconfig.json',

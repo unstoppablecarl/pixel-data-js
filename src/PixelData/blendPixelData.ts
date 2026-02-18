@@ -116,8 +116,10 @@ export function blendPixelData(
           continue
         }
 
-        if (isAlphaMask) {
+        // only perform math if the mask is actually reducing opacity
+        if (isAlphaMask && effectiveM < 255) {
           weight = (effectiveM * weight + 128) >> 8
+
           if (weight === 0) {
             dIdx++
             sIdx++
@@ -137,14 +139,17 @@ export function blendPixelData(
         continue
       }
 
+      // Only re-pack if weight < 255 AND sa < 255 or weight < 255
       if (weight < 255) {
         sa = (sa * weight + 128) >> 8
+
         if (sa === 0) {
           dIdx++
           sIdx++
           mIdx++
           continue
         }
+
         s = ((s & 0x00ffffff) | (sa << 24)) >>> 0 as Color32
       }
 
