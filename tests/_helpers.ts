@@ -1,5 +1,6 @@
 import { expect } from 'vitest'
 import type { Color32, ImageDataLike } from '../src'
+import { PixelData } from '../src/PixelData'
 
 /**
  * Creates ImageData filled with unique colors based on coordinates.
@@ -101,3 +102,21 @@ export const unpack = (c: number) => ({
   b: (c >> 16) & 0xFF,
   a: (c >>> 24) & 0xFF
 })
+
+
+export const makeTestPixelData = (
+  w: number,
+  h: number,
+  fill: number = 0,
+) => {
+  const data = new Uint8ClampedArray(w * h * 4)
+  const img = new PixelData({
+    width: w,
+    height: h,
+    data,
+  })
+  if (fill !== 0) {
+    img.data32.fill(fill)
+  }
+  return img
+}
