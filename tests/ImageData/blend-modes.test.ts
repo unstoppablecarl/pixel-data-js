@@ -1,12 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Color32 } from '../../src/_types'
 import { COLOR_32_BLEND_MODES } from '../../src'
-
-/**
- * HELPER: Pack RGBA into a 32-bit Uint32 (Little Endian: AABBGGRR)
- */
-const pack = (r: number, g: number, b: number, a: number): Color32 =>
-  ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+import { pack } from '../_helpers'
 
 const unpack = (c: number) => ({
   r: c & 0xFF,

@@ -1,14 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { type AlphaMask, type BinaryMask, blendPixelData, type Color32, MaskType, sourceOverColor32 } from '../../src'
 import { PixelData } from '../../src/PixelData'
-import { createTestImageData, expectPixelToMatch } from '../_helpers'
-
-const pack = (
-  r: number,
-  g: number,
-  b: number,
-  a: number,
-): Color32 => ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+import { createTestImageData, expectPixelToMatch, pack } from '../_helpers'
 
 const RED = pack(255, 0, 0, 255)
 const BLUE = pack(0, 0, 255, 255)
@@ -365,8 +358,6 @@ describe('blendPixelData', () => {
     })
   })
   describe('blendPixelData - Extended Coverage', () => {
-    const pack = (r: number, g: number, b: number, a: number): Color32 =>
-      ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
     const RED = pack(255, 0, 0, 255)
     const BLUE = pack(0, 0, 255, 255)
 

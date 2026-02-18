@@ -1,5 +1,5 @@
 import { expect } from 'vitest'
-import type { ImageDataLike } from '../src'
+import type { Color32, ImageDataLike } from '../src'
 
 /**
  * Creates ImageData filled with unique colors based on coordinates.
@@ -88,3 +88,16 @@ export const createImg = (
     data: new Uint8ClampedArray(w * h * 4),
   } as ImageData
 }
+
+export const pack = (
+  r: number,
+  g: number,
+  b: number,
+  a: number,
+): Color32 => ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+export const unpack = (c: number) => ({
+  r: c & 0xFF,
+  g: (c >> 8) & 0xFF,
+  b: (c >> 16) & 0xFF,
+  a: (c >>> 24) & 0xFF
+})
