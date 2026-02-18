@@ -144,15 +144,10 @@ export interface ColorBlendOptions extends PixelOptions {
   /** The blending logic used to combine source and destination pixels. */
   blendFn?: BlendColor32
 }
-// export function clearPixelData(dst: PixelData, opts?: PixelOptions): void
-//
-// export function blendColorPixelData(dst: PixelData, color: Color32, opts: ColorBlendOptions): void
-//
-// export function blendPixelData(dst: PixelData, src: PixelData, opts: PixelBlendOptions): void
-//
-// export type ApplyMaskOptions = Omit<PixelOptions, 'mask'>
-//
-// export function applyMaskToPixelData(dst: PixelData, mask: AnyMask, opts: ApplyMaskOptions): void
+
+export type ApplyMaskOptions = Omit<PixelOptions, 'mask'>
+
+ // export function applyMaskToPixelData(dst: PixelData, mask: AnyMask, opts: ApplyMaskOptions): void
 //
 // export function mergeMasks(dst: AlphaMask, dstType: MaskType, src: AnyMask, opts: PixelOptions): void
 //

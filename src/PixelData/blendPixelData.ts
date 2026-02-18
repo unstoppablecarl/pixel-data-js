@@ -38,9 +38,7 @@ export function blendPixelData(
     invertMask = false,
   } = opts
 
-  if (globalAlpha === 0) {
-    return
-  }
+  if (globalAlpha === 0) return
 
   let x = targetX
   let y = targetY
@@ -101,6 +99,16 @@ export function blendPixelData(
   for (let iy = 0; iy < actualH; iy++) {
     for (let ix = 0; ix < actualW; ix++) {
       let weight = globalAlpha
+      const baseSrcColor = src32[sIdx] as Color32
+      const baseSrcAlpha = (baseSrcColor >>> 24)
+
+      // Early exit if source pixel is already transparent
+      if (baseSrcAlpha === 0) {
+        dIdx++
+        sIdx++
+        mIdx++
+        continue
+      }
 
       if (mask) {
         const mVal = mask[mIdx]
@@ -108,6 +116,7 @@ export function blendPixelData(
           ? 255 - mVal
           : mVal
 
+        // If mask is transparent, skip
         if (effectiveM === 0) {
           dIdx++
           sIdx++
@@ -115,32 +124,39 @@ export function blendPixelData(
           continue
         }
 
-        // only perform math if the mask is actually reducing opacity
-        if (isAlphaMask && effectiveM < 255) {
-          weight = (effectiveM * weight + 128) >> 8
-
-          if (weight === 0) {
-            dIdx++
-            sIdx++
-            mIdx++
-            continue
+        // Calculate combined weight (Mask * GlobalAlpha)
+        if (isAlphaMask) {
+          if (globalAlpha === 255) {
+            weight = effectiveM
+          } else if (effectiveM < 255) {
+            weight = (effectiveM * globalAlpha + 128) >> 8
           }
+        } else {
+          // Binary Mask: if effectiveM is not 0 (covered by check above),
+          // then weight is just globalAlpha
+          weight = globalAlpha
+        }
+
+        // Final safety check for weight
+        if (weight === 0) {
+          dIdx++
+          sIdx++
+          mIdx++
+          continue
         }
       }
 
-      let currentSrcColor = src32[sIdx] as Color32
-      let currentSrcAlpha = (currentSrcColor >>> 24)
+      // Apply Weight to Source Alpha
+      let currentSrcAlpha = baseSrcAlpha
+      let currentSrcColor = baseSrcColor
 
-      if (currentSrcAlpha === 0) {
-        dIdx++
-        sIdx++
-        mIdx++
-        continue
-      }
-
-      // Apply the weight (mask + globalAlpha) to the source color alpha
       if (weight < 255) {
-        currentSrcAlpha = (currentSrcAlpha * weight + 128) >> 8
+        if (baseSrcAlpha === 255) {
+          currentSrcAlpha = weight
+        } else {
+          currentSrcAlpha = (baseSrcAlpha * weight + 128) >> 8
+        }
+
         if (currentSrcAlpha === 0) {
           dIdx++
           sIdx++
@@ -148,7 +164,7 @@ export function blendPixelData(
           continue
         }
 
-        currentSrcColor = ((currentSrcColor & 0x00ffffff) | (currentSrcAlpha << 24)) >>> 0 as Color32
+        currentSrcColor = ((baseSrcColor & 0x00ffffff) | (currentSrcAlpha << 24)) >>> 0 as Color32
       }
 
       dst32[dIdx] = blendFn(currentSrcColor, dst32[dIdx] as Color32)

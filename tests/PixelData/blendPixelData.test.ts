@@ -405,4 +405,65 @@ describe('blendPixelData', () => {
       expect(dst.data32[0]).toBe(BLUE)
     })
   })
+
+  describe('blendPixelData - Edge Case Refinement', () => {
+    it('correctly skips source pixels when sx/sy are positive', () => {
+      const dst = makeTestPixelData(1, 1, BLUE)
+      const src = makeTestPixelData(2, 2, 0)
+      // Put RED only at the very last pixel (1, 1)
+      src.data32[3] = RED
+
+      blendPixelData(dst, src, {
+        x: 0,
+        y: 0,
+        sx: 1,
+        sy: 1,
+        w: 1,
+        h: 1,
+        blendFn: copyBlend,
+      })
+
+      // dst[0,0] should get src[1,1]
+      expect(dst.data32[0]).toBe(RED)
+    })
+
+    it('handles a large source with a small blit (Stride Check)', () => {
+      // 10x10 source
+      const src = makeTestPixelData(10, 10, BLUE)
+      // Put RED at (1, 1) and (1, 2)
+      src.data32[11] = RED
+      src.data32[21] = RED
+
+      const dst = makeTestPixelData(1, 2, 0)
+
+      // Draw a 1x2 vertical strip from the middle of the large source
+      blendPixelData(dst, src, {
+        sx: 1,
+        sy: 1,
+        w: 1,
+        h: 2,
+        blendFn: copyBlend,
+      })
+
+      expect(dst.data32[0]).toBe(RED)
+      expect(dst.data32[1]).toBe(RED)
+    })
+
+    it('accurately inverts AlphaMask values', () => {
+      const dst = makeTestPixelData(1, 1, BLUE)
+      const src = makeTestPixelData(1, 1, WHITE)
+      // Alpha 64. Inverted (255 - 64) = 191.
+      const mask = new Uint8Array([64]) as AlphaMask
+
+      blendPixelData(dst, src, {
+        mask,
+        maskType: MaskType.ALPHA,
+        invertMask: true,
+        blendFn: copyBlend,
+      })
+
+      const finalAlpha = (dst.data32[0] >>> 24) & 0xff
+      expect(finalAlpha).toBe(191)
+    })
+  })
 })

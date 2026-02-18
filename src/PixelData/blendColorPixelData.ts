@@ -63,16 +63,15 @@ export function blendColorPixelData(
   const mStride = mPitch - actualW
 
   // Pre-calculate the source color with global alpha
-  let baseSrcColor = color
+  const baseSrcColor = color
   const baseSrcAlpha = (baseSrcColor >>> 24)
 
   for (let iy = 0; iy < actualH; iy++) {
     for (let ix = 0; ix < actualW; ix++) {
       let weight = globalAlpha
-      let currentSrcColor = baseSrcColor
-      let currentSrcAlpha = baseSrcAlpha
 
-      if (currentSrcAlpha === 0) {
+      // Early exit if source pixel is already transparent
+      if (baseSrcAlpha === 0) {
         dIdx++
         mIdx++
         continue
@@ -84,27 +83,45 @@ export function blendColorPixelData(
           ? 255 - mVal
           : mVal
 
+        // If mask is transparent, skip
         if (effectiveM === 0) {
           dIdx++
           mIdx++
           continue
         }
 
-        // only perform math if the mask is actually reducing opacity
-        if (isAlphaMask && effectiveM < 255) {
-          weight = (effectiveM * weight + 128) >> 8
-
-          if (weight === 0) {
-            dIdx++
-            mIdx++
-            continue
+        // Calculate combined weight (Mask * GlobalAlpha)
+        if (isAlphaMask) {
+          if (globalAlpha === 255) {
+            weight = effectiveM
+          } else if (effectiveM < 255) {
+            weight = (effectiveM * globalAlpha + 128) >> 8
           }
+        } else {
+          // Binary Mask: if effectiveM is not 0 (covered by check above),
+          // then weight is just globalAlpha
+          weight = globalAlpha
+        }
+
+        // Final safety check for weight
+        if (weight === 0) {
+          dIdx++
+          mIdx++
+          continue
         }
       }
 
-      // Apply the weight (mask + globalAlpha) to the source color alpha
+      // Apply Weight to Source Alpha
+      let currentSrcAlpha = baseSrcAlpha
+      let currentSrcColor = baseSrcColor
+
       if (weight < 255) {
-        currentSrcAlpha = (currentSrcAlpha * weight + 128) >> 8
+        if (baseSrcAlpha === 255) {
+          currentSrcAlpha = weight
+        } else {
+          currentSrcAlpha = (baseSrcAlpha * weight + 128) >> 8
+        }
+
         if (currentSrcAlpha === 0) {
           dIdx++
           mIdx++
