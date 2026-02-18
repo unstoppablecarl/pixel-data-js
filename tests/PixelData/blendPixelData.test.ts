@@ -1,29 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
 import { type AlphaMask, type BinaryMask, blendPixelData, type Color32, MaskType, sourceOverColor32 } from '../../src'
 import { PixelData } from '../../src/PixelData'
-import { createTestImageData, expectPixelToMatch, pack } from '../_helpers'
+import { createTestImageData, expectPixelToMatch, makeTestPixelData, pack } from '../_helpers'
 
 const RED = pack(255, 0, 0, 255)
 const BLUE = pack(0, 0, 255, 255)
 const WHITE = pack(255, 255, 255, 255)
 const TRANSPARENT = pack(0, 0, 0, 0)
-
-const makeTestPixelData = (
-  w: number,
-  h: number,
-  fill: number = 0,
-) => {
-  const data = new Uint8ClampedArray(w * h * 4)
-  const img = new PixelData({
-    width: w,
-    height: h,
-    data,
-  })
-  if (fill !== 0) {
-    img.data32.fill(fill)
-  }
-  return img
-}
 
 const copyBlend = (s: Color32) => s
 

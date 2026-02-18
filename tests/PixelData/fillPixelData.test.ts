@@ -1,34 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { type Color32 } from '../../src'
-import { PixelData } from '../../src/PixelData'
 import { fillPixelData } from '../../src/PixelData/fillPixelData'
-
-const pack = (
-  r: number,
-  g: number,
-  b: number,
-  a: number,
-): Color32 => ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+import { makeTestPixelData, pack } from '../_helpers'
 
 const RED = pack(255, 0, 0, 255)
 const BLUE = pack(0, 0, 255, 255)
-
-const makeTestPixelData = (
-  w: number,
-  h: number,
-  fill: number = 0,
-) => {
-  const data = new Uint8ClampedArray(w * h * 4)
-  const img = new PixelData({
-    width: w,
-    height: h,
-    data,
-  })
-  if (fill !== 0) {
-    img.data32.fill(fill)
-  }
-  return img
-}
 
 describe('fillPixelData', () => {
   describe('Guard Conditions & Early Exits', () => {
