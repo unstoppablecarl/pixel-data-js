@@ -1,17 +1,5 @@
-import {
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest'
-import {
-  type AlphaMask,
-  type BinaryMask,
-  blendPixelData,
-  type Color32,
-  MaskType,
-  sourceOverColor32,
-} from '../../src'
+import { describe, expect, it, vi } from 'vitest'
+import { type AlphaMask, type BinaryMask, blendPixelData, type Color32, MaskType, sourceOverColor32 } from '../../src'
 import { PixelData } from '../../src/PixelData'
 import { createTestImageData, expectPixelToMatch } from '../_helpers'
 
@@ -374,6 +362,79 @@ describe('blendPixelData', () => {
           }
         }
       }
+    })
+  })
+  describe('blendPixelData - Extended Coverage', () => {
+    const pack = (r: number, g: number, b: number, a: number): Color32 =>
+      ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+    const RED = pack(255, 0, 0, 255)
+    const BLUE = pack(0, 0, 255, 255)
+
+    it('prevents source wrap-around when draw width exceeds source bounds', () => {
+      // 2x2 source, but we ask to draw 5px wide
+      const src = makeTestPixelData(2, 2, RED)
+      const dst = makeTestPixelData(5, 5, BLUE)
+
+      blendPixelData(dst, src, {
+        x: 0,
+        y: 0,
+        w: 5,
+        h: 5,
+        blendFn: (s) => s,
+      })
+
+      // (0,0) and (1,0) should be RED (from source row 1)
+      expect(dst.data32[0]).toBe(RED)
+      expect(dst.data32[1]).toBe(RED)
+
+      // (2,0) should still be BLUE because source width was only 2.
+      // If stride math was wrong, this might contain pixels from source row 2.
+      expect(dst.data32[2]).toBe(BLUE)
+    })
+
+    it('synchronizes source and mask offsets during negative destination clipping', () => {
+      const dst = makeTestPixelData(1, 1, BLUE)
+      const src = makeTestPixelData(2, 2)
+      // Put RED at src(1,1)
+      src.data32[3] = RED
+
+      // 2x2 mask, only bottom-right index [3] is active
+      const mask = new Uint8Array([0, 0, 0, 255]) as BinaryMask
+
+      // We draw at x: -1, y: -1.
+      // Clipping should:
+      // 1. Set x: 0, y: 0
+      // 2. Increase sx: 1, sy: 1 (pointing to RED)
+      // 3. Increase dx: 1, dy: 1 (pointing to mask[3])
+      blendPixelData(dst, src, {
+        x: -1,
+        y: -1,
+        w: 2,
+        h: 2,
+        mask,
+        mw: 2,
+        maskType: MaskType.BINARY,
+        blendFn: (s) => s,
+      })
+
+      // If everything synced, RED lands at dst(0,0)
+      expect(dst.data32[0]).toBe(RED)
+    })
+
+    it('handles inverted AlphaMask with source pixels', () => {
+      const dst = makeTestPixelData(1, 1, BLUE)
+      const src = makeTestPixelData(1, 1, RED)
+      // Mask 255 inverted = 0 weight
+      const mask = new Uint8Array([255]) as AlphaMask
+
+      blendPixelData(dst, src, {
+        mask,
+        maskType: MaskType.ALPHA,
+        invertMask: true,
+      })
+
+      // Should remain BLUE because mask was inverted to 0
+      expect(dst.data32[0]).toBe(BLUE)
     })
   })
 })
