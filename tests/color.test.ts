@@ -5,6 +5,7 @@ import {
   color32ToHex,
   colorDistance,
   lerpColor32,
+  lerpColor32Fast,
   packColor,
   packRGBA,
   unpackAlpha,
@@ -13,7 +14,7 @@ import {
   unpackColorTo,
   unpackGreen,
   unpackRed,
-} from '../src/color'
+} from '../src'
 
 describe('Color32 Bitwise Utilities', () => {
   // Test constants: Red=34 (0x22), Green=68 (0x44), Blue=102 (0x66), Alpha=255 (0xFF)
@@ -157,6 +158,61 @@ describe('Color32 Bitwise Utilities', () => {
       // Alpha: 1 (1/255 ≈ 0.0039...)
       const color = 0x01000000 as Color32
       expect(color32ToCssRGBA(color)).toBe(`rgba(0,0,0,0.004)`)
+    })
+  })
+  const pack = (r: number, g: number, b: number, a: number): Color32 =>
+    ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+
+  const unpack = (c: number) => ({
+    r: c & 0xFF,
+    g: (c >> 8) & 0xFF,
+    b: (c >> 16) & 0xFF,
+    a: (c >>> 24) & 0xFF
+  })
+
+  describe('lerpColor32Fast Coverage', () => {
+    // Test between Opaque White and Transparent Black
+    const WHITE = pack(255, 255, 255, 255)
+    const CLEAR = pack(0, 0, 0, 0)
+
+    it('should hit every line and interpolate correctly at 50%', () => {
+      // Weight = 128 (~50%)
+      const result = lerpColor32Fast(WHITE, CLEAR, 128)
+      const c = unpack(result)
+
+      // Math: (255 * 128 + 0 * 127) >> 8 = 127
+      expect(c.r).toBe(127)
+      expect(c.g).toBe(127)
+      expect(c.b).toBe(127)
+      expect(c.a).toBe(127)
+    })
+
+    it('should handle alpha 0 (full destination)', () => {
+      const BLUE = pack(0, 0, 255, 255)
+      // Weight = 0 means take 100% of the destination
+      const result = lerpColor32Fast(WHITE, BLUE, 0)
+      const c = unpack(result)
+
+      // (255 * 0 + 255 * 255) >> 8 = 254
+      expect(c.b).toBeGreaterThanOrEqual(254)
+      expect(c.r).toBe(0)
+    })
+
+    it('should handle alpha 255 (full source)', () => {
+      // Weight = 255 means take 100% of the source
+      const result = lerpColor32Fast(WHITE, CLEAR, 255)
+      const c = unpack(result)
+
+      // (255 * 255 + 0 * 0) >> 8 = 254
+      expect(c.r).toBeGreaterThanOrEqual(254)
+      expect(c.a).toBeGreaterThanOrEqual(254)
+    })
+
+    it('should ensure the result is a 32-bit unsigned integer', () => {
+      const result = lerpColor32Fast(WHITE, WHITE, 255)
+      // >>> 0 ensures it's a positive Uint32, not a signed negative
+      expect(result).toBeGreaterThan(0)
+      expect(result).toBeLessThanOrEqual(0xFFFFFFFF)
     })
   })
 })

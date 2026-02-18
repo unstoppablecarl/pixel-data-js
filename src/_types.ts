@@ -7,6 +7,8 @@ export type Color32 = number & { readonly __brandColor32: unique symbol };
 // ALL values are floats from 0-1
 export type RGBAFloat = RGBA & { readonly __brandRGBAFloat: unique symbol }
 
+export type BlendColor32 = (src: Color32, dst: Color32) => Color32;
+
 export type ImageDataLike = {
   width: number
   height: number

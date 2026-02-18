@@ -45,13 +45,46 @@ export function colorDistance(a: Color32, b: Color32): number {
   return dr * dr + dg * dg + db * db + da * da
 }
 
+/**
+ * Linearly interpolates between two 32-bit colors using a floating-point weight.
+ * * This is the preferred method for UI animations or scenarios where high
+ * precision is required. It uses the standard `a + t * (b - a)` formula
+ * for each channel.
+ * @param a - The starting color as a 32-bit integer (AABBGGRR).
+ * @param b - The target color as a 32-bit integer (AABBGGRR).
+ * @param t - The interpolation factor between 0.0 and 1.0.
+ * @returns The interpolated 32-bit color.
+ */
 export function lerpColor32(a: Color32, b: Color32, t: number): Color32 {
   const r = (a & 0xFF) + t * ((b & 0xFF) - (a & 0xFF))
   const g = ((a >>> 8) & 0xFF) + t * (((b >>> 8) & 0xFF) - ((a >>> 8) & 0xFF))
   const b_ = ((a >>> 16) & 0xFF) + t * (((b >>> 16) & 0xFF) - ((a >>> 16) & 0xFF))
   const a_ = ((a >>> 24) & 0xFF) + t * (((b >>> 24) & 0xFF) - ((a >>> 24) & 0xFF))
 
-  return packColor(r, g, b_, a_)
+  return ((a_ << 24) | (b_ << 16) | (g << 8) | r) >>> 0 as Color32
+}
+
+/**
+ * Linearly interpolates between two 32-bit colors using integer fixed-point math.
+ * Highly optimized for image processing and real-time blitting. It processes
+ * channels in parallel using bitmasks (RB and GA pairs).
+ * @note Subject to a 1-bit drift (rounding down) due to fast bit-shift division.
+ * @param src - The source (foreground) color as a 32-bit integer.
+ * @param dst - The destination (background) color as a 32-bit integer.
+ * @param w - The blend weight as a byte value from 0 to 255. Where 0 is 100% dst and 255 is 100% src
+ * @returns The blended 32-bit color.
+ */export function lerpColor32Fast(src: Color32, dst: Color32, w: number): Color32 {
+  const invA = 255 - w;
+
+  // Masking Red and Blue: 0x00FF00FF
+  // We process R and B in one go, then shift back down
+  const rb = (((src & 0x00FF00FF) * w + (dst & 0x00FF00FF) * invA) >>> 8) & 0x00FF00FF;
+
+  // Masking Green and Alpha: 0xFF00FF00
+  // We shift down first to avoid overflow, then shift back up
+  const ga = ((((src >>> 8) & 0x00FF00FF) * w + ((dst >>> 8) & 0x00FF00FF) * invA) >>> 8) & 0x00FF00FF;
+
+  return (rb | (ga << 8)) >>> 0 as Color32;
 }
 
 // Convert 0xAABBGGRR to #RRGGBBAA

@@ -1,1 +1,5 @@
+export * from './color'
 export * from './ImageData/serialization'
+export * from './ImageData/blit'
+export * from './ImageData/blend-modes'
+export * from './ImageData/read-write-pixels'
