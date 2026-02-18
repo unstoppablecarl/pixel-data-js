@@ -74,12 +74,11 @@ export function blendPixelData(
     h += y
     y = 0
   }
+
   const actualW = Math.min(w, dst.width - x)
   const actualH = Math.min(h, dst.height - y)
 
-  if (actualW <= 0 || actualH <= 0) {
-    return
-  }
+  if (actualW <= 0 || actualH <= 0) return
 
   const dst32 = dst.data32
   const src32 = src.data32
@@ -129,31 +128,30 @@ export function blendPixelData(
         }
       }
 
-      let s = src32[sIdx] as Color32
-      let sa = (s >>> 24)
+      let currentSrcColor = src32[sIdx] as Color32
+      let currentSrcAlpha = (currentSrcColor >>> 24)
 
-      if (sa === 0) {
+      if (currentSrcAlpha === 0) {
         dIdx++
         sIdx++
         mIdx++
         continue
       }
 
-      // Only re-pack if weight < 255 AND sa < 255 or weight < 255
+      // Apply the weight (mask + globalAlpha) to the source color alpha
       if (weight < 255) {
-        sa = (sa * weight + 128) >> 8
-
-        if (sa === 0) {
+        currentSrcAlpha = (currentSrcAlpha * weight + 128) >> 8
+        if (currentSrcAlpha === 0) {
           dIdx++
           sIdx++
           mIdx++
           continue
         }
 
-        s = ((s & 0x00ffffff) | (sa << 24)) >>> 0 as Color32
+        currentSrcColor = ((currentSrcColor & 0x00ffffff) | (currentSrcAlpha << 24)) >>> 0 as Color32
       }
 
-      dst32[dIdx] = blendFn(s, dst32[dIdx] as Color32)
+      dst32[dIdx] = blendFn(currentSrcColor, dst32[dIdx] as Color32)
 
       dIdx++
       sIdx++
