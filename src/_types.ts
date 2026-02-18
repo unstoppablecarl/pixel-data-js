@@ -147,10 +147,6 @@ export interface ColorBlendOptions extends PixelOptions {
 
 export type ApplyMaskOptions = Omit<PixelOptions, 'mask'>
 
- // export function applyMaskToPixelData(dst: PixelData, mask: AnyMask, opts: ApplyMaskOptions): void
-//
-// export function mergeMasks(dst: AlphaMask, dstType: MaskType, src: AnyMask, opts: PixelOptions): void
-//
 // export function invertBinaryMask(dst: BinaryMask): void
 // export function invertAlphaMask(dst: AlphaMask): void
 
