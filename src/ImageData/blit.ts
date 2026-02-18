@@ -1,53 +1,86 @@
-import type { BlendColor32, Color32 } from '../_types'
+import { type AnyMask, type BlendColor32, type Color32, type ImageDataLike, MaskType } from '../_types'
 import { sourceOverColor32 } from './blend-modes'
 
 export type BlendImageDataOptions = {
+  /**
+   * The x-coordinate in the destination image where the blend begins.
+   * @default 0
+   */
   dx?: number
+
+  /**
+   * The y-coordinate in the destination image where the blend begins.
+   * @default 0
+   */
   dy?: number
+
+  /**
+   * The x-coordinate of the top-left corner of the sub-rectangle
+   * of the source image to extract.
+   * @default 0
+   */
   sx?: number
+
+  /**
+   * The y-coordinate of the top-left corner of the sub-rectangle
+   * of the source image to extract.
+   * @default 0
+   */
   sy?: number
+
+  /**
+   * The width of the sub-rectangle of the source image to extract.
+   * Defaults to the full remaining width of the source.
+   */
   sw?: number
+
+  /**
+   * The height of the sub-rectangle of the source image to extract.
+   * Defaults to the full remaining height of the source.
+   */
   sh?: number
+
+  /**
+   * Overall layer opacity, typically ranging from 0.0 (transparent) to 1.0 (opaque).
+   * @default 1.0
+   */
   opacity?: number
+
+  /**
+   * Same as opacity but is 0-255 and faster when processing. If Present opacity is ignored.
+   * @default undefined
+   */
   alpha?: number
-  mask?: Uint8Array | null
-  maskMode?: 'binary' | 'alpha'
+
+  /**
+   * An optional alpha mask buffer.
+   * The values in this array (0-255) determine the intensity of the blend
+   * at each corresponding pixel.
+   */
+  mask?: AnyMask | null
+
+  /**
+   * The specific blending function/algorithm to use for pixel math
+   * (e.g., Multiply, Screen, Overlay).
+   */
   blendFn?: BlendColor32
-}
+};
 
 /**
  * Blits source ImageData into a destination ImageData using 32-bit integer bitwise blending.
- * * This function bypasses standard Canvas API limitations by operating directly on
+ * This function bypasses standard Canvas API limitations by operating directly on
  * Uint32Array views. It supports various blend modes, binary/alpha masking, and
  * automatic clipping of both source and destination bounds.
- * * @param dst - The destination ImageData to write into.
- * @param src - The source ImageData to read from.
- * @param dst - The destination ImageData to write to.
- * @param opts - Configuration for the blit operation.
- * @param opts.dx - Destination X offset. Defaults to 0.
- * @param opts.dy - Destination Y offset. Defaults to 0.
- * @param opts.sx - Source X offset. Defaults to 0.
- * @param opts.sy - Source Y offset. Defaults to 0.
- * @param opts.sw - Width of the source area to blit. Defaults to src.width.
- * @param opts.sh - Height of the source area to blit. Defaults to src.height.
- * @param opts.opacity - Global strength of the blit (0.0 to 1.0). Defaults to 1.0.
- * @param opts.alpha - Global strength of the blit (0 to 255). Overrides 'opacity' if provided.
- * @param opts.mask - An optional Uint8Array acting as a stencil or alpha mask.
- * Must match source dimensions.
- * @param opts.maskMode - 'binary' ignores pixels where mask is 0.
- * 'alpha' scales source alpha by mask value (0-255).
- * @param opts.blendFn - The math logic used to combine pixels.
- * Defaults to `sourceOverColor32`.
- * * @example
+ * @example
  * blendImageData32(ctx.getImageData(0,0,100,100), sprite, {
- * blendFn: COLOR_32_BLEND_MODES.multiply,
- * mask: brushMask,
- * maskMode: 'alpha'
+ *   blendFn: COLOR_32_BLEND_MODES.multiply,
+ *   mask: brushMask,
+ *   maskMode: MaskMode.ALPHA
  * });
  */
 export function blendImageData(
-  dst: ImageData,
-  src: ImageData,
+  dst: ImageDataLike,
+  src: ImageDataLike,
   opts: BlendImageDataOptions,
 ) {
   let {
@@ -57,7 +90,6 @@ export function blendImageData(
     sy = 0,
     sw = src.width,
     sh = src.height,
-    maskMode = 'alpha',
     opacity = 1,
     alpha,
     blendFn = sourceOverColor32,
@@ -105,7 +137,7 @@ export function blendImageData(
     ? (alpha | 0)
     : Math.round(opacity * 255)
 
-  const maskIsAlpha = maskMode === 'alpha'
+  const maskIsAlpha = mask?.type === MaskType.ALPHA
 
   for (let iy = 0; iy < actualH; iy++) {
     const dRow = (iy + dy) * dw
@@ -124,7 +156,7 @@ export function blendImageData(
       let activeWeight = gAlpha
 
       if (mask) {
-        const m = mask[si]
+        const m = mask.data[si]
         if (m === 0) continue
         activeWeight = maskIsAlpha ? (m * activeWeight + 128) >> 8 : activeWeight
       }

@@ -5,7 +5,7 @@ export function base64EncodeArrayBuffer(buffer: ArrayBufferLike): Base64EncodedU
   return btoa(binary) as Base64EncodedUInt8Array
 }
 
-export function base64DecodeArrayBuffer(encoded: Base64EncodedUInt8Array): Uint8ClampedArray {
+export function base64DecodeArrayBuffer(encoded: Base64EncodedUInt8Array): Uint8ClampedArray<ArrayBuffer> {
   const binary = atob(encoded)
   const bytes = new Uint8ClampedArray(binary.length)
   for (let i = 0; i < binary.length; i++) {

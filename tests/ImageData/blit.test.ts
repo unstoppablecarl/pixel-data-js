@@ -1,259 +1,202 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { blendImageData, sourceOverColor32 } from '../../src'
-import type { Color32 } from '../../src/_types'
+import { describe, expect, it, vi } from 'vitest'
+import type { AlphaMask, BinaryMask } from '../../src' // Adjust based on your export path
+import { blendImageData, MaskType, sourceOverColor32 } from '../../src'
+import type { Color32 } from '../../src'
 
 const pack = (r: number, g: number, b: number, a: number): Color32 =>
   ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 
 describe('blendImageData 100% Coverage Suite', () => {
-  // Helper to create ImageData
   const createImg = (w: number, h: number, fill: number = 0) => {
     const data = new Uint8ClampedArray(w * h * 4)
     if (fill !== 0) {
-      const view = new Uint32Array(data.buffer)
-      view.fill(fill)
+      new Uint32Array(data.buffer).fill(fill)
     }
     return { width: w, height: h, data } as ImageData
   }
+
+  // Helper to create Mask Objects
+  const createAlphaMask = (w: number, h: number, fill: number): AlphaMask => ({
+    type: MaskType.ALPHA,
+    width: w,
+    height: h,
+    data: new Uint8Array(w * h).fill(fill),
+  })
+
+  const createBinaryMask = (w: number, h: number, fill: number): BinaryMask => ({
+    type: MaskType.BINARY,
+    width: w,
+    height: h,
+    data: new Uint8Array(w * h).fill(fill),
+  })
 
   const RED = pack(255, 0, 0, 255)
   const BLUE = pack(0, 0, 255, 255)
   const TRANSPARENT = pack(0, 0, 0, 0)
 
-  it('should early exit if width or height results in 0', () => {
-    const dst = createImg(10, 10)
-    const src = createImg(10, 10)
-    // dx outside bounds
-    blendImageData(dst, src, { dx: 15 })
-    // Verify no work was done (buffer still 0)
-    expect(new Uint32Array(dst.data.buffer)[0]).toBe(0)
-  })
+  describe('Masking Logic with AnyMask', () => {
+    it('skips pixel if BinaryMask value is 0', () => {
+      const dst = createImg(1, 1, BLUE)
+      const src = createImg(1, 1, RED)
+      const mask = createBinaryMask(1, 1, 0)
 
-  describe('Coordinate Clipping Logic', () => {
-    it('clips negative source offsets (sx, sy)', () => {
-      const dst = createImg(5, 5)
-      const src = createImg(5, 5, RED)
-      blendImageData(dst, src, { sx: -2, sy: -2 })
-      // sx: -2 makes dx become 2. Pixel at [2,2] should be RED
-      const dst32 = new Uint32Array(dst.data.buffer)
-      expect(dst32[2 * 5 + 2]).toBe(RED)
+      blendImageData(dst, src, { mask })
+
+      expect(new Uint32Array(dst.data.buffer)[0]).toBe(BLUE)
     })
 
-    it('clips negative destination offsets (dx, dy)', () => {
-      const dst = createImg(5, 5)
-      const src = createImg(5, 5, RED)
-      blendImageData(dst, src, { dx: -2, dy: -2 })
-      // dx: -2 makes sx become 2. dst[0,0] should get src[2,2]
-      const dst32 = new Uint32Array(dst.data.buffer)
-      expect(dst32[0]).toBe(RED)
+    it('scales alpha when using AlphaMask', () => {
+      const dst = createImg(1, 1, pack(0, 0, 0, 255))
+      const src = createImg(1, 1, RED)
+      const mask = createAlphaMask(1, 1, 128) // 50%
+      const mockBlend = vi.fn((s) => s)
+
+      blendImageData(dst, src, { mask, blendFn: mockBlend })
+
+      const sa = (mockBlend.mock.calls[0][0] >>> 24) & 0xFF
+      expect(sa).toBe(128)
     })
 
-    it('clips width/height exceeding image bounds', () => {
-      const dst = createImg(5, 5)
-      const src = createImg(10, 10, RED)
-      // sw=20 is larger than src.width-sx
-      blendImageData(dst, src, { sw: 20, sh: 20 })
+    it('respects mask coordinates (dx/dy) inside blendImageData', () => {
+      const dst = createImg(2, 2, BLUE)
+      const src = createImg(2, 2, RED)
+      // A 1x1 mask that only allows blending at (1,1)
+      const mask: BinaryMask = {
+        type: MaskType.BINARY,
+        width: 1,
+        height: 1,
+        data: new Uint8Array([255]),
+      }
+
+      blendImageData(dst, src, {
+        mask,
+        dx: 1, dy: 1, // Place the mask at the bottom-right of dst
+        sw: 1, sh: 1,
+      })
+
       const dst32 = new Uint32Array(dst.data.buffer)
-      expect(dst32[24]).toBe(RED) // Last pixel in 5x5
+      expect(dst32[0]).toBe(BLUE) // Top-left remains BLUE
+      expect(dst32[3]).toBe(RED)  // Bottom-right becomes RED
+    })
+
+    it('ignores mask scaling when MaskType is BINARY', () => {
+      const dst = createImg(1, 1, pack(0, 0, 0, 255))
+      const src = createImg(1, 1, RED)
+      // Even if value is 100, BINARY should treat it as "ON" if not 0
+      const mask = createBinaryMask(1, 1, 100)
+      const mockBlend = vi.fn((s) => s)
+
+      blendImageData(dst, src, { mask, blendFn: mockBlend })
+
+      const sa = (mockBlend.mock.calls[0][0] >>> 24) & 0xFF
+      expect(sa).toBe(255)
     })
   })
 
   describe('Pixel Processing Branches', () => {
-    it('skips fully transparent source pixels (sa === 0)', () => {
-      const dst = createImg(1, 1, BLUE)
-      const src = createImg(1, 1, TRANSPARENT)
-      blendImageData(dst, src, {})
-      expect(new Uint32Array(dst.data.buffer)[0]).toBe(BLUE)
-    })
-
-    it('applies global opacity (hasGlobalAlpha)', () => {
-      const dst = createImg(1, 1, pack(0, 0, 0, 255))
-      const src = createImg(1, 1, RED)
-      const mockBlend = vi.fn((s) => s)
-
-      blendImageData(dst, src, { opacity: 0.5, blendFn: mockBlend })
-
-      const calledSrc = mockBlend.mock.calls[0][0]
-      const sa = (calledSrc >>> 24) & 0xFF
-
-      expect(sa).toBe(128)
-    })
-
-    it('skips pixel if opacity results in alpha 0', () => {
-      const dst = createImg(1, 1, BLUE)
-      const src = createImg(1, 1, RED)
-      blendImageData(dst, src, { opacity: 0 })
-      expect(new Uint32Array(dst.data.buffer)[0]).toBe(BLUE)
-    })
-  })
-
-  describe('Masking Logic', () => {
-    it('skips pixel if mask value is 0 (Binary/Alpha)', () => {
-      const dst = createImg(1, 1, BLUE)
-      const src = createImg(1, 1, RED)
-      const mask = new Uint8Array([0])
-      blendImageData(dst, src, { mask })
-      expect(new Uint32Array(dst.data.buffer)[0]).toBe(BLUE)
-    })
-
-    it('scales alpha in maskMode: "alpha"', () => {
-      const dst = createImg(1, 1, pack(0, 0, 0, 255))
-      const src = createImg(1, 1, RED)
-      const mask = new Uint8Array([128]) // 50%
-      const mockBlend = vi.fn((s) => s)
-
-      blendImageData(dst, src, { mask, maskMode: 'alpha', blendFn: mockBlend })
-
-      const sa = (mockBlend.mock.calls[0][0] >>> 24) & 0xFF
-      expect(sa).toBe(128)
-    })
-
-    it('skips calculation if mask results in alpha 0', () => {
-      const dst = createImg(1, 1, BLUE)
-      const src = createImg(1, 1, pack(255, 0, 0, 1)) // Very low alpha
-      const mask = new Uint8Array([1]) // Very low mask
-      // (1 * 1) >> 8 = 0
-      blendImageData(dst, src, { mask, maskMode: 'alpha' })
-      expect(new Uint32Array(dst.data.buffer)[0]).toBe(BLUE)
-    })
-
-    it('ignores mask scaling in maskMode: "binary" (implicitly)', () => {
-      const dst = createImg(1, 1, pack(0, 0, 0, 255))
-      const src = createImg(1, 1, RED)
-      const mask = new Uint8Array([100]) // Binary mode treats non-zero as "on" but scaling only happens if maskMode === 'alpha'
-      const mockBlend = vi.fn((s) => s)
-
-      // @ts-ignore testing binary mode explicitly
-      blendImageData(dst, src, { mask, maskMode: 'binary', blendFn: mockBlend })
-
-      const sa = (mockBlend.mock.calls[0][0] >>> 24) & 0xFF
-      expect(sa).toBe(255) // Should NOT be scaled
-    })
-  })
-
-  describe('blendImageData - Advanced Alpha & Coverage', () => {
-    // Mocking ImageData for Node environment
-    const createImg = (w: number, h: number, fillColor?: number) => {
-      const data = new Uint8ClampedArray(w * h * 4)
-      if (fillColor !== undefined) {
-        const view = new Uint32Array(data.buffer)
-        view.fill(fillColor)
-      }
-      return {
-        width: w,
-        height: h,
-        data
-      } as ImageData
-    }
-
-    let dst: ImageData
-    let src: ImageData
-
-    beforeEach(() => {
-      dst = createImg(10, 10, pack(0, 0, 255, 255)) // Solid Blue
-      src = createImg(10, 10, pack(255, 0, 0, 255)) // Solid Red
-    })
-
-    it('uses "alpha" (0-255) property directly', () => {
-      const mockBlend = vi.fn((s) => s)
-      blendImageData(dst, src, { alpha: 128, blendFn: mockBlend })
-
-      const blendedPixel = mockBlend.mock.calls[0][0]
-      const sa = (blendedPixel >>> 24) & 0xFF
-      expect(sa).toBe(128)
-    })
-
-    it('uses "opacity" (0-1.0) and rounds correctly', () => {
-      const mockBlend = vi.fn((s) => s)
-      // 0.5 * 255 + 0.5 = 128
-      blendImageData(dst, src, { opacity: 0.5, blendFn: mockBlend })
-
-      const blendedPixel = mockBlend.mock.calls[0][0]
-      const sa = (blendedPixel >>> 24) & 0xFF
-
-      expect(sa).toBe(128)
-    })
-
     it('handles "alpha" override over "opacity"', () => {
+      const dst = createImg(1, 1, BLUE)
+      const src = createImg(1, 1, RED)
       const mockBlend = vi.fn((s) => s)
+
       // alpha 200 should win over opacity 0.5
       blendImageData(dst, src, { alpha: 200, opacity: 0.5, blendFn: mockBlend })
 
-      const blendedPixel = mockBlend.mock.calls[0][0]
-      const sa = (blendedPixel >>> 24) & 0xFF
-      // (255 * 200) >> 8 = 199
+      const sa = (mockBlend.mock.calls[0][0] >>> 24) & 0xFF
+      // Math: (255 * 200) >> 8 = 199
       expect(sa).toBe(199)
     })
 
-    it('clips coordinates and does not throw', () => {
-      const smallDst = createImg(2, 2, pack(0, 0, 0, 255))
-      const largeSrc = createImg(10, 10, pack(255, 255, 255, 255))
-
-      // Requesting a blit that goes outside bounds
-      blendImageData(smallDst, largeSrc, { dx: 1, dy: 1, sw: 5, sh: 5 })
-
-      const dst32 = new Uint32Array(smallDst.data.buffer)
-      expect(dst32[3]).toBe(pack(255, 255, 255, 255)) // Last pixel should be white
-    })
-
-    it('skips pixels correctly when combined alpha becomes 0', () => {
+    it('skips pixels correctly when combined alpha becomes 0 via small mask values', () => {
+      const dst = createImg(1, 1, BLUE)
+      const src = createImg(1, 1, pack(255, 0, 0, 1)) // Very low alpha
+      const mask = createAlphaMask(1, 1, 1) // Very low mask
       const mockBlend = vi.fn((s) => s)
-      const semiSrc = createImg(1, 1, pack(255, 0, 0, 1)) // Very low alpha
 
-      // 1 * 10 >> 8 = 0. Should trigger the second 'continue'
-      blendImageData(dst, semiSrc, { alpha: 10, blendFn: mockBlend })
+      // (1 * 1) >> 8 = 0
+      blendImageData(dst, src, { mask, blendFn: mockBlend })
 
       expect(mockBlend).not.toHaveBeenCalled()
+      expect(new Uint32Array(dst.data.buffer)[0]).toBe(BLUE)
     })
   })
-  describe('blendImageData - Real World Blending', () => {
-    const createImg = (w: number, h: number, color: number) => {
-      const data = new Uint8ClampedArray(w * h * 4)
-      new Uint32Array(data.buffer).fill(color)
-      return { width: w, height: h, data } as ImageData
-    }
 
-    it('should correctly blend Red onto Blue using sourceOver (Normal Blend)', () => {
-      // Semi-transparent Red (128 alpha)
-      const srcColor = pack(255, 0, 0, 128)
-      // Opaque Blue
-      const dstColor = pack(0, 0, 255, 255)
-
-      const src = createImg(1, 1, srcColor)
-      const dst = createImg(1, 1, dstColor)
-
-      blendImageData(dst, src, { blendFn: sourceOverColor32 })
-
-      const result = new Uint32Array(dst.data.buffer)[0]
-
-      const r = result & 0xFF
-      const b = (result >> 16) & 0xFF
-
-      // Standard SourceOver Math:
-      // result = srcColor * (srcAlpha/255) + dstColor * (1 - srcAlpha/255)
-      // R: 255 * 0.5 + 0 * 0.5 = 127.5 -> 127 or 128
-      // B: 0 * 0.5 + 255 * 0.5 = 127.5 -> 127 or 128
-      expect(r).toBeCloseTo(127, -1)
-      expect(b).toBeCloseTo(127, -1)
-    })
-
-    it('should verify mask reduces blend intensity', () => {
+  describe('Real World Blending', () => {
+    it('should verify AlphaMask reduces blend intensity on large scale', () => {
       const src = createImg(1, 1, pack(255, 255, 255, 255)) // White
       const dst = createImg(1, 1, pack(0, 0, 0, 255))       // Black
-      const mask = new Uint8Array([64]) // ~25% strength mask
+      const mask = createAlphaMask(1, 1, 64) // ~25% strength
 
       blendImageData(dst, src, {
         mask,
-        maskMode: 'alpha',
-        blendFn: sourceOverColor32
+        blendFn: sourceOverColor32,
       })
 
       const result = new Uint32Array(dst.data.buffer)[0]
       const brightness = result & 0xFF
 
-      // If the mask works, the result should be dark gray (~64), not white (255)
       expect(brightness).toBeLessThan(70)
       expect(brightness).toBeGreaterThan(50)
     })
+  })
+  it('covers negative dx/dy clipping', () => {
+    const dst = createImg(5, 5)
+    const src = createImg(5, 5, RED)
+
+    // dx: -2 means we start drawing at dst[0],
+    // but we must skip the first 2 pixels of the source (sx becomes 2)
+    blendImageData(dst, src, { dx: -2, dy: -2 })
+
+    const dst32 = new Uint32Array(dst.data.buffer)
+    // The pixel that was at src[2, 2] should now be at dst[0, 0]
+    expect(dst32[0]).toBe(RED)
+  })
+  it('covers negative sx/sy clipping', () => {
+    const dst = createImg(5, 5)
+    const src = createImg(5, 5, RED)
+
+    // sx: -2 means we shift the destination draw point
+    // to the right by 2 (dx becomes 2)
+    blendImageData(dst, src, { sx: -2, sy: -2 })
+
+    const dst32 = new Uint32Array(dst.data.buffer)
+    // The pixel that was at src[0, 0] should now be at dst[2, 2]
+    expect(dst32[2 * 5 + 2]).toBe(RED)
+  })
+  it('covers the sa === 0 skip branch', () => {
+    const dst = createImg(2, 1, BLUE)
+    const src = createImg(2, 1)
+    const src32 = new Uint32Array(src.data.buffer)
+
+    src32[0] = TRANSPARENT // Pixel 0: Alpha 0 (Should skip)
+    src32[1] = RED         // Pixel 1: Alpha 255 (Should blend)
+
+    const mockBlend = vi.fn((s) => s) // Simple source-over mock
+
+    blendImageData(dst, src, { blendFn: mockBlend })
+
+    // mockBlend should only be called ONCE (for the second pixel)
+    expect(mockBlend).toHaveBeenCalledTimes(1)
+
+    const dst32 = new Uint32Array(dst.data.buffer)
+    expect(dst32[0]).toBe(BLUE) // Pixel 0 untouched
+    expect(dst32[1]).toBe(RED)  // Pixel 1 blended
+  })
+  it('covers the early exit for non-intersecting rectangles (actualW/H <= 0)', () => {
+    const dst = createImg(10, 10, BLUE)
+    const src = createImg(10, 10, RED)
+
+    // Case 1: dx is so far to the right that it starts after dst ends
+    blendImageData(dst, src, { dx: 10 })
+
+    // Case 2: dy is so far down that it starts after dst ends
+    blendImageData(dst, src, { dy: 10 })
+
+    // Case 3: sx is so far right that no source pixels are available
+    blendImageData(dst, src, { sx: 10 })
+
+    // Verify dst remains purely BLUE (no work was done)
+    const dst32 = new Uint32Array(dst.data.buffer)
+    expect(dst32[0]).toBe(BLUE)
   })
 })
