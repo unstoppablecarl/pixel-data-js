@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Color32, RGBA } from '../src/_types'
+import type { Color32, RGBA } from '../src'
 import {
   color32ToCssRGBA,
   color32ToHex,

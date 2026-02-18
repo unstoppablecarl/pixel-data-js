@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import type { Color32 } from '../../src/_types'
 import { COLOR_32_BLEND_MODES } from '../../src'
 import { pack } from '../_helpers'
 

@@ -177,11 +177,8 @@ describe('blendColorPixelData', () => {
         blendFn: copyBlend,
       })
 
-      const d = dst.imageData.data
-
       for (let dy = 0; dy < DH; dy++) {
         for (let dx = 0; dx < DW; dx++) {
-          const dIdx = (dy * DW + dx) * 4
           const isInside = dx >= targetX && dx < targetX + drawW &&
             dy >= targetY && dy < targetY + drawH
 

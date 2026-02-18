@@ -270,7 +270,6 @@ describe('blendPixelData', () => {
       })
 
       const d = dst.imageData.data
-      const s = (src as any).data
 
       for (let dy = 0; dy < DH; dy++) {
         for (let dx = 0; dx < DW; dx++) {
@@ -297,12 +296,7 @@ describe('blendPixelData', () => {
           } else {
             // Pixel is outside the draw rect; should remain BLUE
             const val = (d[dIdx] << 0) | (d[dIdx + 1] << 8) | (d[dIdx + 2] << 16) | (d[dIdx + 3] << 24)
-
-            // BLUE is pack(0, 0, 255, 255)
-            expect(d[dIdx]).toBe(0)
-            expect(d[dIdx + 1]).toBe(0)
-            expect(d[dIdx + 2]).toBe(255)
-            expect(d[dIdx + 3]).toBe(255)
+            expect(val >>> 0).toBe(BLUE)
           }
         }
       }
