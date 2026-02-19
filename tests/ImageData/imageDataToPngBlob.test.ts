@@ -9,8 +9,6 @@ import {
 describe('imageDataToPngBlob', () => {
   beforeEach(() => {
     useOffscreenCanvasMock()
-    // Important: Clear mock history between tests
-    vi.clearAllMocks()
   })
 
   it('successfully converts ImageData to a Blob and verifies pixel data', async () => {
