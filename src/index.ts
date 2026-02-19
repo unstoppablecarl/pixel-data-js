@@ -7,6 +7,10 @@ export * from './Algorithm/floodFillSelection'
 export * from './Canvas/PixelCanvas'
 export * from './Canvas/ReusableCanvas'
 
+export * from './Clipboard/getImageDataFromClipboard'
+export * from './Clipboard/writeImageDataToClipboard'
+export * from './Clipboard/writeImgBlobToClipboard'
+
 export * from './ImageData/copyImageData'
 export * from './ImageData/extractImageData'
 export * from './ImageData/imageDataToAlphaMask'

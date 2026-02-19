@@ -30,7 +30,8 @@
       "File": "#",
       "Uint8Array": "#",
       "HTMLInputElement": "#",
-      "Event": "#"
+      "Event": "#",
+      "DataTransferItemList": "#"
     }
   }
 }
