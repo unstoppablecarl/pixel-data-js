@@ -46,7 +46,8 @@
     "build": "tsup",
     "test": "vitest --coverage",
     "test:mutation": "stryker run",
-    "docs": "npx typedoc --entryPointStrategy Expand src"
+    "docs": "npx typedoc --entryPointStrategy Expand src",
+    "check-exports": "tsx bin/check-exports.ts -- .test.ts .d.ts"
   },
   "devDependencies": {
     "@napi-rs/canvas": "^0.1.93",
