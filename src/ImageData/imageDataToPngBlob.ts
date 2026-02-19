@@ -2,9 +2,7 @@ import { makeReusableCanvas } from '../Canvas/ReusableCanvas'
 
 const get = makeReusableCanvas()
 
-export async function imageDataToPngBlob(
-  imageData: ImageData,
-): Promise<Blob> {
+export async function imageDataToPngBlob(imageData: ImageData): Promise<Blob> {
   const { canvas, ctx } = get(imageData.width, imageData.height)
 
   ctx.putImageData(imageData, 0, 0)
