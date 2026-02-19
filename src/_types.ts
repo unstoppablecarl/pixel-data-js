@@ -15,7 +15,7 @@ export type BlendColor32 = (src: Color32, dst: Color32) => Color32
 export type ImageDataLike = {
   width: number
   height: number
-  data: Uint8ClampedArray<ArrayBuffer>
+  data: Uint8ClampedArray<ArrayBufferLike>
 }
 
 export type SerializedImageData = {

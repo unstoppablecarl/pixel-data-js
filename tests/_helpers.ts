@@ -38,6 +38,13 @@ export const expectPixelToMatch = (
   const i = (y * img.width + x) * 4
   const d = img.data
 
+  if (d[i] === undefined) {
+    throw new Error(
+      `Out of Bounds: Accessing index ${i} (x:${x}, y:${y}) in buffer of length ${d.length}.
+       Expected Width: ${img.width}, Expected Height: ${img.height}`
+    );
+  }
+
   expect({
     x,
     y,

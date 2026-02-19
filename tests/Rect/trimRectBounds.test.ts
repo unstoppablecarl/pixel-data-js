@@ -130,4 +130,95 @@ describe('trimRectBounds: Edge Case Analysis', () => {
     expect(target.w).toBe(bounds.w)
     expect(target.h).toBe(bounds.h)
   })
+  it('shrinks the rect to fit a small island of pixels within a larger mask', () => {
+    const w = 10
+    const h = 10
+    const mask = new Uint8Array(w * h)
+
+    // Place a 2x2 square starting at local index (4,4)
+    // Row 4
+    mask[44] = 1
+    mask[45] = 1
+    // Row 5
+    mask[54] = 1
+    mask[55] = 1
+
+    const selection: SelectionRect = {
+      x: 100,
+      y: 100,
+      w,
+      h,
+      mask,
+      maskType: MaskType.BINARY,
+    }
+
+    const container = {
+      x: 0,
+      y: 0,
+      w: 1000,
+      h: 1000,
+    }
+
+    trimRectBounds(
+      selection,
+      container,
+    )
+
+    // Verify coordinates shifted by the minX/minY found (4, 4)
+    expect(selection.x).toBe(104)
+    expect(selection.y).toBe(104)
+
+    // Verify dimensions became 2x2
+    expect(selection.w).toBe(2)
+    expect(selection.h).toBe(2)
+
+    // Verify mask was reallocated to the tight size
+    expect(selection.mask!.length).toBe(4)
+  })
+
+  it('handles an entirely empty mask by setting dimensions to zero', () => {
+    const w = 10
+    const h = 10
+    const mask = new Uint8Array(w * h)
+
+    const selection: SelectionRect = {
+      x: 10,
+      y: 10,
+      w,
+      h,
+      mask,
+      maskType: MaskType.BINARY,
+    }
+
+    trimRectBounds(
+      selection,
+      { x: 0, y: 0, w: 100, h: 100 },
+    )
+
+    expect(selection.w).toBe(0)
+    expect(selection.h).toBe(0)
+  })
+  it('covers empty intersection and zeroed mask', () => {
+    const mask = new Uint8Array(100)
+    const selection: SelectionRect = {
+      x: 500, // Way outside 0-100 range
+      y: 500,
+      w: 10,
+      h: 10,
+      mask,
+      maskType: MaskType.BINARY,
+    }
+
+    const container = {
+      x: 0,
+      y: 0,
+      w: 100,
+      h: 100,
+    }
+
+    trimRectBounds(selection, container)
+
+    expect(selection.w).toBe(0)
+    expect(selection.mask!.length).toBe(0)
+  })
 })
