@@ -215,6 +215,8 @@ export const overlayColor32: BlendColor32 = (src, dst) => {
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
 
+export const overwriteColor32: BlendColor32 = (src, dst) => src
+
 export const COLOR_32_BLEND_MODES = {
   sourceOver: sourceOverColor32,
   screen: screenColor32,
@@ -224,4 +226,5 @@ export const COLOR_32_BLEND_MODES = {
   overlay: overlayColor32,
   hardLight: hardLightColor32,
   colorBurn: colorBurnColor32,
+  overwrite: overwriteColor32,
 }
