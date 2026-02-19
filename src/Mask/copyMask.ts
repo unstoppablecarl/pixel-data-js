@@ -1,4 +1,4 @@
-import type { AnyMask } from '../../src'
+import type { AnyMask } from '../index'
 
 /**
  * Creates a new copy of a mask.

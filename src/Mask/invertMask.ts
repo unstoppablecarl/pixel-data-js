@@ -1,4 +1,4 @@
-import type { AlphaMask, BinaryMask } from '../../src'
+import type { AlphaMask, BinaryMask } from '../index'
 
 /**
  * Inverts a BinaryMask in-place.
