@@ -1,7 +1,18 @@
 export * from './_types'
 export * from './blend-modes'
 export * from './color'
+
 export * from './ImageData/copyImageData'
 export * from './ImageData/extractImageData'
 export * from './ImageData/serialization'
+export * from './ImageData/writeImageData'
+
+export * from './Mask/copyMask'
+export * from './Mask/invertMask'
+export * from './Mask/mergeMasks'
+
+export * from './PixelData/applyMaskToPixelData'
+export * from './PixelData/blendColorPixelData'
 export * from './PixelData/blendPixelData'
+export * from './PixelData/clearPixelData'
+export * from './PixelData/fillPixelData'
