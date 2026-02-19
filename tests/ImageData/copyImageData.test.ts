@@ -1,12 +1,14 @@
+import { ImageData } from '@napi-rs/canvas'
 import { describe, expect, it } from 'vitest'
-import { copyImageData, copyImageDataLike } from '../../src'
+import { copyImageData, copyImageDataLike, type ImageDataLike } from '../../src'
 
 describe('Image Data Utilities', () => {
   // Helper to create a small mock ImageData-like object
   const createMockSource = (w = 2, h = 2) => {
+
     const data = new Uint8ClampedArray(w * h * 4).fill(255) // All white pixels
     data[0] = 100 // Set first byte to something unique
-    return { data, width: w, height: h }
+    return new ImageData(data, w, h) as ImageDataLike
   }
 
   describe('copyImageData', () => {

@@ -2,8 +2,11 @@ export * from './_types'
 export * from './blend-modes'
 export * from './color'
 
+export * from './Canvas/makeReusableCanvas'
+
 export * from './ImageData/copyImageData'
 export * from './ImageData/extractImageData'
+export * from './ImageData/imageDataToPngBlob'
 export * from './ImageData/serialization'
 export * from './ImageData/writeImageData'
 
