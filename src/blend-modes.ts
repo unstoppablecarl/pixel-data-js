@@ -1,4 +1,4 @@
-import type { BlendColor32, Color32 } from '../_types'
+import type { BlendColor32, Color32 } from './_types'
 
 export const sourceOverColor32: BlendColor32 = (src, dst) => {
   const a = (src >>> 24) & 0xFF

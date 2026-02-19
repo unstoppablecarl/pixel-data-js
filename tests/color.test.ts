@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Color32, RGBA } from '../src/_types'
+import type { Color32, RGBA } from '../src'
 import {
   color32ToCssRGBA,
   color32ToHex,
@@ -15,6 +15,7 @@ import {
   unpackGreen,
   unpackRed,
 } from '../src'
+import { pack, unpack } from './_helpers'
 
 describe('Color32 Bitwise Utilities', () => {
   // Test constants: Red=34 (0x22), Green=68 (0x44), Blue=102 (0x66), Alpha=255 (0xFF)
@@ -159,15 +160,6 @@ describe('Color32 Bitwise Utilities', () => {
       const color = 0x01000000 as Color32
       expect(color32ToCssRGBA(color)).toBe(`rgba(0,0,0,0.004)`)
     })
-  })
-  const pack = (r: number, g: number, b: number, a: number): Color32 =>
-    ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
-
-  const unpack = (c: number) => ({
-    r: c & 0xFF,
-    g: (c >> 8) & 0xFF,
-    b: (c >> 16) & 0xFF,
-    a: (c >>> 24) & 0xFF
   })
 
   describe('lerpColor32Fast Coverage', () => {
