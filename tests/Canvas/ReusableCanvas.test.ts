@@ -1,5 +1,6 @@
 import { createCanvas } from '@napi-rs/canvas'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { CANVAS_CTX_FAILED } from '../../src/Canvas/_constants'
 import { makeReusableCanvas } from '../../src/Canvas/ReusableCanvas'
 
 describe('makeReusableCanvas', () => {
@@ -55,7 +56,7 @@ describe('makeReusableCanvas', () => {
       return document.createElement(tagName)
     })
 
-    expect(() => get(10, 10)).toThrow('Canvas context unavailable')
+    expect(() => get(10, 10)).toThrow(CANVAS_CTX_FAILED)
   })
 
   it('correctly resets closure state', () => {

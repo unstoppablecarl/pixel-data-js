@@ -1,6 +1,7 @@
 import { createCanvas } from '@napi-rs/canvas'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makePixelCanvas } from '../../src'
+import { CANVAS_CTX_FAILED } from '../../src/Canvas/_constants'
 
 describe('makePixelCanvas', () => {
 
@@ -39,7 +40,7 @@ describe('makePixelCanvas', () => {
     // Force getContext to return null
     vi.spyOn(canvas, 'getContext').mockReturnValue(null)
 
-    expect(() => makePixelCanvas(canvas)).toThrow('could not create 2d context')
+    expect(() => makePixelCanvas(canvas)).toThrow(CANVAS_CTX_FAILED)
   })
 
   it('maintains the same canvas and context instances in the returned object', () => {
