@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { imageDataToPngBlob } from '../../src'
+import { imageDataToImgBlob } from '../../src'
 import {
   OffscreenCanvasMock,
   offscreenCanvasMockContext,
   useOffscreenCanvasMock,
 } from '../_helpers/OffscreenCanvasMock'
 
-describe('imageDataToPngBlob', () => {
+describe('imageDataToImgBlob', () => {
   beforeEach(() => {
     useOffscreenCanvasMock()
   })
@@ -36,7 +36,7 @@ describe('imageDataToPngBlob', () => {
       'convertToBlob',
     )
 
-    const blob = await imageDataToPngBlob(imageData)
+    const blob = await imageDataToImgBlob(imageData)
 
     // Now these will correctly track the calls made inside the function
     expect(putImageDataSpy).toHaveBeenCalledWith(
@@ -76,7 +76,7 @@ describe('imageDataToPngBlob', () => {
     )
 
     // 3. Assert that it throws the specific error message from your code
-    await expect(imageDataToPngBlob(imageData)).rejects.toThrow('could not create 2d context')
+    await expect(imageDataToImgBlob(imageData)).rejects.toThrow('could not create 2d context')
 
     // 4. Cleanup is handled by beforeEach/afterEach usually,
     // but you can be explicit:

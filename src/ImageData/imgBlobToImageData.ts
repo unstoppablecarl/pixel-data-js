@@ -19,7 +19,7 @@
  * const imageData = await pngBlobToImageData(blob);
  * ```
  */
-export async function pngBlobToImageData(
+export async function imgBlobToImageData(
   blob: Blob,
 ): Promise<ImageData> {
   let bitmap: ImageBitmap | null = null

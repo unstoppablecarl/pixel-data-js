@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { pngBlobToImageData } from '../../src/ImageData/pngBlobToImageData'
+import { imgBlobToImageData } from '../../src'
 
 describe('pngBlobToImageData', () => {
   const mockBitmap = {
@@ -41,7 +41,7 @@ describe('pngBlobToImageData', () => {
       type: 'image/png',
     })
 
-    const result = await pngBlobToImageData(blob)
+    const result = await imgBlobToImageData(blob)
 
     expect(global.createImageBitmap).toHaveBeenCalledWith(blob)
 
@@ -57,7 +57,7 @@ describe('pngBlobToImageData', () => {
 
     const blob = new Blob()
 
-    await expect(pngBlobToImageData(blob)).rejects.toThrow('Canvas Error')
+    await expect(imgBlobToImageData(blob)).rejects.toThrow('Canvas Error')
 
     expect(mockBitmap.close).toHaveBeenCalled()
   })
@@ -74,6 +74,6 @@ describe('pngBlobToImageData', () => {
 
     const blob = new Blob()
 
-    await expect(pngBlobToImageData(blob)).rejects.toThrow('Failed to get 2D context')
+    await expect(imgBlobToImageData(blob)).rejects.toThrow('Failed to get 2D context')
   })
 })
