@@ -1,18 +1,15 @@
 // @ts-nocheck
 import { createCanvas, Image, ImageData } from '@napi-rs/canvas'
 import { beforeEach } from 'vitest'
-import { OffscreenCanvasMock } from './_helpers/OffscreenCanvasMock'
 
 beforeEach(() => {
   global.Image = Image
   global.ImageData = ImageData
-  global.OffscreenCanvas = OffscreenCanvasMock
 
   // Patch window.Image + window.ImageData (JSDOM keeps its own window object)
   if (typeof window !== 'undefined') {
     window.Image = Image
     window.ImageData = ImageData
-    window.OffscreenCanvas = OffscreenCanvasMock
   }
 
   class ProxyCanvas {

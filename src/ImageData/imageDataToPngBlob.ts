@@ -4,5 +4,7 @@ export async function imageDataToPngBlob(imageData: ImageData): Promise<Blob> {
   if (!ctx) throw new Error('could not create 2d context')
 
   ctx.putImageData(imageData, 0, 0)
-  return canvas!.convertToBlob()
+  return canvas!.convertToBlob({
+    type: 'image/png',
+  })
 }

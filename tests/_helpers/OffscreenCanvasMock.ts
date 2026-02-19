@@ -1,3 +1,25 @@
+import { vi } from 'vitest'
+
+export const offscreenCanvasMockContext = {
+  putImageData: vi.fn(),
+  getImageData: (
+    sx: number,
+    sy: number,
+    sw: number,
+    sh: number,
+  ) => {
+    const data = new Uint8ClampedArray(sw * sh * 4)
+
+    return {
+      data,
+      width: sw,
+      height: sh,
+    }
+  },
+  drawImage: vi.fn(),
+  clearRect: vi.fn(),
+}
+
 export class OffscreenCanvasMock {
   width: number
   height: number
@@ -14,46 +36,28 @@ export class OffscreenCanvasMock {
     type: string,
   ) {
     if (type === '2d') {
-      return {
-        // This allows your library to "write" pixels during tests
-        putImageData: (
-          data: ImageData,
-          dx: number,
-          dy: number,
-        ) => {
-        },
-        // This allows your library to "read" pixels during tests
-        getImageData: (
-          sx: number,
-          sy: number,
-          sw: number,
-          sh: number,
-        ) => {
-          const data = new Uint8ClampedArray(sw * sh * 4)
-
-          return {
-            data,
-            width: sw,
-            height: sh,
-          }
-        },
-        drawImage: () => {
-        },
-      }
+      return offscreenCanvasMockContext
     }
 
     return null
   }
 
   async convertToBlob(
-    options?: { type?: string; quality?: number },
+    options?: { type?: string },
   ): Promise<Blob> {
-    const mimeType = options?.type || 'image/png'
+    const type = options?.type || 'image/png'
     const blob = new Blob(
       [],
-      { type: mimeType },
+      { type },
     )
 
     return Promise.resolve(blob)
   }
+}
+
+export function useOffscreenCanvasMock() {
+  vi.stubGlobal(
+    'OffscreenCanvas',
+    OffscreenCanvasMock,
+  )
 }
