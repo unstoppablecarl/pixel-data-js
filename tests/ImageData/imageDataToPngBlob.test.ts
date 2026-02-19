@@ -1,14 +1,8 @@
 import { createCanvas } from '@napi-rs/canvas'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { imageDataToPngBlob } from '../../src'
 
 describe('imageDataToPngBlob', () => {
-  beforeEach(() => {
-    // Reset global state if you want to test the initialization branch
-    vi.restoreAllMocks()
-
-    imageDataToPngBlob.reset()
-  })
 
   it('successfully converts ImageData to a Blob', async () => {
     // Create a tiny 1x1 ImageData object
