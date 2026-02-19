@@ -11,13 +11,13 @@ export class UnsupportedFormatError extends Error {
 }
 
 /**
- * Converts a browser `File` object into `ImageData`.
+ * Converts a browser {@link File} object into {@link ImageData}.
  * This utility handles the full pipeline of image decoding using hardware-accelerated
- * APIs (`createImageBitmap` and `OffscreenCanvas`). It ensures that underlying
+ * APIs {@link createImageBitmap} and {@link OffscreenCanvas}. It ensures that underlying
  * resources like `ImageBitmap` are properly closed even if the conversion fails.
  *
  * @param file - The image file to convert. Can be null or undefined.
- * @returns A `Promise` resolving to the pixel data as `ImageData`,
+ * @returns A `Promise` resolving to the pixel data as {@link ImageData},
  * or `null` if no file was provided.
  * @throws {@link UnsupportedFormatError}
  * Thrown if the provided file's MIME type does not start with `image/`.

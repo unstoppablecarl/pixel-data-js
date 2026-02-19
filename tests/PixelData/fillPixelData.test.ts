@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { Color32 } from '../../src'
-import { fillPixelData } from '../../src/PixelData/fillPixelData'
+import type { Color32, Rect } from '../../src'
+import { fillPixelData } from '../../src'
 import { getPixel, makeTestPixelData, pack } from '../_helpers'
 
 const RED = pack(255, 0, 0, 255)
@@ -195,5 +195,31 @@ describe('fillPixelData', () => {
 
       expect(getPixel(dst, 99, 99)).toBe(color)
     })
+  })
+  it('should default x and y to 0 when passing a partial Rect', () => {
+    const color = 0xFFFFFFFF as Color32
+    const dst = makeTestPixelData(100, 100)
+
+    // Only providing width and height
+    const partialRect: Partial<Rect> = {
+      w: 10,
+      h: 10,
+    }
+
+    fillPixelData(
+      dst,
+      color,
+      partialRect,
+    )
+
+    // Verify it filled starting at (0, 0) due to the ?? 0 logic
+    const pixelAtOrigin = getPixel(dst, 0, 0)
+
+    expect(pixelAtOrigin).toBe(color)
+
+    // Verify it respected the provided width
+    const pixelOutside = getPixel(dst, 11, 11)
+
+    expect(pixelOutside).not.toBe(color)
   })
 })
