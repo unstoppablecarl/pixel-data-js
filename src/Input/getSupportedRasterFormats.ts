@@ -1,7 +1,7 @@
 // Cache the Promise to prevent race conditions during initialization
 let formatsPromise: Promise<string[]> | null = null
 
-const rasterMimes = [
+const defaultRasterMimes = [
   'image/png',
   'image/jpeg',
   'image/webp',
@@ -10,7 +10,31 @@ const rasterMimes = [
   'image/bmp',
 ]
 
-export async function getSupportedPixelFormats(): Promise<string[]> {
+/**
+ * Probes the browser environment to determine which image MIME types are
+ * supported for pixel-level operations.
+ * This function performs a one-time check by attempting to convert a
+ * `OffscreenCanvas` to MIME types. The result is
+ * cached to prevent redundant hardware-accelerated operations on
+ * subsequent calls.
+ * @param rasterMimes List of MIME types to check
+ * @default ['image/png',
+ *   'image/jpeg',
+ *   'image/webp',
+ *   'image/avif',
+ *   'image/gif',
+ *   'image/bmp']
+ * @returns A `Promise` resolving to an array of supported MIME
+ * types from the `rasterMimes` list.
+ * * @example
+ * ```typescript
+ * const supported = await getSupportedPixelFormats();
+ * if (supported.includes('image/avif')) {
+ *   console.log('High-efficiency formats available');
+ * }
+ * ```
+ */
+export async function getSupportedPixelFormats(rasterMimes = defaultRasterMimes): Promise<string[]> {
   if (formatsPromise) {
     return formatsPromise
   }
@@ -29,7 +53,7 @@ export async function getSupportedPixelFormats(): Promise<string[]> {
         } catch {
           return null
         }
-      })
+      }),
     )
 
     return results.filter((type): type is string => {

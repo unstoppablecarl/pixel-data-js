@@ -68,7 +68,7 @@ export function lerpColor32(a: Color32, b: Color32, t: number): Color32 {
  * Linearly interpolates between two 32-bit colors using integer fixed-point math.
  * Highly optimized for image processing and real-time blitting. It processes
  * channels in parallel using bitmasks (RB and GA pairs).
- * @note Subject to a 1-bit drift (rounding down) due to fast bit-shift division.
+ * **Note:** Subject to a 1-bit drift (rounding down) due to fast bit-shift division.
  * @param src - The source (foreground) color as a 32-bit integer.
  * @param dst - The destination (background) color as a 32-bit integer.
  * @param w - The blend weight as a byte value from 0 to 255. Where 0 is 100% dst and 255 is 100% src

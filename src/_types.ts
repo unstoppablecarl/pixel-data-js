@@ -64,23 +64,23 @@ export type AnyMask = BinaryMask | AlphaMask
 export interface PixelOptions {
   /**
    * The starting X coordinate in the destination buffer.
-   * @Defaults 0.
-   * */
+   * @Default 0.
+   */
   x?: number
   /**
    * The starting Y coordinate in the destination buffer.
    * @Default 0.
-   * */
+   */
   y?: number
   /**
    * The width of the region to process.
    * @Default Source width.
-   * */
+   */
   w?: number
   /**
    * The height of the region to process.
    * @Default Source height.
-   * */
+   */
   h?: number
 
   /**
@@ -92,19 +92,19 @@ export interface PixelOptions {
   /**
    * Mask width.
    * @default w
-   * */
+   */
   mw?: number
 
   /**
    * X offset into the mask buffer.
    * @default 0
-   * */
+   */
   mx?: number
 
   /**
    * Y offset into the mask buffer.
    * @default 0
-   * */
+   */
   my?: number
 
   /** An optional mask to restrict where pixels are written. */

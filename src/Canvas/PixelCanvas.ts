@@ -10,7 +10,7 @@ export type PixelCanvas = {
  * Ensures the canvas ctx is always set to imageSmoothingEnabled = false.
  * Intended for canvas elements that are already part of the DOM.
  * @see makeReusableCanvas
- * */
+ */
 export function makePixelCanvas(
   canvas: HTMLCanvasElement,
 ): PixelCanvas {
