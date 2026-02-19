@@ -41,8 +41,8 @@ export const expectPixelToMatch = (
   if (d[i] === undefined) {
     throw new Error(
       `Out of Bounds: Accessing index ${i} (x:${x}, y:${y}) in buffer of length ${d.length}.
-       Expected Width: ${img.width}, Expected Height: ${img.height}`
-    );
+       Expected Width: ${img.width}, Expected Height: ${img.height}`,
+    )
   }
 
   expect({
@@ -107,9 +107,8 @@ export const unpack = (c: number) => ({
   r: c & 0xFF,
   g: (c >> 8) & 0xFF,
   b: (c >> 16) & 0xFF,
-  a: (c >>> 24) & 0xFF
+  a: (c >>> 24) & 0xFF,
 })
-
 
 export const makeTestPixelData = (
   w: number,
@@ -126,4 +125,14 @@ export const makeTestPixelData = (
     img.data32.fill(fill)
   }
   return img
+}
+
+export function getPixel(
+  src: PixelData,
+  x: number,
+  y: number,
+): Color32 {
+  const index = y * src.width + x
+
+  return src.data32[index] as Color32
 }

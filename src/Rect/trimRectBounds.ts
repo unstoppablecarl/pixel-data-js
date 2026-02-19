@@ -4,7 +4,7 @@ import { extractMask } from '../Mask/extractMask'
 /**
  * Intersects a target rectangle with a boundary, trimming dimensions and masks in-place.
  * This utility calculates the axis-aligned intersection between the `target` and `bounds`.
- * If the `target` includes a `mask` (as in a `SelectionRect`), the mask is physically
+ * If the `target` includes a `mask` (as in a {@link SelectionRect}), the mask is physically
  * cropped and re-aligned using `extractMask` to match the new dimensions.
  * @param target - The rectangle or selection object to be trimmed. **Note:** This object is mutated in-place.
  * @param bounds - The boundary rectangle defining the maximum allowable area (e.g., canvas dimensions).
@@ -12,7 +12,7 @@ import { extractMask } from '../Mask/extractMask'
  * const selection = { x: -10, y: -10, w: 50, h: 50, mask: new Uint8Array(2500) };
  * const canvas = { x: 0, y: 0, w: 100, h: 100 };
  * // Selection will be moved to (0,0) and resized to 40x40.
- * // The mask will be cropped by 10px on the top and left.
+ * // The mask is cropped by 10px on the top and left.
  * trimRectBounds(selection, canvas);
  */
 export function trimRectBounds<T extends Rect | SelectionRect>(

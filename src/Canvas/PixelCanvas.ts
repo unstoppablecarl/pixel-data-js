@@ -10,6 +10,7 @@ export type PixelCanvas = {
  * Ensures the canvas ctx is always set to imageSmoothingEnabled = false.
  * Intended for canvas elements that are already part of the DOM.
  * @see makeReusableCanvas
+ * @throws {Error} If the {@link HTMLCanvasElement} context cannot be initialized.
  */
 export function makePixelCanvas(
   canvas: HTMLCanvasElement,

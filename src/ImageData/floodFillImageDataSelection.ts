@@ -16,6 +16,38 @@ export type FloodFillResult = {
   pixels: Uint8ClampedArray
 }
 
+/**
+ * Performs a color-based flood fill selection on {@link ImageData}.
+ * This utility identifies pixels starting from a specific coordinate that fall within a
+ * color tolerance. It can operate in "contiguous" mode (classic bucket fill) or
+ * "non-contiguous" mode (selects all matching pixels in the buffer).
+ *
+ * @param img - The source image data to process.
+ * @param startX - The starting horizontal coordinate.
+ * @param startY - The starting vertical coordinate.
+ * @param options - Configuration for the fill operation.
+ * @param options.contiguous - @default true. If true, only connected pixels are
+ * selected. If false, all pixels within tolerance are selected regardless of position.
+ * @param options.tolerance - @default 0. The maximum allowed difference in color
+ * distance (0-255) for a pixel to be included.
+ * @param options.bounds - Optional bounding box to restrict the search area.
+ *
+ * @returns A {@link FloodFillResult} containing the mask and bounds of the selection,
+ * or `null` if the starting coordinates are out of bounds.
+ *
+ * @example
+ * ```typescript
+ * const result = floodFillImageDataSelection(
+ * ctx.getImageData(0, 0, 100, 100),
+ * 50,
+ * 50,
+ * {
+ * tolerance: 20,
+ * contiguous: true
+ * }
+ * );
+ * ```
+ */
 export function floodFillImageDataSelection(
   img: ImageDataLike,
   startX: number,

@@ -14,7 +14,7 @@ const defaultRasterMimes = [
  * Probes the browser environment to determine which image MIME types are
  * supported for pixel-level operations.
  * This function performs a one-time check by attempting to convert a
- * `OffscreenCanvas` to MIME types. The result is
+ * {@link OffscreenCanvas} to MIME types. The result is
  * cached to prevent redundant hardware-accelerated operations on
  * subsequent calls.
  * @param rasterMimes List of MIME types to check
@@ -26,7 +26,8 @@ const defaultRasterMimes = [
  *   'image/bmp']
  * @returns A `Promise` resolving to an array of supported MIME
  * types from the `rasterMimes` list.
- * * @example
+ * @throws {Error} If the {@link OffscreenCanvas} context cannot be initialized.
+ * @example
  * ```typescript
  * const supported = await getSupportedPixelFormats();
  * if (supported.includes('image/avif')) {

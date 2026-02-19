@@ -1,4 +1,34 @@
-/** Non destructively resize an ImageData object */
+/**
+ * Non destructively resizes the {@link ImageData} buffer to new dimensions, optionally
+ * offsetting the original content.
+ * This operation creates a new buffer. It does not scale or stretch pixels;
+ * instead, it crops or pads the image based on the new dimensions and
+ * provides an offset for repositioning.
+ *
+ * @param current The source {@link ImageData} to resize.
+ * @param newWidth The target width in pixels.
+ * @param newHeight The target height in pixels.
+ * @param offsetX The horizontal offset for placing the
+ * original image within the new buffer.
+ * @default 0
+ * @param offsetY The vertical offset for placing the
+ * original image within the new buffer.
+ * @default 0
+ *
+ * @returns A new {@link ImageData} instance with the specified dimensions.
+ *
+ * @example
+ * ```typescript
+ * // Centers an 80x80 image in a new 100x100 buffer
+ * const resized = resizeImageData(
+ *   originalData,
+ *   100,
+ *   100,
+ *   10,
+ *   10
+ * );
+ * ```
+ */
 export function resizeImageData(
   current: ImageData,
   newWidth: number,

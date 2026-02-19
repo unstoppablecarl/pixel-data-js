@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      typedoc-plugin-mdn-links:
+        specifier: ^5.1.1
+        version: 5.1.1(typedoc@0.28.17(typescript@5.9.3))
     devDependencies:
       '@napi-rs/canvas':
         specifier: ^0.1.93
@@ -1764,6 +1768,11 @@ packages:
   typed-rest-client@2.2.0:
     resolution: {integrity: sha512-/e2Rk9g20N0r44kaQLb3v6QGuryOD8SPb53t43Y5kqXXA+SqWuU7zLiMxetw61jNn/JFrxTdr5nPDhGY/eTNhQ==}
     engines: {node: '>= 16.0.0'}
+
+  typedoc-plugin-mdn-links@5.1.1:
+    resolution: {integrity: sha512-fLlYudnlGkE9uspOEm/SBXwr+G0RbxoDZiHAVsCg+5NwKe2aUxjZK1YyQfleNZydImanzkX2oUJF29xbEeOSWw==}
+    peerDependencies:
+      typedoc: 0.27.x || 0.28.x
 
   typedoc@0.28.17:
     resolution: {integrity: sha512-ZkJ2G7mZrbxrKxinTQMjFqsCoYY6a5Luwv2GKbTnBCEgV2ihYm5CflA9JnJAwH0pZWavqfYxmDkFHPt4yx2oDQ==}
@@ -3600,6 +3609,10 @@ snapshots:
       qs: 6.15.0
       tunnel: 0.0.6
       underscore: 1.13.7
+
+  typedoc-plugin-mdn-links@5.1.1(typedoc@0.28.17(typescript@5.9.3)):
+    dependencies:
+      typedoc: 0.28.17(typescript@5.9.3)
 
   typedoc@0.28.17(typescript@5.9.3):
     dependencies:

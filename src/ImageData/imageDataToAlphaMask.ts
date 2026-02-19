@@ -1,7 +1,10 @@
 import type { AlphaMask } from '../_types'
+import { pixelDataToAlphaMask } from '../PixelData/pixelDataToAlphaMask'
 
 /**
  * Extracts the alpha channel from raw ImageData into an AlphaMask.
+ * When possible use {@link pixelDataToAlphaMask} instead.
+ * Repeat calls to the same data will use less memory.
  */
 export function imageDataToAlphaMask(
   imageData: ImageData,

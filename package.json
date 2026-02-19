@@ -69,5 +69,8 @@
   },
   "bugs": {
     "url": "https://github.com/unstoppablecarl/pixel-data-js/issues"
+  },
+  "dependencies": {
+    "typedoc-plugin-mdn-links": "^5.1.1"
   }
 }

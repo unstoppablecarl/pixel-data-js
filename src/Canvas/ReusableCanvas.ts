@@ -7,7 +7,9 @@ export type ReusableCanvas = {
 
 /**
  * Creates a reusable canvas and context that are not part of the DOM.
+ * Ensures it is always set to `context.imageSmoothingEnabled = false`
  * @see makePixelCanvas
+ * @throws {Error} If the {@link HTMLCanvasElement} context cannot be initialized.
  */
 export function makeReusableCanvas() {
   let canvas: HTMLCanvasElement | null = null
