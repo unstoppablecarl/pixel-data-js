@@ -1,7 +1,9 @@
+import type { ImageData } from '@napi-rs/canvas'
 import { type Color32, type ImageDataLike, MaskType, type Rect, type SelectionRect } from '../_types'
 import { colorDistance } from '../color'
+import type { PixelData } from '../PixelData'
 import { trimRectBounds } from '../Rect/trimRectBounds'
-import { extractImageData } from './extractImageData'
+import { extractImageData } from '../ImageData/extractImageData'
 
 export type FloodFillImageDataOptions = {
   contiguous?: boolean
@@ -17,7 +19,7 @@ export type FloodFillResult = {
 }
 
 /**
- * Performs a color-based flood fill selection on {@link ImageData}.
+ * Performs a color-based flood fill selection on {@link ImageData} or {@link PixelData}.
  * This utility identifies pixels starting from a specific coordinate that fall within a
  * color tolerance. It can operate in "contiguous" mode (classic bucket fill) or
  * "non-contiguous" mode (selects all matching pixels in the buffer).
@@ -48,28 +50,34 @@ export type FloodFillResult = {
  * );
  * ```
  */
-export function floodFillImageDataSelection(
-  img: ImageDataLike,
+export function floodFillSelection(
+  img: ImageDataLike | PixelData,
   startX: number,
   startY: number,
   {
     contiguous = true,
     tolerance = 0,
     bounds,
-  }: FloodFillImageDataOptions,
+  }: FloodFillImageDataOptions = {},
 ): FloodFillResult | null {
-  console.log('zcx')
+
+  let imageData: ImageDataLike
+  let data32: Uint32Array
+  if ('data32' in img) {
+    data32 = img.data32
+    imageData = img.imageData
+  } else {
+    data32 = new Uint32Array(
+      img.data.buffer,
+      img.data.byteOffset,
+      img.data.byteLength >> 2,
+    )
+    imageData = img
+  }
   const {
     width,
     height,
-    data,
   } = img
-
-  const data32 = new Uint32Array(
-    data.buffer,
-    data.byteOffset,
-    data.byteLength >> 2,
-  )
 
   const limit = bounds || {
     x: 0,
@@ -171,18 +179,6 @@ export function floodFillImageDataSelection(
     }
   }
 
-  console.log('DEBUG: Flood Fill State', {
-    matchCount,
-    startX,
-    startY,
-    xMin,
-    xMax,
-    yMin,
-    yMax,
-    limitW: limit.w,
-    limitH: limit.h,
-  })
-
   if (matchCount === 0) {
     return null
   }
@@ -218,7 +214,7 @@ export function floodFillImageDataSelection(
 
   // Use the UPDATED values from the selectionRect after trimming
   const extracted = extractImageData(
-    img,
+    imageData,
     selectionRect.x,
     selectionRect.y,
     selectionRect.w,

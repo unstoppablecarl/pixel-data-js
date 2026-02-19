@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { floodFillImageDataSelection } from '../../src/ImageData/floodFillImageDataSelection'
-import { PixelData } from '../../src/PixelData'
-import { createTestImageData, expectPixelToMatch, makeTestPixelData, pack } from '../_helpers'
+import { floodFillSelection, PixelData } from '../../src'
+import { makeTestPixelData, pack } from '../_helpers'
 
-describe('floodFillImageDataSelection: Scrutiny Suite', () => {
+describe('floodFillSelection: Scrutiny Suite', () => {
   it('correctly isolates areas with a "moat" in contiguous mode', () => {
     const white = pack(255, 255, 255, 255)
     const black = pack(0, 0, 0, 255)
@@ -22,8 +21,46 @@ describe('floodFillImageDataSelection: Scrutiny Suite', () => {
     }
 
     // Start fill at (0,0) - top half
-    const result = floodFillImageDataSelection(
+    const result = floodFillSelection(
       imgData as ImageData,
+      0,
+      0,
+      {
+        contiguous: true,
+        tolerance: 0,
+      },
+    )
+
+    expect(result).not.toBeNull()
+    // The selection should stop before the moat (y=5), so height should be 5
+    expect(result!.selectionRect.h).toBe(5)
+
+    // Verify a pixel on the other side of the moat is NOT in the mask
+    // We check the last pixel of the image (9,9)
+    // Since selectionRect only goes to y=4, (9,9) shouldn't even be in the mask bounds
+    expect(result!.selectionRect.y + result!.selectionRect.h).toBeLessThan(9)
+  })
+
+  it('correctly isolates areas with a "moat" in contiguous mode using PixelData', () => {
+    const white = pack(255, 255, 255, 255)
+    const black = pack(0, 0, 0, 255)
+    const imgData = {
+      width: 10,
+      height: 10,
+      data: new Uint8ClampedArray(10 * 10 * 4),
+    }
+
+    const p = new PixelData(imgData)
+    p.data32.fill(white)
+
+    // Create a horizontal black moat at y = 5
+    for (let x = 0; x < 10; x++) {
+      p.data32[5 * 10 + x] = black
+    }
+
+    // Start fill at (0,0) - top half
+    const result = floodFillSelection(
+      p,
       0,
       0,
       {
@@ -65,7 +102,7 @@ describe('floodFillImageDataSelection: Scrutiny Suite', () => {
     p.data32[5] = black // (2,1)
     p.data32[7] = black // (1,2)
 
-    const result = floodFillImageDataSelection(
+    const result = floodFillSelection(
       imgData as ImageData,
       1,
       1,
@@ -97,7 +134,7 @@ describe('floodFillImageDataSelection: Scrutiny Suite', () => {
     p.data32[2] = white
     p.data32[3] = black
 
-    const result = floodFillImageDataSelection(
+    const result = floodFillSelection(
       imgData as ImageData,
       0,
       0,
@@ -132,7 +169,7 @@ describe('floodFillImageDataSelection: Scrutiny Suite', () => {
       h: 4,
     }
 
-    const result = floodFillImageDataSelection(
+    const result = floodFillSelection(
       imgData,
       2,
       2,
@@ -180,7 +217,7 @@ describe('floodFillImageDataSelection: Scrutiny Suite', () => {
     }
 
     // startX (0) is less than xMin (5)
-    const result = floodFillImageDataSelection(
+    const result = floodFillSelection(
       imgData,
       0,
       0,
@@ -196,7 +233,7 @@ describe('floodFillImageDataSelection: Scrutiny Suite', () => {
 
     // Start at (5,5). The fill will expand to (0,0) and (9,9).
     // This forces minX to move from 5 to 0, and maxX from 5 to 9.
-    const result = floodFillImageDataSelection(
+    const result = floodFillSelection(
       imgData,
       5,
       5,
@@ -222,7 +259,7 @@ describe('floodFillImageDataSelection: Scrutiny Suite', () => {
 
     const imgData = p.imageData
 
-    const result = floodFillImageDataSelection(
+    const result = floodFillSelection(
       imgData,
       0,
       0,
@@ -250,7 +287,7 @@ describe('floodFillImageDataSelection: Scrutiny Suite', () => {
       h: 0,
     }
 
-    const result = floodFillImageDataSelection(
+    const result = floodFillSelection(
       imgData,
       0,
       0,
@@ -274,7 +311,7 @@ describe('floodFillImageDataSelection: Scrutiny Suite', () => {
 
       const imgData = p.imageData
 
-      const result = floodFillImageDataSelection(
+      const result = floodFillSelection(
         imgData,
         5,
         5,
@@ -305,7 +342,7 @@ describe('floodFillImageDataSelection: Scrutiny Suite', () => {
 
       const imgData = p.imageData
 
-      const result = floodFillImageDataSelection(
+      const result = floodFillSelection(
         imgData,
         1,
         1,
@@ -325,7 +362,7 @@ describe('floodFillImageDataSelection: Scrutiny Suite', () => {
       const white = pack(255, 255, 255, 255)
       const imgData = makeTestPixelData(1, 1, white).imageData
 
-      const result = floodFillImageDataSelection(
+      const result = floodFillSelection(
         imgData,
         0,
         0,
@@ -355,7 +392,7 @@ describe('floodFillImageDataSelection: Scrutiny Suite', () => {
       h: 10,
     }
 
-    const result = floodFillImageDataSelection(
+    const result = floodFillSelection(
       imgData,
       0,
       0,
@@ -384,7 +421,7 @@ describe('floodFillImageDataSelection: Scrutiny Suite', () => {
       h: 0,
     }
 
-    const result = floodFillImageDataSelection(
+    const result = floodFillSelection(
       imgData,
       2,
       2,
@@ -404,7 +441,7 @@ describe('floodFillImageDataSelection: Scrutiny Suite', () => {
       white,
     ).imageData
 
-    const result = floodFillImageDataSelection(
+    const result = floodFillSelection(
       imgData,
       5,
       5,

@@ -2,6 +2,8 @@ export * from './_types'
 export * from './blend-modes'
 export * from './color'
 
+export * from './Algorithm/floodFillSelection'
+
 export * from './Canvas/ReusableCanvas'
 export * from './Canvas/PixelCanvas'
 
@@ -31,5 +33,6 @@ export * from './PixelData/clearPixelData'
 export * from './PixelData/fillPixelData'
 export * from './PixelData/invertPixelData'
 export * from './PixelData/pixelDataToAlphaMask'
+export * from './PixelData'
 
 export * from './Rect/trimRectBounds'
