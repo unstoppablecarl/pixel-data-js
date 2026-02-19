@@ -16,6 +16,7 @@ export * from './ImageData/writeImageData'
 export * from './ImageData/imageDataToDataUrl'
 
 export * from './Mask/copyMask'
+export * from './Mask/extractMask'
 export * from './Mask/invertMask'
 export * from './Mask/mergeMasks'
 
