@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { COLOR_32_BLEND_MODES } from '../../src'
+import { COLOR_32_BLEND_MODES, overwriteColor32 } from '../../src'
 import { pack } from '../_helpers'
 
 const unpack = (c: number) => ({
@@ -37,8 +37,15 @@ describe('32-bit Blend Modes: 100% Coverage Suite', () => {
 
   // 1. GLOBAL SHORT-CIRCUIT TESTS
   describe('Universal Early Exits', () => {
+    it('overwrite should return the src', () => {
+      expect(overwriteColor32(TRANSPARENT, BLUE)).toBe(TRANSPARENT)
+      expect(overwriteColor32(BLUE, TRANSPARENT)).toBe(BLUE)
+    })
+
     it('should return dst immediately when src is fully transparent', () => {
-      Object.entries(COLOR_32_BLEND_MODES).forEach(([_name, blend]) => {
+
+      Object.entries(COLOR_32_BLEND_MODES).forEach(([name, blend]) => {
+        if (name === 'overwrite') return
         expect(blend(TRANSPARENT, BLUE)).toBe(BLUE)
       })
     })
