@@ -15,6 +15,8 @@ export * from './ImageData/serialization'
 export * from './ImageData/writeImageData'
 export * from './ImageData/imageDataToDataUrl'
 
+export * from './Input/getSupportedRasterFormats'
+
 export * from './Mask/copyMask'
 export * from './Mask/extractMask'
 export * from './Mask/invertMask'
