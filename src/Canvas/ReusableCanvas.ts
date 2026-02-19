@@ -1,3 +1,5 @@
+import { CANVAS_CTX_FAILED } from './_constants'
+
 export type ReusableCanvas = {
   readonly canvas: HTMLCanvasElement
   readonly ctx: CanvasRenderingContext2D
@@ -15,7 +17,7 @@ export function makeReusableCanvas() {
     if (canvas === null) {
       canvas = document.createElement('canvas')!
       ctx = canvas.getContext('2d')!
-      if (!ctx) throw new Error('Canvas context unavailable')
+      if (!ctx) throw new Error(CANVAS_CTX_FAILED)
     }
 
     // Resize if needed (resizing auto-clears)

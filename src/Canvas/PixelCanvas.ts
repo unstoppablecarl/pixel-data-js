@@ -1,3 +1,5 @@
+import { CANVAS_CTX_FAILED } from './_constants'
+
 export type PixelCanvas = {
   readonly canvas: HTMLCanvasElement,
   readonly ctx: CanvasRenderingContext2D,
@@ -13,7 +15,7 @@ export function makePixelCanvas(
   canvas: HTMLCanvasElement,
 ): PixelCanvas {
   const ctx = canvas.getContext('2d')
-  if (!ctx) throw new Error('could not create 2d context')
+  if (!ctx) throw new Error(CANVAS_CTX_FAILED)
   ctx.imageSmoothingEnabled = false
 
   return {
