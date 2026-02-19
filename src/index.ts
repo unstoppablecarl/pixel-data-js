@@ -27,3 +27,5 @@ export * from './PixelData/clearPixelData'
 export * from './PixelData/fillPixelData'
 export * from './PixelData/invertPixelData'
 export * from './PixelData/pixelDataToAlphaMask'
+
+export * from './Rect/trimRectBounds'

@@ -147,6 +147,10 @@ export interface ColorBlendOptions extends PixelOptions {
 
 export type ApplyMaskOptions = Omit<PixelOptions, 'mask'>
 
-// export function invertBinaryMask(dst: BinaryMask): void
-// export function invertAlphaMask(dst: AlphaMask): void
-
+export type SelectionRect = Rect & ({
+  mask: Uint8Array,
+  maskType: MaskType,
+} | {
+  mask?: null
+  maskType?: null,
+})
