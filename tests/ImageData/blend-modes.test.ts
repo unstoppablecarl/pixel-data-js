@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { COLOR_32_BLEND_MODES, overwriteColor32 } from '../../src'
+import {
+  type BlendModeIndex,
+  COLOR_32_BLEND_MODES,
+  COLOR_32_BLEND_TO_INDEX,
+  INDEX_TO_COLOR_32_BLEND,
+  overwriteColor32,
+} from '../../src'
 import { pack } from '../_helpers'
 
 const unpack = (c: number) => ({
@@ -182,5 +188,64 @@ describe('32-bit Blend Modes: 100% Coverage Suite', () => {
 
     const c = unpack(resultLerp)
     expect(c.a).toBeGreaterThan(0)
+  })
+
+  describe('Blend Mode Registry', () => {
+    it('should have consistent bidirectional mapping', () => {
+      const overwrite = COLOR_32_BLEND_MODES.overwrite
+
+      const index = COLOR_32_BLEND_TO_INDEX.get(overwrite)
+
+      // Verify index to function
+      expect(INDEX_TO_COLOR_32_BLEND.get(index)).toBe(overwrite)
+
+      // Verify function to index
+      expect(index).toBe(0 as BlendModeIndex)
+    })
+
+    it('should maintain the same index for specific modes across calls', () => {
+      const screen = COLOR_32_BLEND_MODES.screen
+
+      const index = COLOR_32_BLEND_TO_INDEX.get(screen)
+
+      expect(index).toBe(2 as BlendModeIndex)
+
+      expect(INDEX_TO_COLOR_32_BLEND.get(index)).toBe(screen)
+    })
+
+    it('should contain all expected blend modes in the named object', () => {
+      const keys = Object.keys(COLOR_32_BLEND_MODES)
+
+      expect(keys).toContain('overwrite')
+
+      expect(keys).toContain('sourceOver')
+
+      expect(keys).toContain('colorBurn')
+
+      expect(keys.length).toBe(9)
+    })
+
+    it('should return the correct function for a branded index', () => {
+      // Simulating getting a branded index from a safe source
+      const testIndex = 4 as BlendModeIndex
+
+      const blender = INDEX_TO_COLOR_32_BLEND.get(testIndex)
+
+      expect(blender).toBe(COLOR_32_BLEND_MODES.multiply)
+    })
+
+    it('should have unique indices for every registered blender', () => {
+      const indices = new Set<number>()
+
+      const modes = Object.values(COLOR_32_BLEND_MODES)
+
+      for (const mode of modes) {
+        const index = COLOR_32_BLEND_TO_INDEX.get(mode)
+
+        indices.add(index as unknown as number)
+      }
+
+      expect(indices.size).toBe(modes.length)
+    })
   })
 })

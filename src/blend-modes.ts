@@ -217,14 +217,43 @@ export const overlayColor32: BlendColor32 = (src, dst) => {
 
 export const overwriteColor32: BlendColor32 = (src, dst) => src
 
-export const COLOR_32_BLEND_MODES = {
-  sourceOver: sourceOverColor32,
-  screen: screenColor32,
-  linearDodge: linearDodgeColor32,
-  multiply: multiplyColor32,
-  difference: differenceColor32,
-  overlay: overlayColor32,
-  hardLight: hardLightColor32,
-  colorBurn: colorBurnColor32,
-  overwrite: overwriteColor32,
+// 1. Define everything ONCE in a single list.
+// The array index IS the permanent ID.
+const BLENDER_REGISTRY = [
+  ['overwrite', overwriteColor32],
+  ['sourceOver', sourceOverColor32],
+  ['screen', screenColor32],
+  ['linearDodge', linearDodgeColor32],
+  ['multiply', multiplyColor32],
+  ['difference', differenceColor32],
+  ['overlay', overlayColor32],
+  ['hardLight', hardLightColor32],
+  ['colorBurn', colorBurnColor32],
+] as const
+
+export const COLOR_32_BLEND_MODES = Object.fromEntries(BLENDER_REGISTRY)
+
+export type RegisteredBlender = typeof BLENDER_REGISTRY[number][1]
+export type BlendModeIndex = number & { readonly __brandBlendModeIndex: unique symbol }
+
+export const COLOR_32_BLEND_TO_INDEX = new Map<RegisteredBlender, BlendModeIndex>(
+  BLENDER_REGISTRY.map((entry, index) => {
+    return [
+      entry[1],
+      index as BlendModeIndex,
+    ]
+  }),
+) as {
+  get: (blend: RegisteredBlender) => BlendModeIndex
+}
+
+export const INDEX_TO_COLOR_32_BLEND = new Map<BlendModeIndex, RegisteredBlender>(
+  BLENDER_REGISTRY.map((entry, index) => {
+    return [
+      index as BlendModeIndex,
+      entry[1],
+    ]
+  }),
+) as {
+  get: (index: BlendModeIndex) => RegisteredBlender
 }
