@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import type { Color32 } from '../../src'
 import { fillPixelData } from '../../src/PixelData/fillPixelData'
-import { makeTestPixelData, pack } from '../_helpers'
+import { getPixel, makeTestPixelData, pack } from '../_helpers'
 
 const RED = pack(255, 0, 0, 255)
 const BLUE = pack(0, 0, 255, 255)
@@ -149,6 +150,50 @@ describe('fillPixelData', () => {
 
       const allRed = Array.from(dst.data32).every((val) => val === RED)
       expect(allRed).toBe(true)
+    })
+  })
+
+  describe('fillPixelData overloads', () => {
+
+    it('should fill using discrete coordinates', () => {
+      const color = 0xFF0000FF as Color32
+      const dst = makeTestPixelData(100, 100)
+      fillPixelData(
+        dst,
+        color,
+        10,
+        10,
+        20,
+        20,
+      )
+
+      // Check a pixel inside the range
+      expect(getPixel(dst, 15, 15)).toBe(color)
+    })
+
+    it('should fill using a Rect object', () => {
+      const color = 0x00FF00FF as Color32
+      const dst = makeTestPixelData(100, 100)
+      const rect = {
+        x: 5,
+        y: 5,
+        w: 10,
+        h: 10,
+      }
+
+      fillPixelData(dst, color, rect)
+
+      expect(getPixel(dst, 10, 10)).toBe(color)
+    })
+
+    it('should fill the entire buffer when no rect is provided', () => {
+      const color = 0x0000FFFF as Color32
+      const dst = makeTestPixelData(100, 100)
+      fillPixelData(dst, color)
+
+      expect(getPixel(dst, 0, 0)).toBe(color)
+
+      expect(getPixel(dst, 99, 99)).toBe(color)
     })
   })
 })

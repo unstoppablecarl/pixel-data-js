@@ -2,24 +2,63 @@ import type { Color32, Rect } from '../_types'
 import type { PixelData } from '../PixelData'
 
 /**
- * A high-performance solid fill for PixelData.
+ * Fills a region or the {@link PixelData} buffer with a solid color.
+ *
+ * @param dst - The target {@link PixelData} to modify.
+ * @param color - The {@link Color32} value to apply.
+ * @param rect - A {@link Rect} defining the area to fill. If omitted, the entire
+ * buffer is filled.
  */
 export function fillPixelData(
   dst: PixelData,
   color: Color32,
   rect?: Partial<Rect>,
+): void
+/**
+ * @param dst - The target {@link PixelData} to modify.
+ * @param color - The {@link Color32} value to apply.
+ * @param x - Starting horizontal coordinate.
+ * @param y - Starting vertical coordinate.
+ * @param w - Width of the fill area.
+ * @param h - Height of the fill area.
+ */
+export function fillPixelData(
+  dst: PixelData,
+  color: Color32,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+): void
+export function fillPixelData(
+  dst: PixelData,
+  color: Color32,
+  _x?: Partial<Rect> | number,
+  _y?: number,
+  _w?: number,
+  _h?: number,
 ): void {
-  const {
-    x: targetX = 0,
-    y: targetY = 0,
-    w: width = dst.width,
-    h: height = dst.height,
-  } = rect || {}
+  let x: number
+  let y: number
+  let w: number
+  let h: number
 
-  let x = targetX
-  let y = targetY
-  let w = width
-  let h = height
+  if (typeof _x === 'object') {
+    x = _x.x ?? 0
+    y = _x.y ?? 0
+    w = _x.w ?? dst.width
+    h = _x.h ?? dst.height
+  } else if (typeof _x === 'number') {
+    x = _x
+    y = _y!
+    w = _w!
+    h = _h!
+  } else {
+    x = 0
+    y = 0
+    w = dst.width
+    h = dst.height
+  }
 
   // Destination Clipping
   if (x < 0) {
