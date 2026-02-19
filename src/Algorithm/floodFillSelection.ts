@@ -1,8 +1,8 @@
 import { type Color32, type ImageDataLike, MaskType, type Rect, type SelectionRect } from '../_types'
 import { colorDistance } from '../color'
+import { extractImageDataPixels } from '../ImageData/extractImageDataPixels'
 import type { PixelData } from '../PixelData'
 import { trimRectBounds } from '../Rect/trimRectBounds'
-import { extractImageData } from '../ImageData/extractImageData'
 
 export type FloodFillImageDataOptions = {
   contiguous?: boolean
@@ -212,7 +212,7 @@ export function floodFillSelection(
   )
 
   // Use the UPDATED values from the selectionRect after trimming
-  const extracted = extractImageData(
+  const extracted = extractImageDataPixels(
     imageData,
     selectionRect.x,
     selectionRect.y,

@@ -11,7 +11,7 @@ import type { Rect } from '../_types'
  * @param data - The source pixel data (RGBA).
  * @param rect - A {@link Rect} object defining the destination region.
  */
-export function writeImageData(
+export function writeImageDataPixels(
   imageData: ImageData,
   data: Uint8ClampedArray,
   rect: Rect,
@@ -24,7 +24,7 @@ export function writeImageData(
  * @param w - The width of the region to write.
  * @param h - The height of the region to write.
  */
-export function writeImageData(
+export function writeImageDataPixels(
   imageData: ImageData,
   data: Uint8ClampedArray,
   x: number,
@@ -32,7 +32,7 @@ export function writeImageData(
   w: number,
   h: number,
 ): void
-export function writeImageData(
+export function writeImageDataPixels(
   imageData: ImageData,
   data: Uint8ClampedArray,
   _x: Rect | number,

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { extractImageData } from '../../src'
+import { extractImageDataPixels } from '../../src'
 
-describe('extractImageData', () => {
+describe('extractImageDataPixels', () => {
   let mockImageData: ImageData
   const SW = 10 // Source Width
   const SH = 10 // Source Height
@@ -25,13 +25,13 @@ describe('extractImageData', () => {
 
   describe('Argument Handling', () => {
     it('should work with object-style arguments (Rect)', () => {
-      const result = extractImageData(mockImageData, { x: 0, y: 0, w: 2, h: 2 })
+      const result = extractImageDataPixels(mockImageData, { x: 0, y: 0, w: 2, h: 2 })
       expect(result.length).toBe(2 * 2 * 4)
       expect(result[0]).toBe(0) // Top-left
     })
 
     it('should work with positional arguments', () => {
-      const result = extractImageData(mockImageData, 0, 0, 2, 2)
+      const result = extractImageDataPixels(mockImageData, 0, 0, 2, 2)
       expect(result.length).toBe(2 * 2 * 4)
       expect(result[0]).toBe(0)
     })
@@ -41,7 +41,7 @@ describe('extractImageData', () => {
     it('should extract a perfect 2x2 square from the center', () => {
       // Requesting 2x2 at (5,5).
       // Source indices: (5,5)=55, (6,5)=56, (5,6)=65, (6,6)=66
-      const result = extractImageData(mockImageData, 5, 5, 2, 2)
+      const result = extractImageDataPixels(mockImageData, 5, 5, 2, 2)
 
       expect(result[0]).toBe(55) // Top-left of patch
       expect(result[4]).toBe(56) // Top-right of patch
@@ -54,7 +54,7 @@ describe('extractImageData', () => {
     it('should handle a request partially off the top-left (-2, -2)', () => {
       // Request 4x4 starting at -2, -2.
       // Only the bottom-right 2x2 of this request overlaps the image.
-      const result = extractImageData(mockImageData, -2, -2, 4, 4)
+      const result = extractImageDataPixels(mockImageData, -2, -2, 4, 4)
 
       // Index in 'out' for (0,0) source would be (dstRow=2, dstCol=2)
       // dstStart = (2 * 4 + 2) * 4 = 40
@@ -64,7 +64,7 @@ describe('extractImageData', () => {
 
     it('should handle a request partially off the bottom-right', () => {
       // Request 2x2 at (9,9). Only (9,9) exists.
-      const result = extractImageData(mockImageData, 9, 9, 2, 2)
+      const result = extractImageDataPixels(mockImageData, 9, 9, 2, 2)
 
       expect(result[0]).toBe(99)   // Top-left of patch is source (9,9)
       expect(result[4]).toBe(0)    // Off-canvas (9,10)
@@ -72,7 +72,7 @@ describe('extractImageData', () => {
     })
 
     it('should return a zeroed buffer if completely out of bounds', () => {
-      const result = extractImageData(mockImageData, 20, 20, 5, 5)
+      const result = extractImageDataPixels(mockImageData, 20, 20, 5, 5)
       expect(result.every(v => v === 0)).toBe(true)
       expect(result.length).toBe(5 * 5 * 4)
     })
@@ -81,15 +81,12 @@ describe('extractImageData', () => {
   describe('Error & Edge Cases', () => {
     it('should handle zero width or height', () => {
       // If you chose to return empty array:
-      const result = extractImageData(mockImageData, 0, 0, 0, 5)
+      const result = extractImageDataPixels(mockImageData, 0, 0, 0, 5)
       expect(result.length).toBe(0)
-
-      // OR: If you chose to throw, use:
-      // expect(() => extractImageData(mockImageData, 0, 0, 0, 5)).toThrow();
     })
 
     it('should handle negative width or height', () => {
-      const result = extractImageData(mockImageData, 0, 0, -5, 5)
+      const result = extractImageDataPixels(mockImageData, 0, 0, -5, 5)
       expect(result.length).toBe(0)
     })
   })

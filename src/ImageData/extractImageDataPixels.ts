@@ -10,7 +10,7 @@ import type { ImageDataLike, Rect } from '../_types'
  * @param rect - A {@link Rect} object defining the region to extract.
  * @returns A {@link Uint8ClampedArray} containing the RGBA pixel data of the region.
  */
-export function extractImageData(
+export function extractImageDataPixels(
   imageData: ImageDataLike,
   rect: Rect,
 ): Uint8ClampedArray
@@ -22,14 +22,14 @@ export function extractImageData(
  * @param h - The height of the region to extract.
  * @returns A {@link Uint8ClampedArray} containing the RGBA pixel data of the region.
  */
-export function extractImageData(
+export function extractImageDataPixels(
   imageData: ImageDataLike,
   x: number,
   y: number,
   w: number,
   h: number,
 ): Uint8ClampedArray
-export function extractImageData(
+export function extractImageDataPixels(
   imageData: ImageDataLike,
   _x: Rect | number,
   _y?: number,
