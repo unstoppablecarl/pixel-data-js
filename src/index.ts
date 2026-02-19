@@ -13,6 +13,7 @@ export * from './ImageData/invertImageData'
 export * from './ImageData/resizeImageData'
 export * from './ImageData/serialization'
 export * from './ImageData/writeImageData'
+export * from './ImageData/imageDataToDataUrl'
 
 export * from './Mask/copyMask'
 export * from './Mask/invertMask'
