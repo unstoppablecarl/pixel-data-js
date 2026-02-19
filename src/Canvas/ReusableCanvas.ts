@@ -1,13 +1,17 @@
-export type CanvasCtx = {
-  canvas: HTMLCanvasElement
-  ctx: CanvasRenderingContext2D
+export type ReusableCanvas = {
+  readonly canvas: HTMLCanvasElement
+  readonly ctx: CanvasRenderingContext2D
 }
 
+/**
+ * Creates a reusable canvas and context that are not part of the DOM.
+ * @see makePixelCanvas
+ */
 export function makeReusableCanvas() {
   let canvas: HTMLCanvasElement | null = null
   let ctx: CanvasRenderingContext2D | null = null
 
-  function get(width: number, height: number): CanvasCtx {
+  function get(width: number, height: number): ReusableCanvas {
     if (canvas === null) {
       canvas = document.createElement('canvas')!
       ctx = canvas.getContext('2d')!

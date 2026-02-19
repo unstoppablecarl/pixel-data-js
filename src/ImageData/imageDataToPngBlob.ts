@@ -1,4 +1,4 @@
-import { makeReusableCanvas } from '../Canvas/makeReusableCanvas'
+import { makeReusableCanvas } from '../Canvas/ReusableCanvas'
 
 const get = makeReusableCanvas()
 

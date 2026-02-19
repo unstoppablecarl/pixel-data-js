@@ -1,6 +1,6 @@
 import { createCanvas } from '@napi-rs/canvas'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { makeReusableCanvas } from '../../src/Canvas/makeReusableCanvas'
+import { makeReusableCanvas } from '../../src/Canvas/ReusableCanvas'
 
 describe('makeReusableCanvas', () => {
   beforeEach(() => {

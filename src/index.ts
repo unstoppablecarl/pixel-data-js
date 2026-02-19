@@ -2,7 +2,8 @@ export * from './_types'
 export * from './blend-modes'
 export * from './color'
 
-export * from './Canvas/makeReusableCanvas'
+export * from './Canvas/ReusableCanvas'
+export * from './Canvas/PixelCanvas'
 
 export * from './ImageData/copyImageData'
 export * from './ImageData/extractImageData'
