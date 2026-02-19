@@ -20,7 +20,7 @@ async function checkExports(
   const indexContent = fs.readFileSync(indexPath, 'utf-8')
 
   const files = fs.readdirSync(srcDir, {
-    recursive: true
+    recursive: true,
   }) as string[]
 
   const missing: string[] = []
@@ -62,14 +62,10 @@ async function checkExports(
     process.exit(1)
   }
 
-  console.log('All relevant files are exported!')
+  console.log('All relevant files are exported! 🎉')
 }
 
-// Simple CLI argument handling
-const args = process.argv.slice(2)
-
-const excludeList = args.filter((arg) => {
-  return !arg.startsWith('--')
-})
-
-checkExports(excludeList)
+checkExports([
+  'globals.d.ts',
+  'Canvas/_constants.ts',
+])
