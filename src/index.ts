@@ -8,6 +8,7 @@ export * from './Canvas/PixelCanvas'
 export * from './ImageData/copyImageData'
 export * from './ImageData/extractImageData'
 export * from './ImageData/imageDataToPngBlob'
+export * from './ImageData/resizeImageData'
 export * from './ImageData/serialization'
 export * from './ImageData/writeImageData'
 
