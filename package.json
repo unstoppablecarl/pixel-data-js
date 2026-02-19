@@ -61,6 +61,7 @@
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typedoc": "^0.28.17",
+    "typedoc-rhineai-theme": "^1.2.0",
     "typescript": "^5.9.3",
     "vitest": "3.2.4"
   },

@@ -13,6 +13,7 @@
   "githubPages": true,
   "cleanOutputDir": true,
   "plugin": [
+    "typedoc-rhineai-theme"
   ],
   "validation": {
     "notExported": true,

@@ -45,6 +45,9 @@ importers:
       typedoc:
         specifier: ^0.28.17
         version: 0.28.17(typescript@5.9.3)
+      typedoc-rhineai-theme:
+        specifier: ^1.2.0
+        version: 1.2.0(typedoc@0.28.17(typescript@5.9.3))
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -1773,6 +1776,12 @@ packages:
     resolution: {integrity: sha512-fLlYudnlGkE9uspOEm/SBXwr+G0RbxoDZiHAVsCg+5NwKe2aUxjZK1YyQfleNZydImanzkX2oUJF29xbEeOSWw==}
     peerDependencies:
       typedoc: 0.27.x || 0.28.x
+
+  typedoc-rhineai-theme@1.2.0:
+    resolution: {integrity: sha512-TotPqT+DP1vGTFsaOL38WN8LECdxOYEGvG352X+ePmQCbzaiD3PfG6SaPgvUUcrEB1p7bUAB3/5IR5lpdKKprQ==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      typedoc: ~0.28.15
 
   typedoc@0.28.17:
     resolution: {integrity: sha512-ZkJ2G7mZrbxrKxinTQMjFqsCoYY6a5Luwv2GKbTnBCEgV2ihYm5CflA9JnJAwH0pZWavqfYxmDkFHPt4yx2oDQ==}
@@ -3611,6 +3620,10 @@ snapshots:
       underscore: 1.13.7
 
   typedoc-plugin-mdn-links@5.1.1(typedoc@0.28.17(typescript@5.9.3)):
+    dependencies:
+      typedoc: 0.28.17(typescript@5.9.3)
+
+  typedoc-rhineai-theme@1.2.0(typedoc@0.28.17(typescript@5.9.3)):
     dependencies:
       typedoc: 0.28.17(typescript@5.9.3)
 
