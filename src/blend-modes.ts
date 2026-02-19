@@ -163,7 +163,6 @@ export const hardLightColor32: BlendColor32 = (src, dst) => {
 
 /**
  * Color Burn: Darkens the destination to reflect the source color.
- * Intense saturation in the darks.
  */
 export const colorBurnColor32: BlendColor32 = (src, dst) => {
   const sa = (src >>> 24) & 0xFF

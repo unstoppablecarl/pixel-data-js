@@ -12,7 +12,7 @@ import { extractMask } from '../Mask/extractMask'
  * const selection = { x: -10, y: -10, w: 50, h: 50, mask: new Uint8Array(2500) };
  * const canvas = { x: 0, y: 0, w: 100, h: 100 };
  * // Selection will be moved to (0,0) and resized to 40x40.
- * // The mask is cropped by 10px on the top and left.
+ * // The mask is cropped by 10 px on the top and left.
  * trimRectBounds(selection, canvas);
  */
 export function trimRectBounds<T extends Rect | SelectionRect>(

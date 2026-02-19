@@ -28,7 +28,7 @@ export function unpackColor(packed: Color32): RGBA {
 
 const SCRATCH_RGBA: RGBA = { r: 0, g: 0, b: 0, a: 0 }
 
-// uses a scratch arg for memory perf. Be careful about re-use.
+// uses a scratch arg for memory perf. be careful about re-use.
 export function unpackColorTo(packed: Color32, scratch = SCRATCH_RGBA): RGBA {
   scratch.r = (packed >>> 0) & 0xFF
   scratch.g = (packed >>> 8) & 0xFF
@@ -74,17 +74,17 @@ export function lerpColor32(a: Color32, b: Color32, t: number): Color32 {
  * @param w - The blend weight as a byte value from 0 to 255. Where 0 is 100% dst and 255 is 100% src
  * @returns The blended 32-bit color.
  */export function lerpColor32Fast(src: Color32, dst: Color32, w: number): Color32 {
-  const invA = 255 - w;
+  const invA = 255 - w
 
   // Masking Red and Blue: 0x00FF00FF
   // We process R and B in one go, then shift back down
-  const rb = (((src & 0x00FF00FF) * w + (dst & 0x00FF00FF) * invA) >>> 8) & 0x00FF00FF;
+  const rb = (((src & 0x00FF00FF) * w + (dst & 0x00FF00FF) * invA) >>> 8) & 0x00FF00FF
 
   // Masking Green and Alpha: 0xFF00FF00
   // We shift down first to avoid overflow, then shift back up
-  const ga = ((((src >>> 8) & 0x00FF00FF) * w + ((dst >>> 8) & 0x00FF00FF) * invA) >>> 8) & 0x00FF00FF;
+  const ga = ((((src >>> 8) & 0x00FF00FF) * w + ((dst >>> 8) & 0x00FF00FF) * invA) >>> 8) & 0x00FF00FF
 
-  return (rb | (ga << 8)) >>> 0 as Color32;
+  return (rb | (ga << 8)) >>> 0 as Color32
 }
 
 // Convert 0xAABBGGRR to #RRGGBBAA

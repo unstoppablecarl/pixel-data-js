@@ -1,7 +1,7 @@
 /**
  * Converts an {@link ImageData} object into a {@link Blob} in PNG format.
  *
- * This operation is asynchronous and utilizes {@link OffscreenCanvas}
+ * This operation is asynchronous and uses {@link OffscreenCanvas}
  * to perform the encoding, making it suitable for usage in both the main
  * thread and Web Workers.
  *

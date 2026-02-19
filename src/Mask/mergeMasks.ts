@@ -1,9 +1,4 @@
-import {
-  type AnyMask,
-  type AlphaMask,
-  type ApplyMaskOptions,
-  MaskType,
-} from '../_types'
+import { type AlphaMask, type AnyMask, type ApplyMaskOptions, MaskType } from '../_types'
 
 /**
  * Merges a source mask into a destination AlphaMask.

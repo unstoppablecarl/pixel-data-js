@@ -180,8 +180,8 @@ export function floodFillImageDataSelection(
     yMin,
     yMax,
     limitW: limit.w,
-    limitH: limit.h
-  });
+    limitH: limit.h,
+  })
 
   if (matchCount === 0) {
     return null
@@ -210,7 +210,6 @@ export function floodFillImageDataSelection(
     }
   }
 
-  // CALL IT HERE: Now that the mask has content (1s),
   // trimRectBounds can see them and work correctly.
   trimRectBounds(
     selectionRect,
