@@ -1,5 +1,5 @@
 import { expect } from 'vitest'
-import type { Color32, ImageDataLike } from '../src'
+import type { AlphaMask, BinaryMask, Color32, ImageDataLike } from '../src'
 import { PixelData } from '../src/PixelData'
 
 /**
@@ -135,4 +135,55 @@ export function getPixel(
   const index = y * src.width + x
 
   return src.data32[index] as Color32
+}
+
+export function makeComplexTestPixelData(w: number, h: number): PixelData {
+  const img = new ImageData(w, h)
+  const pixelData = new PixelData(img)
+  const data = pixelData.data32
+  for (let i = 0; i < data.length; i++) {
+    const x = i % w
+    const y = (i / w) | 0
+
+    // Create a color/alpha gradient so branches aren't predictable
+    const r = (x / w) * 255
+    const g = (y / h) * 255
+    const b = ((x + y) / (w + h)) * 255
+    const a = (i % 255) // Varying alpha
+
+    data[i] = ((a << 24) | (b << 16) | (g << 8) | r) >>> 0
+  }
+  return pixelData
+}
+
+export function makeComplexAlphaMask(w: number, h: number): AlphaMask {
+  const data = new Uint8Array(w * h);
+
+  for (let i = 0; i < data.length; i++) {
+    const x = i % w;
+    const y = (i / w) | 0;
+
+    // Create a spatial gradient (0-255)
+    // This ensures we test the full range of interpolation math
+    const val = ((x / w) * 127 + (y / h) * 127) | 0;
+
+    data[i] = val;
+  }
+
+  return data as AlphaMask;
+}
+
+export function makeComplexBinaryMask(w: number, h: number): BinaryMask {
+  const data = new Uint8Array(w * h);
+
+  for (let i = 0; i < data.length; i++) {
+    // Create a checkerboard or "noisy" pattern
+    // This prevents the CPU from predicting the "if (mask[i])" branch
+    const x = i % w;
+    const y = (i / w) | 0;
+
+    data[i] = (x + y) % 2 === 0 ? 1 : 0;
+  }
+
+  return data as BinaryMask;
 }
