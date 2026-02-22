@@ -1,3 +1,5 @@
+import { sourceOverColor32 } from './blend-modes'
+
 /** ALL values are 0-255 (including alpha which in CSS is 0-1) */
 export type RGBA = { r: number, g: number, b: number, a: number }
 
@@ -15,7 +17,7 @@ export type BlendColor32 = (src: Color32, dst: Color32) => Color32
 export type ImageDataLike = {
   width: number
   height: number
-  data: Uint8ClampedArray<ArrayBuffer>
+  data: Uint8ClampedArray<ArrayBufferLike>
 }
 
 export type SerializedImageData = {
@@ -64,23 +66,23 @@ export type AnyMask = BinaryMask | AlphaMask
 export interface PixelOptions {
   /**
    * The starting X coordinate in the destination buffer.
-   * @Defaults 0.
-   * */
+   * @default 0
+   */
   x?: number
   /**
    * The starting Y coordinate in the destination buffer.
-   * @Default 0.
-   * */
+   * @default 0
+   */
   y?: number
   /**
    * The width of the region to process.
-   * @Default Source width.
-   * */
+   * @default Source width.
+   */
   w?: number
   /**
    * The height of the region to process.
-   * @Default Source height.
-   * */
+   * @default Source height.
+   */
   h?: number
 
   /**
@@ -91,29 +93,34 @@ export interface PixelOptions {
 
   /**
    * Mask width.
-   * @default w
-   * */
+   * @default value of `w`
+   */
   mw?: number
 
   /**
    * X offset into the mask buffer.
    * @default 0
-   * */
+   */
   mx?: number
 
   /**
    * Y offset into the mask buffer.
    * @default 0
-   * */
+   */
   my?: number
 
   /** An optional mask to restrict where pixels are written. */
   mask?: AnyMask | null
 
-  /** The interpretation logic for the provided mask. Defaults to MaskType.Binary. */
+  /** The interpretation logic for the provided mask.
+   * @default {@link MaskType.BINARY}
+   */
   maskType?: MaskType
 
-  /** If true the inverse of the mask will be applied */
+  /**
+   * If true the inverse of the mask will be applied
+   * @default false
+   */
   invertMask?: boolean
 }
 
@@ -133,7 +140,10 @@ export interface PixelBlendOptions extends PixelOptions {
    */
   sy?: number
 
-  /** The specific blending function/algorithm to use for pixel math. */
+  /**
+   * The blending algorithm to use for blending pixels.
+   * @default {@link sourceOverColor32}
+   */
   blendFn?: BlendColor32
 }
 
@@ -141,12 +151,19 @@ export interface PixelBlendOptions extends PixelOptions {
  * Configuration for operations that require color blending.
  */
 export interface ColorBlendOptions extends PixelOptions {
-  /** The blending logic used to combine source and destination pixels. */
+  /**
+   * The blending algorithm to use for blending pixels.
+   * @default {@link sourceOverColor32}
+   */
   blendFn?: BlendColor32
 }
 
 export type ApplyMaskOptions = Omit<PixelOptions, 'mask'>
 
-// export function invertBinaryMask(dst: BinaryMask): void
-// export function invertAlphaMask(dst: AlphaMask): void
-
+export type SelectionRect = Rect & ({
+  mask: Uint8Array,
+  maskType: MaskType,
+} | {
+  mask?: null
+  maskType?: null,
+})

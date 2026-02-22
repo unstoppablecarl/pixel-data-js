@@ -1,17 +1,35 @@
 import type { ImageDataLike, Rect } from '../_types'
 
-export function extractImageData(
+/**
+ * Extracts a specific rectangular region of pixels from a larger {@link ImageDataLike}
+ * source into a new {@link Uint8ClampedArray}.
+ *
+ * This is a "read-only" operation that returns a copy of the pixel data.
+ *
+ * @param imageData - The source image data to read from.
+ * @param rect - A {@link Rect} object defining the region to extract.
+ * @returns A {@link Uint8ClampedArray} containing the RGBA pixel data of the region.
+ */
+export function extractImageDataPixels(
   imageData: ImageDataLike,
   rect: Rect,
 ): Uint8ClampedArray
-export function extractImageData(
+/**
+ * @param imageData - The source image data to read from.
+ * @param x - The starting horizontal coordinate.
+ * @param y - The starting vertical coordinate.
+ * @param w - The width of the region to extract.
+ * @param h - The height of the region to extract.
+ * @returns A {@link Uint8ClampedArray} containing the RGBA pixel data of the region.
+ */
+export function extractImageDataPixels(
   imageData: ImageDataLike,
   x: number,
   y: number,
   w: number,
   h: number,
 ): Uint8ClampedArray
-export function extractImageData(
+export function extractImageDataPixels(
   imageData: ImageDataLike,
   _x: Rect | number,
   _y?: number,

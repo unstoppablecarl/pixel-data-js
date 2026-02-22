@@ -1,0 +1,37 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/index.ts"
+  ],
+  "out": "docs",
+  "name": "Pixel Data JS",
+  "includeVersion": true,
+  "readme": "README.md",
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "categorizeByGroup": true,
+  "githubPages": true,
+  "cleanOutputDir": true,
+  "plugin": [
+    "typedoc-rhineai-theme"
+  ],
+  "validation": {
+    "notExported": true,
+    "invalidLink": true
+  },
+  "externalSymbolLinkMappings": {
+    "typescript": {
+      "OffscreenCanvas": "#",
+      "ImageData": "#",
+      "HTMLCanvasElement": "#",
+      "Blob": "#",
+      "createImageBitmap": "#",
+      "Uint8ClampedArray": "#",
+      "File": "#",
+      "Uint8Array": "#",
+      "HTMLInputElement": "#",
+      "Event": "#",
+      "DataTransferItemList": "#"
+    }
+  }
+}

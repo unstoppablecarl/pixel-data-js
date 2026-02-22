@@ -82,16 +82,16 @@ export function blendColorPixelData(
         const mVal = mask[mIdx]
 
         if (isAlphaMask) {
-        const effectiveM = invertMask
-          ? 255 - mVal
-          : mVal
+          const effectiveM = invertMask
+            ? 255 - mVal
+            : mVal
 
-        // If mask is transparent, skip
-        if (effectiveM === 0) {
-          dIdx++
-          mIdx++
-          continue
-        }
+          // If mask is transparent, skip
+          if (effectiveM === 0) {
+            dIdx++
+            mIdx++
+            continue
+          }
 
           // globalAlpha is not a factor
           if (globalAlpha === 255) {

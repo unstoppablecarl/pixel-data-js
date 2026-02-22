@@ -1,11 +1,30 @@
 import type { Rect } from '../_types'
 
-export function writeImageData(
+/**
+ * Copies a pixel buffer into a specific region of an {@link ImageData} object.
+ *
+ * This function performs a direct memory copy from a {@link Uint8ClampedArray}
+ * into the target {@link ImageData} buffer. It supports both {@link Rect}
+ * objects and discrete coordinates.
+ *
+ * @param imageData - The target {@link ImageData} to write into. Must match the rect width/height.
+ * @param data - The source pixel data (RGBA).
+ * @param rect - A {@link Rect} object defining the destination region.
+ */
+export function writeImageDataPixels(
   imageData: ImageData,
   data: Uint8ClampedArray,
   rect: Rect,
 ): void
-export function writeImageData(
+/**
+ * @param imageData - The target {@link ImageData} to write into.
+ * @param data - The source pixel data (RGBA). Must match the width/height.
+ * @param x - The starting horizontal coordinate in the target.
+ * @param y - The starting vertical coordinate in the target.
+ * @param w - The width of the region to write.
+ * @param h - The height of the region to write.
+ */
+export function writeImageDataPixels(
   imageData: ImageData,
   data: Uint8ClampedArray,
   x: number,
@@ -13,7 +32,7 @@ export function writeImageData(
   w: number,
   h: number,
 ): void
-export function writeImageData(
+export function writeImageDataPixels(
   imageData: ImageData,
   data: Uint8ClampedArray,
   _x: Rect | number,
