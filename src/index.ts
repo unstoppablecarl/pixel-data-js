@@ -22,6 +22,8 @@ export * from './ImageData/resizeImageData'
 export * from './ImageData/serialization'
 export * from './ImageData/writeImageDataPixels'
 
+export * from './IndexedImage/IndexedImage'
+
 export * from './Input/fileInputChangeToImageData'
 export * from './Input/fileToImageData'
 export * from './Input/getSupportedRasterFormats'
