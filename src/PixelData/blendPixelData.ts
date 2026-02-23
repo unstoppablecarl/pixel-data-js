@@ -1,6 +1,6 @@
 import { type Color32, MaskType, type PixelBlendOptions } from '../_types'
 import { sourceOverColor32 } from '../blend-modes'
-import type { PixelData } from '../PixelData'
+import type { PixelData } from './PixelData'
 
 /**
  * Blits source PixelData into a destination PixelData using 32-bit integer bitwise blending.

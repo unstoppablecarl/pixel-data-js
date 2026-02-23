@@ -1,5 +1,5 @@
 import { type AnyMask, type ApplyMaskOptions, MaskType } from '../_types'
-import type { PixelData } from '../PixelData'
+import type { PixelData } from './PixelData'
 
 /**
  * Directly applies a mask to a region of PixelData,

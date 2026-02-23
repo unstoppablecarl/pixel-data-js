@@ -1,4 +1,4 @@
-import type { ImageDataLike } from './_types'
+import type { ImageDataLike } from '../_types'
 
 export class PixelData {
   public readonly data32: Uint32Array

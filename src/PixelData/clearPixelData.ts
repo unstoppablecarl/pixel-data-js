@@ -1,5 +1,5 @@
 import type { Color32, Rect } from '../_types'
-import type { PixelData } from '../PixelData'
+import type { PixelData } from './PixelData'
 import { fillPixelData } from './fillPixelData'
 
 /**

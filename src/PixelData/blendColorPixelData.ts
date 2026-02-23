@@ -1,6 +1,6 @@
 import { type Color32, type ColorBlendOptions, MaskType } from '../_types'
 import { sourceOverColor32 } from '../blend-modes'
-import type { PixelData } from '../PixelData'
+import type { PixelData } from './PixelData'
 
 /**
  * Fills a rectangle in the destination PixelData with a single color,

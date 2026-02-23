@@ -1,4 +1,4 @@
-import type { PixelData } from '../PixelData'
+import type { PixelData } from './PixelData'
 
 export function invertPixelData(
   pixelData: PixelData,

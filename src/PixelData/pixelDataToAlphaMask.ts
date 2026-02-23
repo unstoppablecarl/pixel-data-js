@@ -1,5 +1,5 @@
 import type { AlphaMask } from '../_types'
-import type { PixelData } from '../PixelData'
+import type { PixelData } from './PixelData'
 
 /**
  * Extracts the alpha channel from PixelData into a single-channel mask.

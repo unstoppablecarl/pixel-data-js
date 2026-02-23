@@ -7,7 +7,7 @@ import {
   MaskType,
   sourceOverColor32, unpackAlpha, unpackColor,
 } from '../../src'
-import { PixelData } from '../../src/PixelData'
+import { PixelData } from '../../src'
 import {
   createTestImageData,
   expectPixelToMatch,

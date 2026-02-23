@@ -1,7 +1,7 @@
 import { type Color32, type ImageDataLike, MaskType, type Rect, type SelectionRect } from '../_types'
 import { colorDistance } from '../color'
 import { extractImageDataPixels } from '../ImageData/extractImageDataPixels'
-import type { PixelData } from '../PixelData'
+import type { PixelData } from '../PixelData/PixelData'
 import { trimRectBounds } from '../Rect/trimRectBounds'
 
 export type FloodFillImageDataOptions = {

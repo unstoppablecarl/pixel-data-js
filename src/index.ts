@@ -34,7 +34,7 @@ export * from './Mask/extractMask'
 export * from './Mask/invertMask'
 export * from './Mask/mergeMasks'
 
-export * from './PixelData'
+export * from './PixelData/PixelData'
 export * from './PixelData/applyMaskToPixelData'
 export * from './PixelData/blendColorPixelData'
 export * from './PixelData/blendPixelData'
