@@ -18,6 +18,7 @@ export const sourceOverColor32: BlendColor32 = (src, dst) => {
   const dG = dst & gMask
 
   const invA = 255 - a
+  const da = (dst >>> 24) & 0xFF
 
   const outRB = ((sRB * a + dRB * invA) >> 8) & rbMask
   const outG = ((sG * a + dG * invA) >> 8) & gMask
@@ -639,13 +640,13 @@ const BLENDER_REGISTRY = [
 export type RegisteredBlender = typeof BLENDER_REGISTRY[number][1]
 export type BlendModeIndex = number & { readonly __brandBlendModeIndex: unique symbol }
 
-export const COLOR_32_BLEND_MODES: BlendColor32[] = []
+export const BLEND_MODES: BlendColor32[] = []
 
 for (const [index, blend] of BLENDER_REGISTRY) {
-  COLOR_32_BLEND_MODES[index as BlendModeIndex] = blend
+  BLEND_MODES[index as BlendModeIndex] = blend
 }
 
-export const COLOR_32_BLEND_TO_INDEX = new Map<RegisteredBlender, BlendModeIndex>(
+export const BLEND_TO_INDEX = new Map<RegisteredBlender, BlendModeIndex>(
   BLENDER_REGISTRY.map((entry, index) => {
     return [
       entry[1],
@@ -656,7 +657,7 @@ export const COLOR_32_BLEND_TO_INDEX = new Map<RegisteredBlender, BlendModeIndex
   get: (blend: RegisteredBlender) => BlendModeIndex
 }
 
-export const INDEX_TO_COLOR_32_BLEND = new Map<BlendModeIndex, RegisteredBlender>(
+export const INDEX_TO_BLEND = new Map<BlendModeIndex, RegisteredBlender>(
   BLENDER_REGISTRY.map((entry, index) => {
     return [
       index as BlendModeIndex,

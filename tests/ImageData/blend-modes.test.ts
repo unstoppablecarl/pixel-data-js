@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
   type BlendModeIndex,
-  COLOR_32_BLEND_MODES,
-  COLOR_32_BLEND_TO_INDEX, colorBurnColor32, differenceColor32, hardLightColor32,
-  INDEX_TO_COLOR_32_BLEND, linearDodgeColor32, multiplyColor32, overlayColor32,
+  BLEND_MODES,
+  BLEND_TO_INDEX, colorBurnColor32, differenceColor32, hardLightColor32,
+  INDEX_TO_BLEND, linearDodgeColor32, multiplyColor32, overlayColor32,
   overwriteColor32, screenColor32, sourceOverColor32,
 } from '../../src'
 import { pack, unpack } from '../_helpers'
@@ -42,7 +42,7 @@ describe.skip('32-bit Blend Modes: 100% Coverage Suite', () => {
     })
 
     it('should return dst immediately when src is fully transparent', () => {
-      COLOR_32_BLEND_MODES.forEach((blend) => {
+      BLEND_MODES.forEach((blend) => {
 
         if (blend === overlayColor32) return
         expect(blend(TRANSPARENT, BLUE)).toBe(BLUE)
@@ -142,7 +142,7 @@ describe.skip('32-bit Blend Modes: 100% Coverage Suite', () => {
     const SEMI_GRAY = pack(128, 128, 128, 128)
     const SOLID_BLUE = pack(0, 0, 255, 255)
 
-    Object.entries(COLOR_32_BLEND_MODES).forEach(([_name, blendMode]) => {
+    Object.entries(BLEND_MODES).forEach(([_name, blendMode]) => {
       // 128 alpha forces the code past sa === 0 and sa === 255 shortcuts
       const result = blendMode(SEMI_GRAY, SOLID_BLUE)
       const c = unpack(result)
@@ -188,25 +188,25 @@ describe.skip('32-bit Blend Modes: 100% Coverage Suite', () => {
     it('should have consistent bidirectional mapping', () => {
       const overwrite = overwriteColor32
 
-      const index = COLOR_32_BLEND_TO_INDEX.get(overwrite)
+      const index = BLEND_TO_INDEX.get(overwrite)
 
       // Verify index to function
-      expect(INDEX_TO_COLOR_32_BLEND.get(index)).toBe(overwrite)
+      expect(INDEX_TO_BLEND.get(index)).toBe(overwrite)
 
       // Verify function to index
       expect(index).toBe(0 as BlendModeIndex)
     })
 
     it('should maintain the same index for specific modes across calls', () => {
-      const index = COLOR_32_BLEND_TO_INDEX.get(screenColor32)
+      const index = BLEND_TO_INDEX.get(screenColor32)
 
       expect(index).toBe(2 as BlendModeIndex)
 
-      expect(INDEX_TO_COLOR_32_BLEND.get(index)).toBe(screenColor32)
+      expect(INDEX_TO_BLEND.get(index)).toBe(screenColor32)
     })
 
     it('should contain all expected blend modes in the named object', () => {
-      const keys = Object.keys(COLOR_32_BLEND_MODES)
+      const keys = Object.keys(BLEND_MODES)
 
       expect(keys).toContain('overwrite')
 
@@ -221,7 +221,7 @@ describe.skip('32-bit Blend Modes: 100% Coverage Suite', () => {
       // Simulating getting a branded index from a safe source
       const testIndex = 4 as BlendModeIndex
 
-      const blender = INDEX_TO_COLOR_32_BLEND.get(testIndex)
+      const blender = INDEX_TO_BLEND.get(testIndex)
 
       expect(blender).toBe(multiplyColor32)
     })
@@ -229,10 +229,10 @@ describe.skip('32-bit Blend Modes: 100% Coverage Suite', () => {
     it('should have unique indices for every registered blender', () => {
       const indices = new Set<number>()
 
-      const modes = Object.values(COLOR_32_BLEND_MODES)
+      const modes = Object.values(BLEND_MODES)
 
       for (const mode of modes) {
-        const index = COLOR_32_BLEND_TO_INDEX.get(mode)
+        const index = BLEND_TO_INDEX.get(mode)
 
         indices.add(index as unknown as number)
       }

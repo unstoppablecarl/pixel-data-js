@@ -8,8 +8,8 @@ import {
   type BlendColor32,
   BlendMode,
   blendPixelData,
-  COLOR_32_BLEND_MODES,
-  COLOR_32_BLEND_TO_INDEX,
+  BLEND_MODES,
+  BLEND_TO_INDEX,
   MaskType,
   PixelData, vividLightColor32,
 } from '../src'
@@ -60,7 +60,7 @@ function buildAllCases(
   alphaMask: AlphaMask,
 ): Case[] {
 
-  return COLOR_32_BLEND_MODES.flatMap((blendFn) => {
+  return BLEND_MODES.flatMap((blendFn) => {
     return buildBlendModeCases(
       src,
       dst,
@@ -80,7 +80,7 @@ function buildBlendModeCases(
 ): Case[] {
 
   const cases = []
-  const blendIndex = COLOR_32_BLEND_TO_INDEX.get(blendFn)
+  const blendIndex = BLEND_TO_INDEX.get(blendFn)
   const name = BlendMode[blendIndex]
 
   // --- Base Combinations ---
