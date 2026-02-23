@@ -23,6 +23,7 @@ export * from './ImageData/serialization'
 export * from './ImageData/writeImageDataPixels'
 
 export * from './IndexedImage/IndexedImage'
+export * from './IndexedImage/indexedImageToAverageColor'
 
 export * from './Input/fileInputChangeToImageData'
 export * from './Input/fileToImageData'
