@@ -3,44 +3,36 @@ import type { BlendColor32, Color32 } from './_types'
 export const overwriteColor32: BlendColor32 = (src, dst) => src
 
 export const sourceOverColor32: BlendColor32 = (src, dst) => {
-  const a = (src >>> 24) & 0xFF
-  if (a === 255) return src
-  if (a === 0) return dst
+  const sa = (src >>> 24) & 0xFF
+  if (sa === 255) return src
+  if (sa === 0) return dst
 
-  // Pattern: (src * a + dst * (255 - a)) >> 8
-  // We process RB and G separately so they don't overflow into each other
-  const rbMask = 0xFF00FF
-  const gMask = 0x00FF00
+  const sr = src & 0xFF, sg = (src >> 8) & 0xFF, sb = (src >> 16) & 0xFF
+  const dr = dst & 0xFF, dg = (dst >> 8) & 0xFF, db = (dst >> 16) & 0xFF
 
-  const sRB = src & rbMask
-  const sG = src & gMask
-  const dRB = dst & rbMask
-  const dG = dst & gMask
-
-  const invA = 255 - a
   const da = (dst >>> 24) & 0xFF
 
-  const outRB = ((sRB * a + dRB * invA) >> 8) & rbMask
-  const outG = ((sG * a + dG * invA) >> 8) & gMask
+  // Alpha Lerp inlined
+  const invA = 255 - sa
+  const r = (sr * sa + dr * invA) >> 8
+  const g = (sg * sa + dg * invA) >> 8
+  const b = (sb * sa + db * invA) >> 8
+  const a = (255 * sa + da * invA) >> 8
 
-  // Re-pack with opaque alpha (or calculate combined alpha if needed)
-  const outA = (a + (((dst >>> 24) & 0xFF) * invA >> 8))
-  return ((outA << 24) | outRB | outG) >>> 0 as Color32
+  return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
-
-/** Math.min(src, dst) */
 export const darkenColor32: BlendColor32 = (src, dst) => {
   const sa = (src >>> 24) & 0xFF
   if (sa === 0) return dst
-  const br = Math.min(src & 0xFF, dst & 0xFF)
-  const bg = Math.min((src >> 8) & 0xFF, (dst >> 8) & 0xFF)
-  const bb = Math.min((src >> 16) & 0xFF, (dst >> 16) & 0xFF)
+
+  const sr = src & 0xFF, sg = (src >> 8) & 0xFF, sb = (src >> 16) & 0xFF
+  const dr = dst & 0xFF, dg = (dst >> 8) & 0xFF, db = (dst >> 16) & 0xFF
+
+  const br = Math.min(sr, dr)
+  const bg = Math.min(sg, dg)
+  const bb = Math.min(sb, db)
 
   if (sa === 255) return (0xFF000000 | (bb << 16) | (bg << 8) | br) >>> 0 as Color32
-
-  const dr = dst & 0xFF
-  const dg = (dst >> 8) & 0xFF
-  const db = (dst >> 16) & 0xFF
 
   // Alpha Lerp inlined
   const invA = 255 - sa
@@ -57,20 +49,24 @@ export const multiplyColor32: BlendColor32 = (src, dst) => {
   const sa = (src >>> 24) & 0xFF
   if (sa === 0) return dst
 
+  const sr = src & 0xFF, sg = (src >> 8) & 0xFF, sb = (src >> 16) & 0xFF
   const dr = dst & 0xFF, dg = (dst >> 8) & 0xFF, db = (dst >> 16) & 0xFF
 
-  const br = ((src & 0xFF) * dr + 128) >> 8
-  const bg = (((src >> 8) & 0xFF) * dg) >> 8
-  const bb = (((src >> 16) & 0xFF) * db) >> 8
+  // Consistent floor rounding for all channels
+  const br = (sr * dr) >> 8
+  const bg = (sg * dg) >> 8
+  const bb = (sb * db) >> 8
 
   if (sa === 255) return (0xFF000000 | (bb << 16) | (bg << 8) | br) >>> 0 as Color32
 
   // Alpha Lerp inlined
   const invA = 255 - sa
+  const da = (dst >>> 24) & 0xFF
+
   const r = (br * sa + dr * invA) >> 8
   const g = (bg * sa + dg * invA) >> 8
   const b = (bb * sa + db * invA) >> 8
-  const a = (255 * sa + ((dst >>> 24) & 0xFF) * invA) >> 8
+  const a = (255 * sa + da * invA) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -83,18 +79,19 @@ export const colorBurnColor32: BlendColor32 = (src, dst) => {
   const sr = src & 0xFF, sg = (src >> 8) & 0xFF, sb = (src >> 16) & 0xFF
   const dr = dst & 0xFF, dg = (dst >> 8) & 0xFF, db = (dst >> 16) & 0xFF
 
-  const br = dr === 255 ? 255 : Math.max(0, 255 - ((255 - dr) << 8) / (sr || 1))
-  const bg = dg === 255 ? 255 : Math.max(0, 255 - ((255 - dg) << 8) / (sg || 1))
-  const bb = db === 255 ? 255 : Math.max(0, 255 - ((255 - db) << 8) / (sb || 1))
+  const br = dr === 255 ? 255 : Math.max(0, 255 - (((255 - dr) << 8) / (sr || 1)))
+  const bg = dg === 255 ? 255 : Math.max(0, 255 - (((255 - dg) << 8) / (sg || 1)))
+  const bb = db === 255 ? 255 : Math.max(0, 255 - (((255 - db) << 8) / (sb || 1)))
 
   if (sa === 255) return (0xFF000000 | (bb << 16) | (bg << 8) | br) >>> 0 as Color32
 
-  // Alpha Lerp inlined
   const invA = 255 - sa
+  const da = (dst >>> 24) & 0xFF
+
   const r = (br * sa + dr * invA) >> 8
   const g = (bg * sa + dg * invA) >> 8
   const b = (bb * sa + db * invA) >> 8
-  const a = (255 * sa + ((dst >>> 24) & 0xFF) * invA) >> 8
+  const a = (255 * sa + da * invA) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
