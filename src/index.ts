@@ -1,8 +1,11 @@
 export * from './_types'
-export * from './blend-modes'
 export * from './color'
 
 export * from './Algorithm/floodFillSelection'
+
+export * from './BlendModes/blend-modes'
+export * from './BlendModes/blend-modes-fast'
+export * from './BlendModes/blend-modes-perfect'
 
 export * from './Canvas/PixelCanvas'
 export * from './Canvas/ReusableCanvas'
@@ -44,3 +47,4 @@ export * from './PixelData/invertPixelData'
 export * from './PixelData/pixelDataToAlphaMask'
 
 export * from './Rect/trimRectBounds'
+export { BlendMode } from './BlendModes/blend-modes'

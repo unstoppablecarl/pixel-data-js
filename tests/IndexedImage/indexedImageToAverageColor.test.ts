@@ -7,7 +7,7 @@ describe('indexedImageToAverageColor', () => {
       width: 0,
       height: 0,
       data: new Int32Array([]),
-      palette: new Uint8Array([]),
+      palette: new Int32Array([]),
       transparentPalletIndex: 0,
     }
 
@@ -27,7 +27,7 @@ describe('indexedImageToAverageColor', () => {
       width: 3,
       height: 1,
       data: new Int32Array([1, 1, 2]),
-      palette: new Uint8Array([
+      palette: new Int32Array([
         0, 0, 0, 0,       // ID 0: Transparent
         255, 0, 0, 255,   // ID 1: Red
         0, 0, 255, 255,   // ID 2: Blue
@@ -54,7 +54,7 @@ describe('indexedImageToAverageColor', () => {
       width: 2,
       height: 1,
       data: new Int32Array([0, 1]),
-      palette: new Uint8Array([
+      palette: new Int32Array([
         0, 0, 0, 0,
         255, 0, 0, 255,
       ]),
@@ -77,7 +77,7 @@ describe('indexedImageToAverageColor', () => {
       width: 2,
       height: 1,
       data: new Int32Array([0, 1]),
-      palette: new Uint8Array([
+      palette: new Int32Array([
         0, 0, 0, 0,
         255, 0, 0, 255,
       ]),
@@ -101,7 +101,7 @@ describe('indexedImageToAverageColor', () => {
       width: 1,
       height: 1,
       data: new Int32Array([1]),
-      palette: new Uint8Array([
+      palette: new Int32Array([
         0, 0, 0, 0,
         255, 255, 255, 255,
         100, 100, 100, 255, // Unused
@@ -124,7 +124,7 @@ describe('indexedImageToAverageColor', () => {
       width: 1,
       height: 1,
       data: new Int32Array([0]),
-      palette: new Uint8Array([0, 0, 0, 0]),
+      palette: new Int32Array([0, 0, 0, 0]),
       transparentPalletIndex: 0,
     }
 

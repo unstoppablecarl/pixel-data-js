@@ -8,10 +8,10 @@ import {
   type BlendColor32,
   BlendMode,
   blendPixelData,
-  BLEND_MODES,
-  BLEND_TO_INDEX,
+  FAST_BLEND_MODES,
+  FAST_BLEND_TO_INDEX,
   MaskType,
-  PixelData, vividLightColor32,
+  PixelData, vividLightFast,
 } from '../src'
 import { makeComplexAlphaMask, makeComplexBinaryMask, makeComplexTestPixelData } from '../tests/_helpers'
 import { BenchReporter } from './BenchReporter'
@@ -31,7 +31,7 @@ describe('Blend Modes', () => {
   reporter.setupListeners(bench)
 
   // const cases = buildAllCases(src, dst, binaryMask, alphaMask)
-  const cases = buildBlendModeCases(src, dst, binaryMask, alphaMask, vividLightColor32)
+  const cases = buildBlendModeCases(src, dst, binaryMask, alphaMask, vividLightFast)
 
   const warmupTime = 1000
   const benchTime = 3000
@@ -53,14 +53,14 @@ type Case = {
   run: () => void;
 };
 
-function buildAllCases(
+function _buildAllCases(
   src: PixelData,
   dst: PixelData,
   binaryMask: BinaryMask,
   alphaMask: AlphaMask,
 ): Case[] {
 
-  return BLEND_MODES.flatMap((blendFn) => {
+  return FAST_BLEND_MODES.flatMap((blendFn) => {
     return buildBlendModeCases(
       src,
       dst,
@@ -80,7 +80,7 @@ function buildBlendModeCases(
 ): Case[] {
 
   const cases = []
-  const blendIndex = BLEND_TO_INDEX.get(blendFn)
+  const blendIndex = FAST_BLEND_TO_INDEX.get(blendFn)
   const name = BlendMode[blendIndex]
 
   // --- Base Combinations ---

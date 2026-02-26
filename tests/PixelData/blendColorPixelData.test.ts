@@ -4,10 +4,10 @@ import {
   type BinaryMask,
   type Color32,
   MaskType,
-  sourceOverColor32,
+  sourceOverFast,
   unpackAlpha, unpackColor,
 } from '../../src'
-import { blendColorPixelData } from '../../src/PixelData/blendColorPixelData'
+import { blendColorPixelData } from '../../src'
 import { makeTestPixelData, pack } from '../_helpers'
 
 const RED = pack(255, 0, 0, 255)
@@ -33,7 +33,7 @@ describe('blendColorPixelData', () => {
 
     it('bypasses blendFn for transparent source pixels', () => {
       const dst = makeTestPixelData(1, 1, BLUE)
-      const mockBlend = vi.fn(sourceOverColor32)
+      const mockBlend = vi.fn(sourceOverFast)
 
       blendColorPixelData(dst, TRANSPARENT, { blendFn: mockBlend })
 
@@ -109,7 +109,7 @@ describe('blendColorPixelData', () => {
     it('covers the weight === 0 branch inside the mask block', () => {
       const dst = makeTestPixelData(1, 1, BLUE)
       const mask = new Uint8Array([1]) as AlphaMask
-      const mockBlend = vi.fn(sourceOverColor32)
+      const mockBlend = vi.fn(sourceOverFast)
 
       blendColorPixelData(dst, RED, {
         mask,
@@ -317,7 +317,8 @@ describe('blendColorPixelData', () => {
       })
 
       const resultAlpha = unpackAlpha(dst.data32[0] as Color32)
-      expect(resultAlpha).toBe(120)
+      // drift of -1 expected
+      expect(resultAlpha).toBe(119)
     })
 
     it('covers the inverse identity branch where globalAlpha is 255', () => {
@@ -331,7 +332,8 @@ describe('blendColorPixelData', () => {
       })
 
       const resultAlpha = unpackAlpha(dst.data32[0] as Color32)
-      expect(resultAlpha).toBe(120)
+      // drift of -1 expected
+      expect(resultAlpha).toBe(119)
     })
   })
 })
