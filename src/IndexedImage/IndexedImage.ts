@@ -1,3 +1,5 @@
+export type Color32 = number;
+
 /**
  * Compressed data format for image processing optimization.
  * Representing an image as a grid of palette indices rather than raw RGBA values
@@ -5,79 +7,62 @@
  */
 export type IndexedImage = {
   /** The width of the image in pixels. */
-  width: number,
+  width: number;
   /** The height of the image in pixels. */
-  height: number,
+  height: number;
   /**
-   *  A flat array of indices where each value points to a color in the palette.
+   * A flat array of indices where each value points to a color in the palette.
    * Accessible via the formula: `index = x + (y * width)`.
    */
-  data: Int32Array,
+  data: Int32Array;
   /**
-   * A flattened Uint8Array of RGBA values.
-   * Every 4 bytes represent one color: `[r, g, b, a]`.
+   * A palette of packed 32-bit colors (ABGR).
    */
-  palette: Uint8Array,
+  palette: Int32Array;
   /**
    * The specific index in the palette that represents a fully transparent pixel.
-   * All pixels with an alpha value of 0 are normalized to this index.
    */
-  transparentPalletIndex: number,
-}
+  transparentPalletIndex: number;
+};
 
 /**
  * Converts standard ImageData into an IndexedImage format.
- * This process normalizes all transparent pixels into a single palette entry
- * and maps all unique RGBA colors to sequential integer IDs.
- * @param imageData - The raw ImageData from a canvas or image source.
- * @returns An IndexedImage object containing the index grid and color palette.
  */
 export function makeIndexedImage(imageData: ImageData): IndexedImage {
-  const width = imageData.width
-  const height = imageData.height
-  const rawData = imageData.data
-  const indexedData = new Int32Array(rawData.length / 4)
-  const colorMap = new Map<string, number>()
-  const tempPalette: number[] = []
+  const width = imageData.width;
+  const height = imageData.height;
+  // Use a 32-bit view to read pixels as packed integers
+  const rawData = new Uint32Array(imageData.data.buffer);
+  const indexedData = new Int32Array(rawData.length);
+  const colorMap = new Map<number, number>();
+  const tempPalette: number[] = [];
 
-  const transparentKey = '0,0,0,0'
-  const transparentPalletIndex = 0
+  const transparentColor = 0; // 0x00000000
+  const transparentPalletIndex = 0;
 
-  // Initialize palette with normalized transparent color at index 0
-  colorMap.set(transparentKey, transparentPalletIndex)
-  tempPalette.push(0)
-  tempPalette.push(0)
-  tempPalette.push(0)
-  tempPalette.push(0)
+  // Initialize palette with normalized transparent color
+  colorMap.set(transparentColor, transparentPalletIndex);
+  tempPalette.push(transparentColor);
 
-  for (let i = 0; i < indexedData.length; i++) {
-    const r = rawData[i * 4]!
-    const g = rawData[i * 4 + 1]!
-    const b = rawData[i * 4 + 2]!
-    const a = rawData[i * 4 + 3]!
+  for (let i = 0; i < rawData.length; i++) {
+    const pixel = rawData[i]!;
 
-    let key: string
-    if (a === 0) {
-      key = transparentKey
-    } else {
-      key = `${r},${g},${b},${a}`
-    }
+    // Check if the pixel is fully transparent
+    const isTransparent = (pixel >>> 24) === 0;
+    const colorKey = isTransparent ? transparentColor : pixel;
 
-    let id = colorMap.get(key)
+    let id = colorMap.get(colorKey);
 
     if (id === undefined) {
-      id = colorMap.size
-      tempPalette.push(r)
-      tempPalette.push(g)
-      tempPalette.push(b)
-      tempPalette.push(a)
-      colorMap.set(key, id)
+      id = colorMap.size;
+      tempPalette.push(colorKey);
+      colorMap.set(colorKey, id);
     }
 
-    indexedData[i] = id
+    indexedData[i] = id;
   }
 
-  const palette = new Uint8Array(tempPalette)
+  const palette = new Int32Array(tempPalette);
 
   return {
     width,
@@ -85,5 +70,5 @@ export function makeIndexedImage(imageData: ImageData): IndexedImage {
     data: indexedData,
     transparentPalletIndex,
     palette,
-  }
+  };
 }
