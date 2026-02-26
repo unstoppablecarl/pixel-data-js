@@ -1,5 +1,3 @@
-export type Color32 = number;
-
 /**
  * Compressed data format for image processing optimization.
  * Representing an image as a grid of palette indices rather than raw RGBA values
