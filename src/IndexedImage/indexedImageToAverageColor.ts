@@ -14,7 +14,7 @@ export function indexedImageToAverageColor(
   includeTransparent: boolean = false,
 ): Color32 {
   const { data, palette, transparentPalletIndex } = indexedImage
-  const counts = new Uint32Array(palette.length / 4)
+  const counts = new Uint32Array(palette.length)
 
   // Tally occurrences of each index
   for (let i = 0; i < data.length; i++) {
@@ -39,11 +39,12 @@ export function indexedImageToAverageColor(
       continue
     }
 
-    const pIdx = id * 4
-    const r = palette[pIdx]!
-    const g = palette[pIdx + 1]!
-    const b = palette[pIdx + 2]!
-    const a = palette[pIdx + 3]!
+    const color = palette[id]! >>> 0;
+
+    const r = color & 0xFF
+    const g = (color >> 8) & 0xFF
+    const b = (color >> 16) & 0xFF
+    const a = (color >> 24) & 0xFF
 
     rSum += r * weight
     gSum += g * weight

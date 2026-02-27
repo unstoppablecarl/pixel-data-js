@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { type IndexedImage, indexedImageToAverageColor, packRGBA } from '../../src'
+import { type IndexedImage, indexedImageToAverageColor, makeIndexedImage, packRGBA } from '../../src'
+import { pack } from '../_helpers'
 
 describe('indexedImageToAverageColor', () => {
   it('should return a zeroed RGBA object for an empty image', () => {
@@ -28,9 +29,9 @@ describe('indexedImageToAverageColor', () => {
       height: 1,
       data: new Int32Array([1, 1, 2]),
       palette: new Int32Array([
-        0, 0, 0, 0,       // ID 0: Transparent
-        255, 0, 0, 255,   // ID 1: Red
-        0, 0, 255, 255,   // ID 2: Blue
+        pack(0, 0, 0, 0),       // ID 0: Transparent
+        pack(255, 0, 0, 255),   // ID 1: Red
+        pack(0, 0, 255, 255),   // ID 2: Blue
       ]),
       transparentPalletIndex: 0,
     }
@@ -55,8 +56,8 @@ describe('indexedImageToAverageColor', () => {
       height: 1,
       data: new Int32Array([0, 1]),
       palette: new Int32Array([
-        0, 0, 0, 0,
-        255, 0, 0, 255,
+        pack(0, 0, 0, 0),
+        pack(255, 0, 0, 255),
       ]),
       transparentPalletIndex: 0,
     }
@@ -78,8 +79,8 @@ describe('indexedImageToAverageColor', () => {
       height: 1,
       data: new Int32Array([0, 1]),
       palette: new Int32Array([
-        0, 0, 0, 0,
-        255, 0, 0, 255,
+        pack(0, 0, 0, 0),
+        pack(255, 0, 0, 255),
       ]),
       transparentPalletIndex: 0,
     }
@@ -96,15 +97,51 @@ describe('indexedImageToAverageColor', () => {
     }))
   })
 
+  it('should include transparent pixels in the average when includeTransparent is indexedImage compatibility', () => {
+    const width = 2
+    const height = 1
+    const imageData = new ImageData(width, height)
+    const data = imageData.data
+
+    // Pixel 0: Fully Transparent (0, 0, 0, 0)
+    data[0] = 0
+    data[1] = 0
+    data[2] = 0
+    data[3] = 0
+
+    // Pixel 1: Solid Red (255, 0, 0, 255)
+    data[4] = 255
+    data[5] = 0
+    data[6] = 0
+    data[7] = 255
+
+    const indexedImage = makeIndexedImage(imageData)
+
+    const result = indexedImageToAverageColor(indexedImage, true)
+
+    // Average calculation:
+    // R: (0 + 255) / 2 = 127.5 -> 127
+    // G: (0 + 0) / 2 = 0
+    // B: (0 + 0) / 2 = 0
+    // A: (0 + 255) / 2 = 127.5 -> 127
+    expect(result).toEqual(packRGBA({
+      r: 127,
+      g: 0,
+      b: 0,
+      a: 127,
+    }))
+
+  })
+
   it('should skip palette colors that do not appear in the data', () => {
     const indexedImage: IndexedImage = {
       width: 1,
       height: 1,
       data: new Int32Array([1]),
       palette: new Int32Array([
-        0, 0, 0, 0,
-        255, 255, 255, 255,
-        100, 100, 100, 255, // Unused
+        pack(0, 0, 0, 0),
+        pack(255, 255, 255, 255),
+        pack(100, 100, 100, 255), // Unused
       ]),
       transparentPalletIndex: 0,
     }
@@ -124,7 +161,7 @@ describe('indexedImageToAverageColor', () => {
       width: 1,
       height: 1,
       data: new Int32Array([0]),
-      palette: new Int32Array([0, 0, 0, 0]),
+      palette: new Int32Array([pack(0, 0, 0, 0)]),
       transparentPalletIndex: 0,
     }
 

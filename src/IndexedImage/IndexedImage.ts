@@ -26,47 +26,49 @@ export type IndexedImage = {
 /**
  * Converts standard ImageData into an IndexedImage format.
  */
+/**
+ * Converts standard ImageData into an IndexedImage format.
+ */
 export function makeIndexedImage(imageData: ImageData): IndexedImage {
-  const width = imageData.width;
-  const height = imageData.height;
-  // Use a 32-bit view to read pixels as packed integers
-  const rawData = new Uint32Array(imageData.data.buffer);
-  const indexedData = new Int32Array(rawData.length);
-  const colorMap = new Map<number, number>();
-  const tempPalette: number[] = [];
+  const width = imageData.width
+  const height = imageData.height
 
-  const transparentColor = 0; // 0x00000000
-  const transparentPalletIndex = 0;
+  // Use a 32-bit view to read pixels as packed integers (usually ABGR or RGBA)
+  const rawData = new Uint32Array(imageData.data.buffer)
+  const indexedData = new Int32Array(rawData.length)
+  const colorMap = new Map<number, number>()
+
+  const transparentColor = 0
+  const transparentPalletIndex = 0
 
   // Initialize palette with normalized transparent color
-  colorMap.set(transparentColor, transparentPalletIndex);
-  tempPalette.push(transparentColor);
+  colorMap.set(transparentColor, transparentPalletIndex)
 
   for (let i = 0; i < rawData.length; i++) {
-    const pixel = rawData[i]!;
+    const pixel = rawData[i]!
 
     // Check if the pixel is fully transparent
-    const isTransparent = (pixel >>> 24) === 0;
-    const colorKey = isTransparent ? transparentColor : pixel;
+    const alpha = (pixel >>> 24) & 0xFF
+    const isTransparent = alpha === 0
+    const colorKey = isTransparent ? transparentColor : pixel
 
-    let id = colorMap.get(colorKey);
+    let id = colorMap.get(colorKey)
 
     if (id === undefined) {
-      id = colorMap.size;
-      tempPalette.push(colorKey);
-      colorMap.set(colorKey, id);
+      // Use the current length as the next ID to ensure sequence
+      id = colorMap.size
+      colorMap.set(colorKey, id)
     }
 
-    indexedData[i] = id;
+    indexedData[i] = id
   }
 
-  const palette = new Int32Array(tempPalette);
-
+  const palette = new Int32Array(colorMap.keys())
   return {
     width,
     height,
     data: indexedData,
     transparentPalletIndex,
     palette,
-  };
+  }
 }
