@@ -167,3 +167,9 @@ export type SelectionRect = Rect & ({
   mask?: null
   maskType?: null,
 })
+
+
+export type Point = {
+  x: number,
+  y: number,
+}

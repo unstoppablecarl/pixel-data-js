@@ -3,7 +3,12 @@ export * from './color'
 
 export * from './Algorithm/floodFillSelection'
 
-export * from './BlendModes/blend-modes'
+export {
+  type BlendMode,
+  type BlendModeIndex,
+  type IndexToBlendGetter,
+  type BlendToIndexGetter,
+} from './BlendModes/blend-modes'
 export * from './BlendModes/blend-modes-fast'
 export * from './BlendModes/blend-modes-perfect'
 
@@ -45,6 +50,7 @@ export * from './PixelData/clearPixelData'
 export * from './PixelData/fillPixelData'
 export * from './PixelData/invertPixelData'
 export * from './PixelData/pixelDataToAlphaMask'
+export * from './PixelData/reflectPixelData'
+export * from './PixelData/rotatePixelData'
 
 export * from './Rect/trimRectBounds'
-export { BlendMode } from './BlendModes/blend-modes'

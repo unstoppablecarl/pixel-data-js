@@ -1,5 +1,5 @@
 import type { BlendColor32, Color32 } from '../_types'
-import { BlendMode } from './blend-modes'
+import { BlendMode, type BlendModeIndex, type BaseBlendToIndexGetter, type BaseIndexToBlendGetter } from './blend-modes'
 
 export const overwritePerfect: BlendColor32 = (src, _dst) => src
 
@@ -595,7 +595,7 @@ export const PERFECT_BLENDER_REGISTRY = [
 ] as const
 
 export type RegisteredPerfectBlender = typeof PERFECT_BLENDER_REGISTRY[number][1]
-export type PerfectBlendModeIndex = number & { readonly __brandBlendModeIndex: unique symbol }
+export type PerfectBlendModeIndex = BlendModeIndex & { readonly __brandBlendModeIndex: unique symbol }
 
 export const PERFECT_BLEND_MODES: BlendColor32[] = []
 for (const [index, blend] of PERFECT_BLENDER_REGISTRY) {
@@ -609,7 +609,7 @@ export const PERFECT_BLEND_TO_INDEX = new Map(
       index as PerfectBlendModeIndex,
     ]
   }),
-) as { get: (blend: RegisteredPerfectBlender) => PerfectBlendModeIndex }
+) as BaseBlendToIndexGetter<PerfectBlendModeIndex, RegisteredPerfectBlender>
 
 export const INDEX_TO_PERFECT_BLEND = new Map(
   PERFECT_BLENDER_REGISTRY.map((entry, index) => {
@@ -618,7 +618,7 @@ export const INDEX_TO_PERFECT_BLEND = new Map(
       entry[1],
     ]
   }),
-) as { get: (index: PerfectBlendModeIndex) => RegisteredPerfectBlender }
+) as BaseIndexToBlendGetter<PerfectBlendModeIndex, RegisteredPerfectBlender>
 
 export type PerfectBlendModes = {
   [K in keyof typeof BlendMode]: RegisteredPerfectBlender
