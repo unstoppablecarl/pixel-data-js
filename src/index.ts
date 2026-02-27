@@ -4,11 +4,14 @@ export * from './color'
 export * from './Algorithm/floodFillSelection'
 
 export {
-  type BlendMode,
+  BlendMode,
   type BlendModeIndex,
-  type IndexToBlendGetter,
-  type BlendToIndexGetter,
 } from './BlendModes/blend-modes'
+export {
+  type BlendToIndexGetter,
+  type IndexToBlendGetter,
+} from './BlendModes/blend-mode-getters'
+
 export * from './BlendModes/blend-modes-fast'
 export * from './BlendModes/blend-modes-perfect'
 

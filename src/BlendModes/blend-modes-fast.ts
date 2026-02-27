@@ -1,5 +1,6 @@
 import type { BlendColor32, Color32 } from '../_types'
-import { BlendMode, type BlendModeIndex, type BaseBlendToIndexGetter, type BaseIndexToBlendGetter } from './blend-modes'
+import type { BaseBlendToIndexGetter, BaseIndexToBlendGetter } from './blend-mode-getters'
+import { BlendMode, type BlendModeIndex } from './blend-modes'
 
 export const overwriteFast: BlendColor32 = (src, _dst) => src
 
@@ -605,31 +606,30 @@ export const FAST_BLENDER_REGISTRY = [
 ] as const
 
 export type RegisteredFastBlender = typeof FAST_BLENDER_REGISTRY[number][1]
-export type FastBlendModeIndex = BlendModeIndex & { readonly __brandBlendModeIndex: unique symbol }
 
 export const FAST_BLEND_MODES: BlendColor32[] = []
 
 for (const [index, blend] of FAST_BLENDER_REGISTRY) {
-  FAST_BLEND_MODES[index as FastBlendModeIndex] = blend
+  FAST_BLEND_MODES[index as BlendModeIndex] = blend
 }
 
-export const FAST_BLEND_TO_INDEX = new Map<RegisteredFastBlender, FastBlendModeIndex>(
+export const FAST_BLEND_TO_INDEX = new Map<RegisteredFastBlender, BlendModeIndex>(
   FAST_BLENDER_REGISTRY.map((entry, index) => {
     return [
       entry[1],
-      index as FastBlendModeIndex,
+      index as BlendModeIndex,
     ]
   }),
-) as BaseBlendToIndexGetter<FastBlendModeIndex, RegisteredFastBlender>
+) as BaseBlendToIndexGetter<RegisteredFastBlender>
 
-export const INDEX_TO_FAST_BLEND = new Map<FastBlendModeIndex, RegisteredFastBlender>(
+export const INDEX_TO_FAST_BLEND = new Map<BlendModeIndex, RegisteredFastBlender>(
   FAST_BLENDER_REGISTRY.map((entry, index) => {
     return [
-      index as FastBlendModeIndex,
+      index as BlendModeIndex,
       entry[1],
     ]
   }),
-) as BaseIndexToBlendGetter<FastBlendModeIndex, RegisteredFastBlender>
+) as BaseIndexToBlendGetter<RegisteredFastBlender>
 
 export type FastBlendModes = {
   [K in keyof typeof BlendMode]: RegisteredFastBlender

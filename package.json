@@ -16,7 +16,8 @@
     "image",
     "color",
     "blend modes",
-    "color blend"
+    "color blend",
+    "canvas"
   ],
   "main": "./dist/index.prod.cjs",
   "module": "./dist/index.prod.js",
