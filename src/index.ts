@@ -35,6 +35,7 @@ export * from './ImageData/writeImageDataPixels'
 
 export * from './IndexedImage/IndexedImage'
 export * from './IndexedImage/indexedImageToAverageColor'
+export * from './IndexedImage/getIndexedImageColorCounts'
 
 export * from './Input/fileInputChangeToImageData'
 export * from './Input/fileToImageData'
