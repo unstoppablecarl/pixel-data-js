@@ -26,7 +26,7 @@ describe('makeIndexedImage', () => {
 
     // Palette index 0 should be 0 (0x00000000)
     expect(result.palette[0]).toBe(0);
-    expect(result.palette instanceof Int32Array).toBe(true);
+    expect(result.palette instanceof Uint32Array).toBe(true);
   });
   it('should map unique opaque colors to sequential indices', () => {
     const r = 255;
@@ -34,8 +34,8 @@ describe('makeIndexedImage', () => {
     const b = 64;
     const a = 255;
 
-    // Force this to be a signed 32-bit integer to match Int32Array's behavior
-    const expectedColor = ((a << 24) | (b << 16) | (g << 8) | r) | 0;
+    // Force this to be a un-signed 32-bit integer to match Int32Array's behavior
+    const expectedColor = ((a << 24) | (b << 16) | (g << 8) | r) >>> 0;
 
     const data = new Uint8ClampedArray([
       0, 0, 0, 0, // ID 0
@@ -84,6 +84,6 @@ describe('makeIndexedImage', () => {
     expect(result.data.length).toBe(100);
     expect(result.data instanceof Int32Array).toBe(true);
     // Fixed: Test was checking for Uint32Array, updated to match Int32Array palette
-    expect(result.palette instanceof Int32Array).toBe(true);
+    expect(result.palette instanceof Uint32Array).toBe(true);
   });
 });

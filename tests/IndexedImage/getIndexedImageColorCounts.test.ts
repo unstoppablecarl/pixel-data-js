@@ -9,7 +9,7 @@ describe('getIndexedImageColorCounts', () => {
       width: 2,
       height: 2,
       data: new Int32Array([0, 1, 1, 2]),
-      palette: new Int32Array([0xFF000000, 0xFFFFFFFF, 0xFFFF0000]),
+      palette: new Uint32Array([0xFF000000, 0xFFFFFFFF, 0xFFFF0000]),
       transparentPalletIndex: 0
     }
 
@@ -27,7 +27,7 @@ describe('getIndexedImageColorCounts', () => {
       width: 2,
       height: 1,
       data: new Int32Array([0, 0]),
-      palette: new Int32Array([0x00, 0x01, 0x02]),
+      palette: new Uint32Array([0x00, 0x01, 0x02]),
       transparentPalletIndex: 0
     }
 
@@ -43,7 +43,7 @@ describe('getIndexedImageColorCounts', () => {
       width: 0,
       height: 0,
       data: new Int32Array([]),
-      palette: new Int32Array([0x00, 0x01]),
+      palette: new Uint32Array([0x00, 0x01]),
       transparentPalletIndex: 0
     }
 
@@ -53,7 +53,7 @@ describe('getIndexedImageColorCounts', () => {
   })
 
   it('should match the length of the palette regardless of data values', () => {
-    const palette = new Int32Array(10)
+    const palette = new Uint32Array(10)
     const mockImage: IndexedImage = {
       width: 1,
       height: 1,

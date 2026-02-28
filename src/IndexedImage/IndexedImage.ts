@@ -16,7 +16,7 @@ export type IndexedImage = {
   /**
    * A palette of packed 32-bit colors (ABGR).
    */
-  palette: Int32Array;
+  palette: Uint32Array;
   /**
    * The specific index in the palette that represents a fully transparent pixel.
    */
@@ -63,7 +63,7 @@ export function makeIndexedImage(imageData: ImageData): IndexedImage {
     indexedData[i] = id
   }
 
-  const palette = new Int32Array(colorMap.keys())
+  const palette = new Uint32Array(colorMap.keys())
   return {
     width,
     height,
