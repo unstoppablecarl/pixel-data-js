@@ -26,15 +26,24 @@ export type IndexedImage = {
 /**
  * Converts standard ImageData into an IndexedImage format.
  */
-/**
- * Converts standard ImageData into an IndexedImage format.
- */
-export function makeIndexedImage(imageData: ImageData): IndexedImage {
-  const width = imageData.width
-  const height = imageData.height
+export function makeIndexedImage(imageData: ImageData): IndexedImage;
+export function makeIndexedImage(
+  data: Uint8ClampedArray,
+  width: number,
+  height: number,
+): IndexedImage;
+export function makeIndexedImage(
+  imageOrData: ImageData | Uint8ClampedArray,
+  width?: number,
+  height?: number,
+): IndexedImage {
+  const isImageData = 'width' in imageOrData
+  const actualWidth = isImageData ? imageOrData.width : (width as number)
+  const actualHeight = isImageData ? imageOrData.height : (height as number)
+  const buffer = isImageData ? imageOrData.data.buffer : imageOrData.buffer
 
-  // Use a 32-bit view to read pixels as packed integers (usually ABGR or RGBA)
-  const rawData = new Uint32Array(imageData.data.buffer)
+  // Use a 32-bit view to read pixels as packed integers (unsigned)
+  const rawData = new Uint32Array(buffer)
   const indexedData = new Int32Array(rawData.length)
   const colorMap = new Map<number, number>()
 
@@ -47,15 +56,14 @@ export function makeIndexedImage(imageData: ImageData): IndexedImage {
   for (let i = 0; i < rawData.length; i++) {
     const pixel = rawData[i]!
 
-    // Check if the pixel is fully transparent
+    // Check if the pixel is fully transparent (Alpha channel is highest byte)
     const alpha = (pixel >>> 24) & 0xFF
     const isTransparent = alpha === 0
-    const colorKey = isTransparent ? transparentColor : pixel
+    const colorKey = isTransparent ? transparentColor : (pixel >>> 0)
 
     let id = colorMap.get(colorKey)
 
     if (id === undefined) {
-      // Use the current length as the next ID to ensure sequence
       id = colorMap.size
       colorMap.set(colorKey, id)
     }
@@ -63,10 +71,11 @@ export function makeIndexedImage(imageData: ImageData): IndexedImage {
     indexedData[i] = id
   }
 
-  const palette = new Uint32Array(colorMap.keys())
+  const palette = Uint32Array.from(colorMap.keys())
+
   return {
-    width,
-    height,
+    width: actualWidth,
+    height: actualHeight,
     data: indexedData,
     transparentPalletIndex,
     palette,
