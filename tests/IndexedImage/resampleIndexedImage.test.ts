@@ -43,4 +43,24 @@ describe('resampleIndexedImage', () => {
     expect(result.height).toBe(1)
     expect(result.data[0]).toBe(source.data[0])
   })
+
+  it('should handle non-integer factors without row drift', () => {
+    // 3x3 source
+    const source = createTestIndexed(3, 3)
+    // 3 * 1.5 = 4.5. Without flooring, this causes the scan lines.
+    const factor = 1.5
+    const result = resampleIndexedImage(source, factor)
+
+    // If the logic is correct, width should be 4
+    expect(result.width).toBe(4)
+
+    // Verify the start of the second row.
+    // If drift occurs, the index would be offset by a fraction.
+    const secondRowStart = result.width // index 4
+    expect(result.data[secondRowStart]).toBeDefined()
+
+    // In a 4.5 wide float-based loop, the second row might
+    // have started at index 4 or 5 depending on truncation,
+    // causing the "skew" you saw.
+  })
 })
