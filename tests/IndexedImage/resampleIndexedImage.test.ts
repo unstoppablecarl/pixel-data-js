@@ -14,7 +14,7 @@ describe('resampleIndexedImage', () => {
       data,
       palette: new Uint32Array([0xFF0000FF, 0x00FF00FF]),
       transparentPalletIndex: 0,
-    }
+    } as IndexedImage
   }
 
   it('should upscale indices correctly', () => {

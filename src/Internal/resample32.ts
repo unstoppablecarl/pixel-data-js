@@ -4,8 +4,14 @@ const resample32Scratch = {
   height: 0,
 }
 
+/**
+ *  @internal
+ */
 type Resample32Result = { data: Int32Array; width: number; height: number }
 
+/**
+ *  @internal
+ */
 export function resample32(
   srcData32: Uint32Array | Int32Array,
   srcW: number,

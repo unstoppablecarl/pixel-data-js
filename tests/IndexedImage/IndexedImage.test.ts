@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { makeIndexedImage } from '../../src'
+import { IndexedImage } from '../../src'
 
-describe('makeIndexedImage', () => {
+describe('IndexedImage', () => {
   it('should initialize with a width and height', () => {
     const data = new Uint8ClampedArray(4).fill(0)
     const imageData = new ImageData(data, 1, 1)
-    const result = makeIndexedImage(imageData)
+    const result = IndexedImage.fromImageData(imageData)
 
     expect(result.width).toBe(1)
     expect(result.height).toBe(1)
@@ -18,7 +18,7 @@ describe('makeIndexedImage', () => {
       255, 0, 0, 0, // Transparent Red (still transparent)
     ])
     const imageData = new ImageData(data, 2, 1)
-    const result = makeIndexedImage(imageData)
+    const result = IndexedImage.fromImageData(imageData)
 
     expect(result.transparentPalletIndex).toBe(0)
     expect(result.data[0]).toBe(0)
@@ -44,7 +44,7 @@ describe('makeIndexedImage', () => {
       r, g, b, a, // ID 1 (repeated)
     ])
     const imageData = new ImageData(data, 4, 1)
-    const result = makeIndexedImage(imageData)
+    const result = IndexedImage.fromImageData(imageData)
 
     expect(result.data[0]).toBe(0)
     expect(result.data[1]).toBe(1)
@@ -63,7 +63,7 @@ describe('makeIndexedImage', () => {
       100, 100, 100, 255, // Gray
     ])
     const imageData = new ImageData(data, 2, 1)
-    const result = makeIndexedImage(imageData)
+    const result = IndexedImage.fromImageData(imageData)
 
     // Index 0 is reserved for transparency
     expect(result.transparentPalletIndex).toBe(0)
@@ -79,7 +79,7 @@ describe('makeIndexedImage', () => {
     const height = 10
     const data = new Uint8ClampedArray(width * height * 4).fill(255)
     const imageData = new ImageData(data, width, height)
-    const result = makeIndexedImage(imageData)
+    const result = IndexedImage.fromImageData(imageData)
 
     expect(result.data.length).toBe(100)
     expect(result.data instanceof Int32Array).toBe(true)
@@ -87,7 +87,7 @@ describe('makeIndexedImage', () => {
     expect(result.palette instanceof Uint32Array).toBe(true)
   })
 
-  describe('makeIndexedImage Overload', () => {
+  describe('IndexedImage.fromImageData Overload', () => {
     it('should create an IndexedImage from raw Uint8ClampedArray, width, and height', () => {
       const width = 2
       const height = 1
@@ -97,7 +97,7 @@ describe('makeIndexedImage', () => {
       ])
 
       // Call using the raw data overload
-      const result = makeIndexedImage(data, width, height)
+      const result = IndexedImage.fromRaw(data, width, height)
 
       expect(result.width).toBe(2)
       expect(result.height).toBe(1)
@@ -118,8 +118,8 @@ describe('makeIndexedImage', () => {
 
       const imageData = new ImageData(new Uint8ClampedArray(buffer), width, height)
 
-      const resA = makeIndexedImage(imageData)
-      const resB = makeIndexedImage(buffer, width, height)
+      const resA = IndexedImage.fromImageData(imageData)
+      const resB = IndexedImage.fromRaw(buffer, width, height)
 
       expect(resA.width).toBe(resB.width)
       expect(resA.data[0]).toBe(resB.data[0])
@@ -132,13 +132,66 @@ describe('makeIndexedImage', () => {
       // White: 0xFFFFFFFF
       const data = new Uint8ClampedArray([255, 255, 255, 255])
 
-      const result = makeIndexedImage(data, width, height)
+      const result = IndexedImage.fromRaw(data, width, height)
 
       // Using >>> 0 ensures it's compared as a large positive integer, not -1
       const expectedColor = 0xFFFFFFFF >>> 0
 
       expect(result.palette[1]).toBe(expectedColor)
       expect(result.palette[1]).toBeGreaterThan(0)
+    })
+  })
+
+  describe('IndexedImage.getColorAt', () => {
+    it('should return the correct packed color for given coordinates', () => {
+      const width = 2
+      const height = 2
+      const data = new Uint8ClampedArray(width * height * 4)
+
+      // Red pixel at (0, 0)
+      data[0] = 255
+      data[1] = 0
+      data[2] = 0
+      data[3] = 255
+
+      // Green pixel at (1, 1)
+      const offset = (1 + 1 * width) * 4
+      data[offset] = 0
+      data[offset + 1] = 255
+      data[offset + 2] = 0
+      data[offset + 3] = 255
+
+      const img = IndexedImage.fromRaw(data, width, height)
+
+      // Verify Red at (0, 0)
+      // 0xFF0000FF in little-endian is typically 4278190335
+      const colorRed = img.getColorAt(0, 0)
+      expect(colorRed).not.toBe(0)
+
+      // Verify Green at (1, 1)
+      const colorGreen = img.getColorAt(1, 1)
+      expect(colorGreen).not.toBe(colorRed)
+
+      // Verify transparency normalization at (1, 0) - untouched pixels are 0,0,0,0
+      const colorTrans = img.getColorAt(1, 0)
+      expect(colorTrans).toBe(0)
+    })
+
+    it('should handle images where width and height differ', () => {
+      const width = 5
+      const height = 2
+      const data = new Uint8ClampedArray(width * height * 4)
+
+      // Set pixel at (4, 1) - the very last pixel
+      const lastPixelIdx = (4 + 1 * width) * 4
+      data[lastPixelIdx] = 123
+      data[lastPixelIdx + 3] = 255
+
+      const img = IndexedImage.fromRaw(data, width, height)
+      const result = img.getColorAt(4, 1)
+
+      // Check that the blue channel or alpha is present in the packed int
+      expect(result).toBeGreaterThan(0)
     })
   })
 })

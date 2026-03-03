@@ -1,17 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import type { IndexedImage } from '../../src'
-import { getIndexedImageColorCounts } from '../../src/IndexedImage/getIndexedImageColorCounts'
-
+import { getIndexedImageColorCounts } from '../../src'
 
 describe('getIndexedImageColorCounts', () => {
   it('should correctly count color frequencies mapping to palette indices', () => {
-    const mockImage: IndexedImage = {
+    const mockImage = {
       width: 2,
       height: 2,
       data: new Int32Array([0, 1, 1, 2]),
       palette: new Uint32Array([0xFF000000, 0xFFFFFFFF, 0xFFFF0000]),
-      transparentPalletIndex: 0
-    }
+      transparentPalletIndex: 0,
+    } as IndexedImage
 
     const counts = getIndexedImageColorCounts(mockImage)
 
@@ -23,13 +22,13 @@ describe('getIndexedImageColorCounts', () => {
   })
 
   it('should return zeros for palette indices not present in the data', () => {
-    const mockImage: IndexedImage = {
+    const mockImage = {
       width: 2,
       height: 1,
       data: new Int32Array([0, 0]),
       palette: new Uint32Array([0x00, 0x01, 0x02]),
-      transparentPalletIndex: 0
-    }
+      transparentPalletIndex: 0,
+    } as IndexedImage
 
     const counts = getIndexedImageColorCounts(mockImage)
 
@@ -39,13 +38,13 @@ describe('getIndexedImageColorCounts', () => {
   })
 
   it('should handle an empty data array', () => {
-    const mockImage: IndexedImage = {
+    const mockImage = {
       width: 0,
       height: 0,
       data: new Int32Array([]),
       palette: new Uint32Array([0x00, 0x01]),
-      transparentPalletIndex: 0
-    }
+      transparentPalletIndex: 0,
+    } as IndexedImage
 
     const counts = getIndexedImageColorCounts(mockImage)
 
@@ -54,13 +53,13 @@ describe('getIndexedImageColorCounts', () => {
 
   it('should match the length of the palette regardless of data values', () => {
     const palette = new Uint32Array(10)
-    const mockImage: IndexedImage = {
+    const mockImage = {
       width: 1,
       height: 1,
       data: new Int32Array([5]),
       palette: palette,
-      transparentPalletIndex: 0
-    }
+      transparentPalletIndex: 0,
+    } as IndexedImage
 
     const counts = getIndexedImageColorCounts(mockImage)
 
