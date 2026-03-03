@@ -33,11 +33,13 @@ export * from './ImageData/resampleImageData'
 export * from './ImageData/resizeImageData'
 export * from './ImageData/serialization'
 export * from './ImageData/writeImageDataPixels'
+export * from './ImageData/writeImageData'
 
 export * from './IndexedImage/IndexedImage'
 export * from './IndexedImage/getIndexedImageColorCounts'
 export * from './IndexedImage/indexedImageToAverageColor'
 export * from './IndexedImage/resampleIndexedImage'
+export * from './IndexedImage/indexedImageToImageData'
 
 export * from './Input/fileInputChangeToImageData'
 export * from './Input/fileToImageData'
