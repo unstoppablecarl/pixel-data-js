@@ -28,7 +28,7 @@ export * from './ImageData/resampleImageData'
 export * from './ImageData/resizeImageData'
 export * from './ImageData/serialization'
 export * from './ImageData/writeImageData'
-export * from './ImageData/writeImageDataPixels'
+export * from './ImageData/writeImageDataBuffer'
 
 export * from './IndexedImage/IndexedImage'
 export * from './IndexedImage/getIndexedImageColorCounts'

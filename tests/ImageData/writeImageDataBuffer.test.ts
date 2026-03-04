@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { writeImageDataPixels } from '../../src'
+import { writeImageDataBuffer } from '../../src'
 import { createImg, createTestImageData, expectPixelToMatch } from '../_helpers'
 
-describe('writeImageDataPixels', () => {
+describe('writeImageDataBuffer', () => {
   const W = 10
   const H = 10
 
@@ -118,7 +118,7 @@ describe('writeImageDataPixels', () => {
       h: 1,
     }
 
-    writeImageDataPixels(dst, data, rect)
+    writeImageDataBuffer(dst, data, rect)
     expect(dst.data[0]).toBe(255)
   })
 
