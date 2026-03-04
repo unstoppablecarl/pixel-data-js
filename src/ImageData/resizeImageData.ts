@@ -1,3 +1,5 @@
+import type { ImageDataLike } from '../_types'
+
 /**
  * Non destructively resizes the {@link ImageData} buffer to new dimensions, optionally
  * offsetting the original content.
@@ -5,7 +7,7 @@
  * instead, it crops or pads the image based on the new dimensions and
  * provides an offset for repositioning.
  *
- * @param current The source {@link ImageData} to resize.
+ * @param current The source {@link ImageDataLike} to resize.
  * @param newWidth The target width in pixels.
  * @param newHeight The target height in pixels.
  * @param offsetX The horizontal offset for placing the
@@ -30,7 +32,7 @@
  * ```
  */
 export function resizeImageData(
-  current: ImageData,
+  current: ImageDataLike,
   newWidth: number,
   newHeight: number,
   offsetX = 0,
