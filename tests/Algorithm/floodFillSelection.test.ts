@@ -1,3 +1,4 @@
+import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
 import { floodFillSelection, PixelData } from '../../src'
 import { makeTestPixelData, pack } from '../_helpers'
@@ -6,13 +7,9 @@ describe('floodFillSelection: Scrutiny Suite', () => {
   it('correctly isolates areas with a "moat" in contiguous mode', () => {
     const white = pack(255, 255, 255, 255)
     const black = pack(0, 0, 0, 255)
-    const imgData = {
-      width: 10,
-      height: 10,
-      data: new Uint8ClampedArray(10 * 10 * 4),
-    }
+    const imageData = createImageData(10, 10) as ImageData
 
-    const p = new PixelData(imgData)
+    const p = new PixelData(imageData)
     p.data32.fill(white)
 
     // Create a horizontal black moat at y = 5
@@ -22,7 +19,7 @@ describe('floodFillSelection: Scrutiny Suite', () => {
 
     // Start fill at (0,0) - top half
     const result = floodFillSelection(
-      imgData as ImageData,
+      imageData,
       0,
       0,
       {
@@ -44,13 +41,9 @@ describe('floodFillSelection: Scrutiny Suite', () => {
   it('correctly isolates areas with a "moat" in contiguous mode using PixelData', () => {
     const white = pack(255, 255, 255, 255)
     const black = pack(0, 0, 0, 255)
-    const imgData = {
-      width: 10,
-      height: 10,
-      data: new Uint8ClampedArray(10 * 10 * 4),
-    }
+    const imageData = createImageData(10, 10) as ImageData
 
-    const p = new PixelData(imgData)
+    const p = new PixelData(imageData)
     p.data32.fill(white)
 
     // Create a horizontal black moat at y = 5
@@ -82,13 +75,9 @@ describe('floodFillSelection: Scrutiny Suite', () => {
   it('prevents diagonal leaking (4-connectivity verification)', () => {
     const white = pack(255, 255, 255, 255)
     const black = pack(0, 0, 0, 255)
-    const imgData = {
-      width: 3,
-      height: 3,
-      data: new Uint8ClampedArray(3 * 3 * 4),
-    }
+    const imageData = createImageData(3, 3) as ImageData
 
-    const p = new PixelData(imgData)
+    const p = new PixelData(imageData)
     p.data32.fill(white)
 
     /**
@@ -103,7 +92,7 @@ describe('floodFillSelection: Scrutiny Suite', () => {
     p.data32[7] = black // (1,2)
 
     const result = floodFillSelection(
-      imgData as ImageData,
+      imageData,
       1,
       1,
       {
@@ -121,13 +110,9 @@ describe('floodFillSelection: Scrutiny Suite', () => {
   it('verifies non-contiguous mode picks up isolated islands', () => {
     const white = pack(255, 255, 255, 255)
     const black = pack(0, 0, 0, 255)
-    const imgData = {
-      width: 4,
-      height: 1,
-      data: new Uint8ClampedArray(4 * 1 * 4),
-    }
+    const imageData = createImageData(4, 1) as ImageData
 
-    const p = new PixelData(imgData)
+    const p = new PixelData(imageData)
     // Pattern: White, Black, White, Black
     p.data32[0] = white
     p.data32[1] = black
@@ -135,7 +120,7 @@ describe('floodFillSelection: Scrutiny Suite', () => {
     p.data32[3] = black
 
     const result = floodFillSelection(
-      imgData as ImageData,
+      imageData,
       0,
       0,
       {

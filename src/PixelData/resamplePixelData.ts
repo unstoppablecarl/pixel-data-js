@@ -15,9 +15,9 @@ export function resamplePixelData(
 ): PixelData {
   const { data, width, height } = resample32(pixelData.data32, pixelData.width, pixelData.height, factor)
 
-  return new PixelData({
+  return new PixelData(new ImageData(
+    new Uint8ClampedArray(data.buffer) as ImageDataArray,
     width,
     height,
-    data: new Uint8ClampedArray(data.buffer),
-  })
+  ))
 }

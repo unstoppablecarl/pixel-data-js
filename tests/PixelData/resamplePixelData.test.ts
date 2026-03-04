@@ -1,6 +1,6 @@
+import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
-import { PixelData } from '../../src'
-import { resamplePixelData } from '../../src'
+import { PixelData, resamplePixelData } from '../../src'
 
 describe('resamplePixelData', () => {
   const createTestPixelData = (w: number, h: number) => {
@@ -9,11 +9,9 @@ describe('resamplePixelData', () => {
       // Fill with a recognizable pattern: [0, 1, 2, 3...]
       data[i] = i / 4
     }
-    return new PixelData({
-      data,
-      width: w,
-      height: h,
-    })
+    const imageData = createImageData(data, w, h) as ImageData
+
+    return new PixelData(imageData)
   }
 
   it('should upscale by a factor of 2', () => {
@@ -54,11 +52,9 @@ describe('resamplePixelData', () => {
   it('should maintain color integrity (32-bit values)', () => {
     const data = new Uint8ClampedArray(4)
     data.set([255, 128, 64, 200]) // Specific RGBA
-    const source = new PixelData({
-      data,
-      width: 1,
-      height: 1,
-    })
+    const imageData = createImageData(data, 1, 1) as ImageData
+    const source = new PixelData(imageData)
+
     const result = resamplePixelData(source, 2)
 
     expect(result.data32[0]).toBe(source.data32[0])

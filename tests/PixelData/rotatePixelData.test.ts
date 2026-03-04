@@ -1,15 +1,10 @@
+import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
-import { PixelData } from '../../src'
-import { rotatePixelData } from '../../src/PixelData/rotatePixelData'
+import { PixelData, rotatePixelData } from '../../src'
 
 describe('rotatePixelData', () => {
   it('should rotate a square 2x2 image in-place', () => {
-    const buffer = new Uint8ClampedArray(4 * 4)
-    const imageData = {
-      data: buffer,
-      width: 2,
-      height: 2,
-    }
+    const imageData = createImageData(2, 2) as ImageData
 
     const pixelData = new PixelData(imageData)
     const data = pixelData.data32
@@ -34,12 +29,7 @@ describe('rotatePixelData', () => {
   })
 
   it('should rotate a rectangular 3x2 image and update dimensions', () => {
-    const buffer = new Uint8ClampedArray(6 * 4)
-    const imageData = {
-      data: buffer,
-      width: 3,
-      height: 2,
-    }
+    const imageData = createImageData(3, 2) as ImageData
 
     const pixelData = new PixelData(imageData)
     const data = pixelData.data32
@@ -71,12 +61,7 @@ describe('rotatePixelData', () => {
   })
 
   it('should preserve all pixels after a full 360-degree rotation', () => {
-    const buffer = new Uint8ClampedArray(4 * 4)
-    const imageData = {
-      data: buffer,
-      width: 2,
-      height: 2,
-    }
+    const imageData = createImageData(2, 2) as ImageData
 
     const pixelData = new PixelData(imageData)
     pixelData.data32[0] = 10

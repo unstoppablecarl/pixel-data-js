@@ -1,3 +1,4 @@
+import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { expect } from 'vitest'
 import type { AlphaMask, BinaryMask, Color32, ImageDataLike } from '../src'
 import { PixelData } from '../src'
@@ -116,11 +117,7 @@ export const makeTestPixelData = (
   fill: number = 0,
 ) => {
   const data = new Uint8ClampedArray(w * h * 4)
-  const img = new PixelData({
-    width: w,
-    height: h,
-    data,
-  })
+  const img = new PixelData(createImageData(data, w, h) as ImageData)
   if (fill !== 0) {
     img.data32.fill(fill)
   }
@@ -157,31 +154,31 @@ export function makeComplexTestPixelData(w: number, h: number): PixelData {
 }
 
 export function makeComplexAlphaMask(w: number, h: number): AlphaMask {
-  const data = new Uint8Array(w * h);
+  const data = new Uint8Array(w * h)
 
   for (let i = 0; i < data.length; i++) {
-    const x = i % w;
-    const y = (i / w) | 0;
+    const x = i % w
+    const y = (i / w) | 0
 
     // Create a spatial gradient (0-255)
     // This ensures we test the full range of interpolation math
-    data[i] = ((x / w) * 127 + (y / h) * 127) | 0;
+    data[i] = ((x / w) * 127 + (y / h) * 127) | 0
   }
 
-  return data as AlphaMask;
+  return data as AlphaMask
 }
 
 export function makeComplexBinaryMask(w: number, h: number): BinaryMask {
-  const data = new Uint8Array(w * h);
+  const data = new Uint8Array(w * h)
 
   for (let i = 0; i < data.length; i++) {
     // Create a checkerboard or "noisy" pattern
     // This prevents the CPU from predicting the "if (mask[i])" branch
-    const x = i % w;
-    const y = (i / w) | 0;
+    const x = i % w
+    const y = (i / w) | 0
 
-    data[i] = (x + y) % 2 === 0 ? 1 : 0;
+    data[i] = (x + y) % 2 === 0 ? 1 : 0
   }
 
-  return data as BinaryMask;
+  return data as BinaryMask
 }

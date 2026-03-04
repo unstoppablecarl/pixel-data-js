@@ -1,5 +1,7 @@
+import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
 import { PixelData } from '../../src'
+import { ImageData as NapiImageData } from '@napi-rs/canvas'
 
 describe('PixelData', () => {
   it('should initialize width, height, and data32 view', () => {
@@ -7,11 +9,7 @@ describe('PixelData', () => {
     const height = 2
     // 4 pixels * 4 bytes = 16 bytes
     const buffer = new Uint8ClampedArray(16)
-    const imageData = {
-      data: buffer,
-      width: width,
-      height: height,
-    }
+    const imageData = createImageData(buffer, width, height) as ImageData
 
     const pixelData = new PixelData(imageData)
 
@@ -27,12 +25,7 @@ describe('PixelData', () => {
     buffer[1] = 0
     buffer[2] = 0
     buffer[3] = 255
-
-    const imageData = {
-      data: buffer,
-      width: 1,
-      height: 1,
-    }
+    const imageData = createImageData(buffer, 1, 1) as ImageData
 
     const pixelData = new PixelData(imageData)
 
@@ -44,12 +37,7 @@ describe('PixelData', () => {
   it('should create a deep copy with the copy() method', () => {
     const buffer = new Uint8ClampedArray(4)
     buffer.fill(255)
-
-    const imageData = {
-      data: buffer,
-      width: 1,
-      height: 1,
-    }
+    const imageData = createImageData(buffer, 1, 1) as ImageData
 
     const original = new PixelData(imageData)
     const clone = original.copy()
@@ -61,5 +49,27 @@ describe('PixelData', () => {
     expect(clone.width).toBe(original.width)
     expect(clone.height).toBe(original.height)
     expect(clone).not.toBe(original)
+  })
+
+  it('should use the instance constructor when global ImageData is undefined', () => {
+    // Ensure global is clean for this specific test
+    const originalGlobal = global.ImageData
+    // @ts-ignore
+    delete global.ImageData
+    // @ts-ignore
+    delete window.ImageData
+
+    const buffer = new Uint8ClampedArray(4)
+    const napiImg = new NapiImageData(buffer, 1, 1)
+    const pixelData = new PixelData(napiImg as unknown as ImageData)
+
+    const copied = pixelData.copy()
+
+    expect(copied.width).toBe(1)
+    // Verify it used the NAPI constructor by checking the instance type
+    expect(copied.imageData).toBeInstanceOf(NapiImageData)
+
+    // Restore for other tests
+    global.ImageData = originalGlobal
   })
 })

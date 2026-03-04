@@ -1,16 +1,12 @@
+import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
-import { PixelData } from '../../src'
-import { reflectPixelDataHorizontal, reflectPixelDataVertical } from '../../src/PixelData/reflectPixelData'
+import { PixelData, reflectPixelDataHorizontal, reflectPixelDataVertical } from '../../src'
 
 describe('Reflection Functions', () => {
   describe('reflectPixelDataHorizontal', () => {
     it('should flip pixels left-to-right within each row', () => {
       const buffer = new Uint8ClampedArray(4 * 4)
-      const imageData = {
-        data: buffer,
-        width: 2,
-        height: 2,
-      }
+      const imageData = createImageData(buffer, 2, 2) as ImageData
 
       const pixelData = new PixelData(imageData)
       const data = pixelData.data32
@@ -36,11 +32,7 @@ describe('Reflection Functions', () => {
   describe('reflectPixelDataVertical', () => {
     it('should flip pixels top-to-bottom across rows', () => {
       const buffer = new Uint8ClampedArray(4 * 4)
-      const imageData = {
-        data: buffer,
-        width: 2,
-        height: 2,
-      }
+      const imageData = createImageData(buffer, 2, 2) as ImageData
 
       const pixelData = new PixelData(imageData)
       const data = pixelData.data32
@@ -65,11 +57,7 @@ describe('Reflection Functions', () => {
 
   it('should return to original state after two identical reflections', () => {
     const buffer = new Uint8ClampedArray(4 * 4)
-    const imageData = {
-      data: buffer,
-      width: 2,
-      height: 2,
-    }
+    const imageData = createImageData(buffer, 2, 2) as ImageData
 
     const pixelData = new PixelData(imageData)
     pixelData.data32[0] = 100

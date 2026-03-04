@@ -1,6 +1,6 @@
+import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
-import { PixelData } from '../../src'
-import { invertPixelData } from '../../src'
+import { invertPixelData, PixelData } from '../../src'
 
 describe('PixelData Inversion', () => {
   const makeMockImageData = (
@@ -16,11 +16,7 @@ describe('PixelData Inversion', () => {
       a,
     ])
 
-    return {
-      width: 1,
-      height: 1,
-      data,
-    }
+    return createImageData(data, 1, 1) as ImageData
   }
 
   it('correctly inverts a Red pixel to Cyan via the 32-bit view', () => {
@@ -52,12 +48,10 @@ describe('PixelData Inversion', () => {
   })
 
   it('handles bitwise shift logic for data32 length', () => {
-    const mock = {
-      width: 2,
-      height: 2,
-      data: new Uint8ClampedArray(16),
-    }
-    const pixels = new PixelData(mock)
+
+    const imageData = createImageData(new Uint8ClampedArray(16), 2, 2) as ImageData
+
+    const pixels = new PixelData(imageData)
 
     // 16 bytes >> 2 = 4 elements in Uint32Array
     expect(pixels.data32.length).toBe(4)
