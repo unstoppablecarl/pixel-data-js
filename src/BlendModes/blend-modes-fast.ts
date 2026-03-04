@@ -1,8 +1,8 @@
 import type { BlendColor32, Color32 } from '../_types'
 import type { BaseBlendToIndexGetter, BaseIndexToBlendGetter } from './blend-mode-getters'
-import { BlendMode, type BlendModeIndex } from './blend-modes'
+import { BlendMode, type BlendModeIndex, overwriteBase } from './blend-modes'
 
-export const overwriteFast: BlendColor32 = (src, _dst) => src
+export const overwriteFast = overwriteBase
 
 export const sourceOverFast: BlendColor32 = (src, dst) => {
   const sa = (src >>> 24) & 0xFF

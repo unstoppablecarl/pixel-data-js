@@ -1,5 +1,7 @@
 // The enum index IS the permanent ID.
 // do not change the order, Adding to it is ok.
+import type { BlendColor32 } from '../_types'
+
 export enum BlendMode {
   overwrite,
   sourceOver,
@@ -32,3 +34,5 @@ export enum BlendMode {
 
 export type BlendModeIndex = typeof BlendMode[keyof typeof BlendMode];
 
+export const overwriteBase: BlendColor32 = (src, _dst) => src
+overwriteBase.isOverwrite = true

@@ -97,13 +97,15 @@ export function blendPixelData(
   const sStride = sw - actualW
   const mStride = mPitch - actualW
 
+  const isOverwrite = blendFn.isOverwrite
+
   for (let iy = 0; iy < actualH; iy++) {
     for (let ix = 0; ix < actualW; ix++) {
       const baseSrcColor = src32[sIdx] as Color32
       const baseSrcAlpha = (baseSrcColor >>> 24)
 
-      // Early exit if source pixel is already transparent
-      if (baseSrcAlpha === 0) {
+      // In Overwrite, we process even if baseSrcAlpha is 0
+      if (baseSrcAlpha === 0 && !isOverwrite) {
         dIdx++
         sIdx++
         mIdx++
@@ -154,6 +156,7 @@ export function blendPixelData(
         }
 
         // Final safety check for weight (can be 0 if globalAlpha or alphaMask rounds down)
+        // if mask or global alpha are 0 we bail even if we are overwriting
         if (weight === 0) {
           dIdx++
           sIdx++
@@ -163,17 +166,18 @@ export function blendPixelData(
       }
 
       // Apply Weight to Source Alpha
-      let currentSrcAlpha = baseSrcAlpha
       let currentSrcColor = baseSrcColor
 
       if (weight < 255) {
+        let currentSrcAlpha = baseSrcAlpha
+
         if (baseSrcAlpha === 255) {
           currentSrcAlpha = weight
         } else {
           currentSrcAlpha = (baseSrcAlpha * weight + 128) >> 8
         }
 
-        if (currentSrcAlpha === 0) {
+        if (!isOverwrite && currentSrcAlpha === 0) {
           dIdx++
           sIdx++
           mIdx++

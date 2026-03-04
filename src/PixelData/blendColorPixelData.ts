@@ -1,6 +1,5 @@
 import { type Color32, type ColorBlendOptions, MaskType } from '../_types'
-import { BlendMode } from '../BlendModes/blend-modes'
-import { FAST_BLEND_MODES } from '../BlendModes/blend-modes-fast'
+import { sourceOverFast } from '../BlendModes/blend-modes-fast'
 import type { PixelData } from './PixelData'
 
 /**
@@ -10,15 +9,15 @@ import type { PixelData } from './PixelData'
 export function blendColorPixelData(
   dst: PixelData,
   color: Color32,
-  opts: ColorBlendOptions,
-): void {
+  opts: ColorBlendOptions = {},
+) {
   const {
     x: targetX = 0,
     y: targetY = 0,
     w: width = dst.width,
     h: height = dst.height,
     alpha: globalAlpha = 255,
-    blendFn = FAST_BLEND_MODES[BlendMode.sourceOver],
+    blendFn = sourceOverFast,
     mask,
     maskType = MaskType.ALPHA,
     mw,
@@ -29,12 +28,16 @@ export function blendColorPixelData(
 
   if (globalAlpha === 0) return
 
+  const baseSrcAlpha = (color >>> 24)
+  const isOverwrite = blendFn.isOverwrite
+  if (baseSrcAlpha === 0 && !isOverwrite) return
+
   let x = targetX
   let y = targetY
   let w = width
   let h = height
 
-  // 1. Destination Clipping
+  // Destination Clipping
   if (x < 0) {
     w += x
     x = 0
@@ -63,20 +66,8 @@ export function blendColorPixelData(
   const dStride = dw - actualW
   const mStride = mPitch - actualW
 
-  // Pre-calculate the source color with global alpha
-  const baseSrcColor = color
-  const baseSrcAlpha = (baseSrcColor >>> 24)
-
   for (let iy = 0; iy < actualH; iy++) {
     for (let ix = 0; ix < actualW; ix++) {
-
-      // Early exit if source pixel is already transparent
-      if (baseSrcAlpha === 0) {
-        dIdx++
-        mIdx++
-        continue
-      }
-
       let weight = globalAlpha
 
       if (mask) {
@@ -119,6 +110,7 @@ export function blendColorPixelData(
         }
 
         // Final safety check for weight (can be 0 if globalAlpha or alphaMask rounds down)
+        // if mask or global alpha are 0 we bail even if we are overwriting
         if (weight === 0) {
           dIdx++
           mIdx++
@@ -126,24 +118,24 @@ export function blendColorPixelData(
         }
       }
 
-      // Apply Weight to Source Alpha
-      let currentSrcAlpha = baseSrcAlpha
-      let currentSrcColor = baseSrcColor
+      let currentSrcColor = color
 
       if (weight < 255) {
+        let currentSrcAlpha = baseSrcAlpha
+
         if (baseSrcAlpha === 255) {
           currentSrcAlpha = weight
         } else {
           currentSrcAlpha = (baseSrcAlpha * weight + 128) >> 8
         }
 
-        if (currentSrcAlpha === 0) {
+        if (!isOverwrite && currentSrcAlpha === 0) {
           dIdx++
           mIdx++
           continue
         }
 
-        currentSrcColor = ((baseSrcColor & 0x00ffffff) | (currentSrcAlpha << 24)) >>> 0 as Color32
+        currentSrcColor = ((color & 0x00ffffff) | (currentSrcAlpha << 24)) >>> 0 as Color32
       }
 
       dst32[dIdx] = blendFn(currentSrcColor, dst32[dIdx] as Color32)

@@ -12,7 +12,10 @@ export type Color32 = number & { readonly __brandColor32: unique symbol }
  * @param dst - The existing color in the buffer (destination).
  * @returns The resulting 32-bit color to be written to the buffer.
  */
-export type BlendColor32 = (src: Color32, dst: Color32) => Color32
+export type BlendColor32 = {
+  (src: Color32, dst: Color32): Color32,
+  isOverwrite?: true
+}
 
 export type ImageDataLike = {
   width: number
@@ -113,7 +116,7 @@ export interface PixelOptions {
   mask?: AnyMask | null
 
   /** The interpretation logic for the provided mask.
-   * @default {@link MaskType.BINARY}
+   * @default {@link MaskType.ALPHA}
    */
   maskType?: MaskType
 
@@ -167,7 +170,6 @@ export type SelectionRect = Rect & ({
   mask?: null
   maskType?: null,
 })
-
 
 export type Point = {
   x: number,
