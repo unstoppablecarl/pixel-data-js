@@ -58,5 +58,6 @@ export * from './PixelData/pixelDataToAlphaMask'
 export * from './PixelData/reflectPixelData'
 export * from './PixelData/resamplePixelData'
 export * from './PixelData/rotatePixelData'
+export * from './PixelData/writePixelDataBuffer'
 
 export * from './Rect/trimRectBounds'

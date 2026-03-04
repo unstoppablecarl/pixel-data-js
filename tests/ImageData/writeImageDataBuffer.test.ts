@@ -14,7 +14,7 @@ describe('writeImageDataBuffer', () => {
 
     // Draw at (-2, -2).
     // This means patch(2,2) should land at dst(0,0)
-    writeImageDataPixels(dst, patch.data, -2, -2, patchW, patchH)
+    writeImageDataBuffer(dst, patch.data, -2, -2, patchW, patchH)
 
     // Dst(0,0) should contain Patch(2,2) data
     expectPixelToMatch(dst, 0, 0, 2, 2)
@@ -34,7 +34,7 @@ describe('writeImageDataBuffer', () => {
 
     // Draw at (8, 8).
     // Only a 2x2 area from the patch (0,0 to 1,1) fits.
-    writeImageDataPixels(dst, patch.data, 8, 8, patchW, patchH)
+    writeImageDataBuffer(dst, patch.data, 8, 8, patchW, patchH)
 
     // Dst(8,8) matches Patch(0,0)
     expectPixelToMatch(dst, 8, 8, 0, 0)
@@ -49,7 +49,7 @@ describe('writeImageDataBuffer', () => {
     const tinyData = new Uint8ClampedArray(4).fill(255)
 
     // Rect claims 5x5
-    const fn = () => writeImageDataPixels(dst, tinyData, 0, 0, 5, 5)
+    const fn = () => writeImageDataBuffer(dst, tinyData, 0, 0, 5, 5)
 
     expect(fn).not.toThrow()
     // First pixel should be white
@@ -66,7 +66,7 @@ describe('writeImageDataBuffer', () => {
 
     // Drawing a 4x4 patch at (-2, -2) on a 5x5 canvas
     // Only the bottom-right 2x2 of the patch should land at dst(0,0)
-    writeImageDataPixels(dst, data, -2, -2, patchW, patchH)
+    writeImageDataBuffer(dst, data, -2, -2, patchW, patchH)
 
     // dst[0,0] should be white
     expect(dst.data[0]).toBe(255)
@@ -83,7 +83,7 @@ describe('writeImageDataBuffer', () => {
 
     // Draw huge patch at (1,1) of a tiny canvas
     // Only 1x1 area should be written at dst[1,1]
-    writeImageDataPixels(dst, data, 1, 1, patchW, patchH)
+    writeImageDataBuffer(dst, data, 1, 1, patchW, patchH)
 
     // dst[1,1] is index 3 in a 2x2
     const idx = (1 * 2 + 1) * 4
@@ -97,9 +97,9 @@ describe('writeImageDataBuffer', () => {
     const data = new Uint8ClampedArray(16).fill(255)
 
     // Completely off to the right
-    writeImageDataPixels(dst, data, 10, 0, 2, 2)
+    writeImageDataBuffer(dst, data, 10, 0, 2, 2)
     // Completely off to the top
-    writeImageDataPixels(dst, data, 0, -10, 2, 2)
+    writeImageDataBuffer(dst, data, 0, -10, 2, 2)
 
     const sum = dst.data.reduce((
       a,
@@ -128,7 +128,7 @@ describe('writeImageDataBuffer', () => {
     const tinyData = new Uint8ClampedArray(4).fill(255)
 
     // This should not throw because of our o + rowLen check
-    const fn = () => writeImageDataPixels(dst, tinyData, 0, 0, 10, 10)
+    const fn = () => writeImageDataBuffer(dst, tinyData, 0, 0, 10, 10)
     expect(fn).not.toThrow()
   })
 
