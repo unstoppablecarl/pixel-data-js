@@ -1,6 +1,6 @@
 import type { BlendColor32, Color32 } from '../_types'
-import type { BaseBlendToIndexGetter, BaseIndexToBlendGetter } from './blend-mode-getters'
-import { BlendMode, type BlendModeIndex, overwriteBase } from './blend-modes'
+import { BaseBlendMode, overwriteBase } from './blend-modes'
+import { makeBlendModeRegistry } from './BlendModeRegistry'
 
 export const overwriteFast = overwriteBase
 
@@ -575,88 +575,35 @@ export const divideFast: BlendColor32 = (src, dst) => {
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
 
-export const FAST_BLENDER_REGISTRY = [
-  [BlendMode.overwrite, overwriteFast],
-  [BlendMode.sourceOver, sourceOverFast],
+export const BASE_FAST_BLEND_MODE_FUNCTIONS: Record<number, BlendColor32> = {
+  [BaseBlendMode.overwrite]: overwriteFast,
+  [BaseBlendMode.sourceOver]: sourceOverFast,
+  [BaseBlendMode.darken]: darkenFast,
+  [BaseBlendMode.multiply]: multiplyFast,
+  [BaseBlendMode.colorBurn]: colorBurnFast,
+  [BaseBlendMode.linearBurn]: linearBurnFast,
+  [BaseBlendMode.darkerColor]: darkerFast,
 
-  [BlendMode.darken, darkenFast],
-  [BlendMode.multiply, multiplyFast],
-  [BlendMode.colorBurn, colorBurnFast],
-  [BlendMode.linearBurn, linearBurnFast],
-  [BlendMode.darkerColor, darkerFast],
+  [BaseBlendMode.lighten]: lightenFast,
+  [BaseBlendMode.screen]: screenFast,
+  [BaseBlendMode.colorDodge]: colorDodgeFast,
+  [BaseBlendMode.linearDodge]: linearDodgeFast,
+  [BaseBlendMode.lighterColor]: lighterFast,
 
-  [BlendMode.lighten, lightenFast],
-  [BlendMode.screen, screenFast],
-  [BlendMode.colorDodge, colorDodgeFast],
-  [BlendMode.linearDodge, linearDodgeFast],
-  [BlendMode.lighterColor, lighterFast],
+  [BaseBlendMode.overlay]: overlayFast,
+  [BaseBlendMode.softLight]: softLightFast,
+  [BaseBlendMode.hardLight]: hardLightFast,
+  [BaseBlendMode.vividLight]: vividLightFast,
+  [BaseBlendMode.linearLight]: linearLightFast,
+  [BaseBlendMode.pinLight]: pinLightFast,
+  [BaseBlendMode.hardMix]: hardMixFast,
 
-  [BlendMode.overlay, overlayFast],
-  [BlendMode.softLight, softLightFast],
-  [BlendMode.hardLight, hardLightFast],
-  [BlendMode.vividLight, vividLightFast],
-  [BlendMode.linearLight, linearLightFast],
-  [BlendMode.pinLight, pinLightFast],
-  [BlendMode.hardMix, hardMixFast],
-
-  [BlendMode.difference, differenceFast],
-  [BlendMode.exclusion, exclusionFast],
-  [BlendMode.subtract, subtractFast],
-  [BlendMode.divide, divideFast],
-] as const
-
-export type RegisteredFastBlender = typeof FAST_BLENDER_REGISTRY[number][1]
-
-export const FAST_BLEND_MODES: BlendColor32[] = []
-
-for (const [index, blend] of FAST_BLENDER_REGISTRY) {
-  FAST_BLEND_MODES[index as BlendModeIndex] = blend
+  [BaseBlendMode.difference]: differenceFast,
+  [BaseBlendMode.exclusion]: exclusionFast,
+  [BaseBlendMode.subtract]: subtractFast,
+  [BaseBlendMode.divide]: divideFast,
 }
 
-export const FAST_BLEND_TO_INDEX = new Map<RegisteredFastBlender, BlendModeIndex>(
-  FAST_BLENDER_REGISTRY.map((entry, index) => {
-    return [
-      entry[1],
-      index as BlendModeIndex,
-    ]
-  }),
-) as BaseBlendToIndexGetter<RegisteredFastBlender>
-
-export const INDEX_TO_FAST_BLEND = new Map<BlendModeIndex, RegisteredFastBlender>(
-  FAST_BLENDER_REGISTRY.map((entry, index) => {
-    return [
-      index as BlendModeIndex,
-      entry[1],
-    ]
-  }),
-) as BaseIndexToBlendGetter<RegisteredFastBlender>
-
-export type FastBlendModes = {
-  [K in keyof typeof BlendMode]: RegisteredFastBlender
+export function makeFastBlendModeRegistry() {
+  return makeBlendModeRegistry(BaseBlendMode, BASE_FAST_BLEND_MODE_FUNCTIONS)
 }
-
-export const FAST_BLEND_MODE_BY_NAME: FastBlendModes = {
-  overwrite: overwriteFast,
-  sourceOver: sourceOverFast,
-  darken: darkenFast,
-  multiply: multiplyFast,
-  colorBurn: colorBurnFast,
-  linearBurn: linearBurnFast,
-  darkerColor: darkerFast,
-  lighten: lightenFast,
-  screen: screenFast,
-  colorDodge: colorDodgeFast,
-  linearDodge: linearDodgeFast,
-  lighterColor: lighterFast,
-  overlay: overlayFast,
-  softLight: softLightFast,
-  hardLight: hardLightFast,
-  vividLight: vividLightFast,
-  linearLight: linearLightFast,
-  pinLight: pinLightFast,
-  hardMix: hardMixFast,
-  difference: differenceFast,
-  exclusion: exclusionFast,
-  subtract: subtractFast,
-  divide: divideFast,
-} as const

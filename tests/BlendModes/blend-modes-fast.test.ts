@@ -1,13 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import {
-  BlendMode,
+  BASE_FAST_BLEND_MODE_FUNCTIONS,
+  BaseBlendMode,
   type Color32,
-  FAST_BLEND_MODE_BY_NAME,
-  FAST_BLEND_MODES,
-  FAST_BLEND_TO_INDEX,
-  INDEX_TO_FAST_BLEND,
+  makeBlendModeRegistry,
+  makeFastBlendModeRegistry,
 } from '../../src'
 import { unpack } from '../_helpers'
+
+const FAST_BLEND_MODES = makeBlendModeRegistry(BaseBlendMode, BASE_FAST_BLEND_MODE_FUNCTIONS)
+const FAST_BLEND_MODE_BY_NAME = FAST_BLEND_MODES.byName
 
 describe('Color Fast Blending Functions', () => {
   // Test constants
@@ -20,11 +22,11 @@ describe('Color Fast Blending Functions', () => {
   const halfAlphaRed = 0x800000FF as Color32
 
   describe('Common Alpha Branching Logic', () => {
-    for (let i = 0; i < FAST_BLEND_MODES.length; i++) {
-      if (i === BlendMode.overwrite) continue
+    for (let i = 0; i < FAST_BLEND_MODES.modes.length; i++) {
+      if (i === BaseBlendMode.overwrite) continue
 
-      const name = BlendMode[i]
-      const fn = FAST_BLEND_MODES[i]
+      const name = FAST_BLEND_MODES.fromIndex.get(i as typeof FAST_BLEND_MODES.indexType)
+      const fn = FAST_BLEND_MODES.modes[i]
       it(`${name} should return dst if src alpha is 0`, () => {
         const result = fn(transparent, opaqueRed)
         expect(unpack(result)).toEqual({
@@ -1514,13 +1516,23 @@ describe('Color Fast Blending Functions', () => {
 
   describe('Registry and Exports', () => {
     it('COLOR_32_BLEND_MODES is populated', () => {
-      expect(FAST_BLEND_MODES.length).toBeGreaterThan(0)
+      expect(FAST_BLEND_MODES.modes.length).toBeGreaterThan(0)
     })
 
     it('maps functions to indices and back', () => {
       const mode = FAST_BLEND_MODE_BY_NAME.overwrite
-      const index = FAST_BLEND_TO_INDEX.get(mode)
-      expect(INDEX_TO_FAST_BLEND.get(index)).toBe(mode)
+      const index = FAST_BLEND_MODES.toIndex.get(mode)!
+      expect(FAST_BLEND_MODES.fromIndex.get(index)).toBe(mode)
+    })
+  })
+
+  it('makeFastBlendModeRegistry', () => {
+    const result = makeFastBlendModeRegistry()
+    let expected = makeBlendModeRegistry(BaseBlendMode, BASE_FAST_BLEND_MODE_FUNCTIONS)
+
+    Object.keys(result).forEach((key) => {
+      if (key === 'add') return
+      expect((result as any)[key], key).toEqual((expected as any)[key]!)
     })
   })
 })

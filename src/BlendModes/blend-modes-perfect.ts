@@ -1,6 +1,6 @@
 import type { BlendColor32, Color32 } from '../_types'
-import type { BaseBlendToIndexGetter, BaseIndexToBlendGetter } from './blend-mode-getters'
-import { BlendMode, type BlendModeIndex, overwriteBase } from './blend-modes'
+import { BaseBlendMode, overwriteBase } from './blend-modes'
+import { type BaseBlendModeRegistry, makeBlendModeRegistry } from './BlendModeRegistry'
 
 export const overwritePerfect = overwriteBase
 
@@ -565,87 +565,38 @@ export const dividePerfect: BlendColor32 = (src, dst) => {
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
 
-export const PERFECT_BLENDER_REGISTRY = [
-  [BlendMode.overwrite, overwritePerfect],
-  [BlendMode.sourceOver, sourceOverPerfect],
-
-  [BlendMode.darken, darkenPerfect],
-  [BlendMode.multiply, multiplyPerfect],
-  [BlendMode.colorBurn, colorBurnPerfect],
-  [BlendMode.linearBurn, linearBurnPerfect],
-  [BlendMode.darkerColor, darkerPerfect],
-
-  [BlendMode.lighten, lightenPerfect],
-  [BlendMode.screen, screenPerfect],
-  [BlendMode.colorDodge, colorDodgePerfect],
-  [BlendMode.linearDodge, linearDodgePerfect],
-  [BlendMode.lighterColor, lighterPerfect],
-
-  [BlendMode.overlay, overlayPerfect],
-  [BlendMode.softLight, softLightPerfect],
-  [BlendMode.hardLight, hardLightPerfect],
-  [BlendMode.vividLight, vividLightPerfect],
-  [BlendMode.linearLight, linearLightPerfect],
-  [BlendMode.pinLight, pinLightPerfect],
-  [BlendMode.hardMix, hardMixPerfect],
-
-  [BlendMode.difference, differencePerfect],
-  [BlendMode.exclusion, exclusionPerfect],
-  [BlendMode.subtract, subtractPerfect],
-  [BlendMode.divide, dividePerfect],
-] as const
-
-export type RegisteredPerfectBlender = typeof PERFECT_BLENDER_REGISTRY[number][1]
-
-export const PERFECT_BLEND_MODES: BlendColor32[] = []
-for (const [index, blend] of PERFECT_BLENDER_REGISTRY) {
-  PERFECT_BLEND_MODES[index as BlendModeIndex] = blend
+export interface PerfectBlendModes extends BaseBlendModeRegistry {
 }
 
-export const PERFECT_BLEND_TO_INDEX = new Map(
-  PERFECT_BLENDER_REGISTRY.map((entry, index) => {
-    return [
-      entry[1],
-      index as BlendModeIndex,
-    ]
-  }),
-) as BaseBlendToIndexGetter<RegisteredPerfectBlender>
+export const BASE_PERFECT_BLEND_MODE_FUNCTIONS: Record<number, BlendColor32> = {
+  [BaseBlendMode.overwrite]: overwritePerfect,
+  [BaseBlendMode.sourceOver]: sourceOverPerfect,
+  [BaseBlendMode.darken]: darkenPerfect,
+  [BaseBlendMode.multiply]: multiplyPerfect,
+  [BaseBlendMode.colorBurn]: colorBurnPerfect,
+  [BaseBlendMode.linearBurn]: linearBurnPerfect,
+  [BaseBlendMode.darkerColor]: darkerPerfect,
 
-export const INDEX_TO_PERFECT_BLEND = new Map(
-  PERFECT_BLENDER_REGISTRY.map((entry, index) => {
-    return [
-      index as BlendModeIndex,
-      entry[1],
-    ]
-  }),
-) as BaseIndexToBlendGetter<RegisteredPerfectBlender>
+  [BaseBlendMode.lighten]: lightenPerfect,
+  [BaseBlendMode.screen]: screenPerfect,
+  [BaseBlendMode.colorDodge]: colorDodgePerfect,
+  [BaseBlendMode.linearDodge]: linearDodgePerfect,
+  [BaseBlendMode.lighterColor]: lighterPerfect,
 
-export type PerfectBlendModes = {
-  [K in keyof typeof BlendMode]: RegisteredPerfectBlender
+  [BaseBlendMode.overlay]: overlayPerfect,
+  [BaseBlendMode.softLight]: softLightPerfect,
+  [BaseBlendMode.hardLight]: hardLightPerfect,
+  [BaseBlendMode.vividLight]: vividLightPerfect,
+  [BaseBlendMode.linearLight]: linearLightPerfect,
+  [BaseBlendMode.pinLight]: pinLightPerfect,
+  [BaseBlendMode.hardMix]: hardMixPerfect,
+
+  [BaseBlendMode.difference]: differencePerfect,
+  [BaseBlendMode.exclusion]: exclusionPerfect,
+  [BaseBlendMode.subtract]: subtractPerfect,
+  [BaseBlendMode.divide]: dividePerfect,
 }
 
-export const PERFECT_BLEND_MODE_BY_NAME: PerfectBlendModes = {
-  overwrite: overwritePerfect,
-  sourceOver: sourceOverPerfect,
-  darken: darkenPerfect,
-  multiply: multiplyPerfect,
-  colorBurn: colorBurnPerfect,
-  linearBurn: linearBurnPerfect,
-  darkerColor: darkerPerfect,
-  lighten: lightenPerfect,
-  screen: screenPerfect,
-  colorDodge: colorDodgePerfect,
-  linearDodge: linearDodgePerfect,
-  lighterColor: lighterPerfect,
-  overlay: overlayPerfect,
-  softLight: softLightPerfect,
-  hardLight: hardLightPerfect,
-  vividLight: vividLightPerfect,
-  linearLight: linearLightPerfect,
-  pinLight: pinLightPerfect,
-  hardMix: hardMixPerfect,
-  difference: differencePerfect,
-  exclusion: exclusionPerfect,
-  subtract: subtractPerfect,
-  divide: dividePerfect,
-} as const
+export function makePerfectBlendModeRegistry() {
+  return makeBlendModeRegistry(BaseBlendMode, BASE_PERFECT_BLEND_MODE_FUNCTIONS)
+}

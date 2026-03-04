@@ -1,13 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import {
-  BlendMode,
+  BASE_PERFECT_BLEND_MODE_FUNCTIONS,
+  BaseBlendMode,
   type Color32,
-  INDEX_TO_PERFECT_BLEND,
-  PERFECT_BLEND_MODE_BY_NAME,
-  PERFECT_BLEND_MODES,
-  PERFECT_BLEND_TO_INDEX,
+  makeBlendModeRegistry,
+  makePerfectBlendModeRegistry,
 } from '../../src'
 import { unpack } from '../_helpers'
+
+const PERFECT_BLEND_MODES = makeBlendModeRegistry(BaseBlendMode, BASE_PERFECT_BLEND_MODE_FUNCTIONS)
+const PERFECT_BLEND_MODE_BY_NAME = PERFECT_BLEND_MODES.byName
 
 describe('Color Perfect Blending Functions', () => {
   // Test constants
@@ -20,11 +22,11 @@ describe('Color Perfect Blending Functions', () => {
   const halfAlphaRed = 0x800000FF as Color32
 
   describe('Common Alpha Branching Logic', () => {
-    for (let i = 0; i < PERFECT_BLEND_MODES.length; i++) {
-      if (i === BlendMode.overwrite) continue
+    for (let i = 0; i < PERFECT_BLEND_MODES.modes.length; i++) {
+      if (i === BaseBlendMode.overwrite) continue
 
-      const name = BlendMode[i]
-      const fn = PERFECT_BLEND_MODES[i]
+      const name = PERFECT_BLEND_MODES.fromIndex.get(i as typeof PERFECT_BLEND_MODES.indexType)
+      const fn = PERFECT_BLEND_MODES.modes[i]
       it(`${name} should return dst if src alpha is 0`, () => {
         const result = fn(transparent, opaqueRed)
         expect(unpack(result)).toEqual({
@@ -1491,13 +1493,23 @@ describe('Color Perfect Blending Functions', () => {
 
   describe('Registry and Exports', () => {
     it('COLOR_32_BLEND_MODES is populated', () => {
-      expect(PERFECT_BLEND_MODES.length).toBeGreaterThan(0)
+      expect(PERFECT_BLEND_MODES.modes.length).toBeGreaterThan(0)
     })
 
     it('maps functions to indices and back', () => {
       const mode = PERFECT_BLEND_MODE_BY_NAME.overwrite
-      const index = PERFECT_BLEND_TO_INDEX.get(mode)
-      expect(INDEX_TO_PERFECT_BLEND.get(index)).toBe(mode)
+      const index = PERFECT_BLEND_MODES.toIndex.get(mode)!
+      expect(PERFECT_BLEND_MODES.fromIndex.get(index)).toBe(mode)
+    })
+  })
+
+  it('makePerfectBlendModeRegistry', () => {
+    const result = makePerfectBlendModeRegistry()
+    const expected = makeBlendModeRegistry(BaseBlendMode, BASE_PERFECT_BLEND_MODE_FUNCTIONS)
+
+    Object.keys(result).forEach((key) => {
+      if (key === 'add') return
+      expect((result as any)[key], key).toEqual((expected as any)[key]!)
     })
   })
 })

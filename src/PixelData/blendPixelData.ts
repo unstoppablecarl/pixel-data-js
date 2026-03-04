@@ -1,6 +1,5 @@
 import { type Color32, MaskType, type PixelBlendOptions } from '../_types'
-import { BlendMode } from '../BlendModes/blend-modes'
-import { FAST_BLEND_MODES } from '../BlendModes/blend-modes-fast'
+import { sourceOverFast } from '../BlendModes/blend-modes-fast'
 import type { PixelData } from './PixelData'
 
 /**
@@ -30,7 +29,7 @@ export function blendPixelData(
     w: width = src.width,
     h: height = src.height,
     alpha: globalAlpha = 255,
-    blendFn = FAST_BLEND_MODES[BlendMode.sourceOver],
+    blendFn = sourceOverFast,
     mask,
     maskType = MaskType.ALPHA,
     mw,
