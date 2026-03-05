@@ -1,35 +1,44 @@
 import type { BlendColor32 } from '../_types'
+import type { BaseBlendModes, RequiredBlendModes } from './blend-modes'
 
-export type BlendModeRegistry = ReturnType<typeof makeBlendModeRegistry>
-
-export function makeBlendModeRegistry<
-  BlendModes extends Record<string, number>,
+export type BlendModeRegistry<
+  BlendModes extends BaseBlendModes,
   Name extends keyof BlendModes = keyof BlendModes,
   Index extends BlendModes[Name] = BlendModes[Name]
+> = ReturnType<typeof makeBlendModeRegistry<BlendModes, Name, Index>>
+
+export function makeBlendModeRegistry<
+  BlendModes extends BaseBlendModes,
+  Name extends keyof BlendModes = keyof BlendModes,
+  Index extends BlendModes[Name] = BlendModes[Name]
+
 >(
   blendModes: BlendModes,
   initialEntries: Record<Index, BlendColor32>,
 ) {
 
-  const modes: BlendColor32[] = []
-  const toIndex = new Map<BlendColor32, Index>()
-  const fromIndex = new Map<Index, BlendColor32>()
-  const byName = {} as Record<Name, BlendColor32>
+  const blendToName = new Map<BlendColor32, Name>()
+  const blendToIndex = new Map<BlendColor32, Index>()
+  const indexToName = new Map<Index, Name>()
+  const indexToBlend = new Map<Index, BlendColor32>()
+  const nameToBlend = {} as { [K in keyof BlendModes]: BlendColor32 }
+  const nameToIndex = {} as Record<Name, Index>
 
   const add = (name: Name, index: Index, blendFn: BlendColor32) => {
-    if (modes[index]) {
-      throw new Error(`Blend Mode index: ${index} is already used`)
+    if (!Number.isFinite(index)) {
+      throw new Error(`Index "${index}" is not a number. Attempting to add name: "${name as string}", index: "${index}"`)
     }
 
-    if (byName[name]) {
-      throw new Error(`Blend Mode name: "${name as string}" is already used`)
+    if (indexToBlend.has(index)) {
+      throw new Error(`Blend Mode index: ${index} is already used. Attempting to add name: "${name as string}", index: "${index}"`)
     }
 
-    const idx = index
-    modes[idx] = blendFn
-    toIndex.set(blendFn, idx)
-    fromIndex.set(idx, blendFn)
-    ;(byName as any)[name] = blendFn
+    indexToName.set(index, name)
+    indexToBlend.set(index, blendFn)
+    blendToIndex.set(blendFn, index)
+    blendToName.set(blendFn, name)
+    nameToBlend[name] = blendFn
+    nameToIndex[name] = index
   }
 
   for (const [name, index] of Object.entries(blendModes)) {
@@ -38,41 +47,16 @@ export function makeBlendModeRegistry<
   }
 
   return {
-    modes,
-    byName,
-    toIndex,
-    fromIndex,
-    add,
-    indexType: null as unknown as Index,
-    nameType: null as unknown as Name
-  }
-}
+    nameToBlend,
+    nameToIndex,
 
-/**
- * @internal
- */
-export interface BaseBlendModeRegistry {
-  overwrite: BlendColor32
-  sourceOver: BlendColor32
-  darken: BlendColor32
-  multiply: BlendColor32
-  colorBurn: BlendColor32
-  linearBurn: BlendColor32
-  darkerColor: BlendColor32
-  lighten: BlendColor32
-  screen: BlendColor32
-  colorDodge: BlendColor32
-  linearDodge: BlendColor32
-  lighterColor: BlendColor32
-  overlay: BlendColor32
-  softLight: BlendColor32
-  hardLight: BlendColor32
-  vividLight: BlendColor32
-  linearLight: BlendColor32
-  pinLight: BlendColor32
-  hardMix: BlendColor32
-  difference: BlendColor32
-  exclusion: BlendColor32
-  subtract: BlendColor32
-  divide: BlendColor32
+    blendToIndex,
+    blendToName,
+
+    indexToBlend,
+    indexToName,
+
+    indexType: null as unknown as Index,
+    nameType: null as unknown as Name,
+  }
 }

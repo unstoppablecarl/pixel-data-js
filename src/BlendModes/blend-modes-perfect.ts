@@ -1,6 +1,6 @@
 import type { BlendColor32, Color32 } from '../_types'
 import { BaseBlendMode, overwriteBase } from './blend-modes'
-import { type BaseBlendModeRegistry, makeBlendModeRegistry } from './BlendModeRegistry'
+import { makeBlendModeRegistry } from './BlendModeRegistry'
 
 export const overwritePerfect = overwriteBase
 
@@ -563,9 +563,6 @@ export const dividePerfect: BlendColor32 = (src, dst) => {
   const a = (255 * sa + ((dst >>> 24) & 0xFF) * invA) / 255 | 0
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
-}
-
-export interface PerfectBlendModes extends BaseBlendModeRegistry {
 }
 
 export const BASE_PERFECT_BLEND_MODE_FUNCTIONS: Record<number, BlendColor32> = {

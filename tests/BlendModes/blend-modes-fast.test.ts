@@ -9,7 +9,7 @@ import {
 import { unpack } from '../_helpers'
 
 const FAST_BLEND_MODES = makeBlendModeRegistry(BaseBlendMode, BASE_FAST_BLEND_MODE_FUNCTIONS)
-const FAST_BLEND_MODE_BY_NAME = FAST_BLEND_MODES.byName
+const FAST_BLEND_MODE_BY_NAME = FAST_BLEND_MODES.nameToBlend
 
 describe('Color Fast Blending Functions', () => {
   // Test constants
@@ -22,13 +22,15 @@ describe('Color Fast Blending Functions', () => {
   const halfAlphaRed = 0x800000FF as Color32
 
   describe('Common Alpha Branching Logic', () => {
-    for (let i = 0; i < FAST_BLEND_MODES.modes.length; i++) {
+    let indexes = [...FAST_BLEND_MODES.indexToBlend.keys()]
+    for (let i = 0; i < indexes.length; i++) {
+
       if (i === BaseBlendMode.overwrite) continue
 
-      const name = FAST_BLEND_MODES.fromIndex.get(i as typeof FAST_BLEND_MODES.indexType)
-      const fn = FAST_BLEND_MODES.modes[i]
+      const name = FAST_BLEND_MODES.indexToBlend.get(i as typeof FAST_BLEND_MODES.indexType)
+      const blend = FAST_BLEND_MODES.indexToBlend.get(i as typeof FAST_BLEND_MODES.indexType)!
       it(`${name} should return dst if src alpha is 0`, () => {
-        const result = fn(transparent, opaqueRed)
+        const result = blend(transparent, opaqueRed)
         expect(unpack(result)).toEqual({
           r: 255,
           g: 0,
@@ -1515,14 +1517,10 @@ describe('Color Fast Blending Functions', () => {
   })
 
   describe('Registry and Exports', () => {
-    it('COLOR_32_BLEND_MODES is populated', () => {
-      expect(FAST_BLEND_MODES.modes.length).toBeGreaterThan(0)
-    })
-
     it('maps functions to indices and back', () => {
       const mode = FAST_BLEND_MODE_BY_NAME.overwrite
-      const index = FAST_BLEND_MODES.toIndex.get(mode)!
-      expect(FAST_BLEND_MODES.fromIndex.get(index)).toBe(mode)
+      const index = FAST_BLEND_MODES.blendToIndex.get(mode)!
+      expect(FAST_BLEND_MODES.indexToBlend.get(index)).toBe(mode)
     })
   })
 

@@ -26,5 +26,11 @@ export const BaseBlendMode = {
   divide: 22,
 } as const
 
+export interface RequiredBlendModes {
+  overwrite: 0;
+}
+
+export type BaseBlendModes = RequiredBlendModes & Record<string, number>
+
 export const overwriteBase: BlendColor32 = (src, _dst) => src
 overwriteBase.isOverwrite = true
