@@ -53,6 +53,10 @@ export class PixelWriter<M> {
   withHistory(cb: (mutator: M) => void) {
     cb(this.mutator)
 
+    this.captureHistory()
+  }
+
+  captureHistory() {
     const beforeTiles = this.accumulator.beforeTiles
     if (beforeTiles.length === 0) return
 
