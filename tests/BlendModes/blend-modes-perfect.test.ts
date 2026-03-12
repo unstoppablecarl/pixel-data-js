@@ -1327,9 +1327,9 @@ describe('Color Perfect Blending Functions', () => {
       const result = PERFECT_BLEND_MODE_BY_NAME.difference(src, dst)
 
       expect(unpack(result)).toEqual({
-        r: 128,
-        g: 128,
-        b: 128,
+        r: 127,
+        g: 127,
+        b: 127,
         a: 255,
       })
     })
@@ -1368,9 +1368,9 @@ describe('Color Perfect Blending Functions', () => {
       const result = PERFECT_BLEND_MODE_BY_NAME.exclusion(src, dst)
 
       expect(unpack(result)).toEqual({
-        r: 128,
-        g: 128,
-        b: 128,
+        r: 127,
+        g: 127,
+        b: 127,
         a: 255,
       })
     })
@@ -1381,9 +1381,9 @@ describe('Color Perfect Blending Functions', () => {
       const result = PERFECT_BLEND_MODE_BY_NAME.exclusion(src, dst)
 
       expect(unpack(result)).toEqual({
-        r: 96,
-        g: 96,
-        b: 96,
+        r: 95,
+        g: 95,
+        b: 95,
         a: 255,
       })
     })

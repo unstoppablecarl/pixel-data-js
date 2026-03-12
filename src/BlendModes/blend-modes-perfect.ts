@@ -9,17 +9,25 @@ export const sourceOverPerfect: BlendColor32 = (src, dst) => {
   if (sa === 255) return src
   if (sa === 0) return dst
 
+  const invA = 255 - sa
+
   const sr = src & 0xFF, sg = (src >>> 8) & 0xFF, sb = (src >>> 16) & 0xFF
   const dr = dst & 0xFF, dg = (dst >>> 8) & 0xFF, db = (dst >>> 16) & 0xFF
-
   const da = (dst >>> 24) & 0xFF
 
-  // Alpha Lerp inlined
-  const invA = 255 - sa
-  const r = (sr * sa + dr * invA) / 255 | 0
-  const g = (sg * sa + dg * invA) / 255 | 0
-  const b = (sb * sa + db * invA) / 255 | 0
-  const a = (255 * sa + da * invA) / 255 | 0
+  // Exact division by 255 using bit-shifts
+  // Formula: (v + 1 + (v >> 8)) >> 8
+  const tR = (sr * sa + dr * invA)
+  const r = (tR + 1 + (tR >> 8)) >> 8
+
+  const tG = (sg * sa + dg * invA)
+  const g = (tG + 1 + (tG >> 8)) >> 8
+
+  const tB = (sb * sa + db * invA)
+  const b = (tB + 1 + (tB >> 8)) >> 8
+
+  const tA = (255 * sa + da * invA)
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -39,10 +47,16 @@ export const darkenPerfect: BlendColor32 = (src, dst) => {
   // Alpha Lerp inlined
   const invA = 255 - sa
 
-  const r = (br * sa + dr * invA) / 255 | 0
-  const g = (bg * sa + dg * invA) / 255 | 0
-  const b = (bb * sa + db * invA) / 255 | 0
-  const a = (255 * sa + ((dst >>> 24) & 0xFF) * invA) / 255 | 0
+  const da = (dst >>> 24) & 0xFF
+
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -51,23 +65,43 @@ export const darkenPerfect: BlendColor32 = (src, dst) => {
 export const multiplyPerfect: BlendColor32 = (src, dst) => {
   const sa = (src >>> 24) & 0xFF
   if (sa === 0) return dst
-  const sr = src & 0xFF, sg = (src >>> 8) & 0xFF, sb = (src >>> 16) & 0xFF
-  const dr = dst & 0xFF, dg = (dst >>> 8) & 0xFF, db = (dst >>> 16) & 0xFF
 
-  // Consistent floor rounding for all channels
-  const br = (sr * dr / 255) | 0
-  const bg = (sg * dg / 255) | 0
-  const bb = (sb * db / 255) | 0
+  const dr = dst & 0xFF
+  const dg = (dst >>> 8) & 0xFF
+  const db = (dst >>> 16) & 0xFF
+  const da = (dst >>> 24) & 0xFF
+
+  const sr = src & 0xFF
+  const sg = (src >>> 8) & 0xFF
+  const sb = (src >>> 16) & 0xFF
+
+  // Calculate base multiply result: (sr * dr) / 255
+  const mR = sr * dr
+  const br = (mR + 1 + (mR >> 8)) >> 8
+
+  const mG = sg * dg
+  const bg = (mG + 1 + (mG >> 8)) >> 8
+
+  const mB = sb * db
+  const bb = (mB + 1 + (mB >> 8)) >> 8
+
+  // If fully opaque, return with full alpha
   if (sa === 255) return (0xFF000000 | (bb << 16) | (bg << 8) | br) >>> 0 as Color32
 
   // Alpha Lerp inlined
   const invA = 255 - sa
-  const da = (dst >>> 24) & 0xFF
 
-  const r = (br * sa + dr * invA) / 255 | 0
-  const g = (bg * sa + dg * invA) / 255 | 0
-  const b = (bb * sa + db * invA) / 255 | 0
-  const a = (255 * sa + da * invA) / 255 | 0
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -77,20 +111,42 @@ export const colorBurnPerfect: BlendColor32 = (src, dst) => {
   const sa = (src >>> 24) & 0xFF
   if (sa === 0) return dst
 
-  const sr = src & 0xFF, sg = (src >>> 8) & 0xFF, sb = (src >>> 16) & 0xFF
-  const dr = dst & 0xFF, dg = (dst >>> 8) & 0xFF, db = (dst >>> 16) & 0xFF
-  const br = dr === 255 ? 255 : sr === 0 ? 0 : Math.max(0, (255 - (((255 - dr) * 255 / sr) | 0)))
-  const bg = dg === 255 ? 255 : sg === 0 ? 0 : Math.max(0, (255 - (((255 - dg) * 255 / sg) | 0)))
-  const bb = db === 255 ? 255 : sb === 0 ? 0 : Math.max(0, (255 - (((255 - db) * 255 / sb) | 0)))
+  const dr = dst & 0xFF
+  const dg = (dst >>> 8) & 0xFF
+  const db = (dst >>> 16) & 0xFF
+
+  const sr = src & 0xFF
+  const sg = (src >>> 8) & 0xFF
+  const sb = (src >>> 16) & 0xFF
+
+  // Color Burn Core Math: 255 - ((255 - dst) * 255 / src)
+  // We use | 0 to truncate the division result immediately.
+  const resR = dr === 255 ? 255 : sr === 0 ? 0 : 255 - (((255 - dr) * 255 / sr) | 0)
+  const br = resR < 0 ? 0 : resR
+
+  const resG = dg === 255 ? 255 : sg === 0 ? 0 : 255 - (((255 - dg) * 255 / sg) | 0)
+  const bg = resG < 0 ? 0 : resG
+
+  const resB = db === 255 ? 255 : sb === 0 ? 0 : 255 - (((255 - db) * 255 / sb) | 0)
+  const bb = resB < 0 ? 0 : resB
+
   if (sa === 255) return (0xFF000000 | (bb << 16) | (bg << 8) | br) >>> 0 as Color32
 
+  // Alpha Lerp inlined
   const invA = 255 - sa
   const da = (dst >>> 24) & 0xFF
 
-  const r = (br * sa + dr * invA) / 255 | 0
-  const g = (bg * sa + dg * invA) / 255 | 0
-  const b = (bb * sa + db * invA) / 255 | 0
-  const a = (255 * sa + da * invA) / 255 | 0
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -113,10 +169,16 @@ export const linearBurnPerfect: BlendColor32 = (src, dst) => {
 
   // Alpha Lerp inlined
   const invA = 255 - sa
-  const r = (br * sa + dr * invA) / 255 | 0
-  const g = (bg * sa + dg * invA) / 255 | 0
-  const b = (bb * sa + db * invA) / 255 | 0
-  const a = (255 * sa + ((dst >>> 24) & 0xFF) * invA) / 255 | 0
+  const da = (dst >>> 24) & 0xFF
+
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -150,10 +212,16 @@ export const darkerPerfect: BlendColor32 = (src, dst) => {
 
   // 3. Alpha Lerp inlined
   const invA = 255 - sa
-  const r = (br * sa + dr * invA) / 255 | 0
-  const g = (bg * sa + dg * invA) / 255 | 0
-  const b = (bb * sa + db * invA) / 255 | 0
-  const a = (255 * sa + ((dst >>> 24) & 0xFF) * invA) / 255 | 0
+  const da = (dst >>> 24) & 0xFF
+
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -171,10 +239,16 @@ export const lightenPerfect: BlendColor32 = (src, dst) => {
   if (sa === 255) return (0xFF000000 | (bb << 16) | (bg << 8) | br) >>> 0 as Color32
   // Alpha Lerp inlined
   const invA = 255 - sa
-  const r = (br * sa + dr * invA) / 255 | 0
-  const g = (bg * sa + dg * invA) / 255 | 0
-  const b = (bb * sa + db * invA) / 255 | 0
-  const a = (255 * sa + ((dst >>> 24) & 0xFF) * invA) / 255 | 0
+  const da = (dst >>> 24) & 0xFF
+
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -197,10 +271,16 @@ export const screenPerfect: BlendColor32 = (src, dst) => {
   // Alpha Lerp inlined
   const invA = 255 - sa
 
-  const r = (br * sa + dr * invA) / 255 | 0
-  const g = (bg * sa + dg * invA) / 255 | 0
-  const b = (bb * sa + db * invA) / 255 | 0
-  const a = (255 * sa + ((dst >>> 24) & 0xFF) * invA) / 255 | 0
+  const da = (dst >>> 24) & 0xFF
+
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -210,21 +290,42 @@ export const colorDodgePerfect: BlendColor32 = (src, dst) => {
   const sa = (src >>> 24) & 0xFF
   if (sa === 0) return dst
 
-  const dr = dst & 0xFF, dg = (dst >>> 8) & 0xFF, db = (dst >>> 16) & 0xFF
-  const sr = src & 0xFF, sg = (src >>> 8) & 0xFF, sb = (src >>> 16) & 0xFF
+  const dr = dst & 0xFF
+  const dg = (dst >>> 8) & 0xFF
+  const db = (dst >>> 16) & 0xFF
 
-  const br = sr === 255 ? 255 : Math.min(255, ((dr * 255 / (255 - sr)) | 0))
-  const bg = sg === 255 ? 255 : Math.min(255, ((dg * 255 / (255 - sg)) | 0))
-  const bb = sb === 255 ? 255 : Math.min(255, ((db * 255 / (255 - sb)) | 0))
+  const sr = src & 0xFF
+  const sg = (src >>> 8) & 0xFF
+  const sb = (src >>> 16) & 0xFF
+
+  // Color Dodge Core Math: (dst * 255) / (255 - src)
+  // We use ternary checks to handle the sr === 255 division-by-zero guard.
+  const resR = sr === 255 ? 255 : (dr * 255 / (255 - sr)) | 0
+  const br = resR > 255 ? 255 : resR
+
+  const resG = sg === 255 ? 255 : (dg * 255 / (255 - sg)) | 0
+  const bg = resG > 255 ? 255 : resG
+
+  const resB = sb === 255 ? 255 : (db * 255 / (255 - sb)) | 0
+  const bb = resB > 255 ? 255 : resB
 
   if (sa === 255) return (0xFF000000 | (bb << 16) | (bg << 8) | br) >>> 0 as Color32
 
   // Alpha Lerp inlined
   const invA = 255 - sa
-  const r = (br * sa + dr * invA) / 255 | 0
-  const g = (bg * sa + dg * invA) / 255 | 0
-  const b = (bb * sa + db * invA) / 255 | 0
-  const a = (255 * sa + ((dst >>> 24) & 0xFF) * invA) / 255 | 0
+  const da = (dst >>> 24) & 0xFF
+
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -246,10 +347,16 @@ export const linearDodgePerfect: BlendColor32 = (src, dst) => {
 
   // Alpha Lerp inlined
   const invA = 255 - sa
-  const r = (br * sa + dr * invA) / 255 | 0
-  const g = (bg * sa + dg * invA) / 255 | 0
-  const b = (bb * sa + db * invA) / 255 | 0
-  const a = (255 * sa + ((dst >>> 24) & 0xFF) * invA) / 255 | 0
+  const da = (dst >>> 24) & 0xFF
+
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -282,10 +389,16 @@ export const lighterPerfect: BlendColor32 = (src, dst) => {
 
   // Alpha Lerp
   const invA = 255 - sa
-  const r = (br * sa + dr * invA) / 255 | 0
-  const g = (bg * sa + dg * invA) / 255 | 0
-  const b = (bb * sa + db * invA) / 255 | 0
-  const a = (255 * sa + ((dst >>> 24) & 0xFF) * invA) / 255 | 0
+  const da = (dst >>> 24) & 0xFF
+
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -304,10 +417,16 @@ export const overlayPerfect: BlendColor32 = (src, dst) => {
 
   // Alpha Lerp inlined
   const invA = 255 - sa
-  const r = (br * sa + dr * invA) / 255 | 0
-  const g = (bg * sa + dg * invA) / 255 | 0
-  const b = (bb * sa + db * invA) / 255 | 0
-  const a = (255 * sa + ((dst >>> 24) & 0xFF) * invA) / 255 | 0
+  const da = (dst >>> 24) & 0xFF
+
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -319,17 +438,32 @@ export const softLightPerfect: BlendColor32 = (src, dst) => {
 
   const dr = dst & 0xFF, dg = (dst >>> 8) & 0xFF, db = (dst >>> 16) & 0xFF
   const sr = src & 0xFF, sg = (src >>> 8) & 0xFF, sb = (src >>> 16) & 0xFF
-  const br = (((255 - dr) * ((sr * dr / 255) | 0) + dr * (255 - (((255 - sr) * (255 - dr) / 255) | 0))) / 255) | 0
-  const bg = (((255 - dg) * ((sg * dg / 255) | 0) + dg * (255 - (((255 - sg) * (255 - dg) / 255) | 0))) / 255) | 0
-  const bb = (((255 - db) * ((sb * db / 255) | 0) + db * (255 - (((255 - sb) * (255 - db) / 255) | 0))) / 255) | 0
+
+  const mR = (sr * dr)
+  const scR = (255 - sr) * (255 - dr)
+  const br = ((255 - dr) * ((mR + 1 + (mR >> 8)) >> 8) + dr * (255 - ((scR + 1 + (scR >> 8)) >> 8)) + 1 + (((255 - dr) * ((mR + 1 + (mR >> 8)) >> 8) + dr * (255 - ((scR + 1 + (scR >> 8)) >> 8))) >> 8)) >> 8
+
+  const mG = (sg * dg)
+  const scG = (255 - sg) * (255 - dg)
+  const bg = ((255 - dg) * ((mG + 1 + (mG >> 8)) >> 8) + dg * (255 - ((scG + 1 + (scG >> 8)) >> 8)) + 1 + (((255 - dg) * ((mG + 1 + (mG >> 8)) >> 8) + dg * (255 - ((scG + 1 + (scG >> 8)) >> 8))) >> 8)) >> 8
+
+  const mB = (sb * db)
+  const scB = (255 - sb) * (255 - db)
+  const bb = ((255 - db) * ((mB + 1 + (mB >> 8)) >> 8) + db * (255 - ((scB + 1 + (scB >> 8)) >> 8)) + 1 + (((255 - db) * ((mB + 1 + (mB >> 8)) >> 8) + db * (255 - ((scB + 1 + (scB >> 8)) >> 8))) >> 8)) >> 8
+
   if (sa === 255) return (0xFF000000 | (bb << 16) | (bg << 8) | br) >>> 0 as Color32
 
-  // Alpha Lerp inlined
   const invA = 255 - sa
-  const r = (br * sa + dr * invA) / 255 | 0
-  const g = (bg * sa + dg * invA) / 255 | 0
-  const b = (bb * sa + db * invA) / 255 | 0
-  const a = (255 * sa + ((dst >>> 24) & 0xFF) * invA) / 255 | 0
+  const da = (dst >>> 24) & 0xFF
+
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -348,10 +482,16 @@ export const hardLightPerfect: BlendColor32 = (src, dst) => {
 
   // Alpha Lerp inlined
   const invA = 255 - sa
-  const r = (br * sa + dr * invA) / 255 | 0
-  const g = (bg * sa + dg * invA) / 255 | 0
-  const b = (bb * sa + db * invA) / 255 | 0
-  const a = (255 * sa + ((dst >>> 24) & 0xFF) * invA) / 255 | 0
+  const da = (dst >>> 24) & 0xFF
+
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -373,10 +513,16 @@ export const vividLightPerfect: BlendColor32 = (src, dst) => {
 
   // Alpha Lerp inlined
   const invA = 255 - sa
-  const r = (br * sa + dr * invA) / 255 | 0
-  const g = (bg * sa + dg * invA) / 255 | 0
-  const b = (bb * sa + db * invA) / 255 | 0
-  const a = (255 * sa + ((dst >>> 24) & 0xFF) * invA) / 255 | 0
+  const da = (dst >>> 24) & 0xFF
+
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -398,10 +544,16 @@ export const linearLightPerfect: BlendColor32 = (src, dst) => {
 
   // Alpha Lerp inlined
   const invA = 255 - sa
-  const r = (br * sa + dr * invA) / 255 | 0
-  const g = (bg * sa + dg * invA) / 255 | 0
-  const b = (bb * sa + db * invA) / 255 | 0
-  const a = (255 * sa + ((dst >>> 24) & 0xFF) * invA) / 255 | 0
+  const da = (dst >>> 24) & 0xFF
+
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -426,10 +578,15 @@ export const pinLightPerfect: BlendColor32 = (src, dst) => {
 
   const invA = 255 - sa
   const da = (dst >>> 24) & 0xFF
-  const r = (br * sa + dr * invA + 128) / 255 | 0
-  const g = (bg * sa + dg * invA + 128) / 255 | 0
-  const b = (bb * sa + db * invA + 128) / 255 | 0
-  const a = (255 * sa + da * invA + 128) / 255 | 0
+
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -448,10 +605,16 @@ export const hardMixPerfect: BlendColor32 = (src, dst) => {
 
   // Alpha Lerp inlined
   const invA = 255 - sa
-  const r = (br * sa + dr * invA) / 255 | 0
-  const g = (bg * sa + dg * invA) / 255 | 0
-  const b = (bb * sa + db * invA) / 255 | 0
-  const a = (255 * sa + ((dst >>> 24) & 0xFF) * invA) / 255 | 0
+  const da = (dst >>> 24) & 0xFF
+
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -461,27 +624,26 @@ export const differencePerfect: BlendColor32 = (src, dst) => {
   const sa = (src >>> 24) & 0xFF
   if (sa === 0) return dst
 
-  const dr = dst & 0xFF
-  const dg = (dst >>> 8) & 0xFF
-  const db = (dst >>> 16) & 0xFF
-  const sr = src & 0xFF
-  const sg = (src >>> 8) & 0xFF
-  const sb = (src >>> 16) & 0xFF
+  const dr = dst & 0xFF, dg = (dst >>> 8) & 0xFF, db = (dst >>> 16) & 0xFF
+  const sr = src & 0xFF, sg = (src >>> 8) & 0xFF, sb = (src >>> 16) & 0xFF
 
-  const br = Math.abs(dr - sr)
-  const bg = Math.abs(dg - sg)
-  const bb = Math.abs(db - sb)
+  const br = dr > sr ? dr - sr : sr - dr
+  const bg = dg > sg ? dg - sg : sg - dg
+  const bb = db > sb ? db - sb : sb - db
 
-  if (sa === 255) {
-    return (0xFF000000 | (bb << 16) | (bg << 8) | br) >>> 0 as Color32
-  }
+  if (sa === 255) return (0xFF000000 | (bb << 16) | (bg << 8) | br) >>> 0 as Color32
 
   const invA = 255 - sa
   const da = (dst >>> 24) & 0xFF
-  const r = (br * sa + dr * invA + 128) / 255 | 0
-  const g = (bg * sa + dg * invA + 128) / 255 | 0
-  const b = (bb * sa + db * invA + 128) / 255 | 0
-  const a = (255 * sa + da * invA + 128) / 255 | 0
+
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -498,22 +660,28 @@ export const exclusionPerfect: BlendColor32 = (src, dst) => {
   const sg = (src >>> 8) & 0xFF
   const sb = (src >>> 16) & 0xFF
 
-  // Using >> 7 (divide by 128) instead of / 255
-  // This is equivalent to (2 * s * d) / 256
-  const br = dr + sr - ((dr * sr) >> 7)
-  const bg = dg + sg - ((dg * sg) >> 7)
-  const bb = db + sb - ((db * sb) >> 7)
+  const r2 = dr * sr
+  const br = dr + sr - (((r2 + r2) + 1 + ((r2 + r2) >> 8)) >> 8)
 
-  if (sa === 255) {
-    return (0xFF000000 | (bb << 16) | (bg << 8) | br) >>> 0 as Color32
-  }
+  const g2 = dg * sg
+  const bg = dg + sg - (((g2 + g2) + 1 + ((g2 + g2) >> 8)) >> 8)
+
+  const b2 = db * sb
+  const bb = db + sb - (((b2 + b2) + 1 + ((b2 + b2) >> 8)) >> 8)
+
+  if (sa === 255) return (0xFF000000 | (bb << 16) | (bg << 8) | br) >>> 0 as Color32
 
   const invA = 255 - sa
   const da = (dst >>> 24) & 0xFF
-  const r = (br * sa + dr * invA) / 255 | 0
-  const g = (bg * sa + dg * invA) / 255 | 0
-  const b = (bb * sa + db * invA) / 255 | 0
-  const a = (255 * sa + da * invA) / 255 | 0
+
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -535,10 +703,16 @@ export const subtractPerfect: BlendColor32 = (src, dst) => {
 
   // Alpha Lerp inlined
   const invA = 255 - sa
-  const r = (br * sa + dr * invA) / 255 | 0
-  const g = (bg * sa + dg * invA) / 255 | 0
-  const b = (bb * sa + db * invA) / 255 | 0
-  const a = (255 * sa + ((dst >>> 24) & 0xFF) * invA) / 255 | 0
+  const da = (dst >>> 24) & 0xFF
+
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
@@ -557,10 +731,16 @@ export const dividePerfect: BlendColor32 = (src, dst) => {
 
   // Alpha Lerp inlined
   const invA = 255 - sa
-  const r = (br * sa + dr * invA) / 255 | 0
-  const g = (bg * sa + dg * invA) / 255 | 0
-  const b = (bb * sa + db * invA) / 255 | 0
-  const a = (255 * sa + ((dst >>> 24) & 0xFF) * invA) / 255 | 0
+  const da = (dst >>> 24) & 0xFF
+
+  const tR = br * sa + dr * invA
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = bg * sa + dg * invA
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = bb * sa + db * invA
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = 255 * sa + da * invA
+  const a = (tA + 1 + (tA >> 8)) >> 8
 
   return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
