@@ -38,7 +38,7 @@ export default defineConfig({
       {
         test: {
           name: 'browser',
-          include: ['tests-browser/**/*.test.ts'],
+          include: ['tests-browser/**/*.bench.ts'],
           browser: {
             enabled: true,
             instances: [{

@@ -4,17 +4,20 @@ import { describe, test } from 'vitest'
 
 import {
   type AlphaMask,
+  BaseBlendMode,
   type BinaryMask,
   type BlendColor32,
   type BlendModeRegistry,
   blendPixelData,
   makeFastBlendModeRegistry,
-  makePerfectBlendModeRegistry, MaskType,
+  makePerfectBlendModeRegistry,
+  MaskType,
   PixelData,
 } from '../src'
 import { makeComplexAlphaMask, makeComplexBinaryMask, makeComplexTestPixelData } from '../tests/_helpers'
-import { ComparisonReporter } from './reporters/ComparisonReporter'
-import { SummaryReporter } from './reporters/SummaryReporter'
+import type { BlendModeBenchCase, BlendModeType } from './reporters/_helpers'
+import { BlendPixelDataComparisonReporter } from './reporters/BlendPixelDataReporter/BlendPixelDataComparisonReporter'
+import { BlendPixelDataSummaryReporter } from './reporters/BlendPixelDataReporter/BlendPixelDataSummaryReporter'
 
 describe('Blend Modes', () => {
   const size = 1024
@@ -31,51 +34,59 @@ describe('Blend Modes', () => {
     warmupTime: warmupTime,
   })
 
-  function makeFastSummary(blendName: string) {
-    const reporter = new SummaryReporter(size, size)
+  function makeCases(type: BlendModeType, registry: BlendModeRegistry, blendIndex: number) {
+    const fastBlendName = registry.indexToName[blendIndex]!
+    const fastBlendFn = registry.indexToBlend[blendIndex]!
+    return buildBlendModeCases(type, fastBlendName, fastBlendFn, src, dst, binaryMask, alphaMask)
+  }
+
+  function makeSummary(type: BlendModeType, registry: BlendModeRegistry, blendIndex: number) {
+    const reporter = new BlendPixelDataSummaryReporter(size, size)
     reporter.setupListeners(bench)
 
-    const fastReg = makeFastBlendModeRegistry()
-    const cases = buildBlendModeCases('fast', fastReg, src, dst, binaryMask, alphaMask, fastReg.nameToBlend[blendName as typeof fastReg.nameType]!)
-
     return {
-      cases,
+      cases: makeCases(type, registry, blendIndex),
       reporter,
     }
   }
 
-  function makeComparison(blendName: string) {
-    // const reporter = new SummaryReporter(size, size)
-    const reporter = new ComparisonReporter(size, size, 'perfect', 'fast')
+  function makeFastSummary(blendIndex: number) {
+    return makeSummary('fast', makeFastBlendModeRegistry(), blendIndex)
+  }
+
+  function makePerfectSummary(blendIndex: number) {
+    return makeSummary('perfect', makePerfectBlendModeRegistry(), blendIndex)
+  }
+
+  function makeComparison(blendIndex: number) {
+    const reporter = new BlendPixelDataComparisonReporter(size, size, 'perfect', 'fast')
     reporter.setupListeners(bench)
 
     const fastReg = makeFastBlendModeRegistry()
-    const fastCases = buildBlendModeCases('fast', fastReg, src, dst, binaryMask, alphaMask, fastReg.nameToBlend[blendName as typeof fastReg.nameType]!)
+    const fastCases = makeCases('fast', fastReg, blendIndex)
+
     const perfectReg = makePerfectBlendModeRegistry()
-    const perfectCases = buildBlendModeCases('perfect', perfectReg, src, dst, binaryMask, alphaMask, perfectReg.nameToBlend[blendName as typeof perfectReg.nameType]!)
-
-    const cases = [...fastCases, ...perfectCases]
+    const perfectCases = makeCases('perfect', perfectReg, blendIndex)
 
     return {
-      cases,
+      cases: [...fastCases, ...perfectCases],
       reporter,
     }
   }
 
-  const { cases, reporter } = makeComparison('sourceOver')
-  // const { cases, reporter } = makeFastSummary('sourceOver')
+  const { cases, reporter } = makeComparison(BaseBlendMode.sourceOver)
+  // const { cases, reporter } = makeFastSummary(BaseBlendMode.sourceOver)
 
   const timeout = cases.length * (benchTime + warmupTime)
 
   console.info('Starting: estimated time: ' + prettyMilliseconds(timeout))
 
-  const metadataMap = new Map<string, any>()
-
   test('Blend Mode Bench', async () => {
-    cases.forEach(({ name, testCase, type, run }) => {
-      const taskName = `${type}: ${name} - ${testCase}`
+    const metadataMap = new Map<string, any>()
+    cases.forEach(({ blendMode, testCase, type, run }) => {
+      const taskName = `${type}: ${blendMode} - ${testCase}`
       bench.add(taskName, run)
-      metadataMap.set(taskName, { type, name, testCase })
+      metadataMap.set(taskName, { type, name: blendMode, testCase })
     })
     await bench.run()
 
@@ -83,50 +94,45 @@ describe('Blend Modes', () => {
   }, timeout + 5000)
 })
 
-type Case = {
-  name: string
-  testCase: string
-  type: string
-  run: () => void
-};
-
 function _buildAllCases(
-  label: string,
+  type: BlendModeType,
   registry: BlendModeRegistry,
   src: PixelData,
   dst: PixelData,
   binaryMask: BinaryMask,
   alphaMask: AlphaMask,
-): Case[] {
+): BlendModeBenchCase[] {
 
   return registry.indexToBlend.flatMap((blendFn) => {
+
+    const blendName = registry.blendToName.get(blendFn)!
+
     return buildBlendModeCases(
-      label,
-      registry,
+      type,
+      blendName,
+      blendFn,
       src,
       dst,
       binaryMask,
       alphaMask,
-      blendFn,
     )
   })
 }
 
 function buildBlendModeCases(
-  type: string,
-  registry: BlendModeRegistry,
+  type: BlendModeType,
+  blendMode: string,
+  blendFn: BlendColor32,
   src: PixelData,
   dst: PixelData,
   binaryMask: BinaryMask,
   alphaMask: AlphaMask,
-  blendFn: BlendColor32,
-): Case[] {
+): BlendModeBenchCase[] {
 
-  const cases = []
-  const name = registry.blendToName.get(blendFn)!
+  const cases: BlendModeBenchCase[] = []
 
   const base = {
-    name,
+    blendMode,
     type,
   }
 
@@ -137,6 +143,7 @@ function buildBlendModeCases(
       blendPixelData(dst, src, {
         blendFn,
       })
+      globalThis.lastResult = dst
     },
   })
 
@@ -148,6 +155,7 @@ function buildBlendModeCases(
         blendFn,
         alpha: 128,
       })
+      globalThis.lastResult = dst
     },
   })
 
@@ -162,6 +170,7 @@ function buildBlendModeCases(
         mask: binaryMask,
         maskType: MaskType.BINARY,
       })
+      globalThis.lastResult = dst
     },
   })
 
@@ -174,6 +183,7 @@ function buildBlendModeCases(
         mask: alphaMask,
         maskType: MaskType.ALPHA,
       })
+      globalThis.lastResult = dst
     },
   })
 
@@ -189,6 +199,7 @@ function buildBlendModeCases(
         maskType: MaskType.ALPHA,
         invertMask: true,
       })
+      globalThis.lastResult = dst
     },
   })
 
@@ -202,6 +213,7 @@ function buildBlendModeCases(
         mask: alphaMask,
         maskType: MaskType.ALPHA,
       })
+      globalThis.lastResult = dst
     },
   })
 
@@ -220,6 +232,7 @@ function buildBlendModeCases(
         sx: 50,
         sy: 50,
       })
+      globalThis.lastResult = dst
     },
   })
 
@@ -241,6 +254,7 @@ function buildBlendModeCases(
         my: 20,
         mw: 1024,
       })
+      globalThis.lastResult = dst
     },
   })
 
@@ -257,6 +271,7 @@ function buildBlendModeCases(
         my: 20,
         mw: 1024,
       })
+      globalThis.lastResult = dst
     },
   })
 
@@ -272,9 +287,14 @@ function buildBlendModeCases(
         maskType: MaskType.ALPHA,
         invertMask: true,
       })
+      globalThis.lastResult = dst
     },
   })
 
   return cases
 }
 
+// Prevent V8 from optimizing away the loop by "using" the return value
+declare global {
+  var lastResult: PixelData
+}
