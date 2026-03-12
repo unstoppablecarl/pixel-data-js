@@ -6,15 +6,15 @@ import {
   type AlphaMask,
   type BinaryMask,
   type BlendColor32,
-  BlendMode,
+  type BlendModeRegistry,
   blendPixelData,
-  FAST_BLEND_MODES,
-  FAST_BLEND_TO_INDEX,
-  MaskType,
-  PixelData, vividLightFast,
+  makeFastBlendModeRegistry,
+  makePerfectBlendModeRegistry, MaskType,
+  PixelData,
 } from '../src'
 import { makeComplexAlphaMask, makeComplexBinaryMask, makeComplexTestPixelData } from '../tests/_helpers'
-import { BenchReporter } from './BenchReporter'
+import { ComparisonReporter } from './reporters/ComparisonReporter'
+import { SummaryReporter } from './reporters/SummaryReporter'
 
 describe('Blend Modes', () => {
   const size = 1024
@@ -23,45 +23,86 @@ describe('Blend Modes', () => {
   const alphaMask = makeComplexAlphaMask(size, size)
   const binaryMask = makeComplexBinaryMask(size, size)
 
-  const bench = new Bench({
-    time: 3000,
-    warmupTime: 1000,
-  })
-  const reporter = new BenchReporter(size, size)
-  reporter.setupListeners(bench)
-
-  // const cases = buildAllCases(src, dst, binaryMask, alphaMask)
-  const cases = buildBlendModeCases(src, dst, binaryMask, alphaMask, vividLightFast)
-
   const warmupTime = 1000
   const benchTime = 3000
+
+  const bench = new Bench({
+    time: benchTime,
+    warmupTime: warmupTime,
+  })
+
+  function makeFastSummary(blendName: string) {
+    const reporter = new SummaryReporter(size, size)
+    reporter.setupListeners(bench)
+
+    const fastReg = makeFastBlendModeRegistry()
+    const cases = buildBlendModeCases('fast', fastReg, src, dst, binaryMask, alphaMask, fastReg.nameToBlend[blendName as typeof fastReg.nameType]!)
+
+    return {
+      cases,
+      reporter,
+    }
+  }
+
+  function makeComparison(blendName: string) {
+    // const reporter = new SummaryReporter(size, size)
+    const reporter = new ComparisonReporter(size, size, 'perfect', 'fast')
+    reporter.setupListeners(bench)
+
+    const fastReg = makeFastBlendModeRegistry()
+    const fastCases = buildBlendModeCases('fast', fastReg, src, dst, binaryMask, alphaMask, fastReg.nameToBlend[blendName as typeof fastReg.nameType]!)
+    const perfectReg = makePerfectBlendModeRegistry()
+    const perfectCases = buildBlendModeCases('perfect', perfectReg, src, dst, binaryMask, alphaMask, perfectReg.nameToBlend[blendName as typeof perfectReg.nameType]!)
+
+    const cases = [...fastCases, ...perfectCases]
+
+    return {
+      cases,
+      reporter,
+    }
+  }
+
+  const { cases, reporter } = makeComparison('sourceOver')
+  // const { cases, reporter } = makeFastSummary('sourceOver')
 
   const timeout = cases.length * (benchTime + warmupTime)
 
   console.info('Starting: estimated time: ' + prettyMilliseconds(timeout))
 
+  const metadataMap = new Map<string, any>()
+
   test('Blend Mode Bench', async () => {
-    cases.forEach(({ name, run }) => bench.add(name, run))
+    cases.forEach(({ name, testCase, type, run }) => {
+      const taskName = `${type}: ${name} - ${testCase}`
+      bench.add(taskName, run)
+      metadataMap.set(taskName, { type, name, testCase })
+    })
     await bench.run()
 
-    reporter.printFinal(bench.tasks)
+    reporter.print(bench.tasks, metadataMap)
   }, timeout + 5000)
 })
 
 type Case = {
-  name: string;
-  run: () => void;
+  name: string
+  testCase: string
+  type: string
+  run: () => void
 };
 
 function _buildAllCases(
+  label: string,
+  registry: BlendModeRegistry,
   src: PixelData,
   dst: PixelData,
   binaryMask: BinaryMask,
   alphaMask: AlphaMask,
 ): Case[] {
 
-  return FAST_BLEND_MODES.flatMap((blendFn) => {
+  return registry.indexToBlend.flatMap((blendFn) => {
     return buildBlendModeCases(
+      label,
+      registry,
       src,
       dst,
       binaryMask,
@@ -72,6 +113,8 @@ function _buildAllCases(
 }
 
 function buildBlendModeCases(
+  type: string,
+  registry: BlendModeRegistry,
   src: PixelData,
   dst: PixelData,
   binaryMask: BinaryMask,
@@ -80,13 +123,16 @@ function buildBlendModeCases(
 ): Case[] {
 
   const cases = []
-  const blendIndex = FAST_BLEND_TO_INDEX.get(blendFn)
-  const name = BlendMode[blendIndex]
+  const name = registry.blendToName.get(blendFn)!
 
-  // --- Base Combinations ---
+  const base = {
+    name,
+    type,
+  }
 
   cases.push({
-    name: `${name}`,
+    ...base,
+    testCase: `minimal`,
     run: () => {
       blendPixelData(dst, src, {
         blendFn,
@@ -95,7 +141,8 @@ function buildBlendModeCases(
   })
 
   cases.push({
-    name: `${name} + Global Alpha`,
+    ...base,
+    testCase: `Global Alpha`,
     run: () => {
       blendPixelData(dst, src, {
         blendFn,
@@ -107,7 +154,8 @@ function buildBlendModeCases(
   // --- Masking Logic ---
 
   cases.push({
-    name: `${name} + Binary Mask`,
+    ...base,
+    testCase: `Binary Mask`,
     run: () => {
       blendPixelData(dst, src, {
         blendFn,
@@ -118,7 +166,8 @@ function buildBlendModeCases(
   })
 
   cases.push({
-    name: `${name} + Alpha Mask`,
+    ...base,
+    testCase: `Alpha Mask`,
     run: () => {
       blendPixelData(dst, src, {
         blendFn,
@@ -131,7 +180,8 @@ function buildBlendModeCases(
   // --- Inversion and Alpha Combinations ---
 
   cases.push({
-    name: `${name} + Alpha Mask (Inverted)`,
+    ...base,
+    testCase: `Alpha Mask (Inverted)`,
     run: () => {
       blendPixelData(dst, src, {
         blendFn,
@@ -143,7 +193,8 @@ function buildBlendModeCases(
   })
 
   cases.push({
-    name: `${name} + Alpha + Alpha Mask`,
+    ...base,
+    testCase: `Alpha + Alpha Mask`,
     run: () => {
       blendPixelData(dst, src, {
         blendFn,
@@ -157,7 +208,8 @@ function buildBlendModeCases(
   // --- Coordinate & Offset Stress Tests ---
 
   cases.push({
-    name: `${name} + Sub-region 512x512`,
+    ...base,
+    testCase: `Sub-region 512x512`,
     run: () => {
       blendPixelData(dst, src, {
         blendFn,
@@ -172,7 +224,8 @@ function buildBlendModeCases(
   })
 
   cases.push({
-    name: `${name} + Sub-region 512x512 + Offset Alpha Mask`,
+    ...base,
+    testCase: `Sub-region 512x512 + Offset Alpha Mask`,
     run: () => {
       blendPixelData(dst, src, {
         blendFn,
@@ -193,7 +246,8 @@ function buildBlendModeCases(
 
   // Tests logic where the mask is not a 1:1 fit for the source/dest
   cases.push({
-    name: `${name} + Offset Alpha Mask`,
+    ...base,
+    testCase: `Offset Alpha Mask`,
     run: () => {
       blendPixelData(dst, src, {
         blendFn,
@@ -208,7 +262,8 @@ function buildBlendModeCases(
 
   // Worst-case scenario: heavy math + alpha scaling + mask + inversion
   cases.push({
-    name: `${name} + Full Stack (Alpha/Mask/Invert)`,
+    ...base,
+    testCase: `Full Stack (Alpha/Mask/Invert)`,
     run: () => {
       blendPixelData(dst, src, {
         blendFn,

@@ -2,7 +2,7 @@ import type { BlendColor32 } from '../_types'
 import type { BaseBlendModes } from './blend-modes'
 
 export type BlendModeRegistry<
-  BlendModes extends BaseBlendModes,
+  BlendModes extends BaseBlendModes = BaseBlendModes,
   Name extends keyof BlendModes = keyof BlendModes,
   Index extends BlendModes[Name] = BlendModes[Name]
 > = ReturnType<typeof makeBlendModeRegistry<BlendModes, Name, Index>>

@@ -1,4 +1,3 @@
-import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { expect } from 'vitest'
 import type { AlphaMask, BinaryMask, Color32, ImageDataLike } from '../src'
 import { PixelData } from '../src'
@@ -116,8 +115,7 @@ export const makeTestPixelData = (
   h: number,
   fill: number = 0,
 ) => {
-  const data = new Uint8ClampedArray(w * h * 4)
-  const img = new PixelData(createImageData(data, w, h) as ImageData)
+  const img = new PixelData(new ImageData(w, h))
   if (fill !== 0) {
     img.data32.fill(fill)
   }
