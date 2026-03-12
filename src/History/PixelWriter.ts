@@ -36,7 +36,7 @@ export class PixelWriter<M> {
   public historyManager: HistoryManager
   public accumulator: PixelAccumulator
   protected config: PixelEngineConfig
-  private mutator: M
+  readonly mutator: M
 
   constructor(target: PixelData, mutatorFactory: (writer: PixelWriter<any>) => M, {
     tileSize = 256,
