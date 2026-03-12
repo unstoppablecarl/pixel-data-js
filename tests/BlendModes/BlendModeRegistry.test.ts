@@ -120,7 +120,7 @@ describe('BlendModeRegistry', () => {
       // This will currently pass 'undefined' to add(), which you might want
       // to add a specific check for if you want to be extra safe.
       const registry = makeBlendModeRegistry(BlendModes, Entries)
-      expect(registry.indexToBlend.get(5)).toBeUndefined()
+      expect(registry.indexToBlend[5]).toBeUndefined()
     })
   })
 })

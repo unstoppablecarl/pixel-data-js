@@ -27,8 +27,8 @@ describe('Color Perfect Blending Functions', () => {
     for (let i = 0; i < indexes.length; i++) {
       if (i === BaseBlendMode.overwrite) continue
 
-      const name = PERFECT_BLEND_MODES.indexToName.get(i as typeof PERFECT_BLEND_MODES.indexType)!
-      const blend = PERFECT_BLEND_MODES.indexToBlend.get(i as typeof PERFECT_BLEND_MODES.indexType)!
+      const name = PERFECT_BLEND_MODES.indexToName[i as typeof PERFECT_BLEND_MODES.indexType]!
+      const blend = PERFECT_BLEND_MODES.indexToBlend[i as typeof PERFECT_BLEND_MODES.indexType]!
       it(`${name} should return dst if src alpha is 0`, () => {
         const result = blend(transparent, opaqueRed)
         expect(unpack(result)).toEqual({
@@ -1497,7 +1497,7 @@ describe('Color Perfect Blending Functions', () => {
     it('maps functions to indices and back', () => {
       const mode = PERFECT_BLEND_MODE_BY_NAME.overwrite
       const index = PERFECT_BLEND_MODES.blendToIndex.get(mode)!
-      expect(PERFECT_BLEND_MODES.indexToBlend.get(index)).toBe(mode)
+      expect(PERFECT_BLEND_MODES.indexToBlend[index]).toBe(mode)
     })
   })
 

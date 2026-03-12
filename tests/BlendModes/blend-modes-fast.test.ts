@@ -27,8 +27,8 @@ describe('Color Fast Blending Functions', () => {
 
       if (i === BaseBlendMode.overwrite) continue
 
-      const name = FAST_BLEND_MODES.indexToBlend.get(i as typeof FAST_BLEND_MODES.indexType)
-      const blend = FAST_BLEND_MODES.indexToBlend.get(i as typeof FAST_BLEND_MODES.indexType)!
+      const name = FAST_BLEND_MODES.indexToName[i as typeof FAST_BLEND_MODES.indexType]
+      const blend = FAST_BLEND_MODES.indexToBlend[i as typeof FAST_BLEND_MODES.indexType]!
       it(`${name} should return dst if src alpha is 0`, () => {
         const result = blend(transparent, opaqueRed)
         expect(unpack(result)).toEqual({
@@ -1520,7 +1520,7 @@ describe('Color Fast Blending Functions', () => {
     it('maps functions to indices and back', () => {
       const mode = FAST_BLEND_MODE_BY_NAME.overwrite
       const index = FAST_BLEND_MODES.blendToIndex.get(mode)!
-      expect(FAST_BLEND_MODES.indexToBlend.get(index)).toBe(mode)
+      expect(FAST_BLEND_MODES.indexToBlend[index]).toBe(mode)
     })
   })
 

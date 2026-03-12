@@ -1,5 +1,5 @@
 import type { BlendColor32 } from '../_types'
-import type { BaseBlendModes, RequiredBlendModes } from './blend-modes'
+import type { BaseBlendModes } from './blend-modes'
 
 export type BlendModeRegistry<
   BlendModes extends BaseBlendModes,
@@ -19,8 +19,8 @@ export function makeBlendModeRegistry<
 
   const blendToName = new Map<BlendColor32, Name>()
   const blendToIndex = new Map<BlendColor32, Index>()
-  const indexToName = new Map<Index, Name>()
-  const indexToBlend = new Map<Index, BlendColor32>()
+  const indexToName: Name[] = []
+  const indexToBlend: BlendColor32[] = []
   const nameToBlend = {} as { [K in keyof BlendModes]: BlendColor32 }
   const nameToIndex = {} as Record<Name, Index>
 
@@ -29,12 +29,12 @@ export function makeBlendModeRegistry<
       throw new Error(`Index "${index}" is not a number. Attempting to add name: "${name as string}", index: "${index}"`)
     }
 
-    if (indexToBlend.has(index)) {
+    if (indexToBlend[index]) {
       throw new Error(`Blend Mode index: ${index} is already used. Attempting to add name: "${name as string}", index: "${index}"`)
     }
 
-    indexToName.set(index, name)
-    indexToBlend.set(index, blendFn)
+    indexToName[index] = name
+    indexToBlend[index] = blendFn
     blendToIndex.set(blendFn, index)
     blendToName.set(blendFn, name)
     nameToBlend[name] = blendFn
