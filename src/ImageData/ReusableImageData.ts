@@ -8,7 +8,6 @@ export type ReusableImageData = ReturnType<typeof makeReusableImageData>
  */
 export function makeReusableImageData() {
   let imageData: ImageData | null = null
-  let buffer: Uint8ClampedArray | null = null
 
   /**
    * Retrieves an ImageData instance of the requested dimensions.
@@ -23,9 +22,7 @@ export function makeReusableImageData() {
     const heightMatches = hasInstance && imageData!.height === height
 
     if (!widthMatches || !heightMatches) {
-      const buffer = new Uint8ClampedArray(width * height * 4)
-
-      imageData = new ImageData(buffer, width, height)
+      imageData = new ImageData(width, height)
     }
 
     return imageData!
