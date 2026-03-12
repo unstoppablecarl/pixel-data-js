@@ -23,45 +23,58 @@ export function percentDiffString(val: number) {
   return `${val >= 0 ? '+' : ''}${val.toFixed(1)}%`
 }
 
-export type BlendModeType = 'perfect' | 'fast'
-
-export type BlendModeMetadataMap<T extends BlendModeType = BlendModeType> = Map<string, {
+export type BlendModeMetadataMap<T extends string = string> = Map<string, {
   type: T;
   blendMode: string;
   testCase: string
 }>;
 
-export function groupBlendModeTasks<T>(
+export function groupBlendModeTasks<T, B extends string, U extends string>(
   tasks: Task[],
   meta: BlendModeMetadataMap,
-  cb: (result: TaskResultWithStatistics,
-  ) => T) {
-
+  baseType: B,
+  targetType: U,
+  cb: (result: TaskResultWithStatistics) => T,
+) {
   type Rec = {
-    blendMode: string
-    testCase: string
-    perfect: T
-    fast: T
-  }
+    blendMode: string;
+    testCase: string;
+  } & {
+    [K in B | U]: T;
+  };
 
   const groups = new Map<string, Rec>()
 
   for (const task of tasks) {
     const result = task.result
-    if (!taskResultComplete(result)) continue
 
-    const { type, blendMode, testCase } = meta.get(task.name)!
-    const key = `${blendMode}::${testCase}`
+    if (!taskResultComplete(result)) {
+      continue
+    }
 
-    if (!groups.has(key)) groups.set(key, {
+    const {
+      type,
       blendMode,
       testCase,
-      perfect: {} as T,
-      fast: {} as T,
-    })
+    } = meta.get(task.name)!
 
-    groups.get(key)![type] = cb(result)
+    const key = `${blendMode}::${testCase}`
+
+    if (!groups.has(key)) {
+      groups.set(key, {
+        blendMode,
+        testCase,
+        [baseType]: {} as T,
+        [targetType]: {} as T,
+      } as Rec)
+    }
+
+    const group = groups.get(key)!;
+
+    // Type assertion here helps TS understand 'type' matches B or U
+    (group as any)[type] = cb(result)
   }
+
   return groups
 }
 
@@ -72,6 +85,6 @@ export function taskResultComplete(result: Task['result']): result is TaskResult
 export type BlendModeBenchCase = {
   blendMode: string
   testCase: string
-  type: BlendModeType
+  type: string
   run: () => void
 };

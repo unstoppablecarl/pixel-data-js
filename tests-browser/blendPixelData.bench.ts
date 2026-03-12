@@ -15,7 +15,7 @@ import {
   PixelData,
 } from '../src'
 import { makeComplexAlphaMask, makeComplexBinaryMask, makeComplexTestPixelData } from '../tests/_helpers'
-import type { BlendModeBenchCase, BlendModeMetadataMap, BlendModeType } from './reporters/_helpers'
+import type { BlendModeBenchCase, BlendModeMetadataMap } from './reporters/_helpers'
 import { BlendPixelDataComparisonReporter } from './reporters/BlendPixelDataReporter/BlendPixelDataComparisonReporter'
 import { BlendPixelDataSummaryReporter } from './reporters/BlendPixelDataReporter/BlendPixelDataSummaryReporter'
 
@@ -34,19 +34,29 @@ describe('Blend Modes', () => {
     warmupTime: warmupTime,
   })
 
-  function makeCases(type: BlendModeType, registry: BlendModeRegistry, blendIndex: number) {
+  function makeCases(
+    type: string,
+    registry: BlendModeRegistry,
+    blendIndex: number,
+    blendPixelDataFn: typeof blendPixelData = blendPixelData,
+  ) {
     const blendName = registry.indexToName[blendIndex]!
     const blendFn = registry.indexToBlend[blendIndex]!
 
-    return buildBlendModeCases(type, blendName, blendFn, src, dst, binaryMask, alphaMask)
+    return buildBlendModeCases(type, blendName, blendFn, src, dst, binaryMask, alphaMask, blendPixelDataFn)
   }
 
-  function makeSummary(type: BlendModeType, registry: BlendModeRegistry, blendIndex: number) {
+  function makeSummary(
+    type: string,
+    registry: BlendModeRegistry,
+    blendIndex: number,
+    blendPixelDataFn: typeof blendPixelData = blendPixelData,
+  ) {
     const reporter = new BlendPixelDataSummaryReporter(size, size)
     reporter.setupListeners(bench)
 
     return {
-      cases: makeCases(type, registry, blendIndex),
+      cases: makeCases(type, registry, blendIndex, blendPixelDataFn),
       reporter,
     }
   }
@@ -75,8 +85,26 @@ describe('Blend Modes', () => {
     }
   }
 
-  // const { cases, reporter } = makeComparison(BaseBlendMode.sourceOver)
-  const { cases, reporter } = makeFastSummary(BaseBlendMode.sourceOver)
+  function makeFunctionComparison(blendIndex: number, fnA: typeof blendPixelData, fnB: typeof blendPixelData) {
+    const baseType = 'a'
+    const targetType = 'b'
+
+    const reporter = new BlendPixelDataComparisonReporter(size, size, baseType, targetType)
+    reporter.setupListeners(bench)
+
+    const fastReg = makeFastBlendModeRegistry()
+    const fastCases = makeCases(baseType, fastReg, blendIndex, fnA)
+    const perfectCases = makeCases(targetType, fastReg, blendIndex, fnB)
+
+    return {
+      cases: [...fastCases, ...perfectCases],
+      reporter,
+    }
+  }
+  const { cases, reporter } = makeComparison(BaseBlendMode.sourceOver)
+
+  // const { cases, reporter } = makeFunctionComparison(BaseBlendMode.sourceOver)
+  // const { cases, reporter } = makeFastSummary(BaseBlendMode.sourceOver)
 
   const timeout = cases.length * (benchTime + warmupTime)
 
@@ -96,12 +124,13 @@ describe('Blend Modes', () => {
 })
 
 function _buildAllCases(
-  type: BlendModeType,
+  type: string,
   registry: BlendModeRegistry,
   src: PixelData,
   dst: PixelData,
   binaryMask: BinaryMask,
   alphaMask: AlphaMask,
+  blendPixelDataFn: typeof blendPixelData,
 ): BlendModeBenchCase[] {
 
   return registry.indexToBlend.flatMap((blendFn) => {
@@ -116,18 +145,20 @@ function _buildAllCases(
       dst,
       binaryMask,
       alphaMask,
+      blendPixelDataFn,
     )
   })
 }
 
 function buildBlendModeCases(
-  type: BlendModeType,
+  type: string,
   blendMode: string,
   blendFn: BlendColor32,
   src: PixelData,
   dst: PixelData,
   binaryMask: BinaryMask,
   alphaMask: AlphaMask,
+  blendPixelDataFn: typeof blendPixelData,
 ): BlendModeBenchCase[] {
 
   const cases: BlendModeBenchCase[] = []
@@ -141,7 +172,7 @@ function buildBlendModeCases(
     ...base,
     testCase: `minimal`,
     run: () => {
-      blendPixelData(dst, src, {
+      blendPixelDataFn(dst, src, {
         blendFn,
       })
       globalThis.lastResult = dst
@@ -152,7 +183,7 @@ function buildBlendModeCases(
     ...base,
     testCase: `Global Alpha`,
     run: () => {
-      blendPixelData(dst, src, {
+      blendPixelDataFn(dst, src, {
         blendFn,
         alpha: 128,
       })
@@ -166,7 +197,7 @@ function buildBlendModeCases(
     ...base,
     testCase: `Binary Mask`,
     run: () => {
-      blendPixelData(dst, src, {
+      blendPixelDataFn(dst, src, {
         blendFn,
         mask: binaryMask,
         maskType: MaskType.BINARY,
@@ -179,7 +210,7 @@ function buildBlendModeCases(
     ...base,
     testCase: `Alpha Mask`,
     run: () => {
-      blendPixelData(dst, src, {
+      blendPixelDataFn(dst, src, {
         blendFn,
         mask: alphaMask,
         maskType: MaskType.ALPHA,
@@ -194,7 +225,7 @@ function buildBlendModeCases(
     ...base,
     testCase: `Alpha Mask (Inverted)`,
     run: () => {
-      blendPixelData(dst, src, {
+      blendPixelDataFn(dst, src, {
         blendFn,
         mask: alphaMask,
         maskType: MaskType.ALPHA,
@@ -208,7 +239,7 @@ function buildBlendModeCases(
     ...base,
     testCase: `Alpha + Alpha Mask`,
     run: () => {
-      blendPixelData(dst, src, {
+      blendPixelDataFn(dst, src, {
         blendFn,
         alpha: 128,
         mask: alphaMask,
@@ -224,7 +255,7 @@ function buildBlendModeCases(
     ...base,
     testCase: `Sub-region 512x512`,
     run: () => {
-      blendPixelData(dst, src, {
+      blendPixelDataFn(dst, src, {
         blendFn,
         x: 100,
         y: 100,
@@ -241,7 +272,7 @@ function buildBlendModeCases(
     ...base,
     testCase: `Sub-region 512x512 + Offset Alpha Mask`,
     run: () => {
-      blendPixelData(dst, src, {
+      blendPixelDataFn(dst, src, {
         blendFn,
         x: 100,
         y: 100,
@@ -264,7 +295,7 @@ function buildBlendModeCases(
     ...base,
     testCase: `Offset Alpha Mask`,
     run: () => {
-      blendPixelData(dst, src, {
+      blendPixelDataFn(dst, src, {
         blendFn,
         mask: alphaMask,
         maskType: MaskType.ALPHA,
@@ -281,7 +312,7 @@ function buildBlendModeCases(
     ...base,
     testCase: `Full Stack (Alpha/Mask/Invert)`,
     run: () => {
-      blendPixelData(dst, src, {
+      blendPixelDataFn(dst, src, {
         blendFn,
         alpha: 128,
         mask: alphaMask,

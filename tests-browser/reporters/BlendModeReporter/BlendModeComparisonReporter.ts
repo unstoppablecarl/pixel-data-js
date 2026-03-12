@@ -1,19 +1,13 @@
 import { Table } from 'console-table-printer'
 import type { Task } from 'tinybench'
-import {
-  type BlendModeMetadataMap,
-  type BlendModeType,
-  groupBlendModeTasks,
-  percentDiff,
-  percentDiffString,
-} from '../_helpers'
+import { type BlendModeMetadataMap, groupBlendModeTasks, percentDiff, percentDiffString } from '../_helpers'
 import { BlendModeReporter } from './BlendModeReporter'
 
 export class BlendModeComparisonReporter extends BlendModeReporter {
 
   constructor(
-    private baseType: BlendModeType = 'perfect',
-    private targetType: BlendModeType = 'fast',
+    private baseType: string = 'perfect',
+    private targetType: string = 'fast',
   ) {
     super()
   }
@@ -35,7 +29,7 @@ export class BlendModeComparisonReporter extends BlendModeReporter {
       ],
     })
 
-    const groups = groupBlendModeTasks(tasks, metadataMap, (result) => {
+    const groups = groupBlendModeTasks(tasks, metadataMap, this.baseType, this.targetType, (result) => {
       return {
         ops: result.throughput.mean || 0,
         ms: result.latency.mean || 0,

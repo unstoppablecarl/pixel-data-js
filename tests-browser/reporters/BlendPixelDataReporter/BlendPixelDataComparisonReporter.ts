@@ -13,7 +13,7 @@ export class BlendPixelDataComparisonReporter extends BlendPixelDataReporter {
     super(width, height)
   }
 
-  print(tasks: Task[], metadataMap: BlendModeMetadataMap<'perfect' | 'fast'>) {
+  print(tasks: Task[], metadataMap: BlendModeMetadataMap) {
     const p = new Table({
       title: `📊 Comparison: ${this.targetType} vs ${this.baseType}`,
       columns: [
@@ -30,7 +30,7 @@ export class BlendPixelDataComparisonReporter extends BlendPixelDataReporter {
       ],
     })
 
-    const groups = groupBlendModeTasks(tasks, metadataMap, (result) => {
+    const groups = groupBlendModeTasks(tasks, metadataMap, this.baseType, this.targetType, (result) => {
       const hz = result.throughput.mean || 0
       const mps = hz * this.megapixels
       const ms = result.latency.mean || 0
@@ -42,10 +42,10 @@ export class BlendPixelDataComparisonReporter extends BlendPixelDataReporter {
     })
 
     for (const [_key, data] of groups) {
-      const { blendMode, testCase, perfect, fast } = data
+      const { blendMode, testCase } = data
 
-      const baseData = perfect
-      const targetData = fast
+      const baseData = data[this.baseType]
+      const targetData = data[this.targetType]
 
       const mpsBase = baseData.mps
       const mpsTarget = targetData.mps
@@ -63,8 +63,8 @@ export class BlendPixelDataComparisonReporter extends BlendPixelDataReporter {
         mps_target: mpsTarget.toFixed(2),
         mps_diff: percentDiffString(mpsPercent),
 
-        ms_base: baseData.ms.toFixed(2),
-        ms_target: targetData.ms.toFixed(2),
+        ms_base: msBase.toFixed(2),
+        ms_target: msTarget.toFixed(2),
         ms_diff: percentDiffString(msPercent),
       }, {
         color: mpsPercent > 0 ? 'green' : (mpsPercent < 0 ? 'red' : 'white'),
