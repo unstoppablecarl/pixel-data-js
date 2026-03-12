@@ -1,4 +1,4 @@
-import { type PixelData } from 'pixel-data-js'
+import type { PixelData } from './PixelData'
 import { type Rect } from '../_types'
 
 /**
