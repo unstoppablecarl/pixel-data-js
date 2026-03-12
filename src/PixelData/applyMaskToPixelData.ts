@@ -8,7 +8,7 @@ import type { PixelData } from './PixelData'
 export function applyMaskToPixelData(
   dst: PixelData,
   mask: AnyMask,
-  opts: ApplyMaskOptions,
+  opts: ApplyMaskOptions = {},
 ): void {
   const {
     x: targetX = 0,
