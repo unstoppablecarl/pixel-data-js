@@ -21,17 +21,18 @@
   },
   "externalSymbolLinkMappings": {
     "typescript": {
-      "OffscreenCanvas": "#",
-      "ImageData": "#",
-      "HTMLCanvasElement": "#",
       "Blob": "#",
-      "createImageBitmap": "#",
-      "Uint8ClampedArray": "#",
-      "File": "#",
-      "Uint8Array": "#",
-      "HTMLInputElement": "#",
+      "DataTransferItemList": "#",
       "Event": "#",
-      "DataTransferItemList": "#"
+      "File": "#",
+      "HTMLCanvasElement": "#",
+      "HTMLInputElement": "#",
+      "ImageData": "#",
+      "OffscreenCanvas": "#",
+      "Uint32Array": "#",
+      "Uint8Array": "#",
+      "Uint8ClampedArray": "#",
+      "createImageBitmap": "#"
     }
   }
 }
