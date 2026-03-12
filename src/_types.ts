@@ -66,33 +66,33 @@ export type AnyMask = BinaryMask | AlphaMask
  * Configuration for pixel manipulation operations.
  * Designed to be used by spreading a Rect object ({x, y, w, h}) directly.
  */
-export interface PixelOptions {
+export interface PixelRectOptions {
   /**
    * The starting X coordinate in the destination buffer.
    * @default 0
    */
   x?: number
+
   /**
    * The starting Y coordinate in the destination buffer.
    * @default 0
    */
   y?: number
+
   /**
    * The width of the region to process.
    * @default Source width.
    */
   w?: number
+
   /**
    * The height of the region to process.
    * @default Source height.
    */
   h?: number
+}
 
-  /**
-   * Overall layer opacity 0-255.
-   * @default 255
-   */
-  alpha?: number
+export interface PixelMaskRectOptions {
 
   /**
    * Mask width.
@@ -111,6 +111,27 @@ export interface PixelOptions {
    * @default 0
    */
   my?: number
+}
+
+export interface PixelMaskInvertOptions {
+
+  /**
+   * If true the inverse of the mask will be applied
+   * @default false
+   */
+  invertMask?: boolean
+}
+
+/**
+ * Configuration for pixel manipulation operations.
+ * Designed to be used by spreading a Rect object ({x, y, w, h}) directly.
+ */
+export interface PixelOptions extends PixelRectOptions, PixelMaskRectOptions, PixelMaskInvertOptions {
+  /**
+   * Overall layer opacity 0-255.
+   * @default 255
+   */
+  alpha?: number
 
   /** An optional mask to restrict where pixels are written. */
   mask?: AnyMask | null
@@ -119,12 +140,11 @@ export interface PixelOptions {
    * @default {@link MaskType.ALPHA}
    */
   maskType?: MaskType
+}
 
-  /**
-   * If true the inverse of the mask will be applied
-   * @default false
-   */
-  invertMask?: boolean
+export interface PixelMutateOptions extends PixelRectOptions, PixelMaskRectOptions, PixelMaskInvertOptions {
+  /** An optional mask to restrict where pixels are mutated. */
+  mask?: BinaryMask | null
 }
 
 /**

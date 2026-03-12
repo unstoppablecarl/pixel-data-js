@@ -1,16 +1,83 @@
+import { type PixelMutateOptions } from '../_types'
 import type { PixelData } from './PixelData'
 
 export function invertPixelData(
   pixelData: PixelData,
-): PixelData {
+  opts: PixelMutateOptions = {},
+): void {
+  const dst = pixelData
+  const {
+    x: targetX = 0,
+    y: targetY = 0,
 
-  const data32 = pixelData.data32
-  const len = data32.length
+    w: width = pixelData.width,
+    h: height = pixelData.height,
+    mask,
+    mw,
+    mx = 0,
+    my = 0,
+    invertMask = false,
+  } = opts
 
-  for (let i = 0; i < len; i++) {
-    // XOR with 0x00FFFFFF flips RGB bits and ignores Alpha (the top 8 bits)
-    data32[i] = data32[i] ^ 0x00FFFFFF
+  let x = targetX
+  let y = targetY
+  let w = width
+  let h = height
+
+  // Destination Clipping
+  if (x < 0) {
+    w += x
+    x = 0
+  }
+  if (y < 0) {
+    h += y
+    y = 0
   }
 
-  return pixelData
+  const actualW = Math.min(w, dst.width - x)
+  const actualH = Math.min(h, dst.height - y)
+
+  if (actualW <= 0 || actualH <= 0) return
+
+  const dst32 = dst.data32
+  const dw = dst.width
+  const mPitch = mw ?? width
+
+  const dx = x - targetX
+  const dy = y - targetY
+
+  let dIdx = y * dw + x
+  let mIdx = (my + dy) * mPitch + (mx + dx)
+
+  const dStride = dw - actualW
+  const mStride = mPitch - actualW
+
+  // Optimization: Split loops to avoid checking `if (mask)` for every pixel.
+  if (mask) {
+    for (let iy = 0; iy < actualH; iy++) {
+      for (let ix = 0; ix < actualW; ix++) {
+        const mVal = mask[mIdx]
+        const isHit = invertMask
+          ? mVal === 0
+          : mVal === 1
+
+        if (isHit) {
+          // XOR with 0x00FFFFFF flips RGB bits and ignores Alpha (the top 8 bits)
+          dst32[dIdx] = dst32[dIdx] ^ 0x00FFFFFF
+        }
+        dIdx++
+        mIdx++
+      }
+      dIdx += dStride
+      mIdx += mStride
+    }
+  } else {
+    for (let iy = 0; iy < actualH; iy++) {
+      for (let ix = 0; ix < actualW; ix++) {
+        dst32[dIdx] = dst32[dIdx] ^ 0x00FFFFFF
+        dIdx++
+      }
+      dIdx += dStride
+    }
+  }
 }
