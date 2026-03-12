@@ -1,4 +1,4 @@
-import type { BlendColor32, Color32 } from '../_types'
+import type { BlendColor32, Color32, Rect } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 import { PixelData } from './PixelData'
 
@@ -59,5 +59,44 @@ export function applyRectBrushToPixelData(
         data32[rowOffset + px] = blendFn(constantSrc, data32[rowOffset + px] as Color32)
       }
     }
+  }
+}
+
+export function getRectBrushBounds(
+  centerX: number,
+  centerY: number,
+  brushWidth: number,
+  brushHeight: number,
+  targetWidth?: number,
+  targetHeight?: number,
+): Rect {
+
+  const rawStartX = Math.floor(centerX - brushWidth / 2)
+  const rawStartY = Math.floor(centerY - brushHeight / 2)
+
+  const rawEndX = rawStartX + brushWidth
+  const rawEndY = rawStartY + brushHeight
+
+  const startX = targetWidth !== undefined
+    ? Math.max(0, rawStartX)
+    : rawStartX
+
+  const startY = targetHeight !== undefined
+    ? Math.max(0, rawStartY)
+    : rawStartY
+
+  const endX = targetWidth !== undefined
+    ? Math.min(targetWidth, rawEndX)
+    : rawEndX
+
+  const endY = targetHeight !== undefined
+    ? Math.min(targetHeight, rawEndY)
+    : rawEndY
+
+  return {
+    x: startX,
+    y: startY,
+    w: endX - startX,
+    h: endY - startY,
   }
 }
