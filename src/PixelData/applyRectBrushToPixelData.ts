@@ -15,6 +15,7 @@ import { PixelData } from './PixelData'
  * @default 255
  * @param fallOff A function that returns an alpha multiplier (0-1) based on the normalized distance (0-1) from the circle's center.
  * @param blendFn
+ * @param bounds precalculated result from {@link getRectBrushBounds}
  * @default sourceOverPerfect
  */
 export function applyRectBrushToPixelData(
@@ -27,36 +28,52 @@ export function applyRectBrushToPixelData(
   alpha = 255,
   fallOff?: (dist: number) => number,
   blendFn: BlendColor32 = sourceOverPerfect,
+  bounds?: Rect,
 ): void {
   const targetWidth = target.width
   const targetHeight = target.height
+
+  // Use provided bounds or compute once
+  const b = bounds ?? getRectBrushBounds(
+    centerX,
+    centerY,
+    brushWidth,
+    brushHeight,
+    targetWidth,
+    targetHeight
+  )
+
+  if (b.w <= 0 || b.h <= 0) return
+
   const data32 = target.data32
-
-  const rawStartX = Math.floor(centerX - brushWidth / 2)
-  const rawStartY = Math.floor(centerY - brushHeight / 2)
-  const endX = Math.min(targetWidth, rawStartX + brushWidth)
-  const endY = Math.min(targetHeight, rawStartY + brushHeight)
-  const startX = Math.max(0, rawStartX)
-  const startY = Math.max(0, rawStartY)
-
   const baseColor = color & 0x00ffffff
   const constantSrc = ((alpha << 24) | baseColor) >>> 0 as Color32
+
   const invHalfW = 1 / (brushWidth / 2)
   const invHalfH = 1 / (brushHeight / 2)
+  const endX = b.x + b.w
+  const endY = b.y + b.h
 
-  for (let py = startY; py < endY; py++) {
+  for (let py = b.y; py < endY; py++) {
     const rowOffset = py * targetWidth
-    const dy = Math.abs(py + 0.5 - centerY) * invHalfH
 
-    for (let px = startX; px < endX; px++) {
+    // Y-distance check for falloff (center of pixel to center of brush)
+    const dy = fallOff ? Math.abs(py + 0.5 - centerY) * invHalfH : 0
+
+    for (let px = b.x; px < endX; px++) {
+      const idx = rowOffset + px
+
       if (fallOff) {
         const dx = Math.abs(px + 0.5 - centerX) * invHalfW
         const dist = dx > dy ? dx : dy
-        const fAlpha = (alpha * fallOff(dist)) | 0
+
+        const strength = fallOff(dist)
+        const fAlpha = (alpha * strength) | 0
         const src = ((fAlpha << 24) | baseColor) >>> 0 as Color32
-        data32[rowOffset + px] = blendFn(src, data32[rowOffset + px] as Color32)
+
+        data32[idx] = blendFn(src, data32[idx] as Color32)
       } else {
-        data32[rowOffset + px] = blendFn(constantSrc, data32[rowOffset + px] as Color32)
+        data32[idx] = blendFn(constantSrc, data32[idx] as Color32)
       }
     }
   }
@@ -69,34 +86,32 @@ export function getRectBrushBounds(
   brushHeight: number,
   targetWidth?: number,
   targetHeight?: number,
+  out?: Rect,
 ): Rect {
+  const startX = Math.floor(centerX - brushWidth / 2)
+  const startY = Math.floor(centerY - brushHeight / 2)
+  const endX = startX + brushWidth
+  const endY = startY + brushHeight
 
-  const rawStartX = Math.floor(centerX - brushWidth / 2)
-  const rawStartY = Math.floor(centerY - brushHeight / 2)
-
-  const rawEndX = rawStartX + brushWidth
-  const rawEndY = rawStartY + brushHeight
-
-  const startX = targetWidth !== undefined
-    ? Math.max(0, rawStartX)
-    : rawStartX
-
-  const startY = targetHeight !== undefined
-    ? Math.max(0, rawStartY)
-    : rawStartY
-
-  const endX = targetWidth !== undefined
-    ? Math.min(targetWidth, rawEndX)
-    : rawEndX
-
-  const endY = targetHeight !== undefined
-    ? Math.min(targetHeight, rawEndY)
-    : rawEndY
-
-  return {
-    x: startX,
-    y: startY,
-    w: endX - startX,
-    h: endY - startY,
+  const res = out ?? {
+    x: 0,
+    y: 0,
+    w: 0,
+    h: 0,
   }
+
+  const cStartX = targetWidth !== undefined ? Math.max(0, startX) : startX
+  const cStartY = targetHeight !== undefined ? Math.max(0, startY) : startY
+  const cEndX = targetWidth !== undefined ? Math.min(targetWidth, endX) : endX
+  const cEndY = targetHeight !== undefined ? Math.min(targetHeight, endY) : endY
+
+  const w = cEndX - cStartX
+  const h = cEndY - cStartY
+
+  res.x = cStartX
+  res.y = cStartY
+  res.w = w < 0 ? 0 : w
+  res.h = h < 0 ? 0 : h
+
+  return res
 }

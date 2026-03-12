@@ -1,4 +1,4 @@
-import type { BlendColor32, Color32 } from '../_types'
+import type { BlendColor32, Color32, Rect } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 import type { PixelData } from './PixelData'
 
@@ -14,6 +14,7 @@ import type { PixelData } from './PixelData'
  * @default 255
  * @param fallOff A function that returns an alpha multiplier (0-1) based on the normalized distance (0-1) from the circle's center.
  * @param blendFn
+ * @param bounds precalculated result from {@link getCircleBrushBounds}
  * @default sourceOverPerfect
  */
 export function applyCircleBrushToPixelData(
@@ -25,32 +26,46 @@ export function applyCircleBrushToPixelData(
   alpha = 255,
   fallOff?: (dist: number) => number,
   blendFn: BlendColor32 = sourceOverPerfect,
+  bounds?: Rect,
 ): void {
-  const r = brushSize / 2
-  const rSqr = r * r
-  const centerOffset = (brushSize % 2 === 0) ? 0.5 : 0
+  const targetWidth = target.width
+  const targetHeight = target.height
 
-  const xStart = Math.max(0, Math.ceil(centerX - r))
-  const xEnd = Math.min(target.width - 1, Math.floor(centerX + r))
-  const yStart = Math.max(0, Math.ceil(centerY - r))
-  const yEnd = Math.min(target.height - 1, Math.floor(centerY + r))
+  // Use provided bounds OR calculate them once
+  const b = bounds ?? getCircleBrushBounds(
+    centerX,
+    centerY,
+    brushSize,
+    targetWidth,
+    targetHeight
+  )
+
+  if (b.w <= 0 || b.h <= 0) return
 
   const data32 = target.data32
-  const targetWidth = target.width
-  const baseColor = color & 0x00ffffff
+  const r = brushSize / 2
+  const rSqr = r * r
   const invR = 1 / r
 
-  // Pre-calculate the constant source for cases where fallOff is null
+  const centerOffset = (brushSize % 2 === 0) ? 0.5 : 0
+  const baseColor = color & 0x00ffffff
   const constantSrc = ((alpha << 24) | baseColor) >>> 0 as Color32
 
-  for (let cy = yStart; cy <= yEnd; cy++) {
-    const dy = cy - centerY + centerOffset
-    const dySqr = dy * dy
+  const endX = b.x + b.w
+  const endY = b.y + b.h
+
+  // Anchor the math to the floor of the center for exact pixel art parity
+  const fCenterX = Math.floor(centerX)
+  const fCenterY = Math.floor(centerY)
+
+  for (let cy = b.y; cy < endY; cy++) {
+    const relY = (cy - fCenterY) + centerOffset
+    const dySqr = relY * relY
     const rowOffset = cy * targetWidth
 
-    for (let cx = xStart; cx <= xEnd; cx++) {
-      const dx = cx - centerX + centerOffset
-      const dSqr = dx * dx + dySqr
+    for (let cx = b.x; cx < endX; cx++) {
+      const relX = (cx - fCenterX) + centerOffset
+      const dSqr = relX * relX + dySqr
 
       if (dSqr <= rSqr) {
         const idx = rowOffset + cx
@@ -66,4 +81,44 @@ export function applyCircleBrushToPixelData(
       }
     }
   }
+}
+
+export function getCircleBrushBounds(
+  centerX: number,
+  centerY: number,
+  brushSize: number,
+  targetWidth?: number,
+  targetHeight?: number,
+  out?: Rect,
+): Rect {
+  const r = brushSize / 2
+
+  // These offsets match your getPerfectCircleCoords exactly
+  const minOffset = -Math.ceil(r - 0.5)
+  const maxOffset = Math.floor(r - 0.5)
+
+  // start is inclusive, end is exclusive
+  const startX = Math.floor(centerX + minOffset)
+  const startY = Math.floor(centerY + minOffset)
+  const endX = Math.floor(centerX + maxOffset) + 1
+  const endY = Math.floor(centerY + maxOffset) + 1
+
+  const res = out ?? {
+    x: 0,
+    y: 0,
+    w: 0,
+    h: 0,
+  }
+
+  const cStartX = targetWidth !== undefined ? Math.max(0, startX) : startX
+  const cStartY = targetHeight !== undefined ? Math.max(0, startY) : startY
+  const cEndX = targetWidth !== undefined ? Math.min(targetWidth, endX) : endX
+  const cEndY = targetHeight !== undefined ? Math.min(targetHeight, endY) : endY
+
+  res.x = cStartX
+  res.y = cStartY
+  res.w = Math.max(0, cEndX - cStartX)
+  res.h = Math.max(0, cEndY - cStartY)
+
+  return res
 }

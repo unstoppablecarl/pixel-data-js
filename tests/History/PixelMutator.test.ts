@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  applyCircleBrushToPixelData,
   applyMaskToPixelData,
+  applyRectBrushToPixelData,
+  type BinaryMask,
   blendColorPixelData,
   blendPixelData,
   type Color32,
@@ -11,8 +14,8 @@ import {
   PixelData,
   PixelEngineConfig,
   PixelWriter,
+  type Rect,
   sourceOverFast,
-  type Rect, type BinaryMask,
 } from '../../src'
 
 // Mock the underlying PixelData functions
@@ -21,6 +24,22 @@ vi.mock('../../src/PixelData/blendPixelData')
 vi.mock('../../src/PixelData/blendColorPixelData')
 vi.mock('../../src/PixelData/applyMaskToPixelData')
 vi.mock('../../src/PixelData/invertPixelData')
+
+vi.mock('../../src/PixelData/applyCircleBrushToPixelData', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../src/PixelData/applyCircleBrushToPixelData')>()
+  return {
+    ...actual,
+    applyCircleBrushToPixelData: vi.fn(),
+  }
+})
+
+vi.mock('../../src/PixelData/applyRectBrushToPixelData', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../src/PixelData/applyRectBrushToPixelData')>()
+  return {
+    ...actual,
+    applyRectBrushToPixelData: vi.fn(),
+  }
+})
 
 describe('PixelMutator', () => {
   let writer: PixelWriter<any>
@@ -55,6 +74,8 @@ describe('PixelMutator', () => {
     expect(mutator).toHaveProperty('applyMask')
     expect(mutator).toHaveProperty('invert')
     expect(mutator).toHaveProperty('blendPixel')
+    expect(mutator).toHaveProperty('applyRectBrush')
+    expect(mutator).toHaveProperty('applyCircleBrush')
   })
 
   describe('mutatorFill', () => {
@@ -122,9 +143,74 @@ describe('PixelMutator', () => {
       mutator.invert(options)
 
       expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(15, 15, 30, 30)
-      // It calls invertPixelData with only the target, not the options
-      // This is because invertPixelData implementation doesn't take options
       expect(invertPixelData).toHaveBeenCalledWith(target, options)
+    })
+  })
+
+  describe('mutatorApplyCircleBrush', () => {
+    it('should calculate bounds once and pass them to both accumulator and draw function', () => {
+      const color = 0xFF0000FF as Color32
+      const fallOff = (d: number) => 1 - d
+
+      mutator.applyCircleBrush(color, 50, 50, 10, 255, fallOff, sourceOverFast)
+
+      const expectedBounds = { x: 45, y: 45, w: 10, h: 10 }
+
+      expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(
+        expectedBounds.x,
+        expectedBounds.y,
+        expectedBounds.w,
+        expectedBounds.h,
+      )
+
+      expect(applyCircleBrushToPixelData).toHaveBeenCalledWith(
+        target,
+        color,
+        50,
+        50,
+        10,
+        255,
+        fallOff,
+        sourceOverFast,
+        expect.objectContaining(expectedBounds), // Matches the out parameter logic
+      )
+    })
+  })
+
+  describe('mutatorApplyRectBrush', () => {
+    it('should apply rectangular bounds exactly', () => {
+      const color = 0xFFFFFFFF as Color32
+
+      // 10x10 brush at 20,20:
+      // startX = floor(20 - 5) = 15. endX = 15 + 10 = 25. w = 10.
+      mutator.applyRectBrush(color, 20, 20, 10, 10, 255)
+
+      const expectedBounds = { x: 15, y: 15, w: 10, h: 10 }
+
+      expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(15, 15, 10, 10)
+
+      expect(applyRectBrushToPixelData).toHaveBeenCalledWith(
+        target,
+        color,
+        20,
+        20,
+        10,
+        10,
+        255,
+        undefined,
+        undefined,
+        expect.objectContaining(expectedBounds),
+      )
+    })
+
+    it('should respect target clipping in the mutator', () => {
+      const color = 0xFFFFFFFF as Color32
+
+      // Brush at 0,0 with size 10x10.
+      // rawStart = -5, rawEnd = 5. Clamped to 0, 5. w=5.
+      mutator.applyRectBrush(color, 0, 0, 10, 10)
+
+      expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, 5, 5)
     })
   })
 

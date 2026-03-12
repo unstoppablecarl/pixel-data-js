@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { getRectBrushBounds, PixelData } from '../../src'
-import { applyRectBrushToPixelData } from '../../src/PixelData/applyRectBrushToPixelData'
+import { applyRectBrushToPixelData, getRectBrushBounds, PixelData } from '../../src'
 
 describe('applyRectBrushToPixelData', () => {
   const createMockPixelData = (width: number, height: number) => {
@@ -206,6 +205,63 @@ describe('applyRectBrushToPixelData', () => {
         w: 5,
         h: 5,
       })
+    })
+  })
+  describe('applyRectBrushToPixelData with bounds', () => {
+    it('should respect the x/y offset of the provided bounds', () => {
+      const target = createMockPixelData(10, 10)
+      const color = 0xFFFFFFFF as any
+
+      // Brush is 10x10, but we tell it only to paint a 1x1 sliver at the end
+      const sliverBounds = {
+        x: 9,
+        y: 9,
+        w: 1,
+        h: 1,
+      }
+
+      applyRectBrushToPixelData(
+        target,
+        color,
+        5,
+        5,
+        10,
+        10,
+        255,
+        undefined,
+        undefined,
+        sliverBounds,
+      )
+
+      expect(target.data32[9 * 10 + 9]).toBe(0xFFFFFFFF)
+      expect(target.data32[5 * 10 + 5]).toBe(0)
+    })
+
+    it('should handle empty bounds gracefully', () => {
+      const target = createMockPixelData(10, 10)
+      const color = 0xFFFFFFFF as any
+      const emptyBounds = {
+        x: 0,
+        y: 0,
+        w: 0,
+        h: 0,
+      }
+
+      // Should not throw or modify anything
+      applyRectBrushToPixelData(
+        target,
+        color,
+        5,
+        5,
+        5,
+        5,
+        255,
+        undefined,
+        undefined,
+        emptyBounds,
+      )
+
+      expect(target.data32.some(p => p !== 0)).toBe(false)
     })
   })
 })
