@@ -15,7 +15,7 @@ import {
   PixelData,
 } from '../src'
 import { makeComplexAlphaMask, makeComplexBinaryMask, makeComplexTestPixelData } from '../tests/_helpers'
-import type { BlendModeBenchCase, BlendModeType } from './reporters/_helpers'
+import type { BlendModeBenchCase, BlendModeMetadataMap, BlendModeType } from './reporters/_helpers'
 import { BlendPixelDataComparisonReporter } from './reporters/BlendPixelDataReporter/BlendPixelDataComparisonReporter'
 import { BlendPixelDataSummaryReporter } from './reporters/BlendPixelDataReporter/BlendPixelDataSummaryReporter'
 
@@ -35,9 +35,10 @@ describe('Blend Modes', () => {
   })
 
   function makeCases(type: BlendModeType, registry: BlendModeRegistry, blendIndex: number) {
-    const fastBlendName = registry.indexToName[blendIndex]!
-    const fastBlendFn = registry.indexToBlend[blendIndex]!
-    return buildBlendModeCases(type, fastBlendName, fastBlendFn, src, dst, binaryMask, alphaMask)
+    const blendName = registry.indexToName[blendIndex]!
+    const blendFn = registry.indexToBlend[blendIndex]!
+
+    return buildBlendModeCases(type, blendName, blendFn, src, dst, binaryMask, alphaMask)
   }
 
   function makeSummary(type: BlendModeType, registry: BlendModeRegistry, blendIndex: number) {
@@ -74,19 +75,19 @@ describe('Blend Modes', () => {
     }
   }
 
-  const { cases, reporter } = makeComparison(BaseBlendMode.sourceOver)
-  // const { cases, reporter } = makeFastSummary(BaseBlendMode.sourceOver)
+  // const { cases, reporter } = makeComparison(BaseBlendMode.sourceOver)
+  const { cases, reporter } = makeFastSummary(BaseBlendMode.sourceOver)
 
   const timeout = cases.length * (benchTime + warmupTime)
 
   console.info('Starting: estimated time: ' + prettyMilliseconds(timeout))
 
   test('Blend Mode Bench', async () => {
-    const metadataMap = new Map<string, any>()
+    const metadataMap: BlendModeMetadataMap = new Map()
     cases.forEach(({ blendMode, testCase, type, run }) => {
       const taskName = `${type}: ${blendMode} - ${testCase}`
       bench.add(taskName, run)
-      metadataMap.set(taskName, { type, name: blendMode, testCase })
+      metadataMap.set(taskName, { type, blendMode, testCase })
     })
     await bench.run()
 

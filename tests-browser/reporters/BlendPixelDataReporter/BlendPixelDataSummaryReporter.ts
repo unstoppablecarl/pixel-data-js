@@ -13,6 +13,7 @@ export class BlendPixelDataSummaryReporter extends BlendPixelDataReporter {
         { name: 'blendMode', title: 'Blend Mode', alignment: 'left' },
         { name: 'testCase', title: 'Test Case', alignment: 'left' },
         { name: 'mps', title: this.primaryUnitLabel, alignment: 'right' },
+        { name: 'ms', title: `Avg Latency ms`, alignment: 'right' },
       ],
     })
 
@@ -28,6 +29,7 @@ export class BlendPixelDataSummaryReporter extends BlendPixelDataReporter {
         blendMode,
         testCase,
         mps: `${mps.toFixed(2)}`,
+        ms: result.throughput.mean.toFixed(2),
       }, {
         color: mps > 200 ? 'green' : 'yellow',
       })
