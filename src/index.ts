@@ -30,6 +30,7 @@ export * from './History/PixelMutator/mutatorApplyRectBrushStroke'
 export * from './History/PixelMutator/mutatorBlendColor'
 export * from './History/PixelMutator/mutatorBlendPixel'
 export * from './History/PixelMutator/mutatorBlendPixelData'
+export * from './History/PixelMutator/mutatorClearPixelData'
 export * from './History/PixelMutator/mutatorFillPixelData'
 export * from './History/PixelMutator/mutatorInvert'
 
