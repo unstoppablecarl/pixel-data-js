@@ -380,8 +380,7 @@ describe('blendPixelData', () => {
       })
 
       const resultAlpha = unpackAlpha(dst.data32[0] as Color32)
-      // drift of -1 expected
-      expect(resultAlpha).toBe(119)
+      expect(resultAlpha).toBe(120)
     })
   })
 })

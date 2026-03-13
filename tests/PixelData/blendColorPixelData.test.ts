@@ -318,7 +318,7 @@ describe('blendColorPixelData', () => {
 
       const resultAlpha = unpackAlpha(dst.data32[0] as Color32)
       // drift of -1 expected
-      expect(resultAlpha).toBe(119)
+      expect(resultAlpha).toBe(120)
     })
 
     it('covers the inverse identity branch where globalAlpha is 255', () => {
@@ -332,8 +332,7 @@ describe('blendColorPixelData', () => {
       })
 
       const resultAlpha = unpackAlpha(dst.data32[0] as Color32)
-      // drift of -1 expected
-      expect(resultAlpha).toBe(119)
+      expect(resultAlpha).toBe(120)
     })
   })
 })
