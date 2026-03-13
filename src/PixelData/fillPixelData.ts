@@ -1,5 +1,8 @@
 import type { Color32, Rect } from '../_types'
+import { makeClippedRect, resolveRectClipping } from '../Internal/resolveClipping'
 import type { PixelData } from './PixelData'
+
+const SCRATCH_RECT = makeClippedRect()
 
 /**
  * Fills a region or the {@link PixelData} buffer with a solid color.
@@ -60,35 +63,30 @@ export function fillPixelData(
     h = dst.height
   }
 
-  // Destination Clipping
-  if (x < 0) {
-    w += x
-    x = 0
-  }
-  if (y < 0) {
-    h += y
-    y = 0
-  }
+  const clip = resolveRectClipping(x, y, w, h, dst.width, dst.height, SCRATCH_RECT)
 
-  const actualW = Math.min(w, dst.width - x)
-  const actualH = Math.min(h, dst.height - y)
+  if (!clip.inBounds) return
 
-  if (actualW <= 0 || actualH <= 0) {
-    return
-  }
+  // Use the clipped values
+  const {
+    x: finalX,
+    y: finalY,
+    w: actualW,
+    h: actualH,
+  } = clip
 
   const dst32 = dst.data32
   const dw = dst.width
 
   // Optimization: If filling the entire buffer, use the native .fill()
-  if (actualW === dw && actualH === dst.height && x === 0 && y === 0) {
+  if (actualW === dw && actualH === dst.height && finalX === 0 && finalY === 0) {
     dst32.fill(color)
     return
   }
 
   // Row-by-row fill for partial rectangles
   for (let iy = 0; iy < actualH; iy++) {
-    const start = (y + iy) * dw + x
+    const start = (finalY + iy) * dw + finalX
     const end = start + actualW
     dst32.fill(color, start, end)
   }

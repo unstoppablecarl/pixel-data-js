@@ -1,5 +1,8 @@
 import type { Rect } from '../_types'
+import { makeClippedBlit, resolveBlitClipping } from '../Internal/resolveClipping'
 import type { PixelData } from './PixelData'
+
+const SCRATCH_BLIT = makeClippedBlit()
 
 /**
  * Extracts a rectangular region of pixels from PixelData.
@@ -31,29 +34,41 @@ export function extractPixelDataBuffer(
   const dstImageData = new ImageData(w, h)
   const dstData = new Uint32Array(dstImageData.data.buffer)
 
-  const x0 = Math.max(0, x)
-  const y0 = Math.max(0, y)
-  const x1 = Math.min(srcW, x + w)
-  const y1 = Math.min(srcH, y + h)
+  // We map from Source (srcW, srcH) at (x,y)
+  // To Dest (w, h) at (0,0)
+  // Note: resolveBlitClipping usually takes (dstX, dstY, srcX, srcY...)
+  // Here we are "blitting" FROM x,y TO 0,0.
+  const clip = resolveBlitClipping(
+    0,
+    0,
+    x,
+    y,
+    w,
+    h,
+    w,
+    h,
+    srcW,
+    srcH,
+    SCRATCH_BLIT,
+  )
 
-  // Return empty buffer if no intersection
-  if (x1 <= x0 || y1 <= y0) {
-    return dstData
-  }
+  if (!clip.inBounds) return dstData
 
-  const copyWidth = x1 - x0
-  const copyHeight = y1 - y0
+  const {
+    x: dstX,
+    y: dstY,
+    sx: srcX,
+    sy: srcY,
+    w: copyW,
+    h: copyH,
+  } = clip
 
-  for (let row = 0; row < copyHeight; row++) {
-    const srcRow = y0 + row
-    const srcStart = srcRow * srcW + x0
-
-    const dstRow = (y0 - y) + row
-    const dstCol = (x0 - x)
-    const dstStart = dstRow * w + dstCol
+  for (let row = 0; row < copyH; row++) {
+    const srcStart = (srcY + row) * srcW + srcX
+    const dstStart = (dstY + row) * w + dstX
 
     // Perform the high-speed 32-bit bulk copy
-    const chunk = srcData.subarray(srcStart, srcStart + copyWidth)
+    const chunk = srcData.subarray(srcStart, srcStart + copyW)
     dstData.set(chunk, dstStart)
   }
 

@@ -1,4 +1,7 @@
 import type { Rect } from '../_types'
+import { makeClippedBlit, resolveBlitClipping } from '../Internal/resolveClipping'
+
+const SCRATCH_BLIT = makeClippedBlit()
 
 /**
  * Copies a pixel buffer into a specific region of an {@link ImageData} object.
@@ -46,28 +49,37 @@ export function writeImageDataBuffer(
 
   const { width: dstW, height: dstH, data: dst } = imageData
 
-  // 1. Calculate the intersection of the patch and the canvas
-  const x0 = Math.max(0, x)
-  const y0 = Math.max(0, y)
-  const x1 = Math.min(dstW, x + w)
-  const y1 = Math.min(dstH, y + h)
+  const clip = resolveBlitClipping(
+    x,
+    y,
+    0,
+    0,
+    w,
+    h,
+    dstW,
+    dstH,
+    w,
+    h,
+    SCRATCH_BLIT,
+  )
 
-  // If the intersection is empty, do nothing
-  if (x1 <= x0 || y1 <= y0) return
+  if (!clip.inBounds) return
 
-  const rowLen = (x1 - x0) * 4
-  const srcCol = x0 - x
-  const srcYOffset = y0 - y
-  const actualH = y1 - y0
+  const {
+    x: dstX,
+    y: dstY,
+    sx: srcX,
+    sy: srcY,
+    w: copyW,
+    h: copyH,
+  } = clip
 
-  for (let row = 0; row < actualH; row++) {
-    // Target index
-    const dstStart = ((y0 + row) * dstW + x0) * 4
+  const rowLen = copyW * 4
 
-    // Source data index (must account for the offset if the rect was partially OOB)
-    const srcRow = srcYOffset + row
-    const o = (srcRow * w + srcCol) * 4
+  for (let row = 0; row < copyH; row++) {
+    const dstStart = ((dstY + row) * dstW + dstX) * 4
+    const srcStart = ((srcY + row) * w + srcX) * 4
 
-    dst.set(data.subarray(o, o + rowLen), dstStart)
+    dst.set(data.subarray(srcStart, srcStart + rowLen), dstStart)
   }
 }

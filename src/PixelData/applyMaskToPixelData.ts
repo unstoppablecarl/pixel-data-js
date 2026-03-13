@@ -1,5 +1,8 @@
 import { type AnyMask, type ApplyMaskOptions, MaskType } from '../_types'
+import { makeClippedRect, resolveRectClipping } from '../Internal/resolveClipping'
 import type { PixelData } from './PixelData'
+
+const SCRATCH_RECT = makeClippedRect()
 
 /**
  * Directly applies a mask to a region of PixelData,
@@ -23,28 +26,16 @@ export function applyMaskToPixelData(
     invertMask = false,
   } = opts
 
-  let x = targetX
-  let y = targetY
-  let w = width
-  let h = height
+  const clip = resolveRectClipping(targetX, targetY, width, height, dst.width, dst.height, SCRATCH_RECT)
 
-  // Clipping Logic
-  if (x < 0) {
-    w += x
-    x = 0
-  }
+  if (!clip.inBounds || globalAlpha === 0) return
 
-  if (y < 0) {
-    h += y
-    y = 0
-  }
-
-  const actualW = Math.min(w, dst.width - x)
-  const actualH = Math.min(h, dst.height - y)
-
-  if (actualW <= 0 || actualH <= 0 || globalAlpha === 0) {
-    return
-  }
+  const {
+    x,
+    y,
+    w: actualW,
+    h: actualH,
+  } = clip
 
   const dst32 = dst.data32
   const dw = dst.width

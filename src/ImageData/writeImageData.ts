@@ -1,4 +1,7 @@
 import { MaskType } from '../_types'
+import { makeClippedBlit, resolveBlitClipping } from '../Internal/resolveClipping'
+
+const SCRATCH_BLIT = makeClippedBlit()
 
 /**
  * Writes image data from a source to a target with support for clipping and alpha masking.
@@ -32,30 +35,35 @@ export function writeImageData(
   const srcW = source.width
   const srcData = source.data
 
-  const x0 = Math.max(0, x)
-  const y0 = Math.max(0, y)
-  const x1 = Math.min(dstW, x + sw)
-  const y1 = Math.min(dstH, y + sh)
+  const clip = resolveBlitClipping(
+    x, y, sx, sy, sw, sh,
+    dstW, dstH, srcW, source.height,
+    SCRATCH_BLIT,
+  )
 
-  if (x1 <= x0 || y1 <= y0) {
-    return
-  }
+  if (!clip.inBounds) return
+
+  const {
+    x: dstX,
+    y: dstY,
+    sx: srcX,
+    sy: srcY,
+    w: copyW,
+    h: copyH,
+  } = clip
 
   const useMask = !!mask
-  const rowCount = y1 - y0
-  const rowLenPixels = x1 - x0
 
-  for (let row = 0; row < rowCount; row++) {
-    const dstY = y0 + row
-    const srcY = sy + (dstY - y)
-    const srcXBase = sx + (x0 - x)
+  for (let row = 0; row < copyH; row++) {
+    const currentDstY = dstY + row
+    const currentSrcY = srcY + row
 
-    const dstStart = (dstY * dstW + x0) * 4
-    const srcStart = (srcY * srcW + srcXBase) * 4
+    const dstStart = (currentDstY * dstW + dstX) * 4
+    const srcStart = (currentSrcY * srcW + srcX) * 4
 
     if (useMask && mask) {
-      for (let ix = 0; ix < rowLenPixels; ix++) {
-        const mi = srcY * srcW + (srcXBase + ix)
+      for (let ix = 0; ix < copyW; ix++) {
+        const mi = currentSrcY * srcW + (srcX + ix)
         const alpha = mask[mi]
 
         if (alpha === 0) {
@@ -81,7 +89,7 @@ export function writeImageData(
         }
       }
     } else {
-      const byteLen = rowLenPixels * 4
+      const byteLen = copyW * 4
       const sub = srcData.subarray(srcStart, srcStart + byteLen)
       dstData.set(sub, dstStart)
     }

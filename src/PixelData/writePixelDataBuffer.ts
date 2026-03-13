@@ -1,5 +1,8 @@
 import type { PixelData } from './PixelData'
 import { type Rect } from '../_types'
+import { makeClippedBlit, resolveBlitClipping } from '../Internal/resolveClipping'
+
+const SCRATCH_BLIT = makeClippedBlit()
 
 /**
  * Copies a pixel buffer into a specific region of a {@link PixelData} object.
@@ -41,25 +44,36 @@ export function writePixelDataBuffer(
   const dstH = target.height
   const dstData = target.data32
 
-  const x0 = Math.max(0, x)
-  const y0 = Math.max(0, y)
-  const x1 = Math.min(dstW, x + w)
-  const y1 = Math.min(dstH, y + h)
+  // treat the source buffer as a Source Image starting at 0,0 with size w,h
+  const clip = resolveBlitClipping(
+    x,
+    y,
+    0,
+    0,
+    w,
+    h,
+    dstW,
+    dstH,
+    w,
+    h,
+    SCRATCH_BLIT,
+  )
 
-  if (x1 <= x0 || y1 <= y0) {
-    return
-  }
+  if (!clip.inBounds) return
 
-  const rowLen = x1 - x0
-  const srcCol = x0 - x
-  const srcYOffset = y0 - y
-  const actualH = y1 - y0
+  const {
+    x: dstX,
+    y: dstY,
+    sx: srcX,
+    sy: srcY,
+    w: copyW,
+    h: copyH
+  } = clip
 
-  for (let row = 0; row < actualH; row++) {
-    const dstStart = (y0 + row) * dstW + x0
-    const srcRow = srcYOffset + row
-    const srcStart = srcRow * w + srcCol
+  for (let row = 0; row < copyH; row++) {
+    const dstStart = (dstY + row) * dstW + dstX
+    const srcStart = (srcY + row) * w + srcX
 
-    dstData.set(data.subarray(srcStart, srcStart + rowLen), dstStart)
+    dstData.set(data.subarray(srcStart, srcStart + copyW), dstStart)
   }
 }

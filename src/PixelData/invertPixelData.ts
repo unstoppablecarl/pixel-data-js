@@ -1,5 +1,8 @@
 import { type PixelMutateOptions } from '../_types'
+import { makeClippedRect, resolveRectClipping } from '../Internal/resolveClipping'
 import type { PixelData } from './PixelData'
+
+const SCRATCH_RECT = makeClippedRect()
 
 export function invertPixelData(
   pixelData: PixelData,
@@ -19,25 +22,16 @@ export function invertPixelData(
     invertMask = false,
   } = opts
 
-  let x = targetX
-  let y = targetY
-  let w = width
-  let h = height
+  const clip = resolveRectClipping(targetX, targetY, width, height, dst.width, dst.height, SCRATCH_RECT)
 
-  // Destination Clipping
-  if (x < 0) {
-    w += x
-    x = 0
-  }
-  if (y < 0) {
-    h += y
-    y = 0
-  }
+  if (!clip.inBounds) return
 
-  const actualW = Math.min(w, dst.width - x)
-  const actualH = Math.min(h, dst.height - y)
-
-  if (actualW <= 0 || actualH <= 0) return
+  const {
+    x,
+    y,
+    w: actualW,
+    h: actualH,
+  } = clip
 
   const dst32 = dst.data32
   const dw = dst.width

@@ -1,4 +1,7 @@
 import type { ImageDataLike, Rect } from '../_types'
+import { makeClippedBlit, resolveBlitClipping } from '../Internal/resolveClipping'
+
+const SCRATCH_BLIT = makeClippedBlit()
 
 /**
  * Extracts a specific rectangular region of pixels from a larger {@link ImageDataLike}
@@ -45,24 +48,28 @@ export function extractImageDataBuffer(
   if (w <= 0 || h <= 0) return new Uint8ClampedArray(0)
   const out = new Uint8ClampedArray(w * h * 4)
 
-  const x0 = Math.max(0, x)
-  const y0 = Math.max(0, y)
-  const x1 = Math.min(srcW, x + w)
-  const y1 = Math.min(srcH, y + h)
+  const clip = resolveBlitClipping(
+    0,
+    0,
+    x,
+    y,
+    w,
+    h,
+    w,
+    h,
+    srcW,
+    srcH,
+    SCRATCH_BLIT,
+  )
 
-  // If no intersection, return the empty
-  if (x1 <= x0 || y1 <= y0) return out
+  if (!clip.inBounds) return out
 
-  for (let row = 0; row < (y1 - y0); row++) {
-    // Where to read from the source canvas
-    const srcRow = y0 + row
-    const srcStart = (srcRow * srcW + x0) * 4
-    const rowLen = (x1 - x0) * 4
+  const { x: dstX, y: dstY, sx: srcX, sy: srcY, w: copyW, h: copyH } = clip
+  const rowLen = copyW * 4
 
-    // Where to write into the 'out' patch
-    const dstRow = (y0 - y) + row
-    const dstCol = (x0 - x)
-    const dstStart = (dstRow * w + dstCol) * 4
+  for (let row = 0; row < copyH; row++) {
+    const srcStart = ((srcY + row) * srcW + srcX) * 4
+    const dstStart = ((dstY + row) * w + dstX) * 4
 
     // Perform the high-speed bulk copy
     out.set(src.subarray(srcStart, srcStart + rowLen), dstStart)
