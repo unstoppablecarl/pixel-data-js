@@ -75,7 +75,9 @@ describe('PixelMutator', () => {
     expect(mutator).toHaveProperty('invert')
     expect(mutator).toHaveProperty('blendPixel')
     expect(mutator).toHaveProperty('applyRectBrush')
+    expect(mutator).toHaveProperty('applyRectBrushStroke')
     expect(mutator).toHaveProperty('applyCircleBrush')
+    expect(mutator).toHaveProperty('applyCircleBrushStroke')
   })
 
   describe('mutatorFill', () => {

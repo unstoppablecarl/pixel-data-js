@@ -68,5 +68,6 @@ async function checkExports(
 checkExports([
   'globals.d.ts',
   'Canvas/_constants.ts',
-  'Internal/resample32.ts'
+  'Internal/resample32.ts',
+  'Internal/forEachLinePoint.ts',
 ])
