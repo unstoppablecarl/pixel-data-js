@@ -1,7 +1,6 @@
 import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
-import { PixelData } from '../../src'
-import { ImageData as NapiImageData } from '@napi-rs/canvas'
+import { type ImageDataLike, PixelData } from '../../src'
 
 describe('PixelData', () => {
   it('should initialize width, height, and data32 view', () => {
@@ -52,24 +51,28 @@ describe('PixelData', () => {
   })
 
   it('should use the instance constructor when global ImageData is undefined', () => {
-    // Ensure global is clean for this specific test
-    const originalGlobal = global.ImageData
-    // @ts-ignore
-    delete global.ImageData
-    // @ts-ignore
-    delete window.ImageData
 
-    const buffer = new Uint8ClampedArray(4)
-    const napiImg = new NapiImageData(buffer, 1, 1)
-    const pixelData = new PixelData(napiImg as unknown as ImageData)
+    class MockImageData implements ImageDataLike {
+      public readonly width: number
+      public readonly height: number
+      public readonly data: Uint8ClampedArray
 
+      constructor(
+        data: Uint8ClampedArray,
+        width: number,
+        height: number,
+      ) {
+        this.data = data
+        this.width = width
+        this.height = height
+      }
+    }
+
+    const pixelData = new PixelData<MockImageData>(new MockImageData(new Uint8ClampedArray(4), 1, 1))
     const copied = pixelData.copy()
 
     expect(copied.width).toBe(1)
-    // Verify it used the NAPI constructor by checking the instance type
-    expect(copied.imageData).toBeInstanceOf(NapiImageData)
-
-    // Restore for other tests
-    global.ImageData = originalGlobal
+    expect(copied.height).toBe(1)
+    expect(copied.imageData).toBeInstanceOf(MockImageData)
   })
 })

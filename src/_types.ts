@@ -23,6 +23,14 @@ export type ImageDataLike = {
   data: Uint8ClampedArray<ArrayBufferLike>
 }
 
+export type ImageDataLikeConstructor<T extends ImageDataLike = ImageDataLike> = {
+  new(
+    data: Uint8ClampedArray,
+    width: number,
+    height: number,
+  ): T
+}
+
 export type SerializedImageData = {
   width: number
   height: number

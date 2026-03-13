@@ -1,37 +1,29 @@
+import type { ImageDataLikeConstructor, ImageDataLike } from '../_types'
 import { imageDataToUInt32Array } from '../ImageData/imageDataToUInt32Array'
 
-export class PixelData {
-  public data32: Uint32Array
-  public imageData!: ImageData
+export class PixelData<T extends ImageDataLike = ImageData> {
+  readonly data32: Uint32Array
+  readonly imageData: T
+  readonly width: number
+  readonly height: number
 
-  get width(): number {
-    return this.imageData.width
-  }
-
-  get height(): number {
-    return this.imageData.height
-  }
-
-  constructor(imageData: ImageData) {
+  constructor(imageData: T) {
     this.data32 = imageDataToUInt32Array(imageData)
     this.imageData = imageData
+    this.width = imageData.width
+    this.height = imageData.height
   }
 
   set(imageData: ImageData): void {
-    this.imageData = imageData
-    this.data32 = imageDataToUInt32Array(imageData)
+    ;(this as any).imageData = imageData
+    ;(this as any).data32 = imageDataToUInt32Array(imageData)
+    ;(this as any).width = imageData.width
+    ;(this as any).height = imageData.height
   }
 
-  /**
-   * Creates a deep copy of the PixelData using the environment's ImageData constructor.
-   */
-  copy(): PixelData {
-    const buffer = new Uint8ClampedArray(this.imageData.data)
-
-    // Fallback to the object's own constructor if the global ImageData is missing (Node tests)
-    const ImageConstructor = (typeof ImageData !== 'undefined'
-      ? ImageData
-      : (this.imageData.constructor as typeof ImageData))
+  copy(): PixelData<T> {
+    const buffer = new Uint8ClampedArray(this.imageData.data as Uint8ClampedArray)
+    const ImageConstructor = this.imageData.constructor as ImageDataLikeConstructor<T>
 
     const newImageData = new ImageConstructor(
       buffer,
@@ -39,6 +31,6 @@ export class PixelData {
       this.height,
     )
 
-    return new PixelData(newImageData)
+    return new PixelData<T>(newImageData)
   }
 }
