@@ -20,6 +20,7 @@ import {
 
 // Mock the underlying PixelData functions
 vi.mock('../../src/PixelData/fillPixelData')
+vi.mock('../../src/PixelData/clearPixelData')
 vi.mock('../../src/PixelData/blendPixelData')
 vi.mock('../../src/PixelData/blendColorPixelData')
 vi.mock('../../src/PixelData/applyMaskToPixelData')
@@ -68,16 +69,17 @@ describe('PixelMutator', () => {
   })
 
   it('makeFullPixelMutator should create a mutator with all methods', () => {
-    expect(mutator).toHaveProperty('fill')
-    expect(mutator).toHaveProperty('blendPixelData')
-    expect(mutator).toHaveProperty('blendColor')
-    expect(mutator).toHaveProperty('applyMask')
-    expect(mutator).toHaveProperty('invert')
-    expect(mutator).toHaveProperty('blendPixel')
-    expect(mutator).toHaveProperty('applyRectBrush')
-    expect(mutator).toHaveProperty('applyRectBrushStroke')
     expect(mutator).toHaveProperty('applyCircleBrush')
     expect(mutator).toHaveProperty('applyCircleBrushStroke')
+    expect(mutator).toHaveProperty('applyMask')
+    expect(mutator).toHaveProperty('applyRectBrush')
+    expect(mutator).toHaveProperty('applyRectBrushStroke')
+    expect(mutator).toHaveProperty('blendColor')
+    expect(mutator).toHaveProperty('blendPixel')
+    expect(mutator).toHaveProperty('blendPixelData')
+    expect(mutator).toHaveProperty('clear')
+    expect(mutator).toHaveProperty('fill')
+    expect(mutator).toHaveProperty('invert')
   })
 
   describe('mutatorFill', () => {
@@ -98,6 +100,21 @@ describe('PixelMutator', () => {
 
       expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, target.width, target.height)
       expect(fillPixelData).toHaveBeenCalledWith(target, color, 0, 0, target.width, target.height)
+    })
+  })
+
+  describe('mutatorClear', () => {
+    it('should call accumulator and clearPixelData with correct rect', () => {
+      const rect: Partial<Rect> = { x: 10, y: 10, w: 50, h: 50 }
+      mutator.clear(rect)
+      expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(10, 10, 50, 50)
+      expect(fillPixelData).toHaveBeenCalledWith(target, 0, 10, 10, 50, 50)
+    })
+
+    it('should use default dimensions if rect is not provided', () => {
+      mutator.clear()
+      expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, target.width, target.height)
+      expect(fillPixelData).toHaveBeenCalledWith(target, 0, 0, 0, target.width, target.height)
     })
   })
 

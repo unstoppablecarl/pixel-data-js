@@ -6,6 +6,7 @@ import { mutatorApplyRectBrushStroke } from './PixelMutator/mutatorApplyRectBrus
 import { mutatorBlendColor } from './PixelMutator/mutatorBlendColor'
 import { mutatorBlendPixel } from './PixelMutator/mutatorBlendPixel'
 import { mutatorBlendPixelData } from './PixelMutator/mutatorBlendPixelData'
+import { mutatorClearPixelData } from './PixelMutator/mutatorClearPixelData'
 import { mutatorFill } from './PixelMutator/mutatorFillPixelData'
 import { mutatorInvert } from './PixelMutator/mutatorInvert'
 import type { PixelWriter } from './PixelWriter'
@@ -22,5 +23,6 @@ export function makeFullPixelMutator(writer: PixelWriter<any>) {
     ...mutatorApplyCircleBrushStroke(writer),
     ...mutatorApplyRectBrush(writer),
     ...mutatorApplyRectBrushStroke(writer),
+    ...mutatorClearPixelData(writer),
   }
 }
