@@ -42,16 +42,22 @@ bold " Benchmark Run: $TARGET_BRANCH"
 bold " Output: $OUTPUT_FILE"
 bold "═══════════════════════════════════════════"
 
-# Stash if needed
 stashed=false
-if ! git diff --quiet || ! git diff --cached --quiet; then
-  yellow "Stashing uncommitted changes..."
-  git stash push -m "bench-run: auto stash" --include-untracked
-  stashed=true
-fi
+original_branch="$CURRENT_BRANCH"
 
-original_branch=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD)
-git checkout "$TARGET_BRANCH" --quiet
+# Only manage git state if we are switching branches
+if [[ "$TARGET_BRANCH" != "$CURRENT_BRANCH" ]]; then
+  if ! git diff --quiet || ! git diff --cached --quiet; then
+    yellow "Target branch different from current. Stashing uncommitted changes..."
+    git stash push -m "bench-run: auto stash" --include-untracked
+    stashed=true
+  fi
+
+  echo "Switching to $TARGET_BRANCH..."
+  git checkout "$TARGET_BRANCH" --quiet
+else
+  yellow "Benchmarking current branch with local changes (no stash/checkout)."
+fi
 
 echo "Installing dependencies..."
 pnpm install --silent 2>/dev/null || true
@@ -63,11 +69,14 @@ echo "Running benchmarks..."
 mkdir -p "$RESULTS_DIR"
 BENCH_OUTPUT="$OUTPUT_FILE" $RUNNER "$BENCH_SCRIPT"
 
-# Restore
-git checkout "$original_branch" --quiet
-if [[ "$stashed" == "true" ]]; then
-  yellow "Restoring stashed changes..."
-  git stash pop
+# Only restore if we actually moved away
+if [[ "$TARGET_BRANCH" != "$original_branch" ]]; then
+  echo "Returning to $original_branch..."
+  git checkout "$original_branch" --quiet
+  if [[ "$stashed" == "true" ]]; then
+    yellow "Restoring stashed changes..."
+    git stash pop
+  fi
 fi
 
 bold "Done → $OUTPUT_FILE"
