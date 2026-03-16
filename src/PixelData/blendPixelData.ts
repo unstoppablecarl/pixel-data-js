@@ -32,7 +32,7 @@ export function blendPixelData(
     blendFn = sourceOverPerfect,
     mask,
     maskType = MaskType.ALPHA,
-    mw,
+    mw = src.width,
     mx = 0,
     my = 0,
     invertMask = false,
