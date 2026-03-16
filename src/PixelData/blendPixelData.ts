@@ -1,9 +1,6 @@
 import { type Color32, MaskType, type PixelBlendOptions } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
-import { makeClippedBlit, resolveBlitClipping } from '../Internal/resolveClipping'
 import type { PixelData } from './PixelData'
-
-const SCRATCH_BLIT = makeClippedBlit()
 
 /**
  * Blits source PixelData into a destination PixelData using 32-bit integer bitwise blending.
@@ -43,25 +40,43 @@ export function blendPixelData(
 
   if (globalAlpha === 0) return
 
-  const clip = resolveBlitClipping(
-    targetX, targetY,
-    sourceX, sourceY,
-    width, height,
-    dst.width, dst.height,
-    src.width, src.height,
-    SCRATCH_BLIT,
-  )
+  let x = targetX
+  let y = targetY
+  let sx = sourceX
+  let sy = sourceY
+  let w = width
+  let h = height
 
-  if (!clip.inBounds) return
+  // 1. Source Clipping
+  if (sx < 0) {
+    x -= sx
+    w += sx
+    sx = 0
+  }
+  if (sy < 0) {
+    y -= sy
+    h += sy
+    sy = 0
+  }
+  w = Math.min(w, src.width - sx)
+  h = Math.min(h, src.height - sy)
 
-  const {
-    x,
-    y,
-    sx,
-    sy,
-    w: actualW,
-    h: actualH,
-  } = clip
+  // 2. Destination Clipping
+  if (x < 0) {
+    sx -= x
+    w += x
+    x = 0
+  }
+  if (y < 0) {
+    sy -= y
+    h += y
+    y = 0
+  }
+
+  const actualW = Math.min(w, dst.width - x)
+  const actualH = Math.min(h, dst.height - y)
+
+  if (actualW <= 0 || actualH <= 0) return
 
   const dst32 = dst.data32
   const src32 = src.data32
