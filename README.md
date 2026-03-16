@@ -40,6 +40,11 @@ data32[0] = packColor(255, 100, 0, 255)
 // 4. Push back to canvas
 ctx.putImageData(imageData, 0, 0)
 ```
+
+## PixelData
+The [PixelData](src/PixelData/PixelData.ts) class wraps an `ImageData` object for this purpose.
+
+
 ### Color Integers
 
 You can define colors using the `AABBGGRR` (Little-Endian) to make a `Color32` object.
