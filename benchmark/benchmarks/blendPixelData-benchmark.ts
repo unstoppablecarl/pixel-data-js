@@ -268,23 +268,38 @@ function createImg(
   } as ImageData
 }
 
-function makeComplexTestPixelData(w: number, h: number): PixelData {
+export function makeComplexTestPixelData(w: number, h: number, seed = 1): PixelData {
+  const rand = makeMulberry32(seed)
+
   const img = createImg(w, h)
   const pixelData = new PixelData(img)
   const data = pixelData.data32
+
   for (let i = 0; i < data.length; i++) {
-    const x = i % w
-    const y = (i / w) | 0
-
-    // Create a color/alpha gradient so branches aren't predictable
-    const r = (x / w) * 255
-    const g = (y / h) * 255
-    const b = ((x + y) / (w + h)) * 255
-    const a = (i % 255) // Varying alpha
-
-    data[i] = ((a << 24) | (b << 16) | (g << 8) | r) >>> 0
+    // Generate a random 32-bit unsigned integer
+    // Using >>> 0 ensures it is treated as a 32-bit unsigned int
+    data[i] = (rand() * 0xFFFFFFFF) >>> 0
   }
+
   return pixelData
+}
+
+export function makeMulberry32(initialSeed = 0) {
+  let seed = initialSeed
+  let increment = 0
+
+  return (): number => {
+    increment++
+
+    // Mulberry32 algorithm
+    // 0x6D2B79F5 is used as the Weyl sequence constant
+    let t = (seed += 0x6D2B79F5) | 0
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    seed = t
+
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
 }
 
 function makeComplexAlphaMask(w: number, h: number): AlphaMask {
