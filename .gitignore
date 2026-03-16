@@ -18,6 +18,7 @@ docs/
 ###################################
 # general ignore patterns
 ###################################
+.bench-results
 coverage/
 *.log
 node_modules/
