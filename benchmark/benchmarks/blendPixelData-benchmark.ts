@@ -1,4 +1,4 @@
-import { bench, group, summary } from 'mitata'
+import { bench, group } from 'mitata'
 import {
   type AlphaMask,
   BaseBlendMode,
@@ -6,7 +6,8 @@ import {
   type BlendColor32,
   type BlendModeRegistry,
   blendPixelData as baseBlendPixelData,
-  makeFastBlendModeRegistry, MaskType,
+  makeFastBlendModeRegistry,
+  MaskType,
   PixelData,
 } from '../../src'
 import type { BlendModeBenchCase } from '../../tests-browser/reporters/_helpers'
@@ -23,12 +24,10 @@ export function pixelDataBenchmarkBuilder(blendPixelData: typeof baseBlendPixelD
 
   // const cases = makeAllCases('fast', makeFastBlendModeRegistry())
   group('blendPixelData', () => {
-    summary(() => {
-      cases.forEach(({ blendMode, testCase, type, run }) => {
-        const taskName = `${type}: ${blendMode} - ${testCase}`
-        bench(taskName, () => {
-          run()
-        })
+    cases.forEach(({ blendMode, testCase, type, run }) => {
+      const taskName = `${type}: ${blendMode} - ${testCase}`
+      bench(taskName, () => {
+        run()
       })
     })
   })
