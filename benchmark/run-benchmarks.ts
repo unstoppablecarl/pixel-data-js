@@ -13,9 +13,7 @@ if (!outputFile) {
   process.exit(1)
 }
 
-const results = await run({
-  colors: false,
-})
+const results = await run()
 
 const { writeFileSync, mkdirSync } = await import('fs')
 const { dirname } = await import('path')
