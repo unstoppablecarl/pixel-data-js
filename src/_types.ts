@@ -203,3 +203,9 @@ export type Point = {
   x: number,
   y: number,
 }
+
+export interface IPixelData {
+  readonly data32: Uint32Array
+  readonly width: number
+  readonly height: number
+}

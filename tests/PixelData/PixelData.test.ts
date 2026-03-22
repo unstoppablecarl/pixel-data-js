@@ -75,4 +75,33 @@ describe('PixelData', () => {
     expect(copied.height).toBe(1)
     expect(copied.imageData).toBeInstanceOf(MockImageData)
   })
+  it('should fallback to a plain object when constructor is not a valid class', () => {
+    const width = 1
+    const height = 1
+    const data = new Uint8ClampedArray([255, 0, 0, 255])
+
+    // Create a plain object (ImageDataLike)
+    // This ensures .constructor === Object
+    const plainImageData: ImageDataLike = {
+      width,
+      height,
+      data,
+    }
+
+    const pixelData = new PixelData<ImageDataLike>(plainImageData)
+    const clone = pixelData.copy()
+
+    // Verify the copy was successful
+    expect(clone.width).toBe(1)
+    expect(clone.imageData.data[0]).toBe(255)
+
+    // Verify it is a plain object and not a class instance
+    // (Plain objects shouldn't have a custom constructor name)
+    const constructorName = clone.imageData.constructor.name
+    expect(constructorName).toBe('Object')
+
+    // Verify deep copy of the buffer
+    clone.imageData.data[0] = 100
+    expect(pixelData.imageData.data[0]).toBe(255)
+  })
 })
