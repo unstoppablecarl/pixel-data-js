@@ -1,6 +1,6 @@
 import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
-import { PixelData, resamplePixelData } from '../../src'
+import { PixelData, resamplePixelData } from '@/index'
 
 describe('resamplePixelData', () => {
   const createTestPixelData = (w: number, h: number) => {

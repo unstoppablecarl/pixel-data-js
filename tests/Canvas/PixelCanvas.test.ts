@@ -1,7 +1,6 @@
+import { CANVAS_CTX_FAILED, makePixelCanvas } from '@/index'
 import { createCanvas } from '@napi-rs/canvas'
 import { describe, expect, it, vi } from 'vitest'
-import { makePixelCanvas } from '../../src'
-import { CANVAS_CTX_FAILED } from '../../src/Canvas/_constants'
 
 describe('makePixelCanvas', () => {
 

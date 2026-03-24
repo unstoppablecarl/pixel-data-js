@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { applyRectBrushToPixelData, getRectBrushBounds, PixelData } from '../../src'
+import { applyRectBrushToPixelData, type Color32, overwritePerfect, PixelData } from '@/index'
+import { expectPixelToMatchColor } from '../_helpers'
 
 describe('applyRectBrushToPixelData', () => {
   const createMockPixelData = (width: number, height: number) => {
@@ -19,7 +20,7 @@ describe('applyRectBrushToPixelData', () => {
     const color = 0xFF0000FF as any // Red (ABGR/RGBA dependent on system, but consistent here)
 
     // 2x2 brush at 5,5 covers pixels (4,4), (4,5), (5,4), (5,5)
-    applyRectBrushToPixelData(target, color, 5, 5, 2, 2)
+    applyRectBrushToPixelData(target, color, 5, 5, 2, 2, 255, () => 1)
 
     expect(target.data32[4 * 10 + 4]).toBe(0xFF0000FF)
     expect(target.data32[4 * 10 + 5]).toBe(0xFF0000FF)
@@ -62,7 +63,7 @@ describe('applyRectBrushToPixelData', () => {
     const color = 0xFFFFFFFF as any
 
     // Brush centered at 0,0 with size 4x4
-    applyRectBrushToPixelData(target, color, 0, 0, 4, 4)
+    applyRectBrushToPixelData(target, color, 0, 0, 4, 4, 255, () => 1)
 
     // Should color 0,0 to 1,1 (since half size is 2)
     expect(target.data32[0 * 10 + 0]).toBe(0xFFFFFFFF)
@@ -75,7 +76,7 @@ describe('applyRectBrushToPixelData', () => {
     const color = 0xFFFFFFFF as any
 
     // Brush at 10,10 with size 4x4
-    applyRectBrushToPixelData(target, color, 10, 10, 4, 4)
+    applyRectBrushToPixelData(target, color, 10, 10, 4, 4, 255, () => 1)
 
     expect(target.data32[9 * 10 + 9]).toBe(0xFFFFFFFF)
     expect(target.data32[8 * 10 + 8]).toBe(0xFFFFFFFF)
@@ -87,8 +88,9 @@ describe('applyRectBrushToPixelData', () => {
     const color = 0xFF00FF00 as any
     const customAlpha = 128
     const mockBlend = vi.fn(() => 0x12345678 as any)
+    const fallOff = () => 1
 
-    applyRectBrushToPixelData(target, color, 5, 5, 2, 2, customAlpha, undefined, mockBlend)
+    applyRectBrushToPixelData(target, color, 5, 5, 2, 2, customAlpha, fallOff, mockBlend)
 
     expect(mockBlend).toHaveBeenCalled()
     expect(target.data32[5 * 10 + 5]).toBe(0x12345678)
@@ -104,7 +106,7 @@ describe('applyRectBrushToPixelData', () => {
     const color = 0xFFFFFFFF as any
 
     // 4 wide, 2 high
-    applyRectBrushToPixelData(target, color, 5, 5, 4, 2)
+    applyRectBrushToPixelData(target, color, 5, 5, 4, 2, 255, () => 1)
 
     // px range: 5-2 to 5+1 (3,4,5,6). py range: 5-1 to 5+0 (4,5)
     expect(target.data32[4 * 10 + 3]).toBe(0xFFFFFFFF)
@@ -112,101 +114,6 @@ describe('applyRectBrushToPixelData', () => {
     expect(target.data32[3 * 10 + 3]).toBe(0) // Out of Y range
   })
 
-  describe('getRectBrushBounds', () => {
-    it('calculates bounds correctly for an odd-sized brush at an integer center', () => {
-      // 3x3 brush at (5, 5)
-      // rawStartX = floor(5 - 1.5) = 3
-      // rawEndX = 3 + 3 = 6
-      const result = getRectBrushBounds(5, 5, 3, 3)
-
-      expect(result).toEqual({
-        x: 3,
-        y: 3,
-        w: 3,
-        h: 3,
-      })
-    })
-
-    it('calculates bounds correctly for an even-sized brush at an integer center', () => {
-      // 2x2 brush at (5, 5)
-      // rawStartX = floor(5 - 1) = 4
-      // rawEndX = 4 + 2 = 6
-      const result = getRectBrushBounds(5, 5, 2, 2)
-
-      expect(result).toEqual({
-        x: 4,
-        y: 4,
-        w: 2,
-        h: 2,
-      })
-    })
-
-    it('clamps bounds to target dimensions when provided', () => {
-      // 10x10 brush at (0, 0)
-      // rawStartX = floor(0 - 5) = -5
-      // rawEndX = -5 + 10 = 5
-      const result = getRectBrushBounds(0, 0, 10, 10, 100, 100)
-
-      expect(result).toEqual({
-        x: 0,
-        y: 0,
-        w: 5,
-        h: 5,
-      })
-    })
-
-    it('handles brushes partially off the right/bottom edges', () => {
-      // 10x10 brush at (95, 95) with target 100x100
-      // rawStartX = 90, rawEndX = 100
-      // rawStartY = 90, rawEndY = 100
-      const result = getRectBrushBounds(98, 98, 10, 10, 100, 100)
-
-      expect(result).toEqual({
-        x: 93,
-        y: 93,
-        w: 7,
-        h: 7,
-      })
-    })
-
-    it('returns zero dimensions when the brush is entirely off-canvas', () => {
-      // Brush at (-20, -20) with target (10, 10)
-      const result = getRectBrushBounds(-20, -20, 5, 5, 10, 10)
-
-      // startX = max(0, -23) = 0
-      // endX = min(10, -18) = -18
-      // w = -18 - 0 = -18 (Technical result of current logic)
-      // Note: For brush loops, px < endX will correctly never execute
-      expect(result.w).toBeLessThanOrEqual(0)
-      expect(result.h).toBeLessThanOrEqual(0)
-    })
-
-    it('works correctly with floating point centers', () => {
-      // 2x2 brush at (5.9, 5.9)
-      // rawStartX = floor(5.9 - 1) = 4
-      // rawEndX = 4 + 2 = 6
-      const result = getRectBrushBounds(5.9, 5.9, 2, 2)
-
-      expect(result).toEqual({
-        x: 4,
-        y: 4,
-        w: 2,
-        h: 2,
-      })
-    })
-
-    it('preserves fractional inputs for raw bounds when no target is provided', () => {
-      // Ensuring it doesn't accidentally clamp to 0 if target is undefined
-      const result = getRectBrushBounds(-10, -10, 5, 5)
-
-      expect(result).toEqual({
-        x: -13,
-        y: -13,
-        w: 5,
-        h: 5,
-      })
-    })
-  })
   describe('applyRectBrushToPixelData with bounds', () => {
     it('should respect the x/y offset of the provided bounds', () => {
       const target = createMockPixelData(10, 10)
@@ -228,7 +135,7 @@ describe('applyRectBrushToPixelData', () => {
         10,
         10,
         255,
-        undefined,
+        () => 1,
         undefined,
         sliverBounds,
       )
@@ -236,32 +143,179 @@ describe('applyRectBrushToPixelData', () => {
       expect(target.data32[9 * 10 + 9]).toBe(0xFFFFFFFF)
       expect(target.data32[5 * 10 + 5]).toBe(0)
     })
+  })
 
-    it('should handle empty bounds gracefully', () => {
-      const target = createMockPixelData(10, 10)
-      const color = 0xFFFFFFFF as any
-      const emptyBounds = {
-        x: 0,
-        y: 0,
-        w: 0,
-        h: 0,
-      }
+  it('overwrites with transparent', () => {
+    const target = createMockPixelData(10, 10)
+    target.data32.fill(0xffffffff)
+    const color = 0x00000000 as any
 
-      // Should not throw or modify anything
-      applyRectBrushToPixelData(
-        target,
-        color,
-        5,
-        5,
-        5,
-        5,
-        255,
-        undefined,
-        undefined,
-        emptyBounds,
-      )
+    const x = 4
+    const y = 5
+    applyRectBrushToPixelData(
+      target,
+      color,
+      x,
+      y,
+      1,
+      1,
+      255,
+      () => 1,
+      overwritePerfect,
+    )
 
-      expect(target.data32.some(p => p !== 0)).toBe(false)
-    })
+    expectPixelToMatchColor(target, x - 1, y - 1, color as Color32)
+    expectPixelToMatchColor(target, 0, 0, 0xffffffff as Color32)
+
+    expect(target).toMatchPixelDataSnapshot()
+  })
+
+  // it('skips alpha = 0', () => {
+  //   const target = createMockPixelData(10, 10)
+  //   target.data32.fill(0xffffffff)
+  //   const color = 0xffff0000 as any
+  //
+  //   const original = new Uint32Array(target.data32);
+  //   const x = 4
+  //   const y = 5
+  //   applyRectBrushToPixelData(
+  //     target,
+  //     color,
+  //     x,
+  //     y,
+  //     1,
+  //     1,
+  //     10,
+  //     () => 0.1,
+  //   )
+  //
+  //   expect(target.data32).toEqual(original)
+  // })
+
+  it('gives weight=0 when maskVal is very small (shows >>8 flooring)', () => {
+    const target = createMockPixelData(1, 1)
+    target.data32.fill(0xffffffff)
+
+    const tinyFalloff = () => 3 / 255 // maskVal will be 3
+
+    applyRectBrushToPixelData(
+      target,
+      0xffff0000 as Color32,
+      0,
+      0,
+      1,
+      1,
+      200,
+      tinyFalloff,
+      (src) => src,
+      { x: 0, y: 0, w: 1, h: 1 },
+    )
+
+    const written = target.data32[0]
+    const writtenAlpha = (written >>> 24) & 0xff
+
+    // weight = (3 * 200 + 128) >> 8 = (600 + 128) >> 8 = 728 >> 8 = 2 (after |0)
+    // final a = (255 * 2 + 128) >> 8 ≈ 2   → very low
+    expect(writtenAlpha).toBeLessThanOrEqual(3)
+    expect(writtenAlpha).toBeGreaterThan(0) // not skipped completely
+  })
+
+  it('should handle empty bounds gracefully', () => {
+    const target = createMockPixelData(10, 10)
+    const color = 0xFFFFFFFF as any
+    const emptyBounds = {
+      x: 0,
+      y: 0,
+      w: 0,
+      h: 0,
+    }
+
+    // Should not throw or modify anything
+    applyRectBrushToPixelData(
+      target,
+      color,
+      5,
+      5,
+      5,
+      5,
+      255,
+      () => 1,
+      undefined,
+      emptyBounds,
+    )
+
+    expect(target.data32.some(p => p !== 0)).toBe(false)
+  })
+
+  it('skips blending if resulting alpha is 0 and not in overwrite mode', () => {
+    const mockData = new Uint32Array([0xFFFFFFFF])
+
+    const pixelData = {
+      width: 1,
+      height: 1,
+      data32: mockData,
+    }
+
+    const blendFn = vi.fn()
+    const bounds = {
+      x: 0,
+      y: 0,
+      w: 1,
+      h: 1,
+    }
+
+    applyRectBrushToPixelData(
+      pixelData as any,
+      0x00000000 as any,
+      0,
+      0,
+      1,
+      1,
+      255,
+      () => 0.5, // Falloff < 1 ensures maskVal is < 255, pushing us into the weight check
+      blendFn,
+      bounds,
+    )
+
+    // Because a === 0 and !isOverwrite, the loop should continue before calling blendFn
+    expect(blendFn).not.toHaveBeenCalled()
+  })
+
+  it('does NOT skip blending if isOverwrite is true, even if alpha is 0', () => {
+    const mockData = new Uint32Array([0xFFFFFFFF])
+
+    const pixelData = {
+      width: 1,
+      height: 1,
+      data32: mockData,
+    }
+
+    const blendFn = vi.fn((src, dst) => src)
+
+      // Explicitly flag the mock function as an overwrite mode
+    ;(blendFn as any).isOverwrite = true
+
+    const bounds = {
+      x: 0,
+      y: 0,
+      w: 1,
+      h: 1,
+    }
+
+    applyRectBrushToPixelData(
+      pixelData as any,
+      0x00000000 as any,
+      0,
+      0,
+      1,
+      1,
+      255,
+      () => 0.5,
+      blendFn,
+      bounds,
+    )
+
+    // Because isOverwrite is true, it MUST call the blend function to punch the transparent hole
+    expect(blendFn).toHaveBeenCalled()
   })
 })

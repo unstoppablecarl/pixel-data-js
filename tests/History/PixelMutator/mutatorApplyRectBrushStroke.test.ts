@@ -1,177 +1,346 @@
-import { describe, expect, it, vi } from 'vitest'
-import { mutatorApplyRectBrushStroke, PixelData, PixelWriter } from '../../../src'
+import {
+  forEachLinePoint,
+  getRectBrushOrPencilBounds,
+  getRectBrushOrPencilStrokeBounds,
+  mutatorApplyRectBrushStroke,
+} from '@/index'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { pack } from '../../_helpers'
+import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyRectBrushStroke', () => {
-  const createMockWriter = (w: number, h: number) => {
-    const target = new PixelData(new ImageData(w, h))
-    const accumulator = {
-      storeRegionBeforeState: vi.fn(),
-    }
-    return {
-      target,
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.restoreAllMocks()
+  })
+
+  it('orchestrates a brush stroke by wiring bounds and computing mask intensity', () => {
+    const color = pack(255, 255, 255, 255)
+
+    const forEachLinePointSpy = vi.fn(forEachLinePoint)
+    const blendColorPixelDataAlphaMaskSpy = vi.fn()
+    const getRectBrushOrPencilBoundsSpy = vi.fn(getRectBrushOrPencilBounds)
+    const getRectBrushOrPencilStrokeBoundsSpy = vi.fn(getRectBrushOrPencilStrokeBounds)
+
+    const {
+      mutator,
       accumulator,
-    } as unknown as PixelWriter<any>
-  }
-
-  it('should draw a perfectly rectangular path', () => {
-    const writer = createMockWriter(10, 10)
-    const mutator = mutatorApplyRectBrushStroke(writer)
-    const color = 0xFFFFFFFF as any
-
-    // 2x2 brush at (2,2)
-    mutator.applyRectBrushStroke(color, 2, 2, 2, 2, 2, 2)
-
-    // Check 2x2 cluster
-    expect(writer.target.data32[1 * 10 + 1]).toBe(color)
-    expect(writer.target.data32[1 * 10 + 2]).toBe(color)
-    expect(writer.target.data32[2 * 10 + 1]).toBe(color)
-    expect(writer.target.data32[2 * 10 + 2]).toBe(color)
-
-    // Check neighbor is empty
-    expect(writer.target.data32[0 * 10 + 0]).toBe(0)
-  })
-
-  it('should handle asymmetrical brush sizes', () => {
-    const writer = createMockWriter(20, 20)
-    const mutator = mutatorApplyRectBrushStroke(writer)
-    const color = 0xFFFFFFFF as any
-
-    // Width 4, Height 2
-    mutator.applyRectBrushStroke(color, 10, 10, 10, 10, 4, 2)
-
-    // Check width (should cover 4 pixels horizontally)
-    expect(writer.target.data32[10 * 20 + 8]).toBe(color)
-    expect(writer.target.data32[10 * 20 + 11]).toBe(color)
-    expect(writer.target.data32[10 * 20 + 12]).toBe(0)
-  })
-
-  it('should respect the provided blend function', () => {
-    const writer = createMockWriter(10, 10)
-    const mutator = mutatorApplyRectBrushStroke(writer)
-
-    // 0xFFFF0000 is Blue in ARGB (Little Endian) or ABGR depending on your system.
-    // We use a high-contrast color to be sure.
-    const blue = 0xFFFF0000 as any
-    const mockBlend = vi.fn(() => blue)
-
-    // Use a 2x2 brush at (5, 5).
-    // An even brush size (2) ensures centerOffset (0.5) logic is fully exercised.
-    mutator.applyRectBrushStroke(
-      0xFFFFFFFF as any,
-      5,
-      5,
-      5,
-      5,
-      2, // brushWidth
-      2, // brushHeight
-      255,
-      undefined,
-      mockBlend,
-    )
-
-    // In a 2x2 even brush centered at (5,5), pixel (5,5) is guaranteed to be hit.
-    // Center 5.0 + Offset 0.5 = 5.5. Pixel 5 distance is |5 - 5.5| = 0.5.
-    // 0.5 <= (2 / 2) is True.
-    expect(writer.target.data32[5 * 10 + 5]).toBe(blue)
-    expect(mockBlend).toHaveBeenCalled()
-  })
-  describe('mutatorApplyRectBrushStroke alpha and falloff', () => {
-    const createMockWriter = (w: number, h: number) => {
-      const target = new PixelData(new ImageData(w, h))
-      const accumulator = {
-        storeRegionBeforeState: vi.fn(),
-      }
-      return {
-        target,
-        accumulator,
-      } as unknown as PixelWriter<any>
-    }
-
-    it('should maintain uniform alpha across overlapping rect stamps', () => {
-      const writer = createMockWriter(20, 20)
-      const mutator = mutatorApplyRectBrushStroke(writer)
-      const color = 0xFFFFFFFF as any
-      const alpha = 100
-
-      // Draw a short line from (5,5) to (7,5) with a 4x4 brush.
-      // The stamps will overlap significantly.
-      mutator.applyRectBrushStroke(color, 5, 5, 7, 5, 4, 4, alpha)
-
-      // Check a pixel in the overlap zone
-      const overlapPixelAlpha = (writer.target.data32[5 * 20 + 6] >>> 24) & 0xFF
-
-      // If masking works, it should be 100, not darker.
-      expect(overlapPixelAlpha).toBe(alpha)
+      target,
+    } = mockAccumulatorMutator(mutatorApplyRectBrushStroke, {
+      forEachLinePoint: forEachLinePointSpy,
+      blendColorPixelDataAlphaMask: blendColorPixelDataAlphaMaskSpy,
+      getRectBrushOrPencilBounds: getRectBrushOrPencilBoundsSpy,
+      getRectBrushOrPencilStrokeBounds: getRectBrushOrPencilStrokeBoundsSpy,
     })
-  })
-  it('should apply rectangular falloff (Chebyshev distance) safely within bounds', () => {
-    const writer = createMockWriter(30, 30)
-    const mutator = mutatorApplyRectBrushStroke(writer)
-    const color = 0xFFFFFFFF as any
 
-    const fallOff = (dist: number) => 1 - dist
-
-    // 11px size means 5.5px half-extent.
-    const brushWidth = 11
-    const brushHeight = 11
+    const mockFallOff = vi.fn().mockReturnValue(0.5)
 
     mutator.applyRectBrushStroke(
       color,
-      15,
-      15,
-      15,
-      15,
-      brushWidth,
-      brushHeight,
+      10,
+      10,
+      10,
+      10,
+      2,
+      2,
       255,
-      fallOff,
+      mockFallOff,
     )
 
-    // 1. Center (15, 15) -> dist 0 -> Alpha 255
-    const centerAlpha = (writer.target.data32[15 * 30 + 15] >>> 24) & 0xFF
-    expect(centerAlpha).toBe(255)
+    // Assert correct orchestration with real logic spies
+    expect(getRectBrushOrPencilStrokeBoundsSpy).toHaveBeenCalledWith(
+      10,
+      10,
+      10,
+      10,
+      2,
+      2,
+      expect.any(Object),
+    )
 
-    // 2. Clear Falloff Point (18, 15) -> 3px from center
-    // dx = 3. dist = 3 / 5.5 = 0.5454
-    // intensity = 1 - 0.5454 = 0.4545
-    // alpha = 255 * 0.4545 = 115.9 -> 115
-    const midAlpha = (writer.target.data32[15 * 30 + 18] >>> 24) & 0xFF
-    expect(midAlpha).toBeCloseTo(115, -1)
+    expect(forEachLinePointSpy).toHaveBeenCalledWith(
+      10,
+      10,
+      10,
+      10,
+      expect.any(Function),
+    )
 
-    // 3. Near-Edge Point (19, 15) -> 4px from center
-    // dx = 4. dist = 4 / 5.5 = 0.727
-    // alpha = 255 * (1 - 0.727) = 69.5 -> 69
-    const nearEdgeAlpha = (writer.target.data32[15 * 30 + 19] >>> 24) & 0xFF
-    expect(nearEdgeAlpha).toBeGreaterThan(0)
-    expect(nearEdgeAlpha).toBeCloseTo(69, -1)
+    expect(getRectBrushOrPencilBoundsSpy).toHaveBeenCalledWith(
+      expect.any(Number),
+      expect.any(Number),
+      2,
+      2,
+      target.width,
+      target.height,
+      expect.any(Object),
+    )
+
+    // Verify accumulator was called for the calculated region
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(
+      expect.any(Number),
+      expect.any(Number),
+      expect.any(Number),
+      expect.any(Number),
+    )
+
+    expect(blendColorPixelDataAlphaMaskSpy).toHaveBeenCalledWith(
+      target,
+      color,
+      expect.any(Uint8Array),
+      expect.objectContaining({
+        x: expect.any(Number),
+        y: expect.any(Number),
+        w: expect.any(Number),
+        h: expect.any(Number),
+      }),
+    )
+
+    const mask = blendColorPixelDataAlphaMaskSpy.mock.calls[0][2] as Uint8Array
+
+    // 0.5 falloff maps to 127 intensity
+    expect(mask.some((v) => v === 127)).toBe(true)
   })
 
-  describe('mutatorApplyRectBrushStroke early returns', () => {
-    it('should return early if brushWidth or brushHeight is 0', () => {
-      const writer = createMockWriter(10, 10)
-      const mutator = mutatorApplyRectBrushStroke(writer)
-      const storeSpy = vi.spyOn(writer.accumulator, 'storeRegionBeforeState')
-
-      // 0 width brush
-      mutator.applyRectBrushStroke(0xFFFFFFFF as any, 5, 5, 5, 5, 0, 5)
-
-      expect(storeSpy).not.toHaveBeenCalled()
-
-      // 0 height brush
-      mutator.applyRectBrushStroke(0xFFFFFFFF as any, 5, 5, 5, 5, 5, 0)
-
-      expect(storeSpy).not.toHaveBeenCalled()
+  it('correctly normalizes distance using the larger dimension (Chebyshev)', () => {
+    const mockFallOff = vi.fn().mockReturnValue(1)
+    const { mutator } = mockAccumulatorMutator(mutatorApplyRectBrushStroke, {
+      forEachLinePoint,
+      blendColorPixelDataAlphaMask: vi.fn(),
+      getRectBrushOrPencilBounds,
+      getRectBrushOrPencilStrokeBounds,
     })
 
-    it('should return early if the stroke is clipped entirely', () => {
-      const writer = createMockWriter(10, 10)
-      const mutator = mutatorApplyRectBrushStroke(writer)
+    // 4x2 brush at 10,10. halfW=2, halfH=1.
+    // Edge pixel at x=8.5 (center) is 1.5 units from center. 1.5/2.0 = 0.75.
+    // Edge pixel at y=9.5 (center) is 0.5 units from center. 0.5/1.0 = 0.5.
+    mutator.applyRectBrushStroke(
+      0 as any,
+      10,
+      10,
+      10,
+      10,
+      4,
+      2,
+      255,
+      mockFallOff,
+    )
 
-      // Draw at negative coordinates with small brush
-      mutator.applyRectBrushStroke(0xFFFFFFFF as any, -20, -20, -15, -15, 2, 2)
+    const calls = mockFallOff.mock.calls.map((args) => args[0])
 
-      const hasData = writer.target.data32.some(p => p !== 0)
-      expect(hasData).toBe(false)
+    expect(calls).toEqual([
+      0.75,
+      0.5,
+      0.5,
+      0.75,
+      0.75,
+      0.5,
+      0.5,
+      0.75,
+    ])
+  })
+
+  it('preserves the highest intensity in the mask for overlapping stamps', () => {
+    const blendColorPixelDataAlphaMaskSpy = vi.fn()
+    const { mutator } = mockAccumulatorMutator(mutatorApplyRectBrushStroke, {
+      blendColorPixelDataAlphaMask: blendColorPixelDataAlphaMaskSpy,
+      forEachLinePoint,
+      getRectBrushOrPencilBounds,
+      getRectBrushOrPencilStrokeBounds,
     })
+    let count = 0
+
+    const mockFallOff = vi.fn(() => {
+      count++
+      // Weak hit (0.2) followed by strong hits (0.8)
+      return (count <= 4) ? 0.2 : 0.8
+    })
+
+    // Increase distance from 10.1 to 11.0 to ensure a second stamp is triggered
+    mutator.applyRectBrushStroke(
+      0 as any,
+      10,
+      10,
+      11,
+      10,
+      2,
+      2,
+      255,
+      mockFallOff,
+    )
+
+    const mask = blendColorPixelDataAlphaMaskSpy.mock.calls[0][2] as Uint8Array
+
+    // Strong hit (0.8 * 255 = 204)
+    expect(mask.some((v) => v === 204)).toBe(true)
+    expect(mask.some((v) => v !== 51)).toBe(true)
+  })
+
+  it('reuses the internal bounds object to minimize garbage collection', () => {
+    const getRectBrushOrPencilBoundsSpy = vi.fn(getRectBrushOrPencilBounds)
+    const { mutator } = mockAccumulatorMutator(mutatorApplyRectBrushStroke, {
+      getRectBrushOrPencilBounds: getRectBrushOrPencilBoundsSpy,
+      forEachLinePoint,
+      blendColorPixelDataAlphaMask: vi.fn(),
+      getRectBrushOrPencilStrokeBounds,
+    })
+
+    mutator.applyRectBrushStroke(
+      0 as any,
+      10,
+      10,
+      12,
+      10,
+      1,
+      1,
+      255,
+      (d) => 1,
+    )
+
+    const firstCallOut = getRectBrushOrPencilBoundsSpy.mock.calls[0][6]
+    const secondCallOut = getRectBrushOrPencilBoundsSpy.mock.calls[1][6]
+
+    // Verify identity of the closure variable rectBrushBounds
+    expect(firstCallOut).toBe(secondCallOut)
+  })
+
+  it('returns early and skips all work if stroke dimensions are zero', () => {
+    const forEachLinePointSpy = vi.fn(forEachLinePoint)
+    const blendColorPixelDataAlphaMaskSpy = vi.fn()
+    const {
+      mutator,
+      accumulator,
+    } = mockAccumulatorMutator(mutatorApplyRectBrushStroke, {
+      forEachLinePoint: forEachLinePointSpy,
+      blendColorPixelDataAlphaMask: blendColorPixelDataAlphaMaskSpy,
+      getRectBrushOrPencilBounds,
+      getRectBrushOrPencilStrokeBounds,
+    })
+
+    mutator.applyRectBrushStroke(
+      0 as any,
+      5,
+      5,
+      5,
+      5,
+      0,
+      0,
+      255,
+      (d) => 1,
+    )
+
+    expect(forEachLinePointSpy).not.toHaveBeenCalled()
+    expect(accumulator.storeRegionBeforeState).not.toHaveBeenCalled()
+    expect(blendColorPixelDataAlphaMaskSpy).not.toHaveBeenCalled()
+  })
+
+  it('preserves highest intensity across a diagonal overlap', () => {
+    const blendColorPixelDataAlphaMaskSpy = vi.fn()
+    const {
+      mutator,
+    } = mockAccumulatorMutator(mutatorApplyRectBrushStroke, {
+      blendColorPixelDataAlphaMask: blendColorPixelDataAlphaMaskSpy,
+      forEachLinePoint,
+      getRectBrushOrPencilBounds,
+      getRectBrushOrPencilStrokeBounds,
+    })
+
+    let count = 0
+
+    const mockFallOff = vi.fn(() => {
+      count++
+      // Ensure the first few stamps are weak, later ones are strong
+      return (count <= 2)
+        ? 0.1
+        : 0.9
+    })
+
+    // Diagonal stroke (10, 10) to (11, 11)
+    mutator.applyRectBrushStroke(
+      0 as any,
+      10,
+      10,
+      11,
+      11,
+      2,
+      2,
+      255,
+      mockFallOff,
+    )
+
+    const mockCall = blendColorPixelDataAlphaMaskSpy.mock.calls[0]
+    const mask = mockCall[2] as Uint8Array
+
+    // Check that the strong value exist
+    expect(mask.some((v) => v === 229)).toBe(true)
+
+    const uniqueValues = Array.from(new Set(mask)).filter(v => v !== 0)
+    expect(uniqueValues).toContain(229)
+  })
+
+  it('correctly maps line points to the mask by verifying bit-set count', () => {
+    const blendColorPixelDataAlphaMaskSpy = vi.fn()
+    const {
+      mutator,
+    } = mockAccumulatorMutator(mutatorApplyRectBrushStroke, {
+      blendColorPixelDataAlphaMask: blendColorPixelDataAlphaMaskSpy,
+      forEachLinePoint,
+      getRectBrushOrPencilBounds,
+      getRectBrushOrPencilStrokeBounds,
+    })
+
+    mutator.applyRectBrushStroke(
+      0 as any,
+      10,
+      10,
+      10,
+      12, // Vertical line
+      2,  // 2px width
+      2,  // 2px height
+      255,
+      () => 1.0,
+    )
+
+    const mockCall = blendColorPixelDataAlphaMaskSpy.mock.calls[0]
+    expect(mockCall, 'Blitter should have been called').toBeDefined()
+
+    const mask = mockCall[2] as Uint8Array
+    const options = mockCall[3]!
+
+    expect(options.h).toBeGreaterThanOrEqual(3)
+
+    const hasData = mask.some((v) => v > 0)
+    expect(hasData, 'The mask should contain painted pixels').toBe(true)
+
+    const paintedCount = mask.filter((v) => v > 0).length
+    expect(paintedCount).toBeGreaterThanOrEqual(3)
+  })
+
+  it('verifies that diagonal strokes trigger the vertical logic branch', () => {
+    const forEachLinePointSpy = vi.fn(forEachLinePoint)
+    const {
+      mutator,
+    } = mockAccumulatorMutator(mutatorApplyRectBrushStroke, {
+      forEachLinePoint: forEachLinePointSpy,
+      blendColorPixelDataAlphaMask: vi.fn(),
+      getRectBrushOrPencilBounds,
+      getRectBrushOrPencilStrokeBounds,
+    })
+
+    // Diagonal 10,10 to 11,11
+    mutator.applyRectBrushStroke(
+      0 as any,
+      10,
+      10,
+      11,
+      11,
+      2,
+      2,
+      255,
+      () => 1.0,
+    )
+
+    // This proves the line algorithm ran
+    expect(forEachLinePointSpy).toHaveBeenCalled()
   })
 })

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { imageDataToImgBlob } from '../../src'
+import { imageDataToImgBlob } from '@/index'
 import {
   OffscreenCanvasMock,
   offscreenCanvasMockContext,

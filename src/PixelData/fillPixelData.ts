@@ -1,4 +1,4 @@
-import type { Color32, Rect } from '../_types'
+import type { Color32, IPixelData, Rect } from '../_types'
 import { makeClippedRect, resolveRectClipping } from '../Internal/resolveClipping'
 import type { PixelData } from './PixelData'
 
@@ -13,7 +13,7 @@ const SCRATCH_RECT = makeClippedRect()
  * buffer is filled.
  */
 export function fillPixelData(
-  dst: PixelData,
+  dst: IPixelData,
   color: Color32,
   rect?: Partial<Rect>,
 ): void
@@ -26,7 +26,7 @@ export function fillPixelData(
  * @param h - Height of the fill area.
  */
 export function fillPixelData(
-  dst: PixelData,
+  dst: IPixelData,
   color: Color32,
   x: number,
   y: number,
@@ -34,7 +34,7 @@ export function fillPixelData(
   h: number,
 ): void
 export function fillPixelData(
-  dst: PixelData,
+  dst: IPixelData,
   color: Color32,
   _x?: Partial<Rect> | number,
   _y?: number,

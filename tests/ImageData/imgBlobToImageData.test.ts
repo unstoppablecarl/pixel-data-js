@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { imgBlobToImageData } from '../../src'
+import { imgBlobToImageData } from '@/index'
 
 describe('pngBlobToImageData', () => {
   const mockBitmap = {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { invertImageData } from '../../src'
+import { invertImageData } from '@/index'
 
 describe('invertImageData', () => {
   const BLACK = [0, 0, 0, 255]

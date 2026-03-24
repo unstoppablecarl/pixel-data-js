@@ -1,6 +1,6 @@
+import type { AlphaMask, BinaryMask } from '@/index'
+import { invertAlphaMask, invertBinaryMask } from '@/index'
 import { describe, expect, it } from 'vitest'
-import type { AlphaMask, BinaryMask } from '../../src'
-import { invertAlphaMask, invertBinaryMask } from '../../src/Mask/invertMask'
 
 describe('Mask Inversion Helpers', () => {
   describe('invertBinaryMask', () => {

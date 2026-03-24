@@ -1,7 +1,6 @@
+import { CANVAS_CTX_FAILED, makeReusableCanvas } from '@/index'
 import { createCanvas } from '@napi-rs/canvas'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { CANVAS_CTX_FAILED } from '../../src/Canvas/_constants'
-import { makeReusableCanvas } from '../../src'
 
 describe('makeReusableCanvas', () => {
   beforeEach(() => {

@@ -1,12 +1,17 @@
-import type { PixelBlendOptions } from '../../_types'
+import type { HistoryMutator, IPixelData, PixelBlendOptions } from '../../_types'
 import { blendPixelData } from '../../PixelData/blendPixelData'
-import type { PixelData } from '../../PixelData/PixelData'
 import { PixelWriter } from '../PixelWriter'
 
-export function mutatorBlendPixelData(writer: PixelWriter<any>) {
+const defaults = { blendPixelData }
+type Deps = Partial<typeof defaults>
+export const mutatorBlendPixelData = ((writer: PixelWriter<any>, deps: Partial<Deps> = defaults) => {
+  const {
+    blendPixelData = defaults.blendPixelData,
+  } = deps
+
   return {
     blendPixelData(
-      src: PixelData,
+      src: IPixelData,
       opts: PixelBlendOptions,
     ) {
       const {
@@ -20,5 +25,5 @@ export function mutatorBlendPixelData(writer: PixelWriter<any>) {
       blendPixelData(writer.target, src, opts)
     },
   }
-}
+}) satisfies HistoryMutator<any, Deps>
 

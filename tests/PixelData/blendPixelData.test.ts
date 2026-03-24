@@ -1,19 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import {
-  type AlphaMask,
-  type BinaryMask,
-  blendPixelData,
-  type Color32,
-  MaskType,
-  sourceOverFast, unpackAlpha, unpackColor,
-} from '../../src'
-import { PixelData } from '../../src'
-import {
-  createTestImageData,
-  expectPixelToMatch,
-  makeTestPixelData,
-  pack,
-} from '../_helpers'
+import { blendPixelData, type Color32, PixelData, sourceOverFast, unpackColor } from '@/index'
+import { createTestImageData, expectPixelToMatch, makeTestPixelData, pack } from '../_helpers'
 
 const RED = pack(255, 0, 0, 255)
 const BLUE = pack(0, 0, 255, 255)
@@ -45,92 +32,6 @@ describe('blendPixelData', () => {
       blendPixelData(dst, src, { blendFn: mockBlend })
 
       expect(mockBlend).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('Masking Logic (Binary & Alpha)', () => {
-    it('handles BinaryMask skip/pass and inversion', () => {
-      const dst = makeTestPixelData(4, 1, BLUE)
-      const src = makeTestPixelData(4, 1, RED)
-      const mask = new Uint8Array([
-        1,
-        0,
-        1,
-        0,
-      ]) as BinaryMask
-
-      blendPixelData(dst, src, {
-        mask,
-        maskType: MaskType.BINARY,
-      })
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[1]).toBe(BLUE)
-
-      blendPixelData(dst, src, {
-        mask,
-        maskType: MaskType.BINARY,
-        invertMask: true,
-      })
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[1]).toBe(RED)
-    })
-
-    it('scales AlphaMask and handles bit-perfect pass-through', () => {
-      const dst = makeTestPixelData(3, 1, BLUE)
-      const src = makeTestPixelData(3, 1, WHITE)
-      const mask = new Uint8Array([
-        0,
-        128,
-        255,
-      ]) as AlphaMask
-
-      blendPixelData(dst, src, {
-        mask,
-        maskType: MaskType.ALPHA,
-        blendFn: copyBlend,
-      })
-
-      const d32 = dst.data32
-      expect(d32[0]).toBe(BLUE)
-      expect((d32[1] >>> 24) & 0xff).toBe(128)
-      expect(d32[2]).toBe(WHITE)
-    })
-
-    it('aligns mask using dx/dy and custom pitch', () => {
-      const dst = makeTestPixelData(10, 10, BLUE)
-      const src = makeTestPixelData(2, 2, RED)
-      const mask = new Uint8Array(16).fill(0) as BinaryMask
-      mask[10] = 1
-
-      blendPixelData(dst, src, {
-        x: 5,
-        y: 5,
-        w: 1,
-        h: 1,
-        mask,
-        mw: 4,
-        mx: 2,
-        my: 2,
-        maskType: MaskType.BINARY,
-      })
-      expect(dst.data32[55]).toBe(RED)
-    })
-
-    it('covers the weight === 0 branch inside the mask block', () => {
-      const dst = makeTestPixelData(1, 1, BLUE)
-      const src = makeTestPixelData(1, 1, RED)
-      const mask = new Uint8Array([1]) as AlphaMask
-      const mockBlend = vi.fn(sourceOverFast)
-
-      blendPixelData(dst, src, {
-        mask,
-        alpha: 100,
-        maskType: MaskType.ALPHA,
-        blendFn: mockBlend,
-      })
-
-      expect(mockBlend).not.toHaveBeenCalled()
-      expect(dst.data32[0]).toBe(BLUE)
     })
   })
 
@@ -266,35 +167,6 @@ describe('blendPixelData', () => {
         }
       }
     })
-
-    it('verifies multi-row mask alignment across every pixel', () => {
-      const dst = makeTestPixelData(5, 5, 0)
-      const src = new PixelData(createTestImageData(5, 5))
-
-      const mask = new Uint8Array(25) as BinaryMask
-      for (let i = 0; i < 25; i++) {
-        mask[i] = i % 2 === 0
-          ? 1
-          : 0
-      }
-
-      blendPixelData(dst, src as any, {
-        mask,
-        maskType: MaskType.BINARY,
-        blendFn: copyBlend,
-      })
-
-      for (let y = 0; y < 5; y++) {
-        for (let x = 0; x < 5; x++) {
-          const mIdx = y * 5 + x
-          if (mask[mIdx] === 1) {
-            expectPixelToMatch(dst.imageData, x, y, x, y)
-          } else {
-            expect(dst.imageData.data[(y * 5 + x) * 4 + 3]).toBe(0)
-          }
-        }
-      }
-    })
   })
 
   describe('Extended Coverage & Edge Cases', () => {
@@ -313,74 +185,6 @@ describe('blendPixelData', () => {
       expect(dst.data32[0]).toBe(RED)
       expect(dst.data32[1]).toBe(RED)
       expect(dst.data32[2]).toBe(BLUE)
-    })
-
-    it('respects my and mx offsets even when clipping occurs', () => {
-      const dst = makeTestPixelData(1, 1, BLUE)
-      const src = makeTestPixelData(2, 2)
-      src.data32[3] = RED
-      const mask = new Uint8Array([0, 0, 0, 1]) as BinaryMask
-
-      blendPixelData(dst, src, {
-        x: -1,
-        y: -1,
-        w: 2,
-        h: 2,
-        mask,
-        mw: 2,
-        maskType: MaskType.BINARY,
-        blendFn: (s) => s,
-      })
-
-      expect(dst.data32[0]).toBe(RED)
-    })
-
-    it('accurately inverts AlphaMask values', () => {
-      const dst = makeTestPixelData(1, 1, BLUE)
-      const src = makeTestPixelData(1, 1, RED)
-      const mask = new Uint8Array([255]) as AlphaMask
-
-      blendPixelData(dst, src, {
-        mask,
-        maskType: MaskType.ALPHA,
-        invertMask: true,
-        blendFn: copyBlend,
-      })
-
-      expect(dst.data32[0]).toBe(BLUE)
-    })
-
-    it('hits the (effectiveM === 255) branch for raw color data', () => {
-      const src = makeTestPixelData(1, 1, RED)
-      const transparent = pack(0, 0, 0, 0)
-      const dst = makeTestPixelData(1, 1, transparent)
-      const mask = new Uint8Array([255]) as AlphaMask
-      const partialAlpha = 120
-
-      blendPixelData(dst, src, {
-        mask,
-        maskType: MaskType.ALPHA,
-        alpha: partialAlpha,
-        blendFn: sourceOverFast,
-      })
-
-      expect((dst.data32[0] >>> 24) & 0xff).toBe(119)
-    })
-
-    it('covers the inverse identity branch where globalAlpha is 255', () => {
-      const src = makeTestPixelData(1, 1, RED)
-      const transparent = pack(0, 0, 0, 0)
-      const dst = makeTestPixelData(1, 1, transparent)
-      const mask = new Uint8Array([120]) as AlphaMask
-
-      blendPixelData(dst, src, {
-        mask,
-        maskType: MaskType.ALPHA,
-        alpha: 255,
-      })
-
-      const resultAlpha = unpackAlpha(dst.data32[0] as Color32)
-      expect(resultAlpha).toBe(120)
     })
   })
 })

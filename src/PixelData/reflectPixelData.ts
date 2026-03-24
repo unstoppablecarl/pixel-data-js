@@ -1,6 +1,6 @@
-import type { PixelData } from './PixelData'
+import type { IPixelData } from '../_types'
 
-export function reflectPixelDataHorizontal(pixelData: PixelData): void {
+export function reflectPixelDataHorizontal(pixelData: IPixelData): void {
   const width = pixelData.width
   const height = pixelData.height
   const data = pixelData.data32
@@ -20,7 +20,7 @@ export function reflectPixelDataHorizontal(pixelData: PixelData): void {
   }
 }
 
-export function reflectPixelDataVertical(pixelData: PixelData): void {
+export function reflectPixelDataVertical(pixelData: IPixelData): void {
   const width = pixelData.width
   const height = pixelData.height
   const data = pixelData.data32

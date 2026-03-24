@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { ImageData as NapiImageData } from '@napi-rs/canvas'
-import { extractPixelDataBuffer, PixelData } from '../../src'
-import { type Rect } from '../../src'
+import { extractPixelDataBuffer, PixelData } from '@/index'
+import { type Rect } from '@/index'
 
 describe('extractPixelDataBuffer', () => {
   const createTestPixelData = (w: number, h: number) => {

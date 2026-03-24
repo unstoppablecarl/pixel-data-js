@@ -1,6 +1,6 @@
 import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
-import { type ImageDataLike, PixelData } from '../../src'
+import { type ImageDataLike, PixelData } from '@/index'
 
 describe('PixelData', () => {
   it('should initialize width, height, and data32 view', () => {

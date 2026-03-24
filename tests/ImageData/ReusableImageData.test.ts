@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { makeReusableImageData } from '../../src/ImageData/ReusableImageData'
+import { makeReusableImageData } from '@/index'
 
 describe('makeReusableImageData (Meaningful Persistence Tests)', () => {
   it('guarantees referential identity for matching dimensions', () => {

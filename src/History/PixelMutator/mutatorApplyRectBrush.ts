@@ -1,10 +1,23 @@
-import type { BlendColor32, Color32, Rect } from '../../_types'
-import { applyRectBrushToPixelData, getRectBrushBounds } from '../../PixelData/applyRectBrushToPixelData'
+import type { BlendColor32, Color32, HistoryMutator, Rect } from '../../_types'
+import { applyRectBrushToPixelData } from '../../PixelData/applyRectBrushToPixelData'
+import { getRectBrushOrPencilBounds } from '../../Rect/getRectBrushOrPencilBounds'
 import { PixelWriter } from '../PixelWriter'
 
-const boundsOut: Rect = { x: 0, y: 0, w: 0, h: 0 }
+const defaults = {
+  applyRectBrushToPixelData,
+  getRectBrushOrPencilBounds,
+}
 
-export function mutatorApplyRectBrush(writer: PixelWriter<any>) {
+type Deps = Partial<typeof defaults>
+
+export const mutatorApplyRectBrush = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
+  const {
+    applyRectBrushToPixelData = defaults.applyRectBrushToPixelData,
+    getRectBrushOrPencilBounds = defaults.getRectBrushOrPencilBounds,
+  } = deps
+
+  const boundsOut: Rect = { x: 0, y: 0, w: 0, h: 0 }
+
   return {
     applyRectBrush(
       color: Color32,
@@ -13,11 +26,11 @@ export function mutatorApplyRectBrush(writer: PixelWriter<any>) {
       brushWidth: number,
       brushHeight: number,
       alpha = 255,
-      fallOff?: (dist: number) => number,
+      fallOff: (dist: number) => number,
       blendFn?: BlendColor32,
     ) {
 
-      const bounds = getRectBrushBounds(
+      const bounds = getRectBrushOrPencilBounds(
         centerX,
         centerY,
         brushWidth,
@@ -45,4 +58,4 @@ export function mutatorApplyRectBrush(writer: PixelWriter<any>) {
       )
     },
   }
-}
+}) satisfies HistoryMutator<any, Deps>

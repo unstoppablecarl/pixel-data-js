@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { HistoryManager, PixelAccumulator, PixelData, PixelWriter } from '../../src'
+import { HistoryManager, PixelAccumulator, PixelData, PixelWriter } from '@/index'
 
 describe('PixelWriter', () => {
   let pixelData: PixelData

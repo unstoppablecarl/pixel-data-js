@@ -1,4 +1,4 @@
-import type { PixelData } from '../PixelData/PixelData'
+import type { IPixelData } from '../_types'
 
 export type PixelPatchTiles = {
   beforeTiles: PixelTile[]
@@ -18,7 +18,7 @@ export class PixelTile {
   }
 }
 
-export function applyPatchTiles(target: PixelData, tiles: PixelTile[], tileSize: number = 256) {
+export function applyPatchTiles(target: IPixelData, tiles: PixelTile[], tileSize: number = 256) {
   for (let i = 0; i < tiles.length; i++) {
     const tile = tiles[i]
 

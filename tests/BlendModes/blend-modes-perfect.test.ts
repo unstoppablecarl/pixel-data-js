@@ -5,10 +5,10 @@ import {
   type Color32,
   makeBlendModeRegistry,
   makePerfectBlendModeRegistry,
-} from '../../src'
+} from '@/index'
 import { unpack } from '../_helpers'
 
-const PERFECT_BLEND_MODES = makeBlendModeRegistry(BaseBlendMode, BASE_PERFECT_BLEND_MODE_FUNCTIONS)
+const PERFECT_BLEND_MODES = makeBlendModeRegistry(BaseBlendMode, BASE_PERFECT_BLEND_MODE_FUNCTIONS, 'test')
 const PERFECT_BLEND_MODE_BY_NAME = PERFECT_BLEND_MODES.nameToBlend
 
 describe('Color Perfect Blending Functions', () => {
@@ -1503,7 +1503,7 @@ describe('Color Perfect Blending Functions', () => {
 
   it('makePerfectBlendModeRegistry', () => {
     const result = makePerfectBlendModeRegistry()
-    const expected = makeBlendModeRegistry(BaseBlendMode, BASE_PERFECT_BLEND_MODE_FUNCTIONS)
+    const expected = makeBlendModeRegistry(BaseBlendMode, BASE_PERFECT_BLEND_MODE_FUNCTIONS, 'perfect')
 
     Object.keys(result).forEach((key) => {
       if (key === 'add') return

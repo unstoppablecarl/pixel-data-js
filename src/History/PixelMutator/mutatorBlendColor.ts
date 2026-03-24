@@ -1,14 +1,19 @@
-import type { Color32, ColorBlendOptions } from '../../_types'
+import type { Color32, ColorBlendOptions, HistoryMutator } from '../../_types'
 import { blendColorPixelData } from '../../PixelData/blendColorPixelData'
 import { PixelWriter } from '../PixelWriter'
 
-export function mutatorBlendColor(writer: PixelWriter<any>) {
+const defaults = { blendColorPixelData }
+type Deps = Partial<typeof defaults>
+export const mutatorBlendColor = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
+  const {
+    blendColorPixelData = defaults.blendColorPixelData,
+  } = deps
+
   return {
     blendColor(
       color: Color32,
       opts: ColorBlendOptions = {},
     ) {
-
       const {
         x = 0,
         y = 0,
@@ -19,4 +24,4 @@ export function mutatorBlendColor(writer: PixelWriter<any>) {
       blendColorPixelData(writer.target, color, opts)
     },
   }
-}
+}) satisfies HistoryMutator<any, Deps>

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { HistoryManager, type HistoryAction } from '../../src'
+import { type HistoryAction, HistoryManager } from '@/index'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('HistoryManager', () => {
   let manager: HistoryManager
@@ -53,7 +53,7 @@ describe('HistoryManager', () => {
     const action: HistoryAction = {
       undo: vi.fn(),
       redo: vi.fn(),
-      dispose
+      dispose,
     }
 
     manager.commit(action)
@@ -118,7 +118,7 @@ describe('HistoryManager', () => {
       const action = {
         undo: vi.fn(),
         redo: vi.fn(),
-        dispose: i === 0 ? disposeSpy : undefined
+        dispose: i === 0 ? disposeSpy : undefined,
       }
       actions.push(action)
       manager.commit(action)

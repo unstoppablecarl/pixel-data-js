@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { getImageDataFromClipboard } from '../../src'
+import { getImageDataFromClipboard } from '@/index'
 import * as imageModule from '../../src/ImageData/imgBlobToImageData'
 
 describe('getImageDataFromClipboard', () => {

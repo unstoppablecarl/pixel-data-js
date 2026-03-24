@@ -1,42 +1,58 @@
 import {
-  type AnyMask,
+  type AlphaMask,
   type BlendColor32,
   type Color32,
-  type ColorBlendOptions,
-  MaskType,
+  type ColorBlendMaskOptions,
+  type HistoryMutator,
   type Rect,
 } from '../../_types'
+import { forEachLinePoint } from '../../Algorithm/forEachLinePoint'
 import { sourceOverPerfect } from '../../BlendModes/blend-modes-perfect'
-import { forEachLinePoint } from '../../Internal/forEachLinePoint'
-import { getCircleBrushBounds } from '../../PixelData/applyCircleBrushToPixelData'
-import { blendColorPixelData } from '../../PixelData/blendColorPixelData'
+import { blendColorPixelDataAlphaMask } from '../../PixelData/blendColorPixelDataAlphaMask'
+import { getCircleBrushOrPencilBounds } from '../../Rect/getCircleBrushOrPencilBounds'
+import { getCircleBrushOrPencilStrokeBounds } from '../../Rect/getCircleBrushOrPencilStrokeBounds'
 import { PixelWriter } from '../PixelWriter'
 
-const strokeBoundsOut: Rect = {
-  x: 0,
-  y: 0,
-  w: 0,
-  h: 0,
+const defaults = {
+  forEachLinePoint,
+  blendColorPixelDataAlphaMask,
+  getCircleBrushOrPencilBounds,
+  getCircleBrushOrPencilStrokeBounds,
 }
 
-const circleBrushBounds: Rect = {
-  x: 0,
-  y: 0,
-  w: 0,
-  h: 0,
-}
+type Deps = Partial<typeof defaults>
 
-const blendColorPixelOptions: ColorBlendOptions = {
-  maskType: MaskType.ALPHA,
-  alpha: 255,
-  blendFn: sourceOverPerfect,
-  x: 0,
-  y: 0,
-  w: 0,
-  h: 0,
-}
+export const mutatorApplyCircleBrushStroke = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
+  const {
+    forEachLinePoint = defaults.forEachLinePoint,
+    blendColorPixelDataAlphaMask = defaults.blendColorPixelDataAlphaMask,
+    getCircleBrushOrPencilBounds = defaults.getCircleBrushOrPencilBounds,
+    getCircleBrushOrPencilStrokeBounds = defaults.getCircleBrushOrPencilStrokeBounds,
+  } = deps
 
-export function mutatorApplyCircleBrushStroke(writer: PixelWriter<any>) {
+  const strokeBoundsOut: Rect = {
+    x: 0,
+    y: 0,
+    w: 0,
+    h: 0,
+  }
+
+  const circleBrushBounds: Rect = {
+    x: 0,
+    y: 0,
+    w: 0,
+    h: 0,
+  }
+
+  const blendColorPixelOptions: ColorBlendMaskOptions = {
+    alpha: 255,
+    blendFn: sourceOverPerfect,
+    x: 0,
+    y: 0,
+    w: 0,
+    h: 0,
+  }
+
   return {
     applyCircleBrushStroke(
       color: Color32,
@@ -46,7 +62,7 @@ export function mutatorApplyCircleBrushStroke(writer: PixelWriter<any>) {
       y1: number,
       brushSize: number,
       alpha = 255,
-      fallOff?: (dist: number) => number,
+      fallOff: (dist: number) => number,
       blendFn: BlendColor32 = sourceOverPerfect,
     ) {
       const {
@@ -54,12 +70,11 @@ export function mutatorApplyCircleBrushStroke(writer: PixelWriter<any>) {
         y: by,
         w: bw,
         h: bh,
-      } = getCircleBrushStrokeBounds(x0, y0, x1, y1, brushSize, strokeBoundsOut)
+      } = getCircleBrushOrPencilStrokeBounds(x0, y0, x1, y1, brushSize, strokeBoundsOut)
 
       if (bw <= 0 || bh <= 0) return
 
-      const useAlpha = fallOff !== undefined
-      const mask = new Uint8Array(bw * bh) as AnyMask
+      const mask = new Uint8Array(bw * bh) as AlphaMask
 
       const r = brushSize / 2
       const rSqr = r * r
@@ -76,7 +91,7 @@ export function mutatorApplyCircleBrushStroke(writer: PixelWriter<any>) {
           y: cby,
           w: cbw,
           h: cbh,
-        } = getCircleBrushBounds(px, py, brushSize, targetWidth, targetHeight, circleBrushBounds)
+        } = getCircleBrushOrPencilBounds(px, py, brushSize, targetWidth, targetHeight, circleBrushBounds)
 
         writer.accumulator.storeRegionBeforeState(cbx, cby, cbw, cbh)
 
@@ -100,22 +115,16 @@ export function mutatorApplyCircleBrushStroke(writer: PixelWriter<any>) {
             if (dSqr <= rSqr) {
               const maskIdx = maskRowOffset + (mx - bx)
 
-              if (useAlpha) {
-                const dist = Math.sqrt(dSqr) * invR
-                const intensity = (fallOff!(dist) * 255) | 0
-                if (intensity > mask[maskIdx]) {
-                  mask[maskIdx] = intensity
-                }
-              } else {
-                mask[maskIdx] = 1
+              const dist = Math.sqrt(dSqr) * invR
+              const intensity = (fallOff(1 - dist) * 255) | 0
+              if (intensity > mask[maskIdx]) {
+                mask[maskIdx] = intensity
               }
             }
           }
         }
       })
 
-      blendColorPixelOptions.mask = mask
-      blendColorPixelOptions.maskType = useAlpha ? MaskType.ALPHA : MaskType.BINARY
       blendColorPixelOptions.blendFn = blendFn
       blendColorPixelOptions.alpha = alpha
       blendColorPixelOptions.x = bx
@@ -123,30 +132,7 @@ export function mutatorApplyCircleBrushStroke(writer: PixelWriter<any>) {
       blendColorPixelOptions.w = bw
       blendColorPixelOptions.h = bh
 
-      blendColorPixelData(writer.target, color, blendColorPixelOptions)
+      blendColorPixelDataAlphaMask(writer.target, color, mask, blendColorPixelOptions)
     },
   }
-}
-
-export function getCircleBrushStrokeBounds(
-  x0: number,
-  y0: number,
-  x1: number,
-  y1: number,
-  brushSize: number,
-  result: Rect,
-): Rect {
-  const r = Math.ceil(brushSize / 2)
-
-  const minX = Math.min(x0, x1) - r
-  const minY = Math.min(y0, y1) - r
-  const maxX = Math.max(x0, x1) + r
-  const maxY = Math.max(x0, y1) + r
-
-  result.x = Math.floor(minX)
-  result.y = Math.floor(minY)
-  result.w = Math.ceil(maxX - minX)
-  result.h = Math.ceil(maxY - minY)
-
-  return result
-}
+}) satisfies HistoryMutator<any, Deps>

@@ -604,6 +604,6 @@ export const BASE_FAST_BLEND_MODE_FUNCTIONS: Record<number, BlendColor32> = {
   [BaseBlendMode.divide]: divideFast,
 }
 
-export function makeFastBlendModeRegistry() {
-  return makeBlendModeRegistry(BaseBlendMode, BASE_FAST_BLEND_MODE_FUNCTIONS)
+export function makeFastBlendModeRegistry(name = 'fast') {
+  return makeBlendModeRegistry(BaseBlendMode, BASE_FAST_BLEND_MODE_FUNCTIONS, name)
 }

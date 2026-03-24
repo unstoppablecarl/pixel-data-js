@@ -1,28 +1,42 @@
+import { mutatorApplyAlphaMask } from './PixelMutator/mutatorApplyAlphaMask'
+import { mutatorApplyBinaryMask } from './PixelMutator/mutatorApplyBinaryMask'
 import { mutatorApplyCircleBrush } from './PixelMutator/mutatorApplyCircleBrush'
 import { mutatorApplyCircleBrushStroke } from './PixelMutator/mutatorApplyCircleBrushStroke'
-import { mutatorApplyMask } from './PixelMutator/mutatorApplyMask'
+import { mutatorApplyCirclePencilStroke } from './PixelMutator/mutatorApplyCirclePencilStroke'
 import { mutatorApplyRectBrush } from './PixelMutator/mutatorApplyRectBrush'
 import { mutatorApplyRectBrushStroke } from './PixelMutator/mutatorApplyRectBrushStroke'
+import { mutatorApplyRectPencil } from './PixelMutator/mutatorApplyRectPencil'
+import { mutatorApplyRectPencilStroke } from './PixelMutator/mutatorApplyRectPencilStroke'
 import { mutatorBlendColor } from './PixelMutator/mutatorBlendColor'
 import { mutatorBlendPixel } from './PixelMutator/mutatorBlendPixel'
 import { mutatorBlendPixelData } from './PixelMutator/mutatorBlendPixelData'
-import { mutatorClearPixelData } from './PixelMutator/mutatorClearPixelData'
-import { mutatorFill } from './PixelMutator/mutatorFillPixelData'
+import { mutatorClear } from './PixelMutator/mutatorClear'
+import { mutatorFill } from './PixelMutator/mutatorFill'
 import { mutatorInvert } from './PixelMutator/mutatorInvert'
 import type { PixelWriter } from './PixelWriter'
 
 export function makeFullPixelMutator(writer: PixelWriter<any>) {
   return {
-    ...mutatorApplyMask(writer),
+    ...mutatorApplyAlphaMask(writer),
+    ...mutatorApplyBinaryMask(writer),
+
     ...mutatorBlendPixelData(writer),
     ...mutatorBlendColor(writer),
     ...mutatorBlendPixel(writer),
     ...mutatorFill(writer),
     ...mutatorInvert(writer),
+
     ...mutatorApplyCircleBrush(writer),
     ...mutatorApplyCircleBrushStroke(writer),
+
+    ...mutatorApplyCirclePencilStroke(writer),
+
     ...mutatorApplyRectBrush(writer),
     ...mutatorApplyRectBrushStroke(writer),
-    ...mutatorClearPixelData(writer),
+
+    ...mutatorApplyRectPencil(writer),
+    ...mutatorApplyRectPencilStroke(writer),
+
+    ...mutatorClear(writer),
   }
 }

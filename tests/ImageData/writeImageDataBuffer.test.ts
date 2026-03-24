@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { writeImageDataBuffer } from '../../src'
+import { writeImageDataBuffer } from '@/index'
 import { createImg, createTestImageData, expectPixelToMatch } from '../_helpers'
 
 describe('writeImageDataBuffer', () => {

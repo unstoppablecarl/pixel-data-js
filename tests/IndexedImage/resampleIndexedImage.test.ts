@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { IndexedImage } from '../../src'
-import { resampleIndexedImage } from '../../src'
+import type { IndexedImage } from '@/index'
+import { resampleIndexedImage } from '@/index'
 
 describe('resampleIndexedImage', () => {
   const createTestIndexed = (w: number, h: number): IndexedImage => {

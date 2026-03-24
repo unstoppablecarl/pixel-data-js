@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { resampleImageData } from '../../src'
+import { resampleImageData } from '@/index'
 
 describe('resampleImageData', () => {
   const createTestRGBA = (w: number, h: number) => {

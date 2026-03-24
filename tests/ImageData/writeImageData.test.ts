@@ -1,6 +1,5 @@
+import { MaskType, writeImageData } from '@/index'
 import { describe, expect, it } from 'vitest'
-import { MaskType } from '../../src'
-import { writeImageData } from '../../src/ImageData/writeImageData'
 
 describe('writeImageData', () => {
   const createImg = (w: number, h: number) => {
@@ -104,7 +103,7 @@ describe('writeImageData', () => {
       1,
       1,
       mask,
-      MaskType.BINARY
+      MaskType.BINARY,
     )
 
     // If mi calculation is wrong, it will look at mask[0] instead of mask[4]

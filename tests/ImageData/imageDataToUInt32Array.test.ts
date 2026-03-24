@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { imageDataToUInt32Array } from '../../src'
+import { imageDataToUInt32Array } from '@/index'
 
 describe('imageDataToUInt32Array', () => {
   it('should create a 32-bit view that maps correctly to 8-bit color data', () => {

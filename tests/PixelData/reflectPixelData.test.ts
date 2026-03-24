@@ -1,6 +1,6 @@
 import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
-import { PixelData, reflectPixelDataHorizontal, reflectPixelDataVertical } from '../../src'
+import { PixelData, reflectPixelDataHorizontal, reflectPixelDataVertical } from '@/index'
 
 describe('Reflection Functions', () => {
   describe('reflectPixelDataHorizontal', () => {

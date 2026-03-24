@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { writeImgBlobToClipboard } from '../../src'
+import { writeImgBlobToClipboard } from '@/index'
 
 describe('writeImgBlobToClipboard', () => {
   const mockWrite = vi.fn()

@@ -15,6 +15,7 @@ export function makeBlendModeRegistry<
 >(
   blendModes: BlendModes,
   initialEntries: Record<Index, BlendColor32>,
+  registryName = 'anonymous',
 ) {
 
   const blendToName = new Map<BlendColor32, Name>()
@@ -47,6 +48,7 @@ export function makeBlendModeRegistry<
   }
 
   return {
+    registryName,
     nameToBlend,
     nameToIndex,
 

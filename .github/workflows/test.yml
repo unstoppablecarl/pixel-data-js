@@ -46,8 +46,11 @@ jobs:
             pnpm install --frozen-lockfile
           fi
 
+      - name: Test the source output
+        run: pnpm run test
+
       - name: Build the source code
         run: pnpm run build
 
       - name: Test the build output
-        run: pnpm run test
+        run: pnpm vitest run --project dist

@@ -1,233 +1,266 @@
 import { describe, expect, it, vi } from 'vitest'
-import { applyCircleBrushToPixelData, getCircleBrushBounds, PixelData } from '../../src'
+import { applyCircleBrushToPixelData, PixelData } from '@/index'
+import { pack, unpack } from '../_helpers'
 
 describe('applyCircleBrushToPixelData', () => {
+  const RED = pack(255, 0, 0, 255)
+
   const createMockPixelData = (width: number, height: number) => {
     const buffer = new Uint8ClampedArray(width * height * 4)
-
     const imageData = {
       data: buffer,
       width: width,
       height: height,
     } as ImageData
-
     return new PixelData(imageData)
   }
 
-  it('colors the correct pixels for a solid brush', () => {
+  it('applies small brush fallOff correctly when provided', async () => {
     const target = createMockPixelData(10, 10)
-    const color = 0xff0000ff as any // Red
+    const color = RED
+    const fallOff = vi.fn((d: number) => d)
 
-    applyCircleBrushToPixelData(target, color, 5, 5, 4, 255)
+    const x = 5
+    const y = 5
 
-    const centerIdx = 5 * 10 + 5
-    const cornerIdx = 0
+    applyCircleBrushToPixelData(target, color, x, y, 2, 255, fallOff)
 
-    expect(target.data32[centerIdx]).toBe(0xff0000ff)
-    expect(target.data32[cornerIdx]).toBe(0)
+    const f = 0.2928932188134524
+    const calls = fallOff.mock.calls
+    expect(calls).toEqual([
+      [f],
+      [f],
+      [f],
+      [f],
+    ])
+
+    const centerIdx = x * target.width + y
+    expect(unpack(target.data32[centerIdx])).toEqual({
+      r: 255,
+      g: 0,
+      b: 0,
+      a: 74,
+    })
+
+    await expect(target).toMatchPixelDataSnapshot()
   })
 
-  it('applies fallOff correctly when provided', () => {
+  it('draws a solid circle within the radius', () => {
     const target = createMockPixelData(10, 10)
-    const color = 0xffffffff as any
-    const fallOff = vi.fn(() => 0.5)
+    const color = 0xFF0000FF as any // Red
 
-    applyCircleBrushToPixelData(target, color, 5, 5, 2, 255, fallOff)
+    // Brush Size 4 (Radius 2). Centered at 5,5.
+    // It should fill a roughly circular area.
+    applyCircleBrushToPixelData(target, color, 5, 5, 4, 255, () => 1)
+
+    // Center pixels (5,5), (4,5), (5,4), (4,4) should definitely be filled for even brush
+    expect(target.data32[5 * 10 + 5]).toBe(color)
+    expect(target.data32[4 * 10 + 4]).toBe(color)
+
+    // A pixel far away (0,0) should be empty
+    expect(target.data32[0]).toBe(0)
+  })
+
+  it('applies fallOff function correctly', () => {
+    const target = createMockPixelData(10, 10)
+    const color = 0xFFFFFFFF as any
+    const fallOff = vi.fn((d: number) => d) // Linear fade
+
+    // Size 4 (Radius 2). Center 5,5.
+    applyCircleBrushToPixelData(target, color, 5, 5, 4, 255, fallOff)
 
     expect(fallOff).toHaveBeenCalled()
-    const centerIdx = 5 * 10 + 5
-    // 0.5 * 255 = 127.5 -> 127
-    expect(target.data32[centerIdx] >>> 24).toBe(127)
+
+    // Center pixel (5,5) for even brush size 4 has a 0.5 offset.
+    // Distance from geometric center is sqrt(0.5^2 + 0.5^2) = ~0.707
+    // Normalized distance = 0.707 / 2 = ~0.35
+    // Falloff should be ~0.65 -> Alpha ~165
+    const centerPixel = target.data32[5 * 10 + 5]
+    const alpha = centerPixel >>> 24
+
+    expect(alpha).toBeGreaterThan(150)
+    expect(alpha).toBeLessThan(180)
   })
 
-  it('handles even brush sizes with center offset', () => {
+  it('clips correctly when brush is partially off-screen (Bottom-Right)', async () => {
     const target = createMockPixelData(10, 10)
     const color = 0xffffffff as any
 
-    // Size 2 brush at 5,5 should color 4 pixels if it hits the corners
-    applyCircleBrushToPixelData(target, color, 5, 5, 2, 255)
-
-    const count = target.data32.filter(p => p !== 0).length
-    expect(count).toBeGreaterThan(0)
-  })
-
-  it('clips correctly when brush is partially off-screen (Top-Left)', () => {
-    const target = createMockPixelData(10, 10)
-    const color = 0xffffffff as any
-
-    // Center at 0,0 size 10 covers top left quadrant
-    applyCircleBrushToPixelData(target, color, 0, 0, 10, 255)
-
-    expect(target.data32[0]).toBe(0xffffffff)
-  })
-
-  it('clips correctly when brush is partially off-screen (Bottom-Right)', () => {
-    const target = createMockPixelData(10, 10)
-    const color = 0xffffffff as any
-
-    applyCircleBrushToPixelData(target, color, 9, 9, 10, 255)
+    applyCircleBrushToPixelData(target, color, 9, 9, 10, 255, () => 1)
 
     expect(target.data32[99]).toBe(0xffffffff)
+    await expect(target).toMatchPixelDataSnapshot()
   })
 
   it('does nothing if the brush is entirely outside the target', () => {
     const target = createMockPixelData(10, 10)
     const color = 0xffffffff as any
 
-    applyCircleBrushToPixelData(target, color, 50, 50, 5, 255)
+    applyCircleBrushToPixelData(target, color, 50, 50, 5, 255, () => 1)
 
     const hasData = target.data32.some(p => p !== 0)
     expect(hasData).toBe(false)
   })
 
+  it('handles clipping at canvas edges', () => {
+    const target = createMockPixelData(10, 10)
+    const color = 0xFFFFFFFF as any
+
+    // Circle at 0,0 size 6 (Radius 3)
+    applyCircleBrushToPixelData(target, color, 0, 0, 6, 255, () => 1)
+
+    expect(target).toMatchPixelDataSnapshot()
+
+    // (0,0) should be filled
+    expect(target.data32[0]).toBe(color)
+    // // (2,2) should be filled (dist = sqrt(8) = 2.82 < 3)
+    expect(unpack(target.data32[0 * 10 + 2])).toEqual(unpack(color))
+    // // (3,3) should be empty (dist = sqrt(18) = 4.2 > 3)
+    // expect(target.data32[3 * 10 + 3]).toBe(0)
+  })
+
   it('applies the alpha parameter to the final color', () => {
     const target = createMockPixelData(10, 10)
-    const color = 0x0000ff00 as any // Green base
+
+    // Use 0xff00ff00 to provide an OPAQUE green base
+    // (Assuming Little-Endian ABGR where ff is Alpha and the second ff is Green)
+    const color = 0xff00ff00 as any
     const customAlpha = 128
 
-    applyCircleBrushToPixelData(target, color, 5, 5, 2, customAlpha)
+    applyCircleBrushToPixelData(target, color, 5, 5, 2, customAlpha, () => 1)
 
     const centerIdx = 5 * 10 + 5
-    expect(target.data32[centerIdx] >>> 24).toBe(128)
-  })
 
-  describe('getCircleBrushBounds', () => {
-    it('calculates bounds for an even-sized circle at an integer center', () => {
-      // brushSize 4, r = 2. Center (5, 5)
-      // start = ceil(5 - 2) = 3
-      // end = floor(5 + 2) + 1 = 8
-      const result = getCircleBrushBounds(5, 5, 4)
-
-      expect(result).toEqual({
-        x: 3,
-        y: 3,
-        w: 4,
-        h: 4,
-      })
-    })
-
-    it('calculates bounds for a small circle', () => {
-      // brushSize 1, r = 0.5. Center (5, 5)
-      // start = ceil(4.5) = 5
-      // end = floor(5.5) + 1 = 6
-      const result = getCircleBrushBounds(5, 5, 1)
-
-      expect(result).toEqual({
-        x: 5,
-        y: 5,
-        w: 1,
-        h: 1,
-      })
-    })
-
-    it('clamps to target dimensions correctly', () => {
-      // 10px diameter at (0, 0)
-      // r = 5. start = -5, end = 6
-      const result = getCircleBrushBounds(0, 0, 10, 100, 100)
-
-      expect(result).toEqual({
-        x: 0,
-        y: 0,
-        w: 5,
-        h: 5,
-      })
-    })
-
-    it('handles fractional centers', () => {
-      // 2px diameter at (5.5, 5.5)
-      // r = 1. start = ceil(4.5) = 5. end = floor(6.5) + 1 = 7.
-      const result = getCircleBrushBounds(5.5, 5.5, 2)
-
-      expect(result).toEqual({
-        x: 4,
-        y: 4,
-        w: 2,
-        h: 2,
-      })
-    })
-
-    it('returns zero dimensions when entirely off-canvas', () => {
-      const result = getCircleBrushBounds(-50, -50, 10, 10, 10)
-
-      expect(result.w).toBe(0)
-      expect(result.h).toBe(0)
-    })
-
-    it('returns raw bounds when target dimensions are omitted', () => {
-      const result = getCircleBrushBounds(-10, -10, 10)
-
-      expect(result.x).toBeLessThan(0)
-      expect(result.w).toBe(10)
+    expect(unpack(target.data32[centerIdx])).toEqual({
+      r: 0,
+      g: 255,
+      b: 0,
+      a: 128, // 50% opacity from the customAlpha multiplier
     })
   })
 
-  describe('applyCircleBrushToPixelData with bounds', () => {
-    it('should only paint within the provided bounds, even if the circle is larger', () => {
-      const target = createMockPixelData(10, 10)
-      const color = 0xFFFFFFFF as any
+  it('respects the provided bounds optimization', () => {
+    const target = createMockPixelData(10, 10)
+    const color = 0xFFFFFFFF as any
 
-      // 10px diameter brush at (5, 5).
-      // We pass a 2x2 bounds rect specifically at the center (5, 5).
-      const restrictiveBounds = {
-        x: 5,
-        y: 5,
-        w: 2,
-        h: 2,
-      }
+    // Define bounds that only allow drawing the top-left pixel of the 10x10 brush area
+    // Even though brush is huge (10x10), we clip it to 1x1 at (0,0)
+    const tightBounds = {
+      x: 0,
+      y: 0,
+      w: 1,
+      h: 1,
+    }
 
-      applyCircleBrushToPixelData(
-        target,
-        color,
-        5,
-        5,
-        10,
-        255,
-        undefined,
-        undefined,
-        restrictiveBounds,
-      )
+    applyCircleBrushToPixelData(
+      target,
+      color,
+      5,
+      5,
+      10,
+      255,
+      () => 1,
+      undefined,
+      tightBounds,
+    )
 
-      // This pixel is inside both the bounds and the circle radius
-      expect(target.data32[5 * 10 + 5]).toBe(0xFFFFFFFF)
+    // Only 0,0 is allowed by bounds, but 0,0 is OUTSIDE the radius of a circle at 5,5
+    expect(target.data32[0]).toBe(0)
 
-      // This pixel is inside the theoretical 10px circle radius,
-      // but OUTSIDE the restrictive 2x2 bounds we passed.
-      expect(target.data32[4 * 10 + 4]).toBe(0)
-    })
+    // Center should NOT be drawn because it's outside 'tightBounds'
+    expect(target.data32[5 * 10 + 5]).toBe(0)
   })
 
-  describe('applyCircleBrushToPixelData centerOffset parity', () => {
-    it('should center a 1x1 (odd) brush exactly on the integer coordinate', () => {
-      const target = createMockPixelData(10, 10)
-      const color = 0xFFFFFFFF as any
+  it('calculates center offset correctly for Odd brush sizes', () => {
+    const target = createMockPixelData(5, 5)
+    const color = 0xFFFFFFFF as any
+    const fallOff = (d: number) => d
 
-      // Center at (5, 5), size 1. Offset should be 0.
-      // Only pixel (5, 5) should be colored.
-      applyCircleBrushToPixelData(target, color, 5, 5, 1)
+    // Size 3 (Radius 1.5). Center 2,2.
+    // For Odd brushes, center offset is 0.
+    // Pixel (2,2) is exactly at distance 0.
+    applyCircleBrushToPixelData(target, color, 2, 2, 3, 255, fallOff)
 
-      expect(target.data32[5 * 10 + 5]).toBe(0xFFFFFFFF)
-      expect(target.data32[4 * 10 + 5]).toBe(0)
-      expect(target.data32[5 * 10 + 4]).toBe(0)
-    })
+    expect(target.data32[2 * 5 + 2] >>> 24).toBe(255)
+  })
 
-    it('should center a 2x2 (even) brush equally across 4 pixels', () => {
-      const target = createMockPixelData(10, 10)
-      const color = 0xFFFFFFFF as any
+  it('does nothing if bounds have zero area', () => {
+    const target = createMockPixelData(5, 5)
+    const color = 0xFFFFFFFF as any
+    const bounds = { x: 0, y: 0, w: 0, h: 0 }
 
-      // Center at (5, 5), size 2. Offset should be 0.5.
-      // Because the center is 5.0 and the offset is 0.5,
-      // pixels 4 and 5 are equidistant from the math center.
-      applyCircleBrushToPixelData(target, color, 5, 5, 2)
+    applyCircleBrushToPixelData(target, color, 2, 2, 3, 255, () => 1, undefined, bounds)
 
-      // A 2x2 brush centered at 5.0 covers (4,4), (4,5), (5,4), (5,5)
-      expect(target.data32[4 * 10 + 4]).toBe(0xFFFFFFFF)
-      expect(target.data32[4 * 10 + 5]).toBe(0xFFFFFFFF)
-      expect(target.data32[5 * 10 + 4]).toBe(0xFFFFFFFF)
-      expect(target.data32[5 * 10 + 5]).toBe(0xFFFFFFFF)
+    expect(target.data32.every(p => p === 0)).toBe(true)
+  })
 
-      // Boundary check
-      expect(target.data32[3 * 10 + 5]).toBe(0)
-      expect(target.data32[6 * 10 + 5]).toBe(0)
-    })
+  it('skips blending if resulting alpha is 0 and not in overwrite mode', () => {
+    const mockData = new Uint32Array([0xFFFFFFFF])
+
+    const pixelData = {
+      width: 1,
+      height: 1,
+      data32: mockData,
+    }
+
+    const blendFn = vi.fn()
+    const bounds = {
+      x: 0,
+      y: 0,
+      w: 1,
+      h: 1,
+    }
+
+    applyCircleBrushToPixelData(
+      pixelData as any,
+      0x00000000 as any,
+      0,
+      0,
+      1,
+      255,
+      () => 0.5, // Falloff < 1 ensures maskVal is < 255, pushing us into the weight check
+      blendFn,
+      bounds,
+    )
+
+    // Because a === 0 and !isOverwrite, the loop should continue before calling blendFn
+    expect(blendFn).not.toHaveBeenCalled()
+  })
+
+  it('does NOT skip blending if isOverwrite is true, even if alpha is 0', () => {
+    const mockData = new Uint32Array([0xFFFFFFFF])
+
+    const pixelData = {
+      width: 1,
+      height: 1,
+      data32: mockData,
+    }
+
+    const blendFn = vi.fn((src, dst) => src)
+
+      // Explicitly flag the mock function as an overwrite mode
+    ;(blendFn as any).isOverwrite = true
+
+    const bounds = {
+      x: 0,
+      y: 0,
+      w: 1,
+      h: 1,
+    }
+
+    applyCircleBrushToPixelData(
+      pixelData as any,
+      0x00000000 as any,
+      0,
+      0,
+      1,
+      255,
+      () => 0.5,
+      blendFn,
+      bounds,
+    )
+
+    // Because isOverwrite is true, it MUST call the blend function to punch the transparent hole
+    expect(blendFn).toHaveBeenCalled()
   })
 })

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { IndexedImage, indexedImageToAverageColor, packRGBA } from '../../src'
+import { IndexedImage, indexedImageToAverageColor, packRGBA } from '@/index'
 import { pack } from '../_helpers'
 
 describe('indexedImageToAverageColor', () => {

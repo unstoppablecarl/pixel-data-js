@@ -1,12 +1,11 @@
-import type { AlphaMask } from '../_types'
-import type { PixelData } from './PixelData'
+import type { AlphaMask, IPixelData } from '../_types'
 
 /**
  * Extracts the alpha channel from PixelData into a single-channel mask.
  * Returns a Uint8Array branded as AlphaMask.
  */
 export function pixelDataToAlphaMask(
-  pixelData: PixelData,
+  pixelData: IPixelData,
 ): AlphaMask {
   const {
     data32,

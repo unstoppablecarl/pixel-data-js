@@ -1,4 +1,4 @@
-import { sourceOverFast } from './BlendModes/blend-modes-fast'
+import { PixelWriter, sourceOverPerfect } from './index'
 
 /** ALL values are 0-255 (including alpha which in CSS is 0-1) */
 export type RGBA = { r: number, g: number, b: number, a: number }
@@ -74,7 +74,7 @@ export type AnyMask = BinaryMask | AlphaMask
  * Configuration for pixel manipulation operations.
  * Designed to be used by spreading a Rect object ({x, y, w, h}) directly.
  */
-export interface PixelRectOptions {
+export interface PixelRect {
   /**
    * The starting X coordinate in the destination buffer.
    * @default 0
@@ -88,26 +88,19 @@ export interface PixelRectOptions {
   y?: number
 
   /**
-   * The width of the region to process.
+   * The width of the region in the destination buffer.
    * @default Source width.
    */
   w?: number
 
   /**
-   * The height of the region to process.
+   * The height of the region in the destination buffer.
    * @default Source height.
    */
   h?: number
 }
 
-export interface PixelMaskRectOptions {
-
-  /**
-   * Mask width.
-   * @default value of `w`
-   */
-  mw?: number
-
+export interface MaskOffset {
   /**
    * X offset into the mask buffer.
    * @default 0
@@ -121,7 +114,15 @@ export interface PixelMaskRectOptions {
   my?: number
 }
 
-export interface PixelMaskInvertOptions {
+export interface MaskOffsetWidth {
+  /**
+   * Mask width.
+   * @default value of `w`
+   */
+  mw?: number
+}
+
+export interface InvertMask {
 
   /**
    * If true the inverse of the mask will be applied
@@ -130,27 +131,22 @@ export interface PixelMaskInvertOptions {
   invertMask?: boolean
 }
 
-/**
- * Configuration for pixel manipulation operations.
- * Designed to be used by spreading a Rect object ({x, y, w, h}) directly.
- */
-export interface PixelOptions extends PixelRectOptions, PixelMaskRectOptions, PixelMaskInvertOptions {
+export interface Alpha {
   /**
    * Overall layer opacity 0-255.
    * @default 255
    */
   alpha?: number
-
-  /** An optional mask to restrict where pixels are written. */
-  mask?: AnyMask | null
-
-  /** The interpretation logic for the provided mask.
-   * @default {@link MaskType.ALPHA}
-   */
-  maskType?: MaskType
 }
 
-export interface PixelMutateOptions extends PixelRectOptions, PixelMaskRectOptions, PixelMaskInvertOptions {
+export interface ApplyMaskToPixelDataOptions extends PixelRect, Alpha, MaskOffsetWidth, MaskOffset, InvertMask {
+}
+
+export interface MergeAlphaMasksOptions extends PixelRect, Alpha, MaskOffset, InvertMask {
+
+}
+
+export interface PixelMutateOptions extends PixelRect, MaskOffset, MaskOffsetWidth, InvertMask {
   /** An optional mask to restrict where pixels are mutated. */
   mask?: BinaryMask | null
 }
@@ -158,7 +154,8 @@ export interface PixelMutateOptions extends PixelRectOptions, PixelMaskRectOptio
 /**
  * Configuration for blitting (copying/blending) one image into another.
  */
-export interface PixelBlendOptions extends PixelOptions {
+
+export interface BasePixelBlendOptions {
   /**
    * The source rectangle x-coordinate
    * @default 0
@@ -173,23 +170,31 @@ export interface PixelBlendOptions extends PixelOptions {
 
   /**
    * The blending algorithm to use for blending pixels.
-   * @default {@link sourceOverFast}
+   * @default {@link sourceOverPerfect}
    */
   blendFn?: BlendColor32
+}
+
+export interface PixelBlendOptions extends PixelRect, Alpha, BasePixelBlendOptions {
+
+}
+
+export interface PixelBlendMaskOptions extends PixelRect, Alpha, MaskOffsetWidth, MaskOffset, InvertMask, BasePixelBlendOptions {
 }
 
 /**
  * Configuration for operations that require color blending.
  */
-export interface ColorBlendOptions extends PixelOptions {
+export interface ColorBlendOptions extends PixelRect, Alpha {
   /**
    * The blending algorithm to use for blending pixels.
-   * @default {@link sourceOverFast}
+   * @default {@link sourceOverPerfect}
    */
   blendFn?: BlendColor32
 }
 
-export type ApplyMaskOptions = Omit<PixelOptions, 'mask'>
+export interface ColorBlendMaskOptions extends ColorBlendOptions, MaskOffset, MaskOffsetWidth, InvertMask {
+}
 
 export type SelectionRect = Rect & ({
   mask: Uint8Array,
@@ -199,10 +204,7 @@ export type SelectionRect = Rect & ({
   maskType?: null,
 })
 
-export type Point = {
-  x: number,
-  y: number,
-}
+export type HistoryMutator<T extends {}, D extends {}> = (writer: PixelWriter<any>, deps?: Partial<D>) => T
 
 export interface IPixelData {
   readonly data32: Uint32Array

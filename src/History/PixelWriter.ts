@@ -1,4 +1,4 @@
-import type { PixelData } from '../PixelData/PixelData'
+import type { IPixelData } from '../_types'
 import { type HistoryAction, HistoryManager } from './HistoryManager'
 import { PixelAccumulator } from './PixelAccumulator'
 import { PixelEngineConfig } from './PixelEngineConfig'
@@ -32,13 +32,13 @@ export interface PixelWriterOptions {
  * })
  */
 export class PixelWriter<M> {
-  public target: PixelData
+  public target: IPixelData
   public historyManager: HistoryManager
   public accumulator: PixelAccumulator
   protected config: PixelEngineConfig
   readonly mutator: M
 
-  constructor(target: PixelData, mutatorFactory: (writer: PixelWriter<any>) => M, {
+  constructor(target: IPixelData, mutatorFactory: (writer: PixelWriter<any>) => M, {
     tileSize = 256,
     maxHistorySteps = 50,
     historyManager = new HistoryManager(maxHistorySteps),

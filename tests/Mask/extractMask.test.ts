@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { extractMask } from '../../src'
+import { extractMask } from '@/index'
 
 describe('extractMask', () => {
   // 4x4 Mask filled with values 0-15

@@ -1,11 +1,11 @@
 import type { Base64EncodedUInt8Array, ImageDataLike, SerializedImageData } from '../_types'
 
 export function base64EncodeArrayBuffer(buffer: ArrayBufferLike): Base64EncodedUInt8Array {
-  const uint8 = new Uint8Array(buffer);
-  const decoder = new TextDecoder('latin1');
-  const binary = decoder.decode(uint8);
+  const uint8 = new Uint8Array(buffer)
+  const decoder = new TextDecoder('latin1')
+  const binary = decoder.decode(uint8)
 
-  return btoa(binary) as Base64EncodedUInt8Array;
+  return btoa(binary) as Base64EncodedUInt8Array
 }
 
 export function base64DecodeArrayBuffer(encoded: Base64EncodedUInt8Array): Uint8ClampedArray<ArrayBuffer> {

@@ -1,10 +1,24 @@
-import type { BlendColor32, Color32, Rect } from '../../_types'
-import { applyCircleBrushToPixelData, getCircleBrushBounds } from '../../PixelData/applyCircleBrushToPixelData'
+import type { BlendColor32, Color32, HistoryMutator, Rect } from '../../_types'
+import { applyCircleBrushToPixelData } from '../../PixelData/applyCircleBrushToPixelData'
+import { getCircleBrushOrPencilBounds } from '../../Rect/getCircleBrushOrPencilBounds'
 import { PixelWriter } from '../PixelWriter'
 
-const boundsOut: Rect = { x: 0, y: 0, w: 0, h: 0 }
+const defaults = {
+  applyCircleBrushToPixelData,
+  getCircleBrushOrPencilBounds,
+}
 
-export function mutatorApplyCircleBrush(writer: PixelWriter<any>) {
+type Deps = Partial<typeof defaults>
+
+export const mutatorApplyCircleBrush = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
+  const {
+    applyCircleBrushToPixelData = defaults.applyCircleBrushToPixelData,
+    getCircleBrushOrPencilBounds = defaults.getCircleBrushOrPencilBounds,
+
+  } = deps
+
+  const boundsOut: Rect = { x: 0, y: 0, w: 0, h: 0 }
+
   return {
     applyCircleBrush(
       color: Color32,
@@ -12,11 +26,11 @@ export function mutatorApplyCircleBrush(writer: PixelWriter<any>) {
       centerY: number,
       brushSize: number,
       alpha = 255,
-      fallOff?: (dist: number) => number,
+      fallOff: (dist: number) => number,
       blendFn?: BlendColor32,
     ) {
 
-      const circleBounds = getCircleBrushBounds(
+      const bounds = getCircleBrushOrPencilBounds(
         centerX,
         centerY,
         brushSize,
@@ -25,7 +39,7 @@ export function mutatorApplyCircleBrush(writer: PixelWriter<any>) {
         boundsOut,
       )
 
-      const { x, y, w, h } = circleBounds
+      const { x, y, w, h } = bounds
 
       writer.accumulator.storeRegionBeforeState(x, y, w, h)
 
@@ -38,8 +52,8 @@ export function mutatorApplyCircleBrush(writer: PixelWriter<any>) {
         alpha,
         fallOff,
         blendFn,
-        circleBounds,
+        bounds,
       )
     },
   }
-}
+}) satisfies HistoryMutator<any, Deps>

@@ -7,7 +7,7 @@ import {
   deserializeRawImageData,
   serializeImageData,
   serializeNullableImageData,
-} from '../../src'
+} from '@/index'
 
 describe('ImageData Serialization Utilities', () => {
 

@@ -39,7 +39,7 @@ export function indexedImageToAverageColor(
       continue
     }
 
-    const color = palette[id]! >>> 0;
+    const color = palette[id]! >>> 0
 
     const r = color & 0xFF
     const g = (color >> 8) & 0xFF

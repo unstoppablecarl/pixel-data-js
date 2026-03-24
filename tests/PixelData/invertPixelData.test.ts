@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { invertPixelData, type BinaryMask } from '../../src'
+import { invertPixelData, type BinaryMask } from '@/index'
 import { makeTestPixelData, pack } from '../_helpers'
 
 describe('PixelData Inversion', () => {

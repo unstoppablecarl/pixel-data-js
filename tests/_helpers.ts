@@ -1,5 +1,5 @@
 import { expect } from 'vitest'
-import type { AlphaMask, BinaryMask, Color32, ImageDataLike } from '../src'
+import type { AlphaMask, BinaryMask, Color32, ImageDataLike, RGBA } from '../src'
 import { PixelData } from '../src'
 
 /**
@@ -28,15 +28,26 @@ export const createTestImageData = (
  * Validates that a specific pixel in ImageData matches expected coordinates.
  */
 export const expectPixelToMatch = (
-  img: ImageDataLike,
+  img: ImageDataLike | PixelData,
   x: number,
   y: number,
   expectedX: number,
   expectedY: number,
-  step: number = 10,
+  overrideStep = 10,
 ) => {
   const i = (y * img.width + x) * 4
-  const d = img.data
+
+  let step: number
+  let d: Uint8ClampedArray
+  if ('imageData' in img) {
+    d = img.imageData.data
+    step = img.width
+  } else {
+    d = img.data
+    step = img.width
+  }
+
+  step = overrideStep ?? step
 
   if (d[i] === undefined) {
     throw new Error(
@@ -179,4 +190,86 @@ export function makeComplexBinaryMask(w: number, h: number): BinaryMask {
   }
 
   return data as BinaryMask
+}
+
+/**
+ * Compares two Uint32 pixel buffers and returns an array of mismatches
+ * with their 2D coordinates and hex values.
+ */
+export function comparePixelBuffers(
+  expected: Uint32Array,
+  actual: Uint32Array,
+  width: number,
+) {
+  const mismatches: {
+    x: number
+    y: number
+    actual: string
+    expected: string
+  }[] = []
+  expect(actual.length, `Buffer length mismatch: actual ${actual.length}, expected ${expected.length}`).toBe(expected.length)
+
+  for (let i = 0; i < actual.length; i++) {
+    if (actual[i] !== expected[i]) {
+      const x = i % width
+      const y = Math.floor(i / width)
+
+      mismatches.push({
+        x,
+        y,
+        actual: toRGBAString(unpack(actual[i] as Color32)),
+        expected: toRGBAString(unpack(expected[i] as Color32)),
+      })
+    }
+  }
+
+  return mismatches
+}
+
+const toRGBAString = ({ r, g, b, a }: RGBA) => `rgba(${r}, ${g}, ${b}, ${a})`
+
+export const expectPixelToMatchColor = (
+  target: PixelData,
+  x: number,
+  y: number,
+  color: Color32,
+) => {
+
+  const value = getPixelColorFromUInt32Array(target.data32, x, y, target.width)
+
+  expect(unpack(color)).toEqual(unpack(value))
+}
+
+export const getPixelColorFromUInt32Array = (
+  target: Uint32Array,
+  x: number,
+  y: number,
+  width: number,
+): Color32 => {
+  const i = (y * width + x)
+  const value = target[i]
+  if (value === undefined) {
+    throw new Error(
+      `Out of Bounds: Accessing index ${i} (x:${x}, y:${y}) in buffer of length ${target.length}.
+       Expected Width: ${width}`,
+    )
+  }
+  return value as Color32
+}
+
+export function forEachPixel(
+  target: PixelData,
+  callback: (x: number, y: number, color: Color32) => void,
+): void {
+
+  let index = 0
+  const height = target.height
+  const width1 = target.width
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width1; x++) {
+      callback(x, y, target.data32[y * width1 + x] as Color32)
+      index++
+    }
+  }
 }

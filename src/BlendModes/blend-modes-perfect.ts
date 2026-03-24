@@ -9,12 +9,13 @@ export const sourceOverPerfect: BlendColor32 = (src, dst) => {
   if (sa === 255) return src
   if (sa === 0) return dst
 
-  const invA = 255 - sa
+  const da = (dst >>> 24) & 0xFF
+  if (da === 0) return src
 
   const sr = src & 0xFF, sg = (src >>> 8) & 0xFF, sb = (src >>> 16) & 0xFF
   const dr = dst & 0xFF, dg = (dst >>> 8) & 0xFF, db = (dst >>> 16) & 0xFF
-  const da = (dst >>> 24) & 0xFF
 
+  const invA = 255 - sa
   // Exact division by 255 using bit-shifts
   // Formula: (v + 1 + (v >> 8)) >> 8
   const tR = (sr * sa + dr * invA)
@@ -774,6 +775,6 @@ export const BASE_PERFECT_BLEND_MODE_FUNCTIONS: Record<number, BlendColor32> = {
   [BaseBlendMode.divide]: dividePerfect,
 }
 
-export function makePerfectBlendModeRegistry() {
-  return makeBlendModeRegistry(BaseBlendMode, BASE_PERFECT_BLEND_MODE_FUNCTIONS)
+export function makePerfectBlendModeRegistry(name = 'perfect') {
+  return makeBlendModeRegistry(BaseBlendMode, BASE_PERFECT_BLEND_MODE_FUNCTIONS, name)
 }

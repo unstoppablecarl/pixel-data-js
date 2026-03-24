@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { MaskType, type Rect, type SelectionRect, trimRectBounds } from '../../src'
+import { MaskType, type Rect, type SelectionRect, trimRectBounds } from '@/index'
 
 describe('trimRectBounds: Edge Case Analysis', () => {
   it('preserves identity when target and bounds are identical', () => {

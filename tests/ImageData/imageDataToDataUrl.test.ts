@@ -1,6 +1,6 @@
 import { createCanvas } from '@napi-rs/canvas'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { imageDataToDataUrl } from '../../src'
+import { imageDataToDataUrl } from '@/index'
 
 describe('imageDataToDataUrl', () => {
   beforeEach(() => {

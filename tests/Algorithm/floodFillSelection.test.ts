@@ -1,6 +1,6 @@
 import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
-import { floodFillSelection, PixelData } from '../../src'
+import { floodFillSelection, PixelData } from '@/index'
 import { makeTestPixelData, pack } from '../_helpers'
 
 describe('floodFillSelection: Scrutiny Suite', () => {

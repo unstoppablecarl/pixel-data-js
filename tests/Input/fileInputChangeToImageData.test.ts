@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { fileInputChangeToImageData } from '../../src'
-import * as fileModule from '../../src'
+import { fileInputChangeToImageData } from '@/index'
+import * as fileModule from '@/index'
 
 describe('fileInputChangeToImageData', () => {
   it('should return null if no file is selected', async () => {

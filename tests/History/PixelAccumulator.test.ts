@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { PixelAccumulator, PixelData, PixelEngineConfig, type PixelPatchTiles, PixelTile } from '../../src'
+import { PixelAccumulator, PixelData, PixelEngineConfig, type PixelPatchTiles, PixelTile } from '@/index'
 
 describe('PixelAccumulator', () => {
   let accumulator: PixelAccumulator

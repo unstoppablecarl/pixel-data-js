@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+    },
     "target": "esnext",
     "module": "esnext",
     "allowJs": true,
@@ -14,6 +18,8 @@
   "include": [
     "src/**/*",
     "tests/**/*",
+    "benchmark/**/*",
+    "_scripts/**/*",
     "rollup.config.mjs"
   ]
 }

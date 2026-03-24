@@ -1,6 +1,6 @@
-import type { PixelData } from './PixelData'
-import { type Rect } from '../_types'
+import { type IPixelData, type Rect } from '../_types'
 import { makeClippedBlit, resolveBlitClipping } from '../Internal/resolveClipping'
+import type { PixelData } from './PixelData'
 
 const SCRATCH_BLIT = makeClippedBlit()
 
@@ -11,12 +11,12 @@ const SCRATCH_BLIT = makeClippedBlit()
  * into the target {@link PixelData} buffer.
  */
 export function writePixelDataBuffer(
-  target: PixelData,
+  target: IPixelData,
   data: Uint32Array,
   rect: Rect,
 ): void
 export function writePixelDataBuffer(
-  target: PixelData,
+  target: IPixelData,
   data: Uint32Array,
   x: number,
   y: number,
@@ -24,7 +24,7 @@ export function writePixelDataBuffer(
   h: number,
 ): void
 export function writePixelDataBuffer(
-  target: PixelData,
+  target: IPixelData,
   data: Uint32Array,
   _x: Rect | number,
   _y?: number,
@@ -67,7 +67,7 @@ export function writePixelDataBuffer(
     sx: srcX,
     sy: srcY,
     w: copyW,
-    h: copyH
+    h: copyH,
   } = clip
 
   for (let row = 0; row < copyH; row++) {

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import * as imageModule from '../../src/ImageData/imageDataToImgBlob'
-import { writeImageDataToClipboard } from '../../src'
+import { writeImageDataToClipboard } from '@/index'
 import * as clipboardModule from '../../src/Clipboard/writeImgBlobToClipboard'
 import { useOffscreenCanvasMock } from '../_helpers/OffscreenCanvasMock'
 

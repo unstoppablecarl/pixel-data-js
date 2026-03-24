@@ -1,7 +1,7 @@
 import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
-import { pixelDataToAlphaMask } from '../../src'
-import { PixelData } from '../../src'
+import { pixelDataToAlphaMask } from '@/index'
+import { PixelData } from '@/index'
 
 describe('pixelDataToAlphaMask (Channel Extraction)', () => {
   const makePixels = (

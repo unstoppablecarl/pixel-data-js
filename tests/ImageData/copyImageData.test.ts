@@ -1,6 +1,6 @@
 import { ImageData } from '@napi-rs/canvas'
 import { describe, expect, it } from 'vitest'
-import { copyImageData, copyImageDataLike, type ImageDataLike } from '../../src'
+import { copyImageData, copyImageDataLike, type ImageDataLike } from '@/index'
 
 describe('Image Data Utilities', () => {
   // Helper to create a small mock ImageData-like object

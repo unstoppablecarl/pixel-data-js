@@ -1,4 +1,4 @@
-import type { PixelData } from '../PixelData/PixelData'
+import type { IPixelData } from '../_types'
 import type { PixelEngineConfig } from './PixelEngineConfig'
 import { type PixelPatchTiles, PixelTile } from './PixelPatchTiles'
 
@@ -8,7 +8,7 @@ export class PixelAccumulator {
   public pool: PixelTile[]
 
   constructor(
-    public target: PixelData,
+    public target: IPixelData,
     readonly config: PixelEngineConfig,
   ) {
     this.lookup = []

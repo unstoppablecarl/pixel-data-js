@@ -1,42 +1,57 @@
 import {
-  type AnyMask,
+  type AlphaMask,
   type BlendColor32,
   type Color32,
   type ColorBlendOptions,
-  MaskType,
+  type HistoryMutator,
   type Rect,
 } from '../../_types'
+import { forEachLinePoint } from '../../Algorithm/forEachLinePoint'
 import { sourceOverPerfect } from '../../BlendModes/blend-modes-perfect'
-import { forEachLinePoint } from '../../Internal/forEachLinePoint'
-import { getRectBrushBounds } from '../../PixelData/applyRectBrushToPixelData'
-import { blendColorPixelData } from '../../PixelData/blendColorPixelData'
+import { blendColorPixelDataAlphaMask } from '../../PixelData/blendColorPixelDataAlphaMask'
+import { getRectBrushOrPencilBounds } from '../../Rect/getRectBrushOrPencilBounds'
+import { getRectBrushOrPencilStrokeBounds } from '../../Rect/getRectBrushOrPencilStrokeBounds'
 import { PixelWriter } from '../PixelWriter'
 
-const strokeBoundsOut: Rect = {
-  x: 0,
-  y: 0,
-  w: 0,
-  h: 0,
+const defaults = {
+  forEachLinePoint,
+  blendColorPixelDataAlphaMask,
+  getRectBrushOrPencilBounds,
+  getRectBrushOrPencilStrokeBounds,
 }
 
-const rectBrushBounds: Rect = {
-  x: 0,
-  y: 0,
-  w: 0,
-  h: 0,
-}
+type Deps = Partial<typeof defaults>
 
-const blendColorPixelOptions: ColorBlendOptions = {
-  maskType: MaskType.ALPHA,
-  alpha: 255,
-  blendFn: sourceOverPerfect,
-  x: 0,
-  y: 0,
-  w: 0,
-  h: 0,
-}
+export const mutatorApplyRectBrushStroke = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
+  const {
+    forEachLinePoint = defaults.forEachLinePoint,
+    blendColorPixelDataAlphaMask = defaults.blendColorPixelDataAlphaMask,
+    getRectBrushOrPencilBounds = defaults.getRectBrushOrPencilBounds,
+    getRectBrushOrPencilStrokeBounds = defaults.getRectBrushOrPencilStrokeBounds,
+  } = deps
 
-export function mutatorApplyRectBrushStroke(writer: PixelWriter<any>) {
+  const strokeBoundsOut: Rect = {
+    x: 0,
+    y: 0,
+    w: 0,
+    h: 0,
+  }
+
+  const rectBrushBounds: Rect = {
+    x: 0,
+    y: 0,
+    w: 0,
+    h: 0,
+  }
+
+  const blendColorPixelOptions: ColorBlendOptions = {
+    alpha: 255,
+    blendFn: sourceOverPerfect,
+    x: 0,
+    y: 0,
+    w: 0,
+    h: 0,
+  }
 
   return {
     applyRectBrushStroke(
@@ -48,7 +63,7 @@ export function mutatorApplyRectBrushStroke(writer: PixelWriter<any>) {
       brushWidth: number,
       brushHeight: number,
       alpha = 255,
-      fallOff?: (dist: number) => number,
+      fallOff: (dist: number) => number,
       blendFn: BlendColor32 = sourceOverPerfect,
     ) {
       const {
@@ -56,7 +71,7 @@ export function mutatorApplyRectBrushStroke(writer: PixelWriter<any>) {
         y: by,
         w: bw,
         h: bh,
-      } = getRectBrushStrokeBounds(
+      } = getRectBrushOrPencilStrokeBounds(
         x0,
         y0,
         x1,
@@ -68,13 +83,16 @@ export function mutatorApplyRectBrushStroke(writer: PixelWriter<any>) {
 
       if (bw <= 0 || bh <= 0) return
 
-      const useAlpha = fallOff !== undefined
-      const mask = new Uint8Array(bw * bh) as AnyMask
+      const mask = new Uint8Array(bw * bh) as AlphaMask
 
       const halfW = brushWidth / 2
       const halfH = brushHeight / 2
       const invHalfW = 1 / halfW
-      const centerOffset = (brushWidth % 2 === 0) ? 0.5 : 0
+      const invHalfH = 1 / halfH
+
+      // Restore the pixel-art centering logic
+      const centerOffsetX = (brushWidth % 2 === 0) ? 0.5 : 0
+      const centerOffsetY = (brushHeight % 2 === 0) ? 0.5 : 0
 
       const targetWidth = writer.target.width
       const targetHeight = writer.target.height
@@ -85,7 +103,7 @@ export function mutatorApplyRectBrushStroke(writer: PixelWriter<any>) {
           y: rby,
           w: rbw,
           h: rbh,
-        } = getRectBrushBounds(
+        } = getRectBrushOrPencilBounds(
           px,
           py,
           brushWidth,
@@ -107,36 +125,32 @@ export function mutatorApplyRectBrushStroke(writer: PixelWriter<any>) {
         const endX = Math.min(bx + bw, rbx + rbw)
         const endY = Math.min(by + bh, rby + rbh)
 
+        // Snapped origin for this specific point on the line
         const fPx = Math.floor(px)
         const fPy = Math.floor(py)
 
         for (let my = startY; my < endY; my++) {
-          const dy = Math.abs((my - fPy) + centerOffset)
+          const dy = Math.abs((my - fPy) + centerOffsetY) * invHalfH
           const maskRowOffset = (my - by) * bw
 
           for (let mx = startX; mx < endX; mx++) {
-            const dx = Math.abs((mx - fPx) + centerOffset)
+            const dx = Math.abs((mx - fPx) + centerOffsetX) * invHalfW
             const maskIdx = maskRowOffset + (mx - bx)
 
-            if (dx <= halfW && dy <= halfH) {
-              if (useAlpha) {
-                // Normalize distance based on the larger dimension for falloff
-                const dist = Math.max(dx * invHalfW, dy * (1 / halfH))
-                const intensity = (fallOff!(dist) * 255) | 0
+            const dist = dx > dy ? dx : dy
+            const strength = fallOff!(dist)
 
-                if (intensity > mask[maskIdx]) {
-                  mask[maskIdx] = intensity
-                }
-              } else {
-                mask[maskIdx] = 1
+            if (strength > 0) {
+              const intensity = (strength * 255) | 0
+
+              if (intensity > mask[maskIdx]) {
+                mask[maskIdx] = intensity
               }
             }
           }
         }
       })
 
-      blendColorPixelOptions.mask = mask
-      blendColorPixelOptions.maskType = useAlpha ? MaskType.ALPHA : MaskType.BINARY
       blendColorPixelOptions.blendFn = blendFn
       blendColorPixelOptions.alpha = alpha
       blendColorPixelOptions.x = bx
@@ -144,36 +158,12 @@ export function mutatorApplyRectBrushStroke(writer: PixelWriter<any>) {
       blendColorPixelOptions.w = bw
       blendColorPixelOptions.h = bh
 
-      blendColorPixelData(
+      blendColorPixelDataAlphaMask(
         writer.target,
         color,
+        mask,
         blendColorPixelOptions,
       )
     },
   }
-}
-
-export function getRectBrushStrokeBounds(
-  x0: number,
-  y0: number,
-  x1: number,
-  y1: number,
-  brushWidth: number,
-  brushHeight: number,
-  result: Rect,
-): Rect {
-  const halfW = brushWidth / 2
-  const halfH = brushHeight / 2
-
-  const minX = Math.min(x0, x1) - halfW
-  const minY = Math.min(y0, y1) - halfH
-  const maxX = Math.max(x0, x1) + halfW
-  const maxY = Math.max(y0, y1) + halfH
-
-  result.x = Math.floor(minX)
-  result.y = Math.floor(minY)
-  result.w = Math.ceil(maxX - minX)
-  result.h = Math.ceil(maxY - minY)
-
-  return result
-}
+}) satisfies HistoryMutator<any, Deps>

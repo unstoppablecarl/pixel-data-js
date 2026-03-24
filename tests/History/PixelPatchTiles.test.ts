@@ -1,6 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { PixelTile, applyPatchTiles } from '../../src/History/PixelPatchTiles'
-import { PixelData } from '../../src/PixelData/PixelData'
+import { applyPatchTiles, PixelData, PixelTile } from '@/index'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 // Mock ImageData if not available
 if (typeof ImageData === 'undefined') {
@@ -8,6 +7,7 @@ if (typeof ImageData === 'undefined') {
     width: number
     height: number
     data: Uint8ClampedArray
+
     constructor(width: number, height: number) {
       this.width = width
       this.height = height
@@ -81,7 +81,7 @@ describe('PixelPatchTiles', () => {
       const tile = new PixelTile(0, 2, 2, TILE_SIZE * TILE_SIZE)
 
       // Fill the tile with a pattern to check correctness
-      for(let i = 0; i < tile.data32.length; i++) {
+      for (let i = 0; i < tile.data32.length; i++) {
         tile.data32[i] = i + 1
       }
 

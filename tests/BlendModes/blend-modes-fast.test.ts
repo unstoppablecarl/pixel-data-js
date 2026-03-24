@@ -5,10 +5,10 @@ import {
   type Color32,
   makeBlendModeRegistry,
   makeFastBlendModeRegistry,
-} from '../../src'
+} from '@/index'
 import { unpack } from '../_helpers'
 
-const FAST_BLEND_MODES = makeBlendModeRegistry(BaseBlendMode, BASE_FAST_BLEND_MODE_FUNCTIONS)
+const FAST_BLEND_MODES = makeBlendModeRegistry(BaseBlendMode, BASE_FAST_BLEND_MODE_FUNCTIONS, 'test')
 const FAST_BLEND_MODE_BY_NAME = FAST_BLEND_MODES.nameToBlend
 
 describe('Color Fast Blending Functions', () => {
@@ -1526,7 +1526,7 @@ describe('Color Fast Blending Functions', () => {
 
   it('makeFastBlendModeRegistry', () => {
     const result = makeFastBlendModeRegistry()
-    let expected = makeBlendModeRegistry(BaseBlendMode, BASE_FAST_BLEND_MODE_FUNCTIONS)
+    let expected = makeBlendModeRegistry(BaseBlendMode, BASE_FAST_BLEND_MODE_FUNCTIONS, 'fast')
 
     Object.keys(result).forEach((key) => {
       if (key === 'add') return

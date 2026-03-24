@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { resizeImageData } from '../../src'
+import { resizeImageData } from '@/index'
 
 describe('resizeImageData', () => {
   const RED = [255, 0, 0, 255]

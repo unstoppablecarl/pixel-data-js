@@ -1,8 +1,15 @@
-import type { PixelMutateOptions } from '../../_types'
+import type { HistoryMutator, PixelMutateOptions } from '../../_types'
 import { invertPixelData } from '../../PixelData/invertPixelData'
 import { PixelWriter } from '../PixelWriter'
 
-export function mutatorInvert(writer: PixelWriter<any>) {
+const defaults = { invertPixelData }
+type Deps = Partial<typeof defaults>
+
+export const mutatorInvert = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
+  const {
+    invertPixelData = defaults.invertPixelData,
+  } = deps
+
   return {
     invert(opts: PixelMutateOptions = {}) {
       const {
@@ -15,4 +22,4 @@ export function mutatorInvert(writer: PixelWriter<any>) {
       invertPixelData(writer.target, opts)
     },
   }
-}
+}) satisfies HistoryMutator<any, Deps>

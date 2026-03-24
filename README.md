@@ -47,7 +47,7 @@ The [PixelData](src/PixelData/PixelData.ts) class wraps an `ImageData` object fo
 
 ### Color Integers
 
-You can define colors using the `AABBGGRR` (Little-Endian) to make a `Color32` object.
+You can define colors using the `0xAABBGGRR` (Little-Endian) to make a `Color32` object.
 
 
 ## Building

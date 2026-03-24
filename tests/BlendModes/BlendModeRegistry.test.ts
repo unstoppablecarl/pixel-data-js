@@ -5,7 +5,7 @@ import {
   type BlendColor32,
   makeBlendModeRegistry,
   overwriteBase,
-} from '../../src'
+} from '@/index'
 
 describe('BlendModeRegistry', () => {
   describe('full list with custom', () => {
@@ -21,7 +21,7 @@ describe('BlendModeRegistry', () => {
       [BlendMode.custom]: customBlendFn,
     }
 
-    const registry = makeBlendModeRegistry(BlendMode, Items)
+    const registry = makeBlendModeRegistry(BlendMode, Items, 'test')
 
     type ExpectedIndex = typeof BlendMode[keyof typeof BlendMode];
     expectTypeOf(registry.indexType).toEqualTypeOf<ExpectedIndex>()
@@ -52,7 +52,7 @@ describe('BlendModeRegistry', () => {
       [BlendMode.custom]: blendFn,
     }
 
-    const registry = makeBlendModeRegistry(BlendMode, Items)
+    const registry = makeBlendModeRegistry(BlendMode, Items, 'test')
 
     type ExpectedIndex = typeof BlendMode[keyof typeof BlendMode];
     expectTypeOf(registry.indexType).toEqualTypeOf<ExpectedIndex>()
@@ -87,7 +87,7 @@ describe('BlendModeRegistry', () => {
         [NaN as any]: otherFn
       }
 
-      expect(() => makeBlendModeRegistry(BlendModes, Entries))
+      expect(() => makeBlendModeRegistry(BlendModes, Entries, 'test'))
         .toThrowError('Index "NaN" is not a number. Attempting to add name: "invalid", index: "NaN"')
     })
 
@@ -101,7 +101,7 @@ describe('BlendModeRegistry', () => {
         0: mockFn
       }
 
-      expect(() => makeBlendModeRegistry(BlendModes, Entries))
+      expect(() => makeBlendModeRegistry(BlendModes, Entries, 'test'))
         .toThrowError('Blend Mode index: 0 is already used. Attempting to add name: "collision", index: "0"')
     })
 
@@ -119,7 +119,7 @@ describe('BlendModeRegistry', () => {
 
       // This will currently pass 'undefined' to add(), which you might want
       // to add a specific check for if you want to be extra safe.
-      const registry = makeBlendModeRegistry(BlendModes, Entries)
+      const registry = makeBlendModeRegistry(BlendModes, Entries, 'test')
       expect(registry.indexToBlend[5]).toBeUndefined()
     })
   })

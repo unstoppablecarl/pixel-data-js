@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { Color32, Rect } from '../../src'
-import { fillPixelData } from '../../src'
+import type { Color32, Rect } from '@/index'
+import { fillPixelData } from '@/index'
 import { getPixel, makeTestPixelData, pack } from '../_helpers'
 
 const RED = pack(255, 0, 0, 255)

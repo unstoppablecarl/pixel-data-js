@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { AlphaMask, BinaryMask } from '../../src'
-import { copyMask } from '../../src/Mask/copyMask'
+import type { AlphaMask, BinaryMask } from '@/index'
+import { copyMask } from '@/index'
 
 describe('copyMask', () => {
   it('creates a new Uint8Array with the same content', () => {
