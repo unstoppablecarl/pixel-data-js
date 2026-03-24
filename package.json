@@ -51,7 +51,7 @@
     "test": "vitest --coverage --project unit",
     "test:build": "pnpm build && vitest run --project dist",
     "test:mutation": "stryker run",
-    "docs": "npx typedoc --entryPointStrategy Expand src",
+    "docs": "npx typedoc",
     "typecheck": "tsc --noEmit",
     "check-exports": "tsx _scripts/check-exports.ts",
     "sort": "tsx _scripts/apply-sorting.ts",
