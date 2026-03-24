@@ -15,7 +15,7 @@ export function mockAccumulatorMutator<T extends {}, D extends {}>(mutatorFuncti
   const writer = {
     target,
     accumulator,
-  } as PixelWriter<any>
+  } as unknown as PixelWriter<any>
 
   const mutator = mutatorFunction(writer, deps)
 

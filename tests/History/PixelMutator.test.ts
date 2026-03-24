@@ -10,7 +10,7 @@ describe('PixelMutator', () => {
     const writer = {
       target,
       accumulator,
-    } as PixelWriter<any>
+    } as unknown as PixelWriter<any>
     const mutator = makeFullPixelMutator(writer)
 
     const expected = [
