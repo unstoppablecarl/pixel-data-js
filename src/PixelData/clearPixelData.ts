@@ -1,4 +1,4 @@
-import type { Color32, IPixelData, Rect } from '../_types'
+import type { BinaryMaskRect, Color32, IPixelData } from '../_types'
 import { fillPixelData } from './fillPixelData'
 
 /**
@@ -7,7 +7,7 @@ import { fillPixelData } from './fillPixelData'
  */
 export function clearPixelData(
   dst: IPixelData,
-  rect?: Partial<Rect>,
+  rect?: Partial<BinaryMaskRect>,
 ): void {
   fillPixelData(dst, 0 as Color32, rect)
 }
