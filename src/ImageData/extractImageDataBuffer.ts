@@ -10,8 +10,8 @@ const SCRATCH_BLIT = makeClippedBlit()
  * This is a "read-only" operation that returns a copy of the pixel data.
  *
  * @param imageData - The source image data to read from.
- * @param rect - A {@link Rect} object defining the region to extract.
- * @returns A {@link Uint8ClampedArray} containing the RGBA pixel data of the region.
+ * @param rect - A rect defining the region to extract.
+ * @returns A buffer containing the RGBA pixel data of the region.
  */
 export function extractImageDataBuffer(
   imageData: ImageDataLike,
@@ -23,7 +23,7 @@ export function extractImageDataBuffer(
  * @param y - The starting vertical coordinate.
  * @param w - The width of the region to extract.
  * @param h - The height of the region to extract.
- * @returns A {@link Uint8ClampedArray} containing the RGBA pixel data of the region.
+ * @returns A buffer containing the RGBA pixel data of the region.
  */
 export function extractImageDataBuffer(
   imageData: ImageDataLike,

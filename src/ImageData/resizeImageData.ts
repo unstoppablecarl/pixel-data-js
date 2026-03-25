@@ -7,7 +7,7 @@ import type { ImageDataLike } from '../_types'
  * instead, it crops or pads the image based on the new dimensions and
  * provides an offset for repositioning.
  *
- * @param current The source {@link ImageDataLike} to resize.
+ * @param target The target to resize.
  * @param newWidth The target width in pixels.
  * @param newHeight The target height in pixels.
  * @param offsetX The horizontal offset for placing the
@@ -32,7 +32,7 @@ import type { ImageDataLike } from '../_types'
  * ```
  */
 export function resizeImageData(
-  current: ImageDataLike,
+  target: ImageDataLike,
   newWidth: number,
   newHeight: number,
   offsetX = 0,
@@ -43,7 +43,7 @@ export function resizeImageData(
     width: oldW,
     height: oldH,
     data: oldData,
-  } = current
+  } = target
   const newData = result.data
 
   // Determine intersection of the old image (at offset) and new canvas bounds

@@ -1,7 +1,7 @@
 /**
  * Writes a {@link Blob} image to the system clipboard.
  *
- * @param blob - The image {@link Blob} (typically `image/png`) to copy.
+ * @param blob - The image blob (typically `image/png`) to copy.
  * @returns A promise that resolves when the clipboard has been updated.
  */
 export async function writeImgBlobToClipboard(blob: Blob): Promise<void> {

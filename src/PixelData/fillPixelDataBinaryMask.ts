@@ -5,11 +5,11 @@ import type { PixelData } from './PixelData'
 const SCRATCH_RECT = makeClippedRect()
 
 /**
- * Fills a region or the {@link PixelData} buffer with a solid color.
- * @param dst - The target {@link PixelData} to modify.
- * @param color - The {@link Color32} value to apply.
- * @param mask - The {@link BinaryMaskRect} defining the area to fill.
- * @param rect - A {@link Rect} defining the area to fill.
+ * Fills a region or the {@link IPixelData} buffer with a solid color.
+ * @param dst - The target to modify.
+ * @param color - The color to apply.
+ * @param mask - The mask defining the area to fill.
+ * @param rect - A rect defining the area to fill.
  */
 export function fillPixelDataBinaryMask(
   dst: IPixelData,
@@ -19,9 +19,9 @@ export function fillPixelDataBinaryMask(
 ): void
 
 /**
- * @param dst - The target {@link PixelData} to modify.
- * @param color - The {@link Color32} value to apply.
- * @param mask - The {@link Rect} defining the area to fill.
+ * @param dst - The target to modify.
+ * @param color - The color to apply.
+ * @param mask - The mask defining the area to fill.
  * @param x - Starting horizontal coordinate.
  * @param y - Starting vertical coordinate.
  * @param w - Width of the fill area.

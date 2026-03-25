@@ -1,15 +1,14 @@
 import type { Color32, IPixelData, Rect } from '../_types'
 import { makeClippedRect, resolveRectClipping } from '../Internal/resolveClipping'
-import type { PixelData } from './PixelData'
 
 const SCRATCH_RECT = makeClippedRect()
 
 /**
- * Fills a region or the {@link PixelData} buffer with a solid color.
+ * Fills a region or the {@link IPixelData} buffer with a solid color.
  *
- * @param dst - The target {@link PixelData} to modify.
- * @param color - The {@link Color32} value to apply.
- * @param rect - A {@link Rect} defining the area to fill. If omitted, the entire
+ * @param dst - The target to modify.
+ * @param color - The color to apply.
+ * @param rect - Defines the area to fill. If omitted, the entire
  * buffer is filled.
  */
 export function fillPixelData(
@@ -18,8 +17,8 @@ export function fillPixelData(
   rect?: Partial<Rect>,
 ): void
 /**
- * @param dst - The target {@link PixelData} to modify.
- * @param color - The {@link Color32} value to apply.
+ * @param dst - The target to modify.
+ * @param color - The color to apply.
  * @param x - Starting horizontal coordinate.
  * @param y - Starting vertical coordinate.
  * @param w - Width of the fill area.

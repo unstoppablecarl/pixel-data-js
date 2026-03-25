@@ -1,14 +1,13 @@
 import { type IPixelData, type Rect } from '../_types'
 import { makeClippedBlit, resolveBlitClipping } from '../Internal/resolveClipping'
-import type { PixelData } from './PixelData'
 
 const SCRATCH_BLIT = makeClippedBlit()
 
 /**
- * Copies a pixel buffer into a specific region of a {@link PixelData} object.
+ * Copies a pixel buffer into a specific region of a {@link IPixelData} object.
  *
  * This function performs a direct memory copy from a {@link Uint32Array}
- * into the target {@link PixelData} buffer.
+ * into the target buffer.
  */
 export function writePixelDataBuffer(
   target: IPixelData,

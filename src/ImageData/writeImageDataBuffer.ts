@@ -10,17 +10,17 @@ const SCRATCH_BLIT = makeClippedBlit()
  * into the target {@link ImageData} buffer. It supports both {@link Rect}
  * objects and discrete coordinates.
  *
- * @param imageData - The target {@link ImageData} to write into. Must match the rect width/height.
+ * @param target - The target to write into. Must match the rect width/height.
  * @param data - The source pixel data (RGBA).
- * @param rect - A {@link Rect} object defining the destination region.
+ * @param rect - A rect defining the destination region.
  */
 export function writeImageDataBuffer(
-  imageData: ImageData,
+  target: ImageData,
   data: Uint8ClampedArray,
   rect: Rect,
 ): void
 /**
- * @param imageData - The target {@link ImageData} to write into.
+ * @param target - The target to write into.
  * @param data - The source pixel data (RGBA). Must match the width/height.
  * @param x - The starting horizontal coordinate in the target.
  * @param y - The starting vertical coordinate in the target.
@@ -28,7 +28,7 @@ export function writeImageDataBuffer(
  * @param h - The height of the region to write.
  */
 export function writeImageDataBuffer(
-  imageData: ImageData,
+  target: ImageData,
   data: Uint8ClampedArray,
   x: number,
   y: number,
@@ -36,7 +36,7 @@ export function writeImageDataBuffer(
   h: number,
 ): void
 export function writeImageDataBuffer(
-  imageData: ImageData,
+  target: ImageData,
   data: Uint8ClampedArray,
   _x: Rect | number,
   _y?: number,
@@ -47,7 +47,7 @@ export function writeImageDataBuffer(
     ? _x
     : { x: _x, y: _y!, w: _w!, h: _h! }
 
-  const { width: dstW, height: dstH, data: dst } = imageData
+  const { width: dstW, height: dstH, data: dst } = target
 
   const clip = resolveBlitClipping(
     x,
