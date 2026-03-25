@@ -47,6 +47,14 @@ export type Rect = {
   h: number
 }
 
+export type BinaryMaskRect = {
+  x: number
+  y: number
+  w: number
+  h: number
+  mask: BinaryMask
+}
+
 /**
  * Defines how mask values should be interpreted during a draw operation.
  */

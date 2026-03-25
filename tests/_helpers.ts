@@ -1,6 +1,17 @@
 import { expect } from 'vitest'
-import type { AlphaMask, BinaryMask, Color32, ImageDataLike, RGBA } from '../src'
-import { PixelData } from '../src'
+import {
+  type AlphaMask,
+  type BinaryMask,
+  type Color32,
+  type ImageDataLike,
+  type IPixelData,
+  PixelData,
+  type RGBA,
+  unpackAlpha,
+  unpackBlue,
+  unpackGreen,
+  unpackRed,
+} from '../src'
 
 /**
  * Creates ImageData filled with unique colors based on coordinates.
@@ -272,4 +283,59 @@ export function forEachPixel(
       index++
     }
   }
+}
+
+function rgbColor(color: Color32) {
+  const a = unpackAlpha(color)
+  const r = unpackRed(color)
+  const g = unpackGreen(color)
+  const b = unpackBlue(color)
+
+  if (a === 0) {
+    return ' X'
+  } else {
+    return `\x1b[38;2;${r};${g};${b}m █\x1b[0m`
+  }
+}
+
+export function printPixelDataGrid(dst: IPixelData): void {
+  const w = dst.width
+  const h = dst.height
+  const data = dst.data32
+
+  for (let y = 0; y < h; y++) {
+    let rowString = ''
+
+    for (let x = 0; x < w; x++) {
+      const index = y * w + x
+      const pixel = data[index]
+      rowString += rgbColor(pixel as Color32)
+    }
+
+    console.log(rowString)
+  }
+}
+
+export function printPixelDataTable(dst: IPixelData): void {
+  const w = dst.width
+  const h = dst.height
+  const data = dst.data32
+  const grid = []
+
+  for (let y = 0; y < h; y++) {
+    const row = []
+
+    for (let x = 0; x < w; x++) {
+      const index = y * w + x
+      const pixel = data[index]
+      const hex = pixel.toString(16)
+      const padded = hex.padStart(8, '0')
+
+      row.push(padded)
+    }
+
+    grid.push(row)
+  }
+
+  console.table(grid)
 }

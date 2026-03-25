@@ -1,10 +1,11 @@
-import { describe, expect, it } from 'vitest'
-import type { Color32, Rect } from '@/index'
+import type { BinaryMask, Color32, Rect } from '@/index'
 import { fillPixelData } from '@/index'
-import { getPixel, makeTestPixelData, pack } from '../_helpers'
+import { describe, expect, it } from 'vitest'
+import { getPixel, makeTestPixelData, pack, printPixelDataGrid } from '../_helpers'
 
 const RED = pack(255, 0, 0, 255)
 const BLUE = pack(0, 0, 255, 255)
+const COLOR = pack(255, 255, 255, 255)
 
 describe('fillPixelData', () => {
   describe('Guard Conditions & Early Exits', () => {
@@ -221,5 +222,63 @@ describe('fillPixelData', () => {
     const pixelOutside = getPixel(dst, 11, 11)
 
     expect(pixelOutside).not.toBe(color)
+  })
+
+  it('handles masking alignment', () => {
+    const dst = makeTestPixelData(5, 5)
+    const mask = new Uint8Array([
+      1, 1, 1,
+      1, 0, 1,
+      1, 1, 0,
+    ]) as BinaryMask
+
+    fillPixelData(
+      dst,
+      COLOR,
+      1,
+      1,
+      3,
+      3,
+      mask,
+    )
+
+    printPixelDataGrid(dst)
+
+    const C = COLOR
+    expect(Array.from(dst.data32)).toEqual([
+      0, 0, 0, 0, 0,
+      0, C, C, C, 0,
+      0, C, 0, C, 0,
+      0, C, C, 0, 0,
+      0, 0, 0, 0, 0,
+    ])
+  })
+
+  it('handles masking negative alignment', () => {
+    const dst = makeTestPixelData(5, 5)
+    const mask = new Uint8Array([
+      1, 1, 1,
+      1, 0, 1,
+      1, 1, 0,
+    ]) as BinaryMask
+
+    fillPixelData(
+      dst,
+      COLOR,
+      -1,
+      -1,
+      3,
+      3,
+      mask,
+    )
+
+    const C = COLOR
+    expect(Array.from(dst.data32)).toEqual([
+      0, C, 0, 0, 0,
+      C, 0, 0, 0, 0,
+      0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0,
+    ])
   })
 })
