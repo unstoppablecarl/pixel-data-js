@@ -26,21 +26,21 @@ describe('pixelDataToAlphaMask (Channel Extraction)', () => {
     const pixels = makePixels(255, 0, 0, 255)
     const mask = pixelDataToAlphaMask(pixels)
 
-    expect(mask[0]).toBe(255)
+    expect(mask.data[0]).toBe(255)
   })
 
   it('extracts partial transparency correctly', () => {
     const pixels = makePixels(0, 255, 0, 128)
     const mask = pixelDataToAlphaMask(pixels)
 
-    expect(mask[0]).toBe(128)
+    expect(mask.data[0]).toBe(128)
   })
 
   it('extracts full transparency as 0', () => {
     const pixels = makePixels(255, 255, 255, 0)
     const mask = pixelDataToAlphaMask(pixels)
 
-    expect(mask[0]).toBe(0)
+    expect(mask.data[0]).toBe(0)
   })
 
   it('handles multiple pixels across the buffer', () => {
@@ -54,7 +54,7 @@ describe('pixelDataToAlphaMask (Channel Extraction)', () => {
 
     const mask = pixelDataToAlphaMask(pixels)
 
-    expect(mask[0]).toBe(255)
-    expect(mask[1]).toBe(0)
+    expect(mask.data[0]).toBe(255)
+    expect(mask.data[1]).toBe(0)
   })
 })

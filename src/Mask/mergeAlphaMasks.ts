@@ -5,9 +5,7 @@ import { type AlphaMask, type MergeAlphaMasksOptions } from '../_types'
  */
 export function mergeAlphaMasks(
   dst: AlphaMask,
-  dstWidth: number,
   src: AlphaMask,
-  srcWidth: number,
   opts: MergeAlphaMasksOptions,
 ): void {
   const {
@@ -20,18 +18,21 @@ export function mergeAlphaMasks(
     my = 0,
     invertMask = false,
   } = opts
-  const dstHeight = (dst.length / dstWidth) | 0
-  const srcHeight = (src.length / srcWidth) | 0
 
   if (width <= 0) return
   if (height <= 0) return
   if (globalAlpha === 0) return
 
+  const dstData = dst.data
+  const srcData = src.data
+  const srcWidth = src.w
+  const dstWidth = dst.w
+
   const startX = Math.max(0, -targetX, -mx)
   const startY = Math.max(0, -targetY, -my)
 
   const endX = Math.min(width, dstWidth - targetX, srcWidth - mx)
-  const endY = Math.min(height, dstHeight - targetY, srcHeight - my)
+  const endY = Math.min(height, dst.h - targetY, src.h - my)
 
   if (startX >= endX) return
   if (startY >= endY) return
@@ -44,7 +45,7 @@ export function mergeAlphaMasks(
     let sIdx = sy * srcWidth + mx + startX
 
     for (let ix = startX; ix < endX; ix++) {
-      const rawM = src[sIdx]
+      const rawM = srcData[sIdx]
       // Unified logic branch inside the hot path
       const effectiveM = invertMask ? 255 - rawM : rawM
 
@@ -62,14 +63,14 @@ export function mergeAlphaMasks(
 
       if (weight !== 255) {
         if (weight === 0) {
-          dst[dIdx] = 0
+          dstData[dIdx] = 0
         } else {
-          const da = dst[dIdx]
+          const da = dstData[dIdx]
 
           if (da === 255) {
-            dst[dIdx] = weight
+            dstData[dIdx] = weight
           } else if (da !== 0) {
-            dst[dIdx] = (da * weight + 128) >> 8
+            dstData[dIdx] = (da * weight + 128) >> 8
           }
         }
       }

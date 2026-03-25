@@ -14,7 +14,6 @@ export function invertPixelData(
     w: width = pixelData.width,
     h: height = pixelData.height,
     mask,
-    mw,
     mx = 0,
     my = 0,
     invertMask = false,
@@ -33,7 +32,7 @@ export function invertPixelData(
 
   const dst32 = dst.data32
   const dw = dst.width
-  const mPitch = mw ?? width
+  const mPitch = mask?.w ?? width
 
   const dx = x - targetX
   const dy = y - targetY
@@ -46,9 +45,10 @@ export function invertPixelData(
 
   // Optimization: Split loops to avoid checking `if (mask)` for every pixel.
   if (mask) {
+    const maskData = mask.data
     for (let iy = 0; iy < actualH; iy++) {
       for (let ix = 0; ix < actualW; ix++) {
-        const mVal = mask[mIdx]
+        const mVal = maskData[mIdx]
         const isHit = invertMask
           ? mVal === 0
           : mVal === 1

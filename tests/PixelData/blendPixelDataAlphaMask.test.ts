@@ -1,14 +1,13 @@
-import {
-  type AlphaMask,
-  blendPixelDataAlphaMask,
-  type Color32,
-  PixelData,
-  sourceOverFast,
-  unpackAlpha,
-  unpackColor,
-} from '@/index'
+import { blendPixelDataAlphaMask, type Color32, PixelData, sourceOverFast, unpackAlpha, unpackColor } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
-import { createTestImageData, expectPixelToMatch, makeTestPixelData, pack, unpack } from '../_helpers'
+import {
+  createTestImageData,
+  expectPixelToMatch,
+  makeTestAlphaMask,
+  makeTestPixelData,
+  pack,
+  unpack,
+} from '../_helpers'
 
 const RED = pack(255, 0, 0, 255)
 const BLUE = pack(0, 0, 255, 255)
@@ -22,7 +21,7 @@ describe('blendPixelDataAlphaMask', () => {
     it('skips all work for invalid globalAlpha or out-of-bounds targets', () => {
       const dst = makeTestPixelData(1, 1, BLUE)
       const src = makeTestPixelData(1, 1, RED)
-      const mask = new Uint8Array(dst.width * dst.height).fill(255) as AlphaMask
+      const mask = makeTestAlphaMask(dst.width, dst.height, 255)
 
       blendPixelDataAlphaMask(dst, src, mask, { alpha: 0 })
       blendPixelDataAlphaMask(dst, src, mask, { x: 10, y: 10 })
@@ -34,7 +33,7 @@ describe('blendPixelDataAlphaMask', () => {
       const dst = makeTestPixelData(1, 1, BLUE)
       const src = makeTestPixelData(1, 1, TRANSPARENT)
       const mockBlend = vi.fn(sourceOverFast)
-      const mask = new Uint8Array(dst.width * dst.height).fill(255) as AlphaMask
+      const mask = makeTestAlphaMask(dst.width, dst.height, 255)
 
       blendPixelDataAlphaMask(dst, src, mask, {
         blendFn: mockBlend,
@@ -48,7 +47,7 @@ describe('blendPixelDataAlphaMask', () => {
     it('handles AlphaMask skip/pass and inversion', () => {
       const dst = makeTestPixelData(4, 1, BLUE)
       const src = makeTestPixelData(4, 1, RED)
-      const mask = new Uint8Array([255, 0, 255, 0]) as AlphaMask
+      const mask = makeTestAlphaMask(2, 2, [255, 0, 255, 0])
 
       blendPixelDataAlphaMask(dst, src, mask, {})
       expect(dst.data32[0]).toBe(RED)
@@ -62,7 +61,7 @@ describe('blendPixelDataAlphaMask', () => {
     it('scales AlphaMask and handles bit-perfect pass-through', () => {
       const dst = makeTestPixelData(3, 1, BLUE)
       const src = makeTestPixelData(3, 1, WHITE)
-      const mask = new Uint8Array([0, 128, 255]) as AlphaMask
+      const mask = makeTestAlphaMask(3, 1, [0, 128, 255])
 
       blendPixelDataAlphaMask(dst, src, mask, {
         blendFn: copyBlend,
@@ -77,15 +76,15 @@ describe('blendPixelDataAlphaMask', () => {
     it('aligns mask using dx/dy and custom pitch', () => {
       const dst = makeTestPixelData(10, 10, BLUE)
       const src = makeTestPixelData(2, 2, RED)
-      const mask = new Uint8Array(16).fill(0) as AlphaMask
-      mask[10] = 255
+      const mask = makeTestAlphaMask(4, 4)
+
+      mask.data[10] = 255
 
       blendPixelDataAlphaMask(dst, src, mask, {
         x: 5,
         y: 5,
         w: 1,
         h: 1,
-        mw: 4,
         mx: 2,
         my: 2,
       })
@@ -95,7 +94,8 @@ describe('blendPixelDataAlphaMask', () => {
     it('covers the weight === 0 branch inside the mask block', () => {
       const dst = makeTestPixelData(1, 1, BLUE)
       const src = makeTestPixelData(1, 1, RED)
-      const mask = new Uint8Array([1]) as AlphaMask
+      const mask = makeTestAlphaMask(1, 1, 1)
+
       const mockBlend = vi.fn(sourceOverFast)
 
       blendPixelDataAlphaMask(dst, src, mask, {
@@ -112,7 +112,7 @@ describe('blendPixelDataAlphaMask', () => {
     it('handles negative x, y offsets', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
       const src = makeTestPixelData(2, 2, RED)
-      const mask = new Uint8Array(dst.width * dst.height).fill(255) as AlphaMask
+      const mask = makeTestAlphaMask(dst.width, dst.height, 255)
 
       blendPixelDataAlphaMask(dst, src, mask, {
         x: -1,
@@ -128,7 +128,7 @@ describe('blendPixelDataAlphaMask', () => {
     it('covers clipping height from the top (y < 0)', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
       const src = makeTestPixelData(2, 2, RED)
-      const mask = new Uint8Array(dst.width * dst.height).fill(255) as AlphaMask
+      const mask = makeTestAlphaMask(dst.width, dst.height, 255)
 
       blendPixelDataAlphaMask(dst, src, mask, {
         x: 0,
@@ -144,7 +144,7 @@ describe('blendPixelDataAlphaMask', () => {
     it('covers clipping from the right/bottom edge', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
       const src = makeTestPixelData(5, 5, RED)
-      const mask = new Uint8Array(dst.width * dst.height).fill(255) as AlphaMask
+      const mask = makeTestAlphaMask(dst.width, dst.height, 255)
 
       blendPixelDataAlphaMask(dst, src, mask, {
         x: 1,
@@ -160,7 +160,7 @@ describe('blendPixelDataAlphaMask', () => {
     it('handles complex cross-clipping (negative x, sx, y, sy)', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
       const src = makeTestPixelData(2, 2, RED)
-      const mask = new Uint8Array(25).fill(255) as AlphaMask
+      const mask = makeTestAlphaMask(5, 5, 255)
 
       blendPixelDataAlphaMask(dst, src, mask, {
         x: -1,
@@ -179,7 +179,7 @@ describe('blendPixelDataAlphaMask', () => {
       const dst = makeTestPixelData(1, 1, BLUE)
       const src = makeTestPixelData(1, 1, pack(255, 0, 0, 1))
       const mockBlend = vi.fn(copyBlend)
-      const mask = new Uint8Array(25).fill(255) as AlphaMask
+      const mask = makeTestAlphaMask(5, 5, 255)
 
       blendPixelDataAlphaMask(dst, src, mask, {
         alpha: 100,
@@ -216,7 +216,7 @@ describe('blendPixelDataAlphaMask', () => {
       const sourceY = 1
       const drawW = 3
       const drawH = 3
-      const mask = new Uint8Array(25).fill(255) as AlphaMask
+      const mask = makeTestAlphaMask(5, 5, 255)
 
       blendPixelDataAlphaMask(dst, src as any, mask, {
         x: targetX,
@@ -249,9 +249,10 @@ describe('blendPixelDataAlphaMask', () => {
       const dst = makeTestPixelData(5, 5, 0)
       const src = new PixelData(createTestImageData(5, 5))
 
-      const mask = new Uint8Array(25) as AlphaMask
+      const mask = makeTestAlphaMask(5, 5)
+
       for (let i = 0; i < 25; i++) {
-        mask[i] = i % 2 === 0 ? 255 : 0
+        mask.data[i] = i % 2 === 0 ? 255 : 0
       }
 
       blendPixelDataAlphaMask(dst, src as any, mask, {
@@ -261,7 +262,7 @@ describe('blendPixelDataAlphaMask', () => {
       for (let y = 0; y < 5; y++) {
         for (let x = 0; x < 5; x++) {
           const mIdx = y * 5 + x
-          if (mask[mIdx] === 255) {
+          if (mask.data[mIdx] === 255) {
             expectPixelToMatch(dst.imageData, x, y, x, y)
           } else {
             expect(dst.imageData.data[(y * 5 + x) * 4 + 3]).toBe(0)
@@ -276,7 +277,8 @@ describe('blendPixelDataAlphaMask', () => {
       const dst = makeTestPixelData(5, 5, BLUE)
       const src = makeTestPixelData(2, 2, RED)
 
-      const mask = new Uint8Array(dst.width * dst.height).fill(255) as AlphaMask
+      const mask = makeTestAlphaMask(dst.width, dst.height, 255)
+
       blendPixelDataAlphaMask(dst, src, mask, {
         x: 0,
         y: 0,
@@ -294,14 +296,13 @@ describe('blendPixelDataAlphaMask', () => {
       const dst = makeTestPixelData(1, 1, BLUE)
       const src = makeTestPixelData(2, 2)
       src.data32[3] = RED
-      const mask = new Uint8Array([0, 0, 0, 255]) as AlphaMask
+      const mask = makeTestAlphaMask(2, 2, [0, 0, 0, 255])
 
       blendPixelDataAlphaMask(dst, src, mask, {
         x: -1,
         y: -1,
         w: 2,
         h: 2,
-        mw: 2,
         blendFn: (s) => s,
       })
 
@@ -311,7 +312,7 @@ describe('blendPixelDataAlphaMask', () => {
     it('accurately inverts AlphaMask values', () => {
       const dst = makeTestPixelData(1, 1, BLUE)
       const src = makeTestPixelData(1, 1, RED)
-      const mask = new Uint8Array([255]) as AlphaMask
+      const mask = makeTestAlphaMask(1, 1, [255])
 
       blendPixelDataAlphaMask(dst, src, mask, {
         invertMask: true,
@@ -325,7 +326,7 @@ describe('blendPixelDataAlphaMask', () => {
       const src = makeTestPixelData(1, 1, RED)
       const transparent = pack(0, 0, 0, 0)
       const dst = makeTestPixelData(1, 1, transparent)
-      const mask = new Uint8Array([255]) as AlphaMask
+      const mask = makeTestAlphaMask(1, 1, [255])
       const partialAlpha = 120
 
       blendPixelDataAlphaMask(dst, src, mask, {
@@ -340,7 +341,7 @@ describe('blendPixelDataAlphaMask', () => {
       const src = makeTestPixelData(1, 1, RED)
       const transparent = pack(0, 0, 0, 0)
       const dst = makeTestPixelData(1, 1, transparent)
-      const mask = new Uint8Array([120]) as AlphaMask
+      const mask = makeTestAlphaMask(1, 1, 120)
 
       blendPixelDataAlphaMask(dst, src, mask, {
         alpha: 255,

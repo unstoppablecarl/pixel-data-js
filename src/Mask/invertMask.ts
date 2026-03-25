@@ -4,10 +4,11 @@ import type { AlphaMask, BinaryMask } from '../index'
  * Inverts a BinaryMask in-place.
  */
 export function invertBinaryMask(dst: BinaryMask): void {
-  const len = dst.length
+  const data = dst.data
+  const len = data.length
 
   for (let i = 0; i < len; i++) {
-    dst[i] = dst[i] === 0
+    data[i] = data[i] === 0
       ? 1
       : 0
   }
@@ -17,9 +18,10 @@ export function invertBinaryMask(dst: BinaryMask): void {
  * Inverts an AlphaMask in-place.
  */
 export function invertAlphaMask(dst: AlphaMask): void {
-  const len = dst.length
+  const data = dst.data
+  const len = data.length
 
   for (let i = 0; i < len; i++) {
-    dst[i] = 255 - dst[i]
+    data[i] = 255 - data[i]
   }
 }

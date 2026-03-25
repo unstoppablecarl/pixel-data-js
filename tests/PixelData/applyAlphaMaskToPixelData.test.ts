@@ -1,6 +1,6 @@
-import { type AlphaMask, applyAlphaMaskToPixelData } from '@/index'
+import { type AlphaMask, applyAlphaMaskToPixelData, type BinaryMask } from '@/index'
 import { describe, expect, it } from 'vitest'
-import { makeTestPixelData, pack, unpack } from '../_helpers'
+import { makeTestAlphaMask, makeTestPixelData, pack, unpack } from '../_helpers'
 
 const RED = pack(255, 0, 0, 255)
 const BLUE = pack(0, 0, 255, 255)
@@ -10,7 +10,7 @@ describe('applyAlphaMaskToPixelData', () => {
   describe('Guard Conditions & Clipping', () => {
     it('skips work for out-of-bounds targets', () => {
       const dst = makeTestPixelData(1, 1, RED)
-      const mask = new Uint8Array([0]) as AlphaMask
+      const mask = makeTestAlphaMask(1, 1)
 
       applyAlphaMaskToPixelData(dst, mask, {
         x: 10,
@@ -25,7 +25,7 @@ describe('applyAlphaMaskToPixelData', () => {
     it('handles negative x, y offsets with mask synchronization', () => {
       const dst = makeTestPixelData(1, 1, RED)
       // 2x2 mask, only index [3] is 0 (fully transparent)
-      const mask = new Uint8Array([255, 255, 255, 0]) as AlphaMask
+      const mask = makeTestAlphaMask(2, 2, [255, 255, 255, 0])
 
       // Clip: x:-1, y:-1 means we sample mask at (1,1) -> index 3
       applyAlphaMaskToPixelData(dst, mask, {
@@ -33,7 +33,6 @@ describe('applyAlphaMaskToPixelData', () => {
         y: -1,
         w: 2,
         h: 2,
-        mw: 2,
       })
 
       // dst[0,0] alpha should now be 0
@@ -44,7 +43,7 @@ describe('applyAlphaMaskToPixelData', () => {
   describe('Masking Logic (Binary & Alpha)', () => {
     it('handles AlphaMask pass/fail and inversion', () => {
       const dst = makeTestPixelData(2, 1, RED)
-      const mask = new Uint8Array([255, 0]) as AlphaMask
+      const mask = makeTestAlphaMask(2, 1, [255, 0])
 
       // Normal: first pixel stays, second pixel cleared
       applyAlphaMaskToPixelData(dst, mask, {})
@@ -64,7 +63,7 @@ describe('applyAlphaMaskToPixelData', () => {
       // Start with half-transparent RED
       const dst = makeTestPixelData(1, 1, HALF_RED)
       // Mask is also half (128)
-      const mask = new Uint8Array([128]) as AlphaMask
+      const mask = makeTestAlphaMask(1, 1, [128])
 
       applyAlphaMaskToPixelData(dst, mask, {})
 
@@ -82,11 +81,11 @@ describe('applyAlphaMaskToPixelData', () => {
 
     it('accurately applies mask across a complex grid', () => {
       const dst = makeTestPixelData(DW, DH, BLUE)
-      const mask = new Uint8Array(DW * DH) as AlphaMask
+      const mask = makeTestAlphaMask(DW, DH)
 
       // Checkerboard mask
-      for (let i = 0; i < mask.length; i++) {
-        mask[i] = i % 2 === 0
+      for (let i = 0; i < mask.data.length; i++) {
+        mask.data[i] = i % 2 === 0
           ? 255
           : 0
       }
@@ -109,8 +108,9 @@ describe('applyAlphaMaskToPixelData', () => {
     it('covers clipping from the right/bottom edge', () => {
       const dst = makeTestPixelData(2, 2, RED)
       // 5x5 mask, only (1,1) is 0
-      const mask = new Uint8Array(25).fill(255) as AlphaMask
-      mask[6] = 0 // (1,1) in a 5x5 grid
+      const mask = makeTestAlphaMask(5, 5, 255)
+
+      mask.data[6] = 0 // (1,1) in a 5x5 grid
 
       // Apply a 5x5 mask area starting at (0,0) on a 2x2 dst
       applyAlphaMaskToPixelData(dst, mask, {
@@ -118,7 +118,6 @@ describe('applyAlphaMaskToPixelData', () => {
         y: 0,
         w: 5,
         h: 5,
-        mw: 5,
       })
 
       // dst(1,1) is index 3. It corresponds to mask(1,1).
@@ -130,18 +129,17 @@ describe('applyAlphaMaskToPixelData', () => {
     it('prevents memory wrap-around when mask width exceeds bounds', () => {
       const dst = makeTestPixelData(3, 3, RED)
       // Mask width 10, but actualW will be 2 (x:1 to dst.width:3)
-      const mask = new Uint8Array(100).fill(255) as AlphaMask
+      const mask = makeTestAlphaMask(10, 10, 255)
 
       // Set a "trap" pixel in the mask row 1 at index 10 (start of next logical row if pitch was 10)
       // If stride math is wrong, this might be applied to dst row 2.
-      mask[10] = 0
+      mask.data[10] = 0
 
       applyAlphaMaskToPixelData(dst, mask, {
         x: 1,
         y: 1,
         w: 10,
         h: 1,
-        mw: 10,
       })
 
       // (1,1) index 4, (2,1) index 5 should be RED (mask was 255 at those spots)
@@ -154,7 +152,7 @@ describe('applyAlphaMaskToPixelData', () => {
 
     it('handles the case where the draw area is entirely outside the destination', () => {
       const dst = makeTestPixelData(2, 2, RED)
-      const mask = new Uint8Array([0, 0, 0, 0]) as AlphaMask
+      const mask = makeTestAlphaMask(2, 2)
 
       // Draw area is far to the right
       applyAlphaMaskToPixelData(dst, mask, {
@@ -171,7 +169,7 @@ describe('applyAlphaMaskToPixelData', () => {
   })
   it('covers AlphaMask short-circuit (effectiveM === 0)', () => {
     const dst = makeTestPixelData(1, 1, RED)
-    const mask = new Uint8Array([0]) as AlphaMask
+    const mask = makeTestAlphaMask(1, 1)
 
     applyAlphaMaskToPixelData(dst, mask, {
       invertMask: false,
@@ -183,7 +181,7 @@ describe('applyAlphaMaskToPixelData', () => {
 
   it('covers AlphaMask inversion (effectiveM = 255 - mVal)', () => {
     const dst = makeTestPixelData(1, 1, RED)
-    const mask = new Uint8Array([255]) as AlphaMask
+    const mask = makeTestAlphaMask(1, 1, 255)
 
     applyAlphaMaskToPixelData(dst, mask, {
       invertMask: true,
@@ -195,7 +193,8 @@ describe('applyAlphaMaskToPixelData', () => {
 
   it('covers globalAlpha scaling logic (weight calculation)', () => {
     const dst = makeTestPixelData(1, 1, RED)
-    const mask = new Uint8Array([255]) as AlphaMask
+    const mask = makeTestAlphaMask(1, 1, 255)
+
     const globalAlpha = 128
 
     applyAlphaMaskToPixelData(dst, mask, {
@@ -208,7 +207,8 @@ describe('applyAlphaMaskToPixelData', () => {
 
   it('covers weight === 0 clearing branch', () => {
     const dst = makeTestPixelData(1, 1, RED)
-    const mask = new Uint8Array([1]) as AlphaMask
+    const mask = makeTestAlphaMask(1, 1, 1)
+
     const globalAlpha = 10
 
     // weight = (1 * 10 + 128) >> 8 = 0
@@ -221,7 +221,7 @@ describe('applyAlphaMaskToPixelData', () => {
 
   it('covers identity logic (da === 255)', () => {
     const dst = makeTestPixelData(1, 1, RED) // Opaque RED (da=255)
-    const mask = new Uint8Array([100]) as AlphaMask
+    const mask = makeTestAlphaMask(1, 1, 100)
 
     applyAlphaMaskToPixelData(dst, mask, {
       alpha: 255, // weight = 100
@@ -233,7 +233,7 @@ describe('applyAlphaMaskToPixelData', () => {
 
   it('covers identity logic (weight === 255)', () => {
     const dst = makeTestPixelData(1, 1, HALF_RED) // da = 128
-    const mask = new Uint8Array([255]) as AlphaMask
+    const mask = makeTestAlphaMask(1, 1, 255)
 
     applyAlphaMaskToPixelData(dst, mask, {
       alpha: 255, // weight = 255
@@ -246,7 +246,7 @@ describe('applyAlphaMaskToPixelData', () => {
   it('covers already transparent destination (da === 0)', () => {
     const transparentPixel = pack(0, 0, 0, 0)
     const dst = makeTestPixelData(1, 1, transparentPixel)
-    const mask = new Uint8Array([255]) as AlphaMask
+    const mask = makeTestAlphaMask(1, 1, 255)
 
     applyAlphaMaskToPixelData(dst, mask, {})
 
@@ -256,7 +256,7 @@ describe('applyAlphaMaskToPixelData', () => {
 
   it('covers globalAlpha === 0 short-circuit', () => {
     const dst = makeTestPixelData(1, 1, RED)
-    const mask = new Uint8Array([255]) as AlphaMask
+    const mask = makeTestAlphaMask(1, 1, 255)
 
     applyAlphaMaskToPixelData(dst, mask, {
       alpha: 0,
@@ -269,7 +269,7 @@ describe('applyAlphaMaskToPixelData', () => {
   it('covers fractional destination alpha combined with fractional weight', () => {
     // 1. Destination has partial alpha (da = 128)
     const dst = makeTestPixelData(1, 1, HALF_RED)
-    const mask = new Uint8Array([255]) as AlphaMask
+    const mask = makeTestAlphaMask(1, 1, 255)
 
     // 2. Apply with partial globalAlpha (weight = 128)
     applyAlphaMaskToPixelData(dst, mask, {
@@ -288,7 +288,8 @@ describe('applyAlphaMaskToPixelData', () => {
     describe('Destination Clipping (w <= 0 || h <= 0)', () => {
       it('returns early when explicitly passed w or h as 0', () => {
         const dst = makeTestPixelData(2, 2, 0xffffffff)
-        const mask = new Uint8Array(4).fill(0) as AlphaMask
+        const mask = makeTestAlphaMask(2, 2)
+
         const optsW = {
           w: 0,
           h: 2,
@@ -307,7 +308,8 @@ describe('applyAlphaMaskToPixelData', () => {
 
       it('returns early when target X is entirely outside the destination bounds', () => {
         const dst = makeTestPixelData(2, 2, 0xffffffff)
-        const mask = new Uint8Array(1).fill(0) as AlphaMask
+        const mask = makeTestAlphaMask(1, 1)
+
         const opts = {
           x: 5,
           y: 0,
@@ -320,7 +322,8 @@ describe('applyAlphaMaskToPixelData', () => {
 
       it('returns early when target Y is entirely outside the destination bounds', () => {
         const dst = makeTestPixelData(2, 2, 0xffffffff)
-        const mask = new Uint8Array(1).fill(0) as AlphaMask
+        const mask = makeTestAlphaMask(1, 1)
+
         const opts = {
           x: 0,
           y: 5,
@@ -333,7 +336,8 @@ describe('applyAlphaMaskToPixelData', () => {
 
       it('returns early when negative target X pushes the effective width to 0', () => {
         const dst = makeTestPixelData(2, 2, 0xffffffff)
-        const mask = new Uint8Array(4).fill(0) as AlphaMask
+        const mask = makeTestAlphaMask(2, 2)
+
         const opts = {
           x: -2,
           w: 2,
@@ -348,7 +352,8 @@ describe('applyAlphaMaskToPixelData', () => {
 
     it('returns early when source X offset (mx) exceeds mask width', () => {
       const dst = makeTestPixelData(2, 2, 0xffffffff)
-      const mask = new Uint8Array(4).fill(0) as AlphaMask
+      const mask = makeTestAlphaMask(2, 2)
+
       const opts = {
         mx: 2,
         mw: 2,
@@ -362,7 +367,8 @@ describe('applyAlphaMaskToPixelData', () => {
 
     it('returns early when source Y offset (my) exceeds mask height', () => {
       const dst = makeTestPixelData(2, 2, 0xffffffff)
-      const mask = new Uint8Array(4).fill(0) as AlphaMask
+      const mask = makeTestAlphaMask(2, 2)
+
       const opts = {
         my: 2,
         mw: 2,
@@ -376,7 +382,8 @@ describe('applyAlphaMaskToPixelData', () => {
 
     it('returns early when requested width extends beyond a smaller mask', () => {
       const dst = makeTestPixelData(4, 4, 0xffffffff)
-      const mask = new Uint8Array(1).fill(0) as AlphaMask
+      const mask = makeTestAlphaMask(1, 1)
+
       const opts = {
         mx: 1,
         mw: 1,
@@ -390,7 +397,11 @@ describe('applyAlphaMaskToPixelData', () => {
 
     it('returns early when the mask pitch (mw) is 0', () => {
       const dst = makeTestPixelData(2, 2, 0xffffffff)
-      const mask = new Uint8Array(4).fill(0) as AlphaMask
+
+      const mask = {
+        w: 0,
+      } as unknown as AlphaMask
+
       const opts = {
         mw: 0,
         w: 2,

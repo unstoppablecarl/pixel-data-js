@@ -14,7 +14,6 @@ export function blendColorPixelDataAlphaMask(
     h: height = dst.height,
     alpha: globalAlpha = 255,
     blendFn = sourceOverPerfect,
-    mw = width,
     mx = 0,
     my = 0,
     invertMask = false,
@@ -52,7 +51,8 @@ export function blendColorPixelDataAlphaMask(
 
   const dst32 = dst.data32
   const dw = dst.width
-  const mPitch = mw
+  const mPitch = mask.w
+  const maskData = mask.data
 
   let dIdx = (y * dw + x) | 0
   let mIdx = ((my + dy) * mPitch + (mx + dx)) | 0
@@ -64,7 +64,7 @@ export function blendColorPixelDataAlphaMask(
 
   for (let iy = 0; iy < actualH; iy++) {
     for (let ix = 0; ix < actualW; ix++) {
-      const mVal = mask[mIdx]
+      const mVal = maskData[mIdx]
       const effM = invertMask ? 255 - mVal : mVal
 
       if (effM === 0) {

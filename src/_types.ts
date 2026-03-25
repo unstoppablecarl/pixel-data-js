@@ -47,14 +47,6 @@ export type Rect = {
   h: number
 }
 
-export type BinaryMaskRect = {
-  x: number
-  y: number
-  w: number
-  h: number
-  mask: BinaryMask
-}
-
 /**
  * Defines how mask values should be interpreted during a draw operation.
  */
@@ -71,12 +63,23 @@ export enum MaskType {
   BINARY
 }
 
-/** Strictly 0 or 1 */
-export type BinaryMask = Uint8Array & { readonly __brand: 'Binary' }
-/** Strictly 0-255 */
-export type AlphaMask = Uint8Array & { readonly __brand: 'Alpha' }
+export interface Mask {
+  readonly type: MaskType
+  readonly data: Uint8Array
+  readonly w: number
+  readonly h: number
+  readonly set: (data: Uint8Array, width: number, height: number) => void
+}
 
-export type AnyMask = BinaryMask | AlphaMask
+/** Strictly 0 or 1 */
+export interface BinaryMask extends Mask {
+  readonly type: MaskType.BINARY
+}
+
+/** Strictly 0-255 */
+export interface AlphaMask extends Mask {
+  readonly type: MaskType.ALPHA
+}
 
 /**
  * Configuration for pixel manipulation operations.
@@ -122,14 +125,6 @@ export interface MaskOffset {
   my?: number
 }
 
-export interface MaskOffsetWidth {
-  /**
-   * Mask width.
-   * @default value of `w`
-   */
-  mw?: number
-}
-
 export interface InvertMask {
 
   /**
@@ -147,14 +142,14 @@ export interface Alpha {
   alpha?: number
 }
 
-export interface ApplyMaskToPixelDataOptions extends PixelRect, Alpha, MaskOffsetWidth, MaskOffset, InvertMask {
+export interface ApplyMaskToPixelDataOptions extends PixelRect, Alpha, MaskOffset, InvertMask {
 }
 
 export interface MergeAlphaMasksOptions extends PixelRect, Alpha, MaskOffset, InvertMask {
 
 }
 
-export interface PixelMutateOptions extends PixelRect, MaskOffset, MaskOffsetWidth, InvertMask {
+export interface PixelMutateOptions extends PixelRect, MaskOffset, InvertMask {
   /** An optional mask to restrict where pixels are mutated. */
   mask?: BinaryMask | null
 }
@@ -187,7 +182,7 @@ export interface PixelBlendOptions extends PixelRect, Alpha, BasePixelBlendOptio
 
 }
 
-export interface PixelBlendMaskOptions extends PixelRect, Alpha, MaskOffsetWidth, MaskOffset, InvertMask, BasePixelBlendOptions {
+export interface PixelBlendMaskOptions extends PixelRect, Alpha, MaskOffset, InvertMask, BasePixelBlendOptions {
 }
 
 /**
@@ -201,16 +196,19 @@ export interface ColorBlendOptions extends PixelRect, Alpha {
   blendFn?: BlendColor32
 }
 
-export interface ColorBlendMaskOptions extends ColorBlendOptions, MaskOffset, MaskOffsetWidth, InvertMask {
+export interface ColorBlendMaskOptions extends ColorBlendOptions, MaskOffset, InvertMask {
 }
 
-export type SelectionRect = Rect & ({
-  mask: Uint8Array,
-  maskType: MaskType,
-} | {
-  mask?: null
-  maskType?: null,
-})
+export type SelectionRect = Rect & {
+  mask?: Mask | null,
+}
+export type BinaryMaskRect = Rect & {
+  mask: BinaryMask,
+}
+
+export type AlphaMaskRect = Rect & {
+  mask: AlphaMask,
+}
 
 export type HistoryMutator<T extends {}, D extends {}> = (writer: PixelWriter<any>, deps?: Partial<D>) => T
 

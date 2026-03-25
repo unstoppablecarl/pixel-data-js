@@ -1,11 +1,11 @@
 import type { Rect, SelectionRect } from '../_types'
-import { extractMask } from '../Mask/extractMask'
+import { extractMaskBuffer } from '../Mask/extractMaskBuffer'
 
 /**
  * Intersects a target rectangle with a boundary, trimming dimensions and masks in-place.
  * This utility calculates the axis-aligned intersection between the `target` and `bounds`.
  * If the `target` includes a `mask` (as in a {@link SelectionRect}), the mask is physically
- * cropped and re-aligned using `extractMask` to match the new dimensions.
+ * cropped and re-aligned using `extractMaskBuffer` to match the new dimensions.
  * @param target - The rectangle or selection object to be trimmed. **Note:** This object is mutated in-place.
  * @param bounds - The boundary rectangle defining the maximum allowable area (e.g., canvas dimensions).
  * @example
@@ -42,7 +42,7 @@ export function trimRectBounds<T extends Rect | SelectionRect>(
 
     if ('mask' in target && target.mask) {
       // This line is now hit by the 'empty intersection' test below
-      target.mask = new Uint8Array(0)
+      target.mask.set(new Uint8Array(0), 0, 0)
     }
 
     return
@@ -59,8 +59,8 @@ export function trimRectBounds<T extends Rect | SelectionRect>(
   target.h = intersectedH
 
   if ('mask' in target && target.mask) {
-    const currentMask = extractMask(
-      target.mask,
+    const currentMaskBuffer = extractMaskBuffer(
+      target.mask.data,
       originalW,
       offsetX,
       offsetY,
@@ -76,7 +76,7 @@ export function trimRectBounds<T extends Rect | SelectionRect>(
     // Scan for content
     for (let y = 0; y < intersectedH; y++) {
       for (let x = 0; x < intersectedW; x++) {
-        if (currentMask[y * intersectedW + x] !== 0) {
+        if (currentMaskBuffer[y * intersectedW + x] !== 0) {
           if (x < minX) minX = x
           if (x > maxX) maxX = x
           if (y < minY) minY = y
@@ -89,8 +89,8 @@ export function trimRectBounds<T extends Rect | SelectionRect>(
     if (maxX === -1) {
       target.w = 0
       target.h = 0
-      // This covers the specific line you mentioned
-      target.mask = new Uint8Array(0)
+      target.mask.set(new Uint8Array(0), 0, 0)
+
       return
     }
 
@@ -99,20 +99,23 @@ export function trimRectBounds<T extends Rect | SelectionRect>(
 
     // Only shift and crop if the content is smaller than the intersection
     if (finalW !== intersectedW || finalH !== intersectedH) {
-      target.mask = extractMask(
-        currentMask,
+      const newMaskBuffer = extractMaskBuffer(
+        currentMaskBuffer,
         intersectedW,
         minX,
         minY,
         finalW,
         finalH,
       )
+
+      target.mask.set(newMaskBuffer, finalW, finalH)
+
       target.x += minX
       target.y += minY
       target.w = finalW
       target.h = finalH
     } else {
-      target.mask = currentMask
+      target.mask.set(currentMaskBuffer, finalW, finalH)
     }
   }
 }

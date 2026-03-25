@@ -3,7 +3,7 @@ import {
   type BlendColor32,
   type Color32,
   type ColorBlendMaskOptions,
-  type HistoryMutator,
+  type HistoryMutator, MaskType,
   type Rect,
 } from '../../_types'
 import { forEachLinePoint } from '../../Algorithm/forEachLinePoint'
@@ -53,6 +53,13 @@ export const mutatorApplyCirclePencilStroke = ((writer: PixelWriter<any>, deps: 
     h: 0,
   }
 
+  const mask = {
+    type: MaskType.BINARY,
+    data: null as unknown as Uint8Array,
+    w: 0,
+    h: 0,
+  }
+
   return {
     applyCirclePencilStroke(
       color: Color32,
@@ -73,8 +80,11 @@ export const mutatorApplyCirclePencilStroke = ((writer: PixelWriter<any>, deps: 
 
       if (bw <= 0 || bh <= 0) return
 
-      const mask = new Uint8Array(bw * bh) as BinaryMask
+      mask.data = new Uint8Array(bw * bh)
+      mask.w = bw
+      mask.h = bh
 
+      const maskData = mask.data
       const r = brushSize / 2
       const rSqr = r * r
       const centerOffset = (brushSize % 2 === 0) ? 0.5 : 0
@@ -112,7 +122,7 @@ export const mutatorApplyCirclePencilStroke = ((writer: PixelWriter<any>, deps: 
 
             if (dSqr <= rSqr) {
               const maskIdx = maskRowOffset + (mx - bx)
-              mask[maskIdx] = 1
+              maskData[maskIdx] = 1
             }
           }
         }
@@ -125,7 +135,7 @@ export const mutatorApplyCirclePencilStroke = ((writer: PixelWriter<any>, deps: 
       blendColorPixelOptions.w = bw
       blendColorPixelOptions.h = bh
 
-      blendColorPixelDataBinaryMask(writer.target, color, mask, blendColorPixelOptions)
+      blendColorPixelDataBinaryMask(writer.target, color, mask as BinaryMask, blendColorPixelOptions)
     },
   }
 }) satisfies HistoryMutator<any, Deps>

@@ -3,7 +3,7 @@ import {
   type BlendColor32,
   type Color32,
   type ColorBlendOptions,
-  type HistoryMutator,
+  type HistoryMutator, MaskType,
   type Rect,
 } from '../../_types'
 import { forEachLinePoint } from '../../Algorithm/forEachLinePoint'
@@ -53,6 +53,13 @@ export const mutatorApplyRectBrushStroke = ((writer: PixelWriter<any>, deps: Dep
     h: 0,
   }
 
+  const mask = {
+    type: MaskType.ALPHA,
+    data: null as unknown as Uint8Array,
+    w: 0,
+    h: 0,
+  }
+
   return {
     applyRectBrushStroke(
       color: Color32,
@@ -83,8 +90,11 @@ export const mutatorApplyRectBrushStroke = ((writer: PixelWriter<any>, deps: Dep
 
       if (bw <= 0 || bh <= 0) return
 
-      const mask = new Uint8Array(bw * bh) as AlphaMask
+      mask.data = new Uint8Array(bw * bh)
+      mask.w = bw
+      mask.h = bh
 
+      const maskData = mask.data
       const halfW = brushWidth / 2
       const halfH = brushHeight / 2
       const invHalfW = 1 / halfW
@@ -143,8 +153,8 @@ export const mutatorApplyRectBrushStroke = ((writer: PixelWriter<any>, deps: Dep
             if (strength > 0) {
               const intensity = (strength * 255) | 0
 
-              if (intensity > mask[maskIdx]) {
-                mask[maskIdx] = intensity
+              if (intensity > maskData[maskIdx]) {
+                maskData[maskIdx] = intensity
               }
             }
           }
@@ -161,7 +171,7 @@ export const mutatorApplyRectBrushStroke = ((writer: PixelWriter<any>, deps: Dep
       blendColorPixelDataAlphaMask(
         writer.target,
         color,
-        mask,
+        mask as AlphaMask,
         blendColorPixelOptions,
       )
     },

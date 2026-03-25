@@ -2,9 +2,7 @@ import type { BinaryMask, MergeAlphaMasksOptions } from '../_types'
 
 export function mergeBinaryMasks(
   dst: BinaryMask,
-  dstWidth: number,
   src: BinaryMask,
-  srcWidth: number,
   opts: MergeAlphaMasksOptions,
 ): void {
   const {
@@ -16,11 +14,14 @@ export function mergeBinaryMasks(
     my = 0,
     invertMask = false,
   } = opts
+
+  const dstData = dst.data
+  const srcData = src.data
+  const srcWidth = src.w
+  const dstWidth = dst.w
+
   if (dstWidth <= 0) return
   if (srcWidth <= 0) return
-
-  const dstHeight = (dst.length / dstWidth) | 0
-  const srcHeight = (src.length / srcWidth) | 0
 
   // 1. Destination Clipping
   let x = targetX
@@ -39,7 +40,7 @@ export function mergeBinaryMasks(
   }
 
   w = Math.min(w, dstWidth - x)
-  h = Math.min(h, dstHeight - y)
+  h = Math.min(h, dst.h - y)
 
   if (w <= 0) return
   if (h <= 0) return
@@ -51,7 +52,7 @@ export function mergeBinaryMasks(
   const sX0 = Math.max(0, startX)
   const sY0 = Math.max(0, startY)
   const sX1 = Math.min(srcWidth, startX + w)
-  const sY1 = Math.min(srcHeight, startY + h)
+  const sY1 = Math.min(src.h, startY + h)
 
   const finalW = sX1 - sX0
   const finalH = sY1 - sY0
@@ -71,12 +72,12 @@ export function mergeBinaryMasks(
 
   for (let iy = 0; iy < finalH; iy++) {
     for (let ix = 0; ix < finalW; ix++) {
-      const mVal = src[sIdx]
+      const mVal = srcData[sIdx]
       // Determine if the source pixel effectively "clears" the destination
       const isMaskedOut = invertMask ? mVal !== 0 : mVal === 0
 
       if (isMaskedOut) {
-        dst[dIdx] = 0
+        dstData[dIdx] = 0
       }
 
       dIdx++

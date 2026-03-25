@@ -1,4 +1,5 @@
 import type { AlphaMask, IPixelData } from '../_types'
+import { makeAlphaMask } from '../Mask/AlphaMask'
 
 /**
  * Extracts the alpha channel from PixelData into a single-channel mask.
@@ -13,14 +14,15 @@ export function pixelDataToAlphaMask(
     height,
   } = pixelData
   const len = data32.length
-  const mask = new Uint8Array(width * height) as AlphaMask
+  const mask = makeAlphaMask(width, height)
+  const maskData = mask.data
 
   for (let i = 0; i < len; i++) {
     const val = data32[i]
 
     // Extract the Alpha byte (top 8 bits in ABGR / Little-Endian)
     // Shift right by 24 moves the 4th byte to the 1st position
-    mask[i] = (val >>> 24) & 0xff
+    maskData[i] = (val >>> 24) & 0xff
   }
 
   return mask

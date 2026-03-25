@@ -16,7 +16,6 @@ export function blendPixelDataBinaryMask(
     h: height = src.height,
     alpha: globalAlpha = 255,
     blendFn = sourceOverPerfect,
-    mw = src.width,
     mx = 0,
     my = 0,
     invertMask = false,
@@ -72,7 +71,8 @@ export function blendPixelDataBinaryMask(
   const src32 = src.data32
   const dw = dst.width
   const sw = src.width
-  const mPitch = mw
+  const mPitch = binaryMask.w
+  const maskData = binaryMask.data
 
   let dIdx = (y * dw + x) | 0
   let sIdx = (sy * sw + sx) | 0
@@ -89,7 +89,7 @@ export function blendPixelDataBinaryMask(
   for (let iy = 0; iy < actualH; iy++) {
     for (let ix = 0; ix < actualW; ix++) {
       // Binary Mask Check (Earliest exit)
-      if (binaryMask[mIdx] === skipVal) {
+      if (maskData[mIdx] === skipVal) {
         dIdx++
         sIdx++
         mIdx++

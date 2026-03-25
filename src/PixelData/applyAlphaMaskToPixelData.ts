@@ -1,5 +1,9 @@
 import { type AlphaMask, type ApplyMaskToPixelDataOptions, type IPixelData } from '../_types'
 
+/**
+ * Directly applies a mask to a region of PixelData,
+ * modifying the destination's alpha channel in-place.
+ */
 export function applyAlphaMaskToPixelData(
   dst: IPixelData,
   mask: AlphaMask,
@@ -11,7 +15,6 @@ export function applyAlphaMaskToPixelData(
     w: width = dst.width,
     h: height = dst.height,
     alpha: globalAlpha = 255,
-    mw,
     mx = 0,
     my = 0,
     invertMask = false,
@@ -42,9 +45,8 @@ export function applyAlphaMaskToPixelData(
   if (h <= 0) return
 
   // 2. Determine Source Dimensions
-  const mPitch = mw ?? width
+  const mPitch = mask.w
   if (mPitch <= 0) return
-  const maskHeight = (mask.length / mPitch) | 0
 
   // 3. Source Bounds Clipping
   // Calculate where we would start reading in the mask
@@ -55,7 +57,7 @@ export function applyAlphaMaskToPixelData(
   const sX0 = Math.max(0, startX)
   const sY0 = Math.max(0, startY)
   const sX1 = Math.min(mPitch, startX + w)
-  const sY1 = Math.min(maskHeight, startY + h)
+  const sY1 = Math.min(mask.h, startY + h)
 
   const finalW = sX1 - sX0
   const finalH = sY1 - sY0
@@ -73,13 +75,14 @@ export function applyAlphaMaskToPixelData(
   const dw = dst.width
   const dStride = dw - finalW
   const mStride = mPitch - finalW
+  const maskData = mask.data
 
   let dIdx = (y + yShift) * dw + (x + xShift)
   let mIdx = sY0 * mPitch + sX0
 
   for (let iy = 0; iy < h; iy++) {
     for (let ix = 0; ix < w; ix++) {
-      const mVal = mask[mIdx]
+      const mVal = maskData[mIdx]
       // Unified logic branch inside the hot path
       const effectiveM = invertMask ? 255 - mVal : mVal
 

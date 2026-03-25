@@ -1,5 +1,6 @@
+import { mutatorApplyAlphaMask } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { type AlphaMask, mutatorApplyAlphaMask } from '@/index'
+import { makeTestAlphaMask } from '../../_helpers'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyAlphaMask', () => {
@@ -8,7 +9,7 @@ describe('mutatorApplyAlphaMask', () => {
   })
 
   it('should call accumulator and applyAlphaMaskToPixelData', () => {
-    const mask = new Uint8Array([1, 1, 1, 1]) as AlphaMask
+    const mask = makeTestAlphaMask(2, 2, 1)
     const options = {
       x: 5,
       y: 5,
@@ -18,7 +19,11 @@ describe('mutatorApplyAlphaMask', () => {
 
     const applyAlphaMaskSpy = vi.fn()
 
-    const { mutator, accumulator, target } = mockAccumulatorMutator(mutatorApplyAlphaMask, { applyAlphaMaskToPixelData: applyAlphaMaskSpy })
+    const {
+      mutator,
+      accumulator,
+      target,
+    } = mockAccumulatorMutator(mutatorApplyAlphaMask, { applyAlphaMaskToPixelData: applyAlphaMaskSpy })
 
     mutator.applyAlphaMask(mask, options)
 

@@ -14,14 +14,13 @@ export function applyBinaryMaskToPixelData(
     y: targetY = 0,
     w: width = dst.width,
     h: height = dst.height,
-    alpha = 255,
-    mw,
+    alpha: globalAlpha = 255,
     mx = 0,
     my = 0,
     invertMask = false,
   } = opts
 
-  if (alpha === 0) return
+  if (globalAlpha === 0) return
 
   // 1. Initial Destination Clipping
   let x = targetX
@@ -46,9 +45,8 @@ export function applyBinaryMaskToPixelData(
   if (h <= 0) return
 
   // 2. Determine Source Dimensions
-  const mPitch = mw ?? width
+  const mPitch = mask.w
   if (mPitch <= 0) return
-  const maskHeight = (mask.length / mPitch) | 0
 
   // 3. Source Bounds Clipping
   // Calculate where we would start reading in the mask
@@ -59,7 +57,7 @@ export function applyBinaryMaskToPixelData(
   const sX0 = Math.max(0, startX)
   const sY0 = Math.max(0, startY)
   const sX1 = Math.min(mPitch, startX + w)
-  const sY1 = Math.min(maskHeight, startY + h)
+  const sY1 = Math.min(mask.h, startY + h)
 
   const finalW = sX1 - sX0
   const finalH = sY1 - sY0
@@ -77,26 +75,27 @@ export function applyBinaryMaskToPixelData(
   const dw = dst.width
   const dStride = dw - finalW
   const mStride = mPitch - finalW
+  const maskData = mask.data
 
   let dIdx = (y + yShift) * dw + (x + xShift)
   let mIdx = sY0 * mPitch + sX0
 
   for (let iy = 0; iy < h; iy++) {
     for (let ix = 0; ix < w; ix++) {
-      const mVal = mask[mIdx]
+      const mVal = maskData[mIdx]
       // Consistently determines if this pixel should be "masked out" (cleared)
       const isMaskedOut = invertMask ? mVal !== 0 : mVal === 0
 
       if (isMaskedOut) {
         // Clear alpha channel only (keep RGB)
         dst32[dIdx] = (dst32[dIdx] & 0x00ffffff) >>> 0
-      } else if (alpha !== 255) {
+      } else if (globalAlpha !== 255) {
         const d = dst32[dIdx]
         const da = d >>> 24
 
         // If pixel isn't already fully transparent, apply global alpha
         if (da !== 0) {
-          const finalAlpha = da === 255 ? alpha : (da * alpha + 128) >> 8
+          const finalAlpha = da === 255 ? globalAlpha : (da * globalAlpha + 128) >> 8
           dst32[dIdx] = ((d & 0x00ffffff) | (finalAlpha << 24)) >>> 0
         }
       }

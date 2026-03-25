@@ -1,12 +1,13 @@
-import { type AlphaMask, mergeAlphaMasks } from '@/index'
+import { mergeAlphaMasks } from '@/index'
 import { describe, expect, it } from 'vitest'
+import { makeTestAlphaMask } from '../_helpers'
 
 describe('mergeAlphaMasks', () => {
   describe('Basic Composition & Identity', () => {
     it('multiplies two AlphaMasks correctly (Rounding & Identity)', () => {
-      const dst = new Uint8Array([255, 255, 255]) as AlphaMask
-      const dw = 3
-      const src = new Uint8Array([0, 128, 255]) as AlphaMask
+      const dst = makeTestAlphaMask(3, 1, [255, 255, 255])
+      const src = makeTestAlphaMask(3, 1, [0, 128, 255])
+
       const opts = {
         w: 3,
         h: 1,
@@ -14,20 +15,19 @@ describe('mergeAlphaMasks', () => {
 
       mergeAlphaMasks(
         dst,
-        dw,
         src,
-        3,
-        opts
+        opts,
       )
 
-      expect(dst[0]).toBe(0)
-      expect(dst[1]).toBe(128)
-      expect(dst[2]).toBe(255)
+      expect(dst.data[0]).toBe(0)
+      expect(dst.data[1]).toBe(128)
+      expect(dst.data[2]).toBe(255)
     })
 
     it('calculates intersection of partial transparency', () => {
-      const dst = new Uint8Array([128]) as AlphaMask
-      const src = new Uint8Array([128]) as AlphaMask
+      const dst = makeTestAlphaMask(1, 1, [128])
+      const src = makeTestAlphaMask(1, 1, [128])
+
       const opts = {
         w: 1,
         h: 1,
@@ -35,19 +35,16 @@ describe('mergeAlphaMasks', () => {
 
       mergeAlphaMasks(
         dst,
-        1,
         src,
-        1,
-        opts
+        opts,
       )
 
-      expect(dst[0]).toBe(64)
+      expect(dst.data[0]).toBe(64)
     })
 
     it('skips calculation when destination is already transparent (da === 0)', () => {
-      const dst = new Uint8Array([0]) as AlphaMask
-      const dw = 1
-      const src = new Uint8Array([255]) as AlphaMask
+      const dst = makeTestAlphaMask(1, 1)
+      const src = makeTestAlphaMask(1, 1, 255)
       const opts = {
         x: 0,
         y: 0,
@@ -58,19 +55,17 @@ describe('mergeAlphaMasks', () => {
 
       mergeAlphaMasks(
         dst,
-        dw,
         src,
-        1,
-        opts
+        opts,
       )
 
-      expect(dst[0]).toBe(0)
+      expect(dst.data[0]).toBe(0)
     })
 
     it('preserves transparency when merging partial masks into transparent areas', () => {
-      const dst = new Uint8Array([0, 255]) as AlphaMask
-      const dw = 2
-      const src = new Uint8Array([128, 128]) as AlphaMask
+      const dst = makeTestAlphaMask(2, 1, [0, 255])
+      const src = makeTestAlphaMask(2, 1, [128, 128])
+
       const opts = {
         w: 2,
         h: 1,
@@ -78,21 +73,20 @@ describe('mergeAlphaMasks', () => {
 
       mergeAlphaMasks(
         dst,
-        dw,
         src,
-        2,
-        opts
+        opts,
       )
 
-      expect(dst[0]).toBe(0)
-      expect(dst[1]).toBe(128)
+      expect(dst.data[0]).toBe(0)
+      expect(dst.data[1]).toBe(128)
     })
   })
 
   describe('Global Alpha Interactions', () => {
     it('respects global alpha during merge (Soft Intersection)', () => {
-      const dst = new Uint8Array([255]).fill(255) as AlphaMask
-      const src = new Uint8Array([255]).fill(255) as AlphaMask
+      const dst = makeTestAlphaMask(1, 1, 255)
+      const src = makeTestAlphaMask(1, 1, 255)
+
       const opts = {
         w: 1,
         h: 1,
@@ -101,18 +95,16 @@ describe('mergeAlphaMasks', () => {
 
       mergeAlphaMasks(
         dst,
-        1,
         src,
-        1,
-        opts
+        opts,
       )
 
-      expect(dst[0]).toBe(128)
+      expect(dst.data[0]).toBe(128)
     })
 
     it('correctly intersects partial masks with global alpha', () => {
-      const dst = new Uint8Array([200]) as AlphaMask
-      const src = new Uint8Array([150]) as AlphaMask
+      const dst = makeTestAlphaMask(1, 1, 200)
+      const src = makeTestAlphaMask(1, 1, 150)
       const globalAlpha = 100
       const opts = {
         w: 1,
@@ -122,18 +114,16 @@ describe('mergeAlphaMasks', () => {
 
       mergeAlphaMasks(
         dst,
-        1,
         src,
-        1,
-        opts
+        opts,
       )
 
-      expect(dst[0]).toBe(46)
+      expect(dst.data[0]).toBe(46)
     })
 
     it('clears destination when resulting weight is 0', () => {
-      const dst = new Uint8Array([255]) as AlphaMask
-      const src = new Uint8Array([1]) as AlphaMask
+      const dst = makeTestAlphaMask(1, 1, 255)
+      const src = makeTestAlphaMask(1, 1, 1)
       const opts = {
         w: 1,
         h: 1,
@@ -142,20 +132,18 @@ describe('mergeAlphaMasks', () => {
 
       mergeAlphaMasks(
         dst,
-        1,
         src,
-        1,
-        opts
+        opts,
       )
 
-      expect(dst[0]).toBe(0)
+      expect(dst.data[0]).toBe(0)
     })
   })
 
   describe('Inversion', () => {
     it('accurately inverts AlphaMask values (The 191 Fix)', () => {
-      const dst = new Uint8Array([255]) as AlphaMask
-      const src = new Uint8Array([64]) as AlphaMask
+      const dst = makeTestAlphaMask(1, 1, 255)
+      const src = makeTestAlphaMask(1, 1, 64)
       const opts = {
         w: 1,
         h: 1,
@@ -164,20 +152,18 @@ describe('mergeAlphaMasks', () => {
 
       mergeAlphaMasks(
         dst,
-        1,
         src,
-        1,
-        opts
+        opts,
       )
 
-      expect(dst[0]).toBe(191)
+      expect(dst.data[0]).toBe(191)
     })
   })
 
   describe('Bounds and Early Returns', () => {
     it('returns early when width is 0 or less', () => {
-      const dst = new Uint8Array(4).fill(255) as AlphaMask
-      const src = new Uint8Array(4).fill(0) as AlphaMask
+      const dst = makeTestAlphaMask(2, 2, 255)
+      const src = makeTestAlphaMask(2, 2, 0)
       const opts = {
         w: 0,
         h: 2,
@@ -185,18 +171,16 @@ describe('mergeAlphaMasks', () => {
 
       mergeAlphaMasks(
         dst,
-        2,
         src,
-        2,
-        opts
+        opts,
       )
 
-      expect(dst[0]).toBe(255)
+      expect(dst.data[0]).toBe(255)
     })
 
     it('returns early when height is 0 or less', () => {
-      const dst = new Uint8Array(4).fill(255) as AlphaMask
-      const src = new Uint8Array(4).fill(0) as AlphaMask
+      const dst = makeTestAlphaMask(2, 2, 255)
+      const src = makeTestAlphaMask(2, 2, 0)
       const opts = {
         w: 2,
         h: -1,
@@ -204,18 +188,16 @@ describe('mergeAlphaMasks', () => {
 
       mergeAlphaMasks(
         dst,
-        2,
         src,
-        2,
-        opts
+        opts,
       )
 
-      expect(dst[0]).toBe(255)
+      expect(dst.data[0]).toBe(255)
     })
 
     it('returns early when global alpha is 0', () => {
-      const dst = new Uint8Array(4).fill(255) as AlphaMask
-      const src = new Uint8Array(4).fill(0) as AlphaMask
+      const dst = makeTestAlphaMask(2, 2, 255)
+      const src = makeTestAlphaMask(2, 2, 0)
       const opts = {
         w: 2,
         h: 2,
@@ -224,19 +206,17 @@ describe('mergeAlphaMasks', () => {
 
       mergeAlphaMasks(
         dst,
-        2,
         src,
-        2,
-        opts
+
+        opts,
       )
 
-      expect(dst[0]).toBe(255)
+      expect(dst.data[0]).toBe(255)
     })
 
     it('prevents out-of-bounds writes when clipping an inner area', () => {
-      const dst = new Uint8Array(4).fill(255) as AlphaMask
-      const dw = 2
-      const src = new Uint8Array(4).fill(0) as AlphaMask
+      const dst = makeTestAlphaMask(2, 2, 255)
+      const src = makeTestAlphaMask(2, 2, 0)
       const opts = {
         x: 1,
         y: 1,
@@ -246,20 +226,17 @@ describe('mergeAlphaMasks', () => {
 
       mergeAlphaMasks(
         dst,
-        dw,
         src,
-        2,
-        opts
+        opts,
       )
 
-      expect(dst[3]).toBe(0)
-      expect(dst[0]).toBe(255)
+      expect(dst.data[3]).toBe(0)
+      expect(dst.data[0]).toBe(255)
     })
 
     it('safely clips negative target coordinates before iterating', () => {
-      const dst = new Uint8Array(4).fill(255) as AlphaMask
-      const dw = 2
-      const src = new Uint8Array(4).fill(0) as AlphaMask
+      const dst = makeTestAlphaMask(2, 2, 255)
+      const src = makeTestAlphaMask(2, 2, 0)
       const opts = {
         x: 0,
         y: -1,
@@ -269,18 +246,16 @@ describe('mergeAlphaMasks', () => {
 
       mergeAlphaMasks(
         dst,
-        dw,
         src,
-        2,
-        opts
+        opts,
       )
 
-      expect(dst[0]).toBe(0)
-      expect(dst[1]).toBe(0)
-      expect(dst[2]).toBe(255)
-      expect(dst[3]).toBe(255)
+      expect(dst.data[0]).toBe(0)
+      expect(dst.data[1]).toBe(0)
+      expect(dst.data[2]).toBe(255)
+      expect(dst.data[3]).toBe(255)
 
-      const dst2 = new Uint8Array(1).fill(255) as AlphaMask
+      const dst2 = makeTestAlphaMask(1, 1, 255)
       const opts2 = {
         x: 0,
         y: 0,
@@ -291,20 +266,18 @@ describe('mergeAlphaMasks', () => {
 
       mergeAlphaMasks(
         dst2,
-        1,
         src,
-        1,
-        opts2
+        opts2,
       )
 
-      expect(dst2[0]).toBe(255)
+      expect(dst2.data[0]).toBe(255)
     })
   })
 
   describe('Horizontal Bounds Clipping (startX >= endX)', () => {
     it('returns early when target X is entirely past the right edge of destination', () => {
-      const dst = new Uint8Array(4).fill(255) as AlphaMask
-      const src = new Uint8Array(4).fill(0) as AlphaMask
+      const dst = makeTestAlphaMask(2, 2, 255)
+      const src = makeTestAlphaMask(2, 2, 0)
       const opts = {
         x: 2,
         w: 2,
@@ -313,18 +286,16 @@ describe('mergeAlphaMasks', () => {
 
       mergeAlphaMasks(
         dst,
-        2,
         src,
-        2,
-        opts
+        opts,
       )
 
-      expect(dst[0]).toBe(255)
+      expect(dst.data[0]).toBe(255)
     })
 
     it('returns early when source offset X is entirely past the right edge of source', () => {
-      const dst = new Uint8Array(4).fill(255) as AlphaMask
-      const src = new Uint8Array(4).fill(0) as AlphaMask
+      const dst = makeTestAlphaMask(2, 2, 255)
+      const src = makeTestAlphaMask(2, 2, 0)
       const opts = {
         w: 2,
         h: 2,
@@ -333,18 +304,16 @@ describe('mergeAlphaMasks', () => {
 
       mergeAlphaMasks(
         dst,
-        2,
         src,
-        2,
-        opts
+        opts,
       )
 
-      expect(dst[0]).toBe(255)
+      expect(dst.data[0]).toBe(255)
     })
 
     it('returns early when negative target X completely negates the requested width', () => {
-      const dst = new Uint8Array(4).fill(255) as AlphaMask
-      const src = new Uint8Array(4).fill(0) as AlphaMask
+      const dst = makeTestAlphaMask(2, 2, 255)
+      const src = makeTestAlphaMask(2, 2, 0)
       const opts = {
         x: -5,
         w: 2,
@@ -353,20 +322,18 @@ describe('mergeAlphaMasks', () => {
 
       mergeAlphaMasks(
         dst,
-        2,
         src,
-        2,
-        opts
+        opts,
       )
 
-      expect(dst[0]).toBe(255)
+      expect(dst.data[0]).toBe(255)
     })
   })
 
   describe('Vertical Bounds Clipping (startY >= endY)', () => {
     it('returns early when target Y is entirely past the bottom edge of destination', () => {
-      const dst = new Uint8Array(4).fill(255) as AlphaMask
-      const src = new Uint8Array(4).fill(0) as AlphaMask
+      const dst = makeTestAlphaMask(2, 2, 255)
+      const src = makeTestAlphaMask(2, 2, 0)
       const opts = {
         y: 2,
         w: 2,
@@ -375,18 +342,16 @@ describe('mergeAlphaMasks', () => {
 
       mergeAlphaMasks(
         dst,
-        2,
         src,
-        2,
-        opts
+        opts,
       )
 
-      expect(dst[0]).toBe(255)
+      expect(dst.data[0]).toBe(255)
     })
 
     it('returns early when source offset Y is entirely past the bottom edge of source', () => {
-      const dst = new Uint8Array(4).fill(255) as AlphaMask
-      const src = new Uint8Array(4).fill(0) as AlphaMask
+      const dst = makeTestAlphaMask(2, 2, 255)
+      const src = makeTestAlphaMask(2, 2, 0)
       const opts = {
         w: 2,
         h: 2,
@@ -395,18 +360,16 @@ describe('mergeAlphaMasks', () => {
 
       mergeAlphaMasks(
         dst,
-        2,
         src,
-        2,
-        opts
+        opts,
       )
 
-      expect(dst[0]).toBe(255)
+      expect(dst.data[0]).toBe(255)
     })
 
     it('returns early when negative target Y completely negates the requested height', () => {
-      const dst = new Uint8Array(4).fill(255) as AlphaMask
-      const src = new Uint8Array(4).fill(0) as AlphaMask
+      const dst = makeTestAlphaMask(2, 2, 255)
+      const src = makeTestAlphaMask(2, 2, 0)
       const opts = {
         y: -5,
         w: 2,
@@ -415,13 +378,11 @@ describe('mergeAlphaMasks', () => {
 
       mergeAlphaMasks(
         dst,
-        2,
         src,
-        2,
-        opts
+        opts,
       )
 
-      expect(dst[0]).toBe(255)
+      expect(dst.data[0]).toBe(255)
     })
   })
 })

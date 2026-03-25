@@ -4,6 +4,7 @@ import {
   type Color32,
   type ColorBlendMaskOptions,
   type HistoryMutator,
+  MaskType,
   type Rect,
 } from '../../_types'
 import { forEachLinePoint } from '../../Algorithm/forEachLinePoint'
@@ -53,6 +54,13 @@ export const mutatorApplyCircleBrushStroke = ((writer: PixelWriter<any>, deps: D
     h: 0,
   }
 
+  const mask = {
+    type: MaskType.ALPHA,
+    data: null as unknown as Uint8Array,
+    w: 0,
+    h: 0,
+  }
+
   return {
     applyCircleBrushStroke(
       color: Color32,
@@ -74,8 +82,11 @@ export const mutatorApplyCircleBrushStroke = ((writer: PixelWriter<any>, deps: D
 
       if (bw <= 0 || bh <= 0) return
 
-      const mask = new Uint8Array(bw * bh) as AlphaMask
+      mask.data = new Uint8Array(bw * bh)
+      mask.w = bw
+      mask.h = bh
 
+      const maskData = mask.data
       const r = brushSize / 2
       const rSqr = r * r
       const invR = 1 / r
@@ -117,8 +128,8 @@ export const mutatorApplyCircleBrushStroke = ((writer: PixelWriter<any>, deps: D
 
               const dist = Math.sqrt(dSqr) * invR
               const intensity = (fallOff(1 - dist) * 255) | 0
-              if (intensity > mask[maskIdx]) {
-                mask[maskIdx] = intensity
+              if (intensity > maskData[maskIdx]) {
+                maskData[maskIdx] = intensity
               }
             }
           }
@@ -132,7 +143,7 @@ export const mutatorApplyCircleBrushStroke = ((writer: PixelWriter<any>, deps: D
       blendColorPixelOptions.w = bw
       blendColorPixelOptions.h = bh
 
-      blendColorPixelDataAlphaMask(writer.target, color, mask, blendColorPixelOptions)
+      blendColorPixelDataAlphaMask(writer.target, color, mask as AlphaMask, blendColorPixelOptions)
     },
   }
 }) satisfies HistoryMutator<any, Deps>

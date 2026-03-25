@@ -1,5 +1,6 @@
+import { invertPixelData } from '@/index'
+import { makeBinaryMask } from '@/Mask/BinaryMask'
 import { describe, expect, it } from 'vitest'
-import { invertPixelData, type BinaryMask } from '@/index'
 import { makeTestPixelData, pack } from '../_helpers'
 
 describe('PixelData Inversion', () => {
@@ -52,10 +53,11 @@ describe('PixelData Inversion', () => {
 
   it('correctly applies a binary mask', () => {
     const pixels = makeTestPixelData(2, 2, RED)
-    const mask = new Uint8Array([
-      1, 0, // top row
-      0, 1, // bottom row
-    ]) as BinaryMask
+    const mask = makeBinaryMask(2, 2)
+    mask.data.set([
+      1, 0,
+      0, 1,
+    ])
 
     invertPixelData(pixels, { mask })
 
@@ -67,10 +69,11 @@ describe('PixelData Inversion', () => {
 
   it('correctly applies an inverted binary mask', () => {
     const pixels = makeTestPixelData(2, 2, RED)
-    const mask = new Uint8Array([
-      1, 0, // top row
-      0, 1, // bottom row
-    ]) as BinaryMask
+    const mask = makeBinaryMask(2, 2)
+    mask.data.set([
+      1, 0,
+      0, 1,
+    ])
 
     invertPixelData(pixels, { mask, invertMask: true })
 

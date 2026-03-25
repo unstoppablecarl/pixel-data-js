@@ -14,7 +14,6 @@ export function blendColorPixelDataBinaryMask(
     h: height = dst.height,
     alpha: globalAlpha = 255,
     blendFn = sourceOverPerfect,
-    mw = width,
     mx = 0,
     my = 0,
     invertMask = false,
@@ -60,8 +59,8 @@ export function blendColorPixelDataBinaryMask(
 
   const dst32 = dst.data32
   const dw = dst.width
-  const mPitch = mw
-
+  const mPitch = mask.w
+  const maskData = mask.data
   let dIdx = (y * dw + x) | 0
   let mIdx = ((my + dy) * mPitch + (mx + dx)) | 0
 
@@ -71,7 +70,7 @@ export function blendColorPixelDataBinaryMask(
 
   for (let iy = 0; iy < actualH; iy++) {
     for (let ix = 0; ix < actualW; ix++) {
-      if (mask[mIdx] === skipVal) {
+      if (maskData[mIdx] === skipVal) {
         dIdx++
         mIdx++
         continue

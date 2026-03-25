@@ -1,11 +1,14 @@
 import {
+  type AlphaMask,
   forEachLinePoint,
   getCircleBrushOrPencilBounds,
   getCircleBrushOrPencilStrokeBounds,
+  MaskType,
   mutatorApplyCircleBrushStroke,
+  sourceOverPerfect,
 } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { pack } from '../../_helpers'
+import { pack, printAlphaMaskGrid } from '../../_helpers'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyCircleBrushStroke', () => {
@@ -30,7 +33,7 @@ describe('mutatorApplyCircleBrushStroke', () => {
     })
 
     const brushSize = 3
-    const fallOff = (d: number) => (1 - d)
+    const fallOff = (d: number) => d
 
     mutator.applyCircleBrushStroke(
       color,
@@ -50,7 +53,12 @@ describe('mutatorApplyCircleBrushStroke', () => {
       11,
       11,
       brushSize,
-      expect.any(Object),
+      {
+        x: 8,
+        y: 8,
+        w: 5,
+        h: 5,
+      },
     )
 
     // 2. Assert line point iteration was triggered
@@ -64,24 +72,47 @@ describe('mutatorApplyCircleBrushStroke', () => {
 
     // 3. Assert stamp bounds helper received target dimensions and closure object
     expect(getCircleBrushOrPencilBoundsSpy).toHaveBeenCalledWith(
-      expect.any(Number),
-      expect.any(Number),
+      11,
+      11,
       brushSize,
       target.width,
       target.height,
-      expect.any(Object),
+      {
+        x: 10,
+        y: 10,
+        w: 3,
+        h: 3,
+      },
     )
 
     // 4. Assert final mask blit received the computed bounds
     expect(blendColorPixelDataAlphaMaskSpy).toHaveBeenCalledWith(
       target,
       color,
-      expect.any(Uint8Array),
+      expect.toSatisfy((v: AlphaMask) => {
+
+        printAlphaMaskGrid(v)
+        expect(v).toEqual({
+          type: MaskType.ALPHA,
+          w: 5,
+          h: 5,
+          data: new Uint8Array([
+            0, 0, 0, 0, 0,
+            0, 14, 85, 14, 0,
+            0, 85, 255, 85, 14,
+            0, 14, 85, 255, 85,
+            0, 0, 14, 85, 14,
+          ]),
+        })
+        return true
+      }),
       expect.objectContaining({
-        x: expect.any(Number),
-        y: expect.any(Number),
-        w: expect.any(Number),
-        h: expect.any(Number),
+        alpha: 255,
+        blendFn: sourceOverPerfect,
+        x: 8,
+        y: 8,
+        w: 5,
+        h: 5,
       }),
     )
   })
@@ -109,7 +140,7 @@ describe('mutatorApplyCircleBrushStroke', () => {
     )
 
     const mockCall = blendColorPixelDataAlphaMaskSpy.mock.calls[0]
-    const mask = mockCall[2] as Uint8Array
+    const mask = mockCall[2] as AlphaMask
     const options = mockCall[3]!
 
     // Calculate center index based on real returned bounds
@@ -117,8 +148,15 @@ describe('mutatorApplyCircleBrushStroke', () => {
     const localY = 10 - options.y!
     const centerIdx = (localY * options.w!) + localX
 
+    expect(Array.from(mask.data)).toEqual([
+      0, 0, 0, 0,
+      0, 14, 85, 14,
+      0, 85, 255, 85,
+      0, 14, 85, 14,
+    ])
+
     // The center of the circle should always be full intensity
-    expect(mask[centerIdx]).toBe(255)
+    expect(mask.data[centerIdx]).toBe(255)
   })
 
   it('maintains idempotency for overlapping points within the mask', () => {
@@ -154,10 +192,10 @@ describe('mutatorApplyCircleBrushStroke', () => {
       mockFallOff,
     )
 
-    const mask = blendColorPixelDataAlphaMaskSpy.mock.calls[0][2] as Uint8Array
+    const mask = blendColorPixelDataAlphaMaskSpy.mock.calls[0][2] as AlphaMask
 
     // Intensity 0.9 is 229.
-    const hasStrongValue = Array.from(mask).some((v) => (v === 229))
+    const hasStrongValue = Array.from(mask.data).some((v) => (v === 229))
     expect(hasStrongValue).toBe(true)
   })
 
@@ -238,12 +276,12 @@ describe('mutatorApplyCircleBrushStroke', () => {
       (d) => 1 - d,
     )
 
-    const mask = blendColorPixelDataAlphaMaskSpy.mock.calls[0][2] as Uint8Array
-    const firstPixel = mask[0]
+    const mask = blendColorPixelDataAlphaMaskSpy.mock.calls[0][2] as AlphaMask
+    const firstPixel = mask.data[0]
     expect(firstPixel).toBeGreaterThan(0)
-    expect(mask[1]).toBe(firstPixel)
-    expect(mask[2]).toBe(firstPixel)
-    expect(mask[3]).toBe(firstPixel)
+    expect(mask.data[1]).toBe(firstPixel)
+    expect(mask.data[2]).toBe(firstPixel)
+    expect(mask.data[3]).toBe(firstPixel)
   })
 
   it('uses a 0 centerOffset for odd brush sizes (3x3)', () => {
@@ -268,7 +306,7 @@ describe('mutatorApplyCircleBrushStroke', () => {
     )
 
     const mockCall = blendColorPixelDataAlphaMaskSpy.mock.calls[0]
-    const mask = mockCall[2] as Uint8Array
+    const mask = mockCall[2] as AlphaMask
     const options = mockCall[3]!
 
     // Find center pixel in the mask
@@ -278,12 +316,12 @@ describe('mutatorApplyCircleBrushStroke', () => {
 
     // In an odd brush with 0 offset, the center pixel is exactly at distance 0
     // fallOff(0) * 255 should be 255
-    expect(mask[centerIdx]).toBe(255)
+    expect(mask.data[centerIdx]).toBe(255)
 
     // The neighbor pixel (9,10) has dx = 1.0.
     // Normalized dist = 1.0 / 1.5 = 0.66.
     const neighborIdx = (localY * options.w!) + (localX - 1)
-    expect(mask[neighborIdx]).toBeLessThan(255)
-    expect(mask[neighborIdx]).toBeGreaterThan(0)
+    expect(mask.data[neighborIdx]).toBeLessThan(255)
+    expect(mask.data[neighborIdx]).toBeGreaterThan(0)
   })
 })

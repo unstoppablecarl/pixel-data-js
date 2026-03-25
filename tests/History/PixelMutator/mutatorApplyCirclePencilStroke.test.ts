@@ -1,11 +1,13 @@
 import {
+  type BinaryMask,
   type Color32,
   forEachLinePoint,
   getCircleBrushOrPencilBounds,
-  getCircleBrushOrPencilStrokeBounds,
-  mutatorApplyCirclePencilStroke,
+  getCircleBrushOrPencilStrokeBounds, MaskType,
+  mutatorApplyCirclePencilStroke, sourceOverPerfect,
 } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { printBinaryMaskGrid } from '../../_helpers'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyCirclePencilStroke', () => {
@@ -81,12 +83,27 @@ describe('mutatorApplyCirclePencilStroke', () => {
     expect(blendColorPixelDataBinaryMaskSpy).toHaveBeenCalledWith(
       target,
       color,
-      expect.any(Uint8Array),
+      expect.toSatisfy((v: BinaryMask) => {
+        expect(v).toEqual({
+          type: MaskType.BINARY,
+          w: 6,
+          h: 4,
+          data: new Uint8Array([
+            0, 0, 0, 0, 0, 0,
+            0, 1, 1, 1, 1, 1,
+            0, 1, 1, 1, 1, 1,
+            0, 1, 1, 1, 1, 1,
+          ]),
+        })
+        return true
+      }),
       expect.objectContaining({
-        x: expect.any(Number),
-        y: expect.any(Number),
-        w: expect.any(Number),
-        h: expect.any(Number),
+        x: 8,
+        y: 8,
+        w: 6,
+        h: 4,
+        alpha: 255,
+        blendFn: sourceOverPerfect,
       }),
     )
   })

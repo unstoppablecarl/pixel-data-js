@@ -1,7 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
 import {
-  type AlphaMask,
-  type BinaryMask,
   blendColorPixelData,
   blendColorPixelDataAlphaMask,
   blendColorPixelDataBinaryMask,
@@ -9,6 +6,9 @@ import {
   sourceOverFast,
   unpackColor,
 } from '@/index'
+import { makeAlphaMask } from '@/Mask/AlphaMask'
+import { makeBinaryMask } from '@/Mask/BinaryMask'
+import { describe, expect, it, vi } from 'vitest'
 import { makeTestPixelData, pack } from '../_helpers'
 
 const RED = pack(255, 0, 0, 255)
@@ -18,8 +18,11 @@ const TRANSPARENT = pack(0, 0, 0, 0)
 const copyBlend = (s: Color32) => s
 
 // Create solid masks that won't interfere with standard color blending
-const SOLID_BINARY = new Uint8Array(400).fill(1) as BinaryMask
-const SOLID_ALPHA = new Uint8Array(400).fill(255) as AlphaMask
+const SOLID_BINARY = makeBinaryMask(20, 20)
+SOLID_BINARY.data.fill(1)
+
+const SOLID_ALPHA = makeAlphaMask(20, 20)
+SOLID_ALPHA.data.fill(255)
 
 const testVariants = [
   { name: 'No Mask', fn: blendColorPixelData, maskOpts: {} },

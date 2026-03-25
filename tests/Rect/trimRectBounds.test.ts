@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { MaskType, type Rect, type SelectionRect, trimRectBounds } from '@/index'
+import { type BinaryMaskRect, MaskType, type Rect, type SelectionRect, trimRectBounds } from '@/index'
+import { makeTestBinaryMask } from '../_helpers'
 
 describe('trimRectBounds: Edge Case Analysis', () => {
   it('preserves identity when target and bounds are identical', () => {
@@ -71,23 +72,17 @@ describe('trimRectBounds: Edge Case Analysis', () => {
   })
 
   it('correctly offsets the mask when only the top-left is trimmed', () => {
-    /** * 2x2 Mask:
-     * [10, 20]
-     * [30, 40]
-     */
-    const mask = new Uint8Array([
-      10,
-      20,
-      30,
-      40,
+    const mask =  makeTestBinaryMask(2, 2, [
+      10, 20,
+      30, 40
     ])
+
     const selection: SelectionRect = {
       x: -1,
       y: -1,
       w: 2,
       h: 2,
       mask,
-      maskType: MaskType.ALPHA,
     }
     const bounds: Rect = {
       x: 0,
@@ -105,7 +100,7 @@ describe('trimRectBounds: Edge Case Analysis', () => {
      */
     expect(selection.w).toBe(1)
     expect(selection.h).toBe(1)
-    expect(selection.mask![0]).toBe(40)
+    expect(selection.mask!.data[0]).toBe(40)
   })
 
   it('handles "Inside-Out" bounds where target is larger than bounds', () => {
@@ -133,23 +128,22 @@ describe('trimRectBounds: Edge Case Analysis', () => {
   it('shrinks the rect to fit a small island of pixels within a larger mask', () => {
     const w = 10
     const h = 10
-    const mask = new Uint8Array(w * h)
+    const mask =  makeTestBinaryMask(w,h)
 
     // Place a 2x2 square starting at local index (4,4)
     // Row 4
-    mask[44] = 1
-    mask[45] = 1
+    mask.data[44] = 1
+    mask.data[45] = 1
     // Row 5
-    mask[54] = 1
-    mask[55] = 1
+    mask.data[54] = 1
+    mask.data[55] = 1
 
-    const selection: SelectionRect = {
+    const selection: BinaryMaskRect = {
       x: 100,
       y: 100,
       w,
       h,
       mask,
-      maskType: MaskType.BINARY,
     }
 
     const container = {
@@ -173,21 +167,20 @@ describe('trimRectBounds: Edge Case Analysis', () => {
     expect(selection.h).toBe(2)
 
     // Verify mask was reallocated to the tight size
-    expect(selection.mask!.length).toBe(4)
+    expect(selection.mask!.data.length).toBe(4)
   })
 
   it('handles an entirely empty mask by setting dimensions to zero', () => {
     const w = 10
     const h = 10
-    const mask = new Uint8Array(w * h)
+    const mask =  makeTestBinaryMask(w, h)
 
-    const selection: SelectionRect = {
+    const selection: BinaryMaskRect = {
       x: 10,
       y: 10,
       w,
       h,
       mask,
-      maskType: MaskType.BINARY,
     }
 
     trimRectBounds(
@@ -199,14 +192,13 @@ describe('trimRectBounds: Edge Case Analysis', () => {
     expect(selection.h).toBe(0)
   })
   it('covers empty intersection and zeroed mask', () => {
-    const mask = new Uint8Array(100)
-    const selection: SelectionRect = {
+    const mask =  makeTestBinaryMask(10, 10)
+    const selection: BinaryMaskRect = {
       x: 500, // Way outside 0-100 range
       y: 500,
       w: 10,
       h: 10,
       mask,
-      maskType: MaskType.BINARY,
     }
 
     const container = {
@@ -219,6 +211,6 @@ describe('trimRectBounds: Edge Case Analysis', () => {
     trimRectBounds(selection, container)
 
     expect(selection.w).toBe(0)
-    expect(selection.mask!.length).toBe(0)
+    expect(selection.mask!.data.length).toBe(0)
   })
 })

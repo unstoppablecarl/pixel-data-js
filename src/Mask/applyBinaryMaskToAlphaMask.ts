@@ -2,9 +2,7 @@ import type { AlphaMask, ApplyMaskToPixelDataOptions, BinaryMask } from '../_typ
 
 export function applyBinaryMaskToAlphaMask(
   alphaMaskDst: AlphaMask,
-  dstWidth: number,
   binaryMaskSrc: BinaryMask,
-  srcWidth: number,
   opts: ApplyMaskToPixelDataOptions = {},
 ): void {
   const {
@@ -17,12 +15,14 @@ export function applyBinaryMaskToAlphaMask(
     invertMask = false,
   } = opts
 
+  const dstWidth = alphaMaskDst.w
   if (dstWidth <= 0) return
-  if (binaryMaskSrc.length === 0) return
+  if (binaryMaskSrc.data.length === 0) return
+  const srcWidth = binaryMaskSrc.w
   if (srcWidth <= 0) return
 
-  const dstHeight = (alphaMaskDst.length / dstWidth) | 0
-  const srcHeight = (binaryMaskSrc.length / srcWidth) | 0
+  const dstHeight = (alphaMaskDst.data.length / dstWidth) | 0
+  const srcHeight = (binaryMaskSrc.data.length / srcWidth) | 0
 
   if (dstHeight <= 0) return
   if (srcHeight <= 0) return
@@ -46,6 +46,9 @@ export function applyBinaryMaskToAlphaMask(
   const iterW = Math.min(dstX1 - dstX0, srcWidth - srcX0)
   const iterH = Math.min(dstY1 - dstY0, srcHeight - srcY0)
 
+  const srcData = binaryMaskSrc.data
+  const dstData = alphaMaskDst.data
+
   let dstIdx = dstY0 * dstWidth + dstX0
   let srcIdx = srcY0 * srcWidth + srcX0
 
@@ -57,8 +60,8 @@ export function applyBinaryMaskToAlphaMask(
 
       while (d < dstEnd) {
         // inverted
-        if (binaryMaskSrc[s] !== 0) {
-          alphaMaskDst[d] = 0
+        if (srcData[s] !== 0) {
+          dstData[d] = 0
         }
         d++
         s++
@@ -75,8 +78,8 @@ export function applyBinaryMaskToAlphaMask(
 
       while (d < dstEnd) {
         // If binary mask is empty, clear the alpha pixel.
-        if (binaryMaskSrc[s] === 0) {
-          alphaMaskDst[d] = 0
+        if (srcData[s] === 0) {
+          dstData[d] = 0
         }
         d++
         s++

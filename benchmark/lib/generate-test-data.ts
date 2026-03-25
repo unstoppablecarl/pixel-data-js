@@ -1,4 +1,6 @@
 import type { AlphaMask, BinaryMask, ImageDataLike } from '@/_types'
+import { makeAlphaMask } from '@/Mask/AlphaMask'
+import { makeBinaryMask } from '@/Mask/BinaryMask'
 import { PixelData } from '@/PixelData/PixelData'
 
 export function makeMulberry32(initialSeed = 0) {
@@ -60,24 +62,24 @@ export function makeRndPixelData(w: number, h: number, seed = 1): PixelData {
 
 export function makeRndAlphaMask(w: number, h: number, seed = 1): AlphaMask {
   const rand = makeMulberry32(seed)
-  const data = new Uint8Array(w * h)
+  const mask = makeAlphaMask(w, h)
 
-  for (let i = 0; i < data.length; i++) {
-    data[i] = (rand() * 256) | 0
+  for (let i = 0; i < mask.data.length; i++) {
+    mask.data[i] = (rand() * 256) | 0
   }
 
-  return data as AlphaMask
+  return mask
 }
 
 export function makeRndBinaryMask(w: number, h: number, seed = 1): BinaryMask {
   const rand = makeMulberry32(seed)
-  const data = new Uint8Array(w * h)
+  const mask = makeBinaryMask(w, h)
 
-  for (let i = 0; i < data.length; i++) {
-    data[i] = (rand() < 0.5) ? 1 : 0
+  for (let i = 0; i < mask.data.length; i++) {
+    mask.data[i] = (rand() < 0.5) ? 1 : 0
   }
 
-  return data as BinaryMask
+  return mask
 }
 
 export const makeRndRealisticPixelData = (

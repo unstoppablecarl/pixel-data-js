@@ -5,6 +5,8 @@ import {
   type Color32,
   type ImageDataLike,
   type IPixelData,
+  makeAlphaMask,
+  makeBinaryMask,
   PixelData,
   type RGBA,
   unpackAlpha,
@@ -173,34 +175,26 @@ export function makeComplexTestPixelData(w: number, h: number): PixelData {
   return pixelData
 }
 
-export function makeComplexAlphaMask(w: number, h: number): AlphaMask {
-  const data = new Uint8Array(w * h)
-
-  for (let i = 0; i < data.length; i++) {
-    const x = i % w
-    const y = (i / w) | 0
-
-    // Create a spatial gradient (0-255)
-    // This ensures we test the full range of interpolation math
-    data[i] = ((x / w) * 127 + (y / h) * 127) | 0
+export function makeTestAlphaMask(w: number, h: number, value?: number | number[]): AlphaMask {
+  const mask = makeAlphaMask(w, h)
+  if (typeof value === 'number') {
+    mask.data.fill(value)
   }
-
-  return data as AlphaMask
+  if (Array.isArray(value)) {
+    mask.data.set(value)
+  }
+  return mask
 }
 
-export function makeComplexBinaryMask(w: number, h: number): BinaryMask {
-  const data = new Uint8Array(w * h)
-
-  for (let i = 0; i < data.length; i++) {
-    // Create a checkerboard or "noisy" pattern
-    // This prevents the CPU from predicting the "if (mask[i])" branch
-    const x = i % w
-    const y = (i / w) | 0
-
-    data[i] = (x + y) % 2 === 0 ? 1 : 0
+export function makeTestBinaryMask(w: number, h: number, value?: number | number[]): BinaryMask {
+  const mask = makeBinaryMask(w, h)
+  if (typeof value === 'number') {
+    mask.data.fill(value)
   }
-
-  return data as BinaryMask
+  if (Array.isArray(value)) {
+    mask.data.set(value)
+  }
+  return mask
 }
 
 /**
@@ -295,6 +289,43 @@ function rgbColor(color: Color32) {
     return ' X'
   } else {
     return `\x1b[38;2;${r};${g};${b}m █\x1b[0m`
+  }
+}
+
+
+export function printBinaryMaskGrid(dst: BinaryMask, sep = ', '): void {
+  const w = dst.w
+  const h = dst.h
+  const data = dst.data
+
+  for (let y = 0; y < h; y++) {
+    let rowString = ''
+
+    for (let x = 0; x < w; x++) {
+      const index = y * w + x
+      const pixel = data[index]
+      rowString += '' + pixel + sep
+    }
+
+    console.log(rowString)
+  }
+}
+
+export function printAlphaMaskGrid(dst: AlphaMask, sep = ', '): void {
+  const w = dst.w
+  const h = dst.h
+  const data = dst.data
+
+  for (let y = 0; y < h; y++) {
+    let rowString = ''
+
+    for (let x = 0; x < w; x++) {
+      const index = y * w + x
+      const pixel = data[index]
+      rowString += ('' + pixel).padStart(3, ' ') + sep
+    }
+
+    console.log(rowString)
   }
 }
 

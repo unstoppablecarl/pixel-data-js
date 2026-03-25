@@ -1,6 +1,14 @@
-import { forEachLinePoint, getRectBrushOrPencilBounds, mutatorApplyRectPencilStroke } from '@/index'
+import {
+  type BinaryMask,
+  forEachLinePoint,
+  getRectBrushOrPencilBounds,
+  type Mask,
+  MaskType,
+  mutatorApplyRectPencilStroke,
+  sourceOverPerfect,
+} from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { pack } from '../../_helpers'
+import { pack, printBinaryMaskGrid } from '../../_helpers'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyRectPencilStroke', () => {
@@ -54,8 +62,24 @@ describe('mutatorApplyRectPencilStroke', () => {
     expect(blendColorPixelDataBinaryMaskSpy).toHaveBeenCalledWith(
       target,
       color,
-      expect.any(Uint8Array),
+      expect.toSatisfy((v: BinaryMask) => {
+        expect(v).toEqual({
+          type: MaskType.BINARY,
+          w: 5,
+          h: 5,
+          data: new Uint8Array([
+            0, 0, 0, 0, 0,
+            0, 1, 1, 1, 0,
+            0, 1, 1, 1, 0,
+            0, 1, 1, 1, 0,
+            0, 0, 0, 0, 0,
+          ]),
+        })
+        return true
+      }),
       expect.objectContaining({
+        alpha: 255,
+        blendFn: sourceOverPerfect,
         x: 10,
         y: 10,
         w: 5,
@@ -96,14 +120,33 @@ describe('mutatorApplyRectPencilStroke', () => {
 
     mutator.applyRectPencilStroke(0 as any, 0, 0, 0, 0, 2, 2)
 
-    const mask = blendColorPixelDataBinaryMaskSpy.mock.calls[0][2] as Uint8Array
+    const mask = blendColorPixelDataBinaryMaskSpy.mock.calls[0][2] as BinaryMask
+
+    printBinaryMaskGrid(mask)
+    expect(mask).toEqual({
+      w: 5,
+      h: 5,
+      type: MaskType.BINARY,
+      data: expect.toSatisfy((v: Uint8Array) => {
+
+        expect(Array.from(v)).toEqual([
+          0, 0, 0, 0, 0,
+          0, 1, 0, 0, 0,
+          0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0,
+        ])
+        return true
+      }),
+    })
 
     // Math check:
     // bx=10, by=10, bw=5
     // Stamp point is (11, 11).
     // lx = 11 - 10 = 1. ly = 11 - 10 = 1.
     // index = 1 * 5 + 1 = 6.
-    expect(mask[6]).toBe(1)
+    expect(mask.data[6]).toBe(1)
+
   })
 
   it('returns early and skips all work if stroke bounds are empty', () => {

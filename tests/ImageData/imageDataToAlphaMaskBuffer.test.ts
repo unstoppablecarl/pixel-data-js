@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { imageDataToAlphaMask } from '@/index'
+import { imageDataToAlphaMaskBuffer } from '@/index'
 
-describe('imageDataToAlphaMask', () => {
+describe('imageDataToAlphaMaskBuffer', () => {
   it('extracts alpha values from raw ImageData', () => {
     const rawData = new Uint8ClampedArray([
       255, 0, 0, 255, // Red, Opaque
@@ -15,7 +15,7 @@ describe('imageDataToAlphaMask', () => {
       1,
     )
 
-    const mask = imageDataToAlphaMask(img)
+    const mask = imageDataToAlphaMaskBuffer(img)
 
     expect(mask.length).toBe(3)
     expect(mask[0]).toBe(255)
@@ -28,7 +28,7 @@ describe('imageDataToAlphaMask', () => {
       0,
       0,
     )
-    const mask = imageDataToAlphaMask(img)
+    const mask = imageDataToAlphaMaskBuffer(img)
 
     expect(mask.length).toBe(0)
   })

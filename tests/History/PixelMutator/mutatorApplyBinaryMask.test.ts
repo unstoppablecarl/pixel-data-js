@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { type BinaryMask, mutatorApplyBinaryMask } from '@/index'
+import { type BinaryMask, makeBinaryMask, mutatorApplyBinaryMask } from '@/index'
+import { makeTestBinaryMask } from '../../_helpers'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyBinaryMask', () => {
@@ -8,7 +9,7 @@ describe('mutatorApplyBinaryMask', () => {
   })
 
   it('should call accumulator and applyBinaryMaskToPixelData', () => {
-    const mask = new Uint8Array([1, 1, 1, 1]) as BinaryMask
+    const mask = makeTestBinaryMask(2, 2, 1)
     const options = {
       x: 5,
       y: 5,

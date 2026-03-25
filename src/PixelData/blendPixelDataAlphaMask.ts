@@ -16,7 +16,6 @@ export function blendPixelDataAlphaMask(
     h: height = src.height,
     alpha: globalAlpha = 255,
     blendFn = sourceOverPerfect,
-    mw = src.width,
     mx = 0,
     my = 0,
     invertMask = false,
@@ -62,7 +61,8 @@ export function blendPixelDataAlphaMask(
   // 2. Index Setup
   const dw = dst.width
   const sw = src.width
-  const mPitch = mw
+  const mPitch = alphaMask.w
+  const maskData = alphaMask.data
 
   // dx/dy is the displacement from requested start to clipped start.
   // This keeps the mask locked to the source content during cross-clipping.
@@ -85,7 +85,7 @@ export function blendPixelDataAlphaMask(
 
   for (let iy = 0; iy < actualH; iy++) {
     for (let ix = 0; ix < actualW; ix++) {
-      const mVal = alphaMask[mIdx]
+      const mVal = maskData[mIdx]
       const effM = invertMask ? 255 - mVal : mVal
 
       // Early exit if mask is fully transparent

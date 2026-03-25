@@ -1,6 +1,7 @@
-import { type Color32, type ImageDataLike, MaskType, type Rect, type SelectionRect } from '../_types'
+import { type BinaryMaskRect, type Color32, type ImageDataLike, type Rect, type SelectionRect } from '../_types'
 import { colorDistance } from '../color'
 import { extractImageDataBuffer } from '../ImageData/extractImageDataBuffer'
+import { makeBinaryMask } from '../Mask/BinaryMask'
 import type { PixelData } from '../PixelData/PixelData'
 import { trimRectBounds } from '../Rect/trimRectBounds'
 
@@ -13,7 +14,7 @@ export type FloodFillImageDataOptions = {
 export type FloodFillResult = {
   startX: number
   startY: number
-  selectionRect: SelectionRect
+  selectionRect: BinaryMaskRect
   pixels: Uint8ClampedArray
 }
 
@@ -181,20 +182,17 @@ export function floodFillSelection(
   if (matchCount === 0) {
     return null
   }
-  const selectionRect: SelectionRect = {
+  const selectionRect: BinaryMaskRect = {
     x: minX,
     y: minY,
     w: maxX - minX + 1,
     h: maxY - minY + 1,
-    mask: new Uint8Array((maxX - minX + 1) * (maxY - minY + 1)),
-    maskType: MaskType.BINARY,
+    mask: makeBinaryMask((maxX - minX + 1), (maxY - minY + 1)),
   }
-
-  // REMOVED trimRectBounds from here
 
   const sw = selectionRect.w
   const sh = selectionRect.h
-  const finalMask = selectionRect.mask!
+  const finalMask = selectionRect.mask.data
 
   for (let i = 0; i < matchCount; i++) {
     const mx = matchX[i] - selectionRect.x
@@ -205,13 +203,11 @@ export function floodFillSelection(
     }
   }
 
-  // trimRectBounds can see them and work correctly.
   trimRectBounds(
     selectionRect,
     { x: 0, y: 0, w: width, h: height },
   )
 
-  // Use the UPDATED values from the selectionRect after trimming
   const extracted = extractImageDataBuffer(
     imageData,
     selectionRect.x,

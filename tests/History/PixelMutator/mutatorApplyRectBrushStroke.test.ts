@@ -1,7 +1,9 @@
 import {
+  type AlphaMask,
   forEachLinePoint,
   getRectBrushOrPencilBounds,
   getRectBrushOrPencilStrokeBounds,
+  MaskType,
   mutatorApplyRectBrushStroke,
 } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -87,7 +89,16 @@ describe('mutatorApplyRectBrushStroke', () => {
     expect(blendColorPixelDataAlphaMaskSpy).toHaveBeenCalledWith(
       target,
       color,
-      expect.any(Uint8Array),
+      expect.objectContaining({
+        type: MaskType.ALPHA,
+        w: 2,
+        h: 2,
+        data: expect.toSatisfy((v: Uint8Array) => {
+          expect(Array.from(v)).toEqual([127, 127, 127, 127])
+
+          return true
+        }),
+      }),
       expect.objectContaining({
         x: expect.any(Number),
         y: expect.any(Number),
@@ -96,10 +107,10 @@ describe('mutatorApplyRectBrushStroke', () => {
       }),
     )
 
-    const mask = blendColorPixelDataAlphaMaskSpy.mock.calls[0][2] as Uint8Array
+    const mask = blendColorPixelDataAlphaMaskSpy.mock.calls[0][2] as AlphaMask
 
     // 0.5 falloff maps to 127 intensity
-    expect(mask.some((v) => v === 127)).toBe(true)
+    expect(mask.data.some((v) => v === 127)).toBe(true)
   })
 
   it('correctly normalizes distance using the larger dimension (Chebyshev)', () => {
@@ -169,11 +180,11 @@ describe('mutatorApplyRectBrushStroke', () => {
       mockFallOff,
     )
 
-    const mask = blendColorPixelDataAlphaMaskSpy.mock.calls[0][2] as Uint8Array
+    const mask = blendColorPixelDataAlphaMaskSpy.mock.calls[0][2] as AlphaMask
 
     // Strong hit (0.8 * 255 = 204)
-    expect(mask.some((v) => v === 204)).toBe(true)
-    expect(mask.some((v) => v !== 51)).toBe(true)
+    expect(mask.data.some((v) => v === 204)).toBe(true)
+    expect(mask.data.some((v) => v !== 51)).toBe(true)
   })
 
   it('reuses the internal bounds object to minimize garbage collection', () => {
@@ -269,12 +280,12 @@ describe('mutatorApplyRectBrushStroke', () => {
     )
 
     const mockCall = blendColorPixelDataAlphaMaskSpy.mock.calls[0]
-    const mask = mockCall[2] as Uint8Array
+    const mask = mockCall[2] as AlphaMask
 
     // Check that the strong value exist
-    expect(mask.some((v) => v === 229)).toBe(true)
+    expect(mask.data.some((v) => v === 229)).toBe(true)
 
-    const uniqueValues = Array.from(new Set(mask)).filter(v => v !== 0)
+    const uniqueValues = Array.from(new Set(mask.data)).filter(v => v !== 0)
     expect(uniqueValues).toContain(229)
   })
 
@@ -304,15 +315,15 @@ describe('mutatorApplyRectBrushStroke', () => {
     const mockCall = blendColorPixelDataAlphaMaskSpy.mock.calls[0]
     expect(mockCall, 'Blitter should have been called').toBeDefined()
 
-    const mask = mockCall[2] as Uint8Array
+    const mask = mockCall[2] as AlphaMask
     const options = mockCall[3]!
 
     expect(options.h).toBeGreaterThanOrEqual(3)
 
-    const hasData = mask.some((v) => v > 0)
+    const hasData = mask.data.some((v) => v > 0)
     expect(hasData, 'The mask should contain painted pixels').toBe(true)
 
-    const paintedCount = mask.filter((v) => v > 0).length
+    const paintedCount = mask.data.filter((v) => v > 0).length
     expect(paintedCount).toBeGreaterThanOrEqual(3)
   })
 

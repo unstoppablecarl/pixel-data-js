@@ -1,18 +1,19 @@
 import type { Color32, Rect } from '@/index'
-import { fillPixelData } from '@/index'
+import { fillPixelDataBinaryMask } from '@/index'
+import { makeBinaryMask } from '@/Mask/BinaryMask'
 import { describe, expect, it } from 'vitest'
-import { getPixel, makeTestPixelData, pack } from '../_helpers'
+import { getPixel, makeTestPixelData, pack, printPixelDataGrid } from '../_helpers'
 
 const RED = pack(255, 0, 0, 255)
 const BLUE = pack(0, 0, 255, 255)
 const COLOR = pack(255, 255, 255, 255)
 
-describe('fillPixelData', () => {
+describe('fillPixelDataBinaryMaskBinaryMask', () => {
   describe('Guard Conditions & Early Exits', () => {
     it('skips all work for out-of-bounds targets', () => {
       const dst = makeTestPixelData(1, 1, BLUE)
 
-      fillPixelData(dst, RED, {
+      fillPixelDataBinaryMask(dst, RED, null as any, {
         x: 10,
         y: 10,
       })
@@ -24,10 +25,12 @@ describe('fillPixelData', () => {
   describe('Coordinate Clipping Logic', () => {
     it('handles negative x, y offsets', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
+      const mask = makeBinaryMask(2, 2)
+      mask.data.fill(1)
 
       // Negative offset: fill a 2x2 starting at -1,-1
       // Only dst[0,0] is covered
-      fillPixelData(dst, RED, {
+      fillPixelDataBinaryMask(dst, RED, mask, {
         x: -1,
         y: -1,
         w: 2,
@@ -40,8 +43,10 @@ describe('fillPixelData', () => {
 
     it('clips w/h when fill exceeds destination bounds', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
+      const mask = makeBinaryMask(2, 2)
+      mask.data.fill(1)
 
-      fillPixelData(dst, RED, {
+      fillPixelDataBinaryMask(dst, RED, mask, {
         x: 1,
         y: 1,
         w: 10,
@@ -54,8 +59,10 @@ describe('fillPixelData', () => {
 
     it('covers clipping width from the left (x < 0)', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
+      const mask = makeBinaryMask(2, 2)
+      mask.data.fill(1)
 
-      fillPixelData(dst, RED, {
+      fillPixelDataBinaryMask(dst, RED, mask, {
         x: -1,
         y: 0,
         w: 2,
@@ -71,8 +78,10 @@ describe('fillPixelData', () => {
 
     it('covers clipping height from the top (y < 0)', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
+      const mask = makeBinaryMask(2, 2)
+      mask.data.fill(1)
 
-      fillPixelData(dst, RED, {
+      fillPixelDataBinaryMask(dst, RED, mask, {
         x: 0,
         y: -1,
         w: 2,
@@ -97,8 +106,10 @@ describe('fillPixelData', () => {
       const targetY = 3
       const drawW = 5
       const drawH = 4
+      const mask = makeBinaryMask(DW, DH)
+      mask.data.fill(1)
 
-      fillPixelData(dst, RED, {
+      fillPixelDataBinaryMask(dst, RED, mask, {
         x: targetX,
         y: targetY,
         w: drawW,
@@ -122,8 +133,10 @@ describe('fillPixelData', () => {
 
     it('prevents memory wrap-around when width exceeds destination', () => {
       const dst = makeTestPixelData(3, 3, BLUE)
+      const mask = makeBinaryMask(3, 3)
+      mask.data.fill(1)
 
-      fillPixelData(dst, RED, {
+      fillPixelDataBinaryMask(dst, RED, mask, {
         x: 1,
         y: 1,
         w: 10,
@@ -141,8 +154,10 @@ describe('fillPixelData', () => {
 
     it('performs a total fill optimization correctly', () => {
       const dst = makeTestPixelData(5, 5, BLUE)
+      const mask = makeBinaryMask(5, 5)
+      mask.data.fill(1)
 
-      fillPixelData(dst, RED, {
+      fillPixelDataBinaryMask(dst, RED, mask, {
         x: 0,
         y: 0,
         w: 5,
@@ -154,14 +169,18 @@ describe('fillPixelData', () => {
     })
   })
 
-  describe('fillPixelData overloads', () => {
+  describe('fillPixelDataBinaryMask overloads', () => {
 
     it('should fill using discrete coordinates', () => {
       const color = 0xFF0000FF as Color32
       const dst = makeTestPixelData(100, 100)
-      fillPixelData(
+      const mask = makeBinaryMask(100, 100)
+      mask.data.fill(1)
+
+      fillPixelDataBinaryMask(
         dst,
         color,
+        mask,
         10,
         10,
         20,
@@ -175,6 +194,9 @@ describe('fillPixelData', () => {
     it('should fill using a Rect object', () => {
       const color = 0x00FF00FF as Color32
       const dst = makeTestPixelData(100, 100)
+      const mask = makeBinaryMask(100, 100)
+      mask.data.fill(1)
+
       const rect = {
         x: 5,
         y: 5,
@@ -182,7 +204,7 @@ describe('fillPixelData', () => {
         h: 10,
       }
 
-      fillPixelData(dst, color, rect)
+      fillPixelDataBinaryMask(dst, color, mask, rect)
 
       expect(getPixel(dst, 10, 10)).toBe(color)
     })
@@ -190,7 +212,10 @@ describe('fillPixelData', () => {
     it('should fill the entire buffer when no rect is provided', () => {
       const color = 0x0000FFFF as Color32
       const dst = makeTestPixelData(100, 100)
-      fillPixelData(dst, color)
+      const mask = makeBinaryMask(100, 100)
+      mask.data.fill(1)
+
+      fillPixelDataBinaryMask(dst, color, mask)
 
       expect(getPixel(dst, 0, 0)).toBe(color)
 
@@ -200,6 +225,8 @@ describe('fillPixelData', () => {
   it('should default x and y to 0 when passing a partial Rect', () => {
     const color = 0xFFFFFFFF as Color32
     const dst = makeTestPixelData(100, 100)
+    const mask = makeBinaryMask(100, 100)
+    mask.data.fill(1)
 
     // Only providing width and height
     const partialRect: Partial<Rect> = {
@@ -207,9 +234,10 @@ describe('fillPixelData', () => {
       h: 10,
     }
 
-    fillPixelData(
+    fillPixelDataBinaryMask(
       dst,
       color,
+      mask,
       partialRect,
     )
 
@@ -222,5 +250,66 @@ describe('fillPixelData', () => {
     const pixelOutside = getPixel(dst, 11, 11)
 
     expect(pixelOutside).not.toBe(color)
+  })
+
+  it('handles masking alignment', () => {
+    const dst = makeTestPixelData(5, 5)
+    const mask = makeBinaryMask(3, 3)
+
+    mask.data.set([
+      1, 1, 1,
+      1, 0, 1,
+      1, 1, 0,
+    ])
+
+    fillPixelDataBinaryMask(
+      dst,
+      COLOR,
+      mask,
+      1,
+      1,
+      3,
+      3,
+    )
+
+    const C = COLOR
+    expect(Array.from(dst.data32)).toEqual([
+      0, 0, 0, 0, 0,
+      0, C, C, C, 0,
+      0, C, 0, C, 0,
+      0, C, C, 0, 0,
+      0, 0, 0, 0, 0,
+    ])
+  })
+
+  it('handles masking negative alignment', () => {
+    const dst = makeTestPixelData(5, 5)
+
+    const mask = makeBinaryMask(3, 3)
+
+    mask.data.set([
+      1, 1, 1,
+      1, 0, 1,
+      1, 1, 0,
+    ])
+
+    fillPixelDataBinaryMask(
+      dst,
+      COLOR,
+      mask,
+      -1,
+      -1,
+      3,
+      3,
+    )
+
+    const C = COLOR
+    expect(Array.from(dst.data32)).toEqual([
+      0, C, 0, 0, 0,
+      C, 0, 0, 0, 0,
+      0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0,
+    ])
   })
 })

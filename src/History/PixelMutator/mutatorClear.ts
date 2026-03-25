@@ -14,15 +14,13 @@ export const mutatorClear = ((writer: PixelWriter<any>, deps: Deps = defaults) =
     clear(
       rect: Partial<BinaryMaskRect> = {},
     ) {
-      const {
-        x = 0,
-        y = 0,
-        w = writer.target.width,
-        h = writer.target.height,
-        mask = undefined,
-      } = rect
+      const x = rect.x ?? 0
+      const y = rect.y ?? 0
+      const w = rect.w ?? writer.target.width
+      const h = rect.h ?? writer.target.height
+
       writer.accumulator.storeRegionBeforeState(x, y, w, h)
-      fillPixelData(writer.target, 0 as Color32, x, y, w, h, mask)
+      fillPixelData(writer.target, 0 as Color32, x, y, w, h)
     },
   }
 }) satisfies HistoryMutator<any, Deps>

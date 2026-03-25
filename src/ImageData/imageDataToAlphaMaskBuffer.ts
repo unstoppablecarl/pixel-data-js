@@ -6,9 +6,9 @@ import { pixelDataToAlphaMask } from '../PixelData/pixelDataToAlphaMask'
  * When possible use {@link pixelDataToAlphaMask} instead.
  * Repeat calls to the same data will use less memory.
  */
-export function imageDataToAlphaMask(
+export function imageDataToAlphaMaskBuffer(
   imageData: ImageData,
-): AlphaMask {
+): Uint8Array {
   const {
     width,
     height,
@@ -22,7 +22,7 @@ export function imageDataToAlphaMask(
     data.byteLength >> 2,
   )
   const len = data32.length
-  const mask = new Uint8Array(width * height) as AlphaMask
+  const mask = new Uint8Array(width * height)
 
   for (let i = 0; i < len; i++) {
     const val = data32[i]
