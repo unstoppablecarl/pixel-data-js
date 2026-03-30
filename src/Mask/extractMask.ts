@@ -10,7 +10,7 @@ import { type Mask, type Rect } from '../_types'
  * @returns A new mask containing the extracted region.
  */
 export function extractMask<T extends Mask>(
-  mask: Mask,
+  mask: T,
   rect: Rect,
 ): T
 
@@ -23,14 +23,14 @@ export function extractMask<T extends Mask>(
  * @returns A new {@link Uint8Array} containing the extracted region.
  */
 export function extractMask<T extends Mask>(
-  mask: Mask,
+  mask: T,
   x: number,
   y: number,
   w: number,
   h: number,
 ): T
 export function extractMask<T extends Mask>(
-  mask: Mask,
+  mask: T,
   xOrRect: number | Rect,
   y?: number,
   w?: number,
