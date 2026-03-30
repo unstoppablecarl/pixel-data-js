@@ -68,7 +68,7 @@ export interface Mask {
   readonly data: Uint8Array
   readonly w: number
   readonly h: number
-  readonly set: (data: Uint8Array, width: number, height: number) => void
+  readonly set: (width: number, height: number, data: Uint8Array) => void
 }
 
 /** Strictly 0 or 1 */
@@ -79,6 +79,18 @@ export interface BinaryMask extends Mask {
 /** Strictly 0-255 */
 export interface AlphaMask extends Mask {
   readonly type: MaskType.ALPHA
+}
+
+export interface CircleBrushAlphaMask extends Omit<AlphaMask, 'set'> {
+  readonly size: number
+  readonly radius: number
+  readonly minOffset: number
+}
+
+export interface CircleBrushBinaryMask extends Omit<BinaryMask, 'set'> {
+  readonly size: number
+  readonly radius: number
+  readonly minOffset: number
 }
 
 /**
@@ -134,7 +146,7 @@ export interface InvertMask {
   invertMask?: boolean
 }
 
-export interface Alpha {
+interface Alpha {
   /**
    * Overall layer opacity 0-255.
    * @default 255

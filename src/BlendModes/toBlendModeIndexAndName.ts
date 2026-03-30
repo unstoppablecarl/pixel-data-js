@@ -12,14 +12,7 @@ export function toBlendModeIndexAndName(input: string | number) {
   const isNumeric = trimmed !== '' && !Number.isNaN(num)
 
   if (isNumeric && Number.isInteger(num)) {
-    console.log({
-      trimmed,
-      num,
-      isNumeric,
-      isInt: Number.isInteger(num),
-    })
     const name = getKeyByValue(BaseBlendMode, num)
-    console.log({name})
     if (name === undefined) throw new Error(`Invalid index: ${num}`)
     return { blendIndex: num, blendName: name }
   }

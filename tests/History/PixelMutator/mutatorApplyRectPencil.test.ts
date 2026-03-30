@@ -81,7 +81,6 @@ describe('mutatorApplyRectPencil', () => {
     )
 
     const callArgs = applyRectBrushToPixelDataSpy.mock.calls[0];
-// console.log(callArg)
     const actualFallOff = callArgs[7]
 
     expect(actualFallOff(0)).toEqual(1)

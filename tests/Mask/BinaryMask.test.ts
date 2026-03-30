@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { makeBinaryMask, MaskType } from '@/index'
+import { describe, expect, it } from 'vitest'
 
 describe('makeBinaryMask', () => {
   it('creates an BinaryMask with correct initial dimensions and data length', () => {
@@ -25,11 +25,24 @@ describe('makeBinaryMask', () => {
     newData[2] = 64
     newData[3] = 0
 
-    mask.set(newData, newWidth, newHeight)
+    mask.set(newWidth, newHeight, newData)
 
     expect(mask.w).toBe(newWidth)
     expect(mask.h).toBe(newHeight)
     expect(mask.data).toBe(newData)
+    expect(mask.data[0]).toBe(255)
+  })
+
+  it('creates an BinaryMask with provided data', () => {
+    const data = new Uint8Array(4)
+
+    data[0] = 255
+    data[1] = 128
+    data[2] = 64
+    data[3] = 0
+
+    const mask = makeBinaryMask(2, 2, data)
+    expect(mask.data).toBe(data)
     expect(mask.data[0]).toBe(255)
   })
 })

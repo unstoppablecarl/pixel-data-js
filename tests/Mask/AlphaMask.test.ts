@@ -25,11 +25,24 @@ describe('makeAlphaMask', () => {
     newData[2] = 64
     newData[3] = 0
 
-    mask.set(newData, newWidth, newHeight)
+    mask.set(newWidth, newHeight, newData)
 
     expect(mask.w).toBe(newWidth)
     expect(mask.h).toBe(newHeight)
     expect(mask.data).toBe(newData)
+    expect(mask.data[0]).toBe(255)
+  })
+
+  it('creates an AlphaMask with provided data', () => {
+    const data = new Uint8Array(4)
+
+    data[0] = 255
+    data[1] = 128
+    data[2] = 64
+    data[3] = 0
+
+    const mask = makeAlphaMask(2, 2, data)
+    expect(mask.data).toBe(data)
     expect(mask.data[0]).toBe(255)
   })
 })
