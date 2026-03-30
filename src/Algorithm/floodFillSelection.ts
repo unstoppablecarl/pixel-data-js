@@ -1,7 +1,6 @@
-import { type BinaryMaskRect, type Color32, type ImageDataLike, type Rect, type SelectionRect } from '../_types'
+import { type BinaryMaskRect, type Color32, type ImageDataLike, MaskType, type Rect } from '../_types'
 import { colorDistance } from '../color'
 import { extractImageDataBuffer } from '../ImageData/extractImageDataBuffer'
-import { makeBinaryMask } from '../Mask/BinaryMask'
 import type { PixelData } from '../PixelData/PixelData'
 import { trimRectBounds } from '../Rect/trimRectBounds'
 
@@ -182,17 +181,20 @@ export function floodFillSelection(
   if (matchCount === 0) {
     return null
   }
+  const w = maxX - minX + 1
+  const h = maxY - minY + 1
   const selectionRect: BinaryMaskRect = {
     x: minX,
     y: minY,
-    w: maxX - minX + 1,
-    h: maxY - minY + 1,
-    mask: makeBinaryMask((maxX - minX + 1), (maxY - minY + 1)),
+    w,
+    h,
+    data: new Uint8Array(w * h),
+    type: MaskType.BINARY,
   }
 
   const sw = selectionRect.w
   const sh = selectionRect.h
-  const finalMask = selectionRect.mask.data
+  const finalMask = selectionRect.data
 
   for (let i = 0; i < matchCount; i++) {
     const mx = matchX[i] - selectionRect.x

@@ -212,17 +212,27 @@ export interface ColorBlendOptions extends PixelRect, Alpha {
 export interface ColorBlendMaskOptions extends ColorBlendOptions, MaskOffset, InvertMask {
 }
 
-export type SelectionRect<T extends Mask | null = Mask | null> = Rect & {
-  mask?: T,
-}
-
 export type BinaryMaskRect = Rect & {
-  mask: BinaryMask
+  type: MaskType.BINARY
+  data: Uint8Array
 }
 
-export type NullableBinaryMaskRect = Rect & {
-  mask?: BinaryMask | null
-}
+export type NullableBinaryMaskRect = Rect & ({
+  type: MaskType.BINARY
+  data: Uint8Array
+} | {
+  type?: null
+  data?: null
+})
+
+
+export type NullableMaskRect = Rect & ({
+  type: MaskType
+  data: Uint8Array
+} | {
+  type?: null
+  data?: null
+})
 
 export type AlphaMaskRect = Rect & {
   mask: AlphaMask

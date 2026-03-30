@@ -1,6 +1,6 @@
-import type { NullableBinaryMaskRect } from '../_types'
+import { MaskType, type NullableBinaryMaskRect } from '../_types'
 
-export function subtractBinaryMaskSelectionRects(
+export function subtractBinaryMaskRects(
   current: NullableBinaryMaskRect[],
   subtracting: NullableBinaryMaskRect[],
 ): NullableBinaryMaskRect[] {
@@ -56,8 +56,8 @@ function pushPiece(
   w: number,
   h: number,
 ): void {
-  if (r.mask === null || r.mask === undefined) {
-    dest.push({ x, y, w, h, mask: null })
+  if (r.data === null || r.data === undefined) {
+    dest.push({ x, y, w, h, data: null, type: null })
     return
   }
 
@@ -68,7 +68,7 @@ function pushPiece(
   const data = new Uint8Array(w * h)
   for (let row = 0; row < h; row++) {
     data.set(
-      r.mask.data.subarray(
+      r.data.subarray(
         (ly + row) * r.w + lx,
         (ly + row) * r.w + lx + w,
       ),
@@ -76,5 +76,5 @@ function pushPiece(
     )
   }
 
-  dest.push({ x, y, w, h, mask: { type: r.mask.type, w, h, data } })
+  dest.push({ x, y, w, h, data, type: MaskType.BINARY })
 }

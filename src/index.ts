@@ -1,7 +1,4 @@
 // @sort-all
-
-import { subtractBinaryMaskSelectionRects } from './Mask/subtractBinaryMaskSelectionRects'
-
 export * from './_types'
 export * from './color'
 
@@ -84,7 +81,6 @@ export * from './Mask/BinaryMask'
 export * from './Mask/CircleBrushAlphaMask'
 export * from './Mask/CircleBrushBinaryMask'
 
-export { subtractBinaryMaskSelectionRects } from './Mask/subtractBinaryMaskSelectionRects'
 export * from './Mask/applyBinaryMaskToAlphaMask'
 export * from './Mask/copyMask'
 export * from './Mask/extractMask'
@@ -92,8 +88,11 @@ export * from './Mask/extractMaskBuffer'
 export * from './Mask/invertMask'
 export * from './Mask/mergeAlphaMasks'
 export * from './Mask/mergeBinaryMasks'
-export * from './Mask/mergeBinaryMaskSelectionRects'
 export * from './Mask/setMaskData'
+
+export { subtractBinaryMaskRects } from './MaskRect/subtractBinaryMaskRects'
+export * from './MaskRect/merge2BinaryMaskRects'
+export * from './MaskRect/mergeBinaryMaskRects'
 
 export * from './PixelData/applyAlphaMaskToPixelData'
 export * from './PixelData/applyBinaryMaskToPixelData'

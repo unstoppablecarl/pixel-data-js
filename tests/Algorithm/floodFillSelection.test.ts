@@ -104,7 +104,7 @@ describe('floodFillSelection: Scrutiny Suite', () => {
     // With 4-connectivity, only the center pixel should be selected
     expect(result!.selectionRect.w).toBe(1)
     expect(result!.selectionRect.h).toBe(1)
-    expect(result!.selectionRect.mask.data[0]).toBe(1)
+    expect(result!.selectionRect.data[0]).toBe(1)
   })
 
   it('verifies non-contiguous mode picks up isolated islands', () => {
@@ -130,12 +130,12 @@ describe('floodFillSelection: Scrutiny Suite', () => {
     )
 
     expect(result!.selectionRect.w).toBe(3) // Bounds span from index 0 to 2
-    const mask = result!.selectionRect.mask!
+    const data = result!.selectionRect.data!
 
     // Mask corresponds to x=0, 1, 2
-    expect(mask.data[0]).toBe(1) // x=0 (White)
-    expect(mask.data[1]).toBe(0) // x=1 (Black)
-    expect(mask.data[2]).toBe(1) // x=2 (White)
+    expect(data[0]).toBe(1) // x=0 (White)
+    expect(data[1]).toBe(0) // x=1 (Black)
+    expect(data[2]).toBe(1) // x=2 (White)
   })
   it('validates coordinate remapping using a truly solid color block', () => {
     const w = 10
@@ -357,8 +357,8 @@ describe('floodFillSelection: Scrutiny Suite', () => {
         },
       )
 
-      expect(result!.selectionRect.mask.data[0]).toBe(1)
-      expect(result!.selectionRect.mask.data.length).toBe(1)
+      expect(result!.selectionRect.data[0]).toBe(1)
+      expect(result!.selectionRect.data.length).toBe(1)
     })
   })
   it('covers the matchCount === 0 branch using an empty bounds rectangle', () => {

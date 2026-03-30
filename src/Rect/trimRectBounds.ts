@@ -1,11 +1,10 @@
-import type { Rect, SelectionRect } from '../_types'
+import type { NullableMaskRect, Rect } from '../_types'
 import { extractMaskBuffer } from '../Mask/extractMaskBuffer'
-import { setMaskData } from '../Mask/setMaskData'
 
 /**
  * Intersects a target rectangle with a boundary, trimming dimensions and masks in-place.
  * This utility calculates the axis-aligned intersection between the `target` and `bounds`.
- * If the `target` includes a `mask` (as in a {@link SelectionRect}), the mask is physically
+ * If the `target` includes a `mask` (as in a {@link NullableMaskRect}), the mask is physically
  * cropped and re-aligned using `extractMaskBuffer` to match the new dimensions.
  * @param target - The rectangle or selection object to be trimmed. **Note:** This object is mutated in-place.
  * @param bounds - The boundary rectangle defining the maximum allowable area (e.g., canvas dimensions).
@@ -16,7 +15,7 @@ import { setMaskData } from '../Mask/setMaskData'
  * // The mask is cropped by 10 px on the top and left.
  * trimRectBounds(selection, canvas);
  */
-export function trimRectBounds<T extends Rect | SelectionRect>(
+export function trimRectBounds<T extends NullableMaskRect>(
   target: T,
   bounds: Rect,
 ): void {
@@ -41,9 +40,8 @@ export function trimRectBounds<T extends Rect | SelectionRect>(
     target.w = 0
     target.h = 0
 
-    if ('mask' in target && target.mask) {
-      // This line is now hit by the 'empty intersection' test below
-      setMaskData(target.mask, 0, 0, new Uint8Array(0))
+    if ('data' in target && target.data) {
+      target.data = new Uint8Array(0)
     }
 
     return
@@ -59,9 +57,9 @@ export function trimRectBounds<T extends Rect | SelectionRect>(
   target.w = intersectedW
   target.h = intersectedH
 
-  if ('mask' in target && target.mask) {
+  if ('data' in target && target.data) {
     const currentMaskBuffer = extractMaskBuffer(
-      target.mask.data,
+      target.data,
       originalW,
       offsetX,
       offsetY,
@@ -90,7 +88,7 @@ export function trimRectBounds<T extends Rect | SelectionRect>(
     if (maxX === -1) {
       target.w = 0
       target.h = 0
-      setMaskData(target.mask, 0, 0, new Uint8Array(0))
+      target.data = new Uint8Array(0)
 
       return
     }
@@ -109,14 +107,15 @@ export function trimRectBounds<T extends Rect | SelectionRect>(
         finalH,
       )
 
-      setMaskData(target.mask, finalW, finalH, newMaskBuffer)
-
       target.x += minX
       target.y += minY
       target.w = finalW
       target.h = finalH
+      target.data = newMaskBuffer
     } else {
-      setMaskData(target.mask, finalW, finalH, currentMaskBuffer)
+      target.w = finalW
+      target.h = finalH
+      target.data = currentMaskBuffer
     }
   }
 }

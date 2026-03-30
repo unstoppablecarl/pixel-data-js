@@ -2,6 +2,7 @@ import { expect } from 'vitest'
 import {
   type AlphaMask,
   type BinaryMask,
+  type BinaryMaskRect,
   type Color32,
   type ImageDataLike,
   type IPixelData,
@@ -197,6 +198,21 @@ export function makeTestBinaryMask(w: number, h: number, value?: number | number
   return mask
 }
 
+export function makeTestBinaryMaskRect(x: number, y: number, w: number, h: number, value?: number | number[]): BinaryMaskRect {
+  const mask = makeBinaryMask(w, h)
+  if (typeof value === 'number') {
+    mask.data.fill(value)
+  }
+  if (Array.isArray(value)) {
+    mask.data.set(value)
+  }
+  return {
+    x,
+    y,
+    ...mask,
+  }
+}
+
 /**
  * Compares two Uint32 pixel buffers and returns an array of mismatches
  * with their 2D coordinates and hex values.
@@ -291,7 +307,6 @@ function rgbColor(color: Color32) {
     return `\x1b[38;2;${r};${g};${b}m █\x1b[0m`
   }
 }
-
 
 export function printBinaryMaskGrid(dst: BinaryMask, sep = ', '): void {
   const w = dst.w

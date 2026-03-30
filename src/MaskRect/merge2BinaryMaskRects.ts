@@ -1,8 +1,7 @@
-import type { NullableBinaryMaskRect } from '../_types'
+import { MaskType, type NullableBinaryMaskRect } from '../_types'
 import { getRectsBounds } from '../Rect/getRectsBounds'
-import { makeBinaryMask } from './BinaryMask'
 
-export function mergeBinaryMaskSelectionRects(
+export function merge2BinaryMaskRects(
   a: NullableBinaryMaskRect,
   b: NullableBinaryMaskRect,
 ): NullableBinaryMaskRect {
@@ -10,8 +9,8 @@ export function mergeBinaryMaskSelectionRects(
 
   // If both are fully selected, check if they form a perfect, gapless rectangle
   if (
-    (a.mask === null || a.mask === undefined)
-    && (b.mask === null || b.mask === undefined)
+    (a.data === null || a.data === undefined)
+    && (b.data === null || b.data === undefined)
   ) {
     const ix = Math.max(a.x, b.x)
     const iy = Math.max(a.y, b.y)
@@ -29,27 +28,28 @@ export function mergeBinaryMaskSelectionRects(
     if (boundsArea === areaA + areaB - intersectionArea) {
       return {
         ...bounds,
-        mask: null,
+        data: null,
+        type: null,
       }
     }
   }
 
-  const mask = makeBinaryMask(bounds.w, bounds.h)
+ const maskData =  new Uint8Array(bounds.w * bounds.h)
 
   // --- Write A's contribution ---
   const aOffY = a.y - bounds.y
   const aOffX = a.x - bounds.x
 
-  if (!a.mask) {
+  if (a.data === undefined || a.data === null) {
     for (let ay = 0; ay < a.h; ay++) {
       const destRow = (aOffY + ay) * bounds.w + aOffX
-      mask.data.fill(1, destRow, destRow + a.w)
+      maskData.fill(1, destRow, destRow + a.w)
     }
   } else {
     for (let ay = 0; ay < a.h; ay++) {
       const srcRow = ay * a.w
       const destRow = (aOffY + ay) * bounds.w + aOffX
-      mask.data.set(a.mask.data.subarray(srcRow, srcRow + a.w), destRow)
+      maskData.set(a.data.subarray(srcRow, srcRow + a.w), destRow)
     }
   }
 
@@ -57,10 +57,10 @@ export function mergeBinaryMaskSelectionRects(
   const bOffY = b.y - bounds.y
   const bOffX = b.x - bounds.x
 
-  if (!b.mask) {
+  if (b.data === undefined || b.data === null) {
     for (let by = 0; by < b.h; by++) {
       const destRow = (bOffY + by) * bounds.w + bOffX
-      mask.data.fill(1, destRow, destRow + b.w)
+      maskData.fill(1, destRow, destRow + b.w)
     }
   } else {
     for (let by = 0; by < b.h; by++) {
@@ -68,13 +68,14 @@ export function mergeBinaryMaskSelectionRects(
       const destRow = (bOffY + by) * bounds.w + bOffX
 
       for (let bx = 0; bx < b.w; bx++) {
-        mask.data[destRow + bx] |= b.mask.data[srcRow + bx]
+        maskData[destRow + bx] |= b.data[srcRow + bx]
       }
     }
   }
 
   return {
     ...bounds,
-    mask,
+    data: maskData,
+    type: MaskType.BINARY,
   }
 }

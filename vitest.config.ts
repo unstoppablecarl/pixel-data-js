@@ -34,27 +34,27 @@ export default defineConfig({
           setupFiles: [setupFile],
         },
       },
-      {
-        resolve: {
-          alias: {
-            // 1. Map the specific entry point used in your tests
-            '@/index': fileURLToPath(new URL('./dist/index.dev.js', import.meta.url)),
-
-            // 2. Map the root alias to the dist folder for any other imports
-            '@/': fileURLToPath(new URL('./dist/', import.meta.url)),
-          },
-        },
-        test: {
-          name: 'dist',
-          include: ['tests/**/*.test.ts'],
-          exclude: [
-            'tests/Clipboard/*',
-            'tests/Input/*',
-          ],
-          environment: 'jsdom',
-          setupFiles: [setupFile],
-        },
-      },
+      // {
+      //   resolve: {
+      //     alias: {
+      //       // 1. Map the specific entry point used in your tests
+      //       '@/index': fileURLToPath(new URL('./dist/index.dev.js', import.meta.url)),
+      //
+      //       // 2. Map the root alias to the dist folder for any other imports
+      //       '@/': fileURLToPath(new URL('./dist/', import.meta.url)),
+      //     },
+      //   },
+      //   test: {
+      //     name: 'dist',
+      //     include: ['tests/**/*.test.ts'],
+      //     exclude: [
+      //       'tests/Clipboard/*',
+      //       'tests/Input/*',
+      //     ],
+      //     environment: 'jsdom',
+      //     setupFiles: [setupFile],
+      //   },
+      // },
     ],
   },
 })

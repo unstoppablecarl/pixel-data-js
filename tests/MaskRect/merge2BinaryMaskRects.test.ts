@@ -1,43 +1,30 @@
-import { makeBinaryMask, mergeBinaryMaskSelectionRects, type NullableBinaryMaskRect } from '@/index'
+import { merge2BinaryMaskRects } from '@/index'
 import { describe, expect, it } from 'vitest'
+import { makeTestBinaryMaskRect } from '../_helpers'
 
-function createRect(
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  maskData?: number[],
-): NullableBinaryMaskRect {
-  const rect: NullableBinaryMaskRect = {
-    x,
-    y,
-    w,
-    h,
-    mask: null,
-  }
-
-  if (maskData) {
-    const mask = makeBinaryMask(w, h)
-
-    mask.data.set(maskData)
-    rect.mask = mask
-  }
-
-  return rect
-}
-
-describe('mergeBinaryMaskSelectionRects', () => {
+describe('merge2BinaryMaskRects', () => {
   it('merges two fully selected rectangles and generates a mask for empty bounding corners', () => {
-    const a = createRect(0, 0, 2, 2)
-    const b = createRect(1, 1, 2, 2)
+    const a = {
+      x: 0,
+      y: 0,
+      w: 2,
+      h: 2,
+    }
 
-    const result = mergeBinaryMaskSelectionRects(a, b)
+    const b = {
+      x: 1,
+      y: 1,
+      w: 2,
+      h: 2,
+    }
+
+    const result = merge2BinaryMaskRects(a, b)
 
     expect(result.x).toBe(0)
     expect(result.y).toBe(0)
     expect(result.w).toBe(3)
     expect(result.h).toBe(3)
-    expect(result.mask).not.toBeNull()
+    expect(result.data).not.toBeNull()
 
     const expectedData = [
       1,
@@ -50,23 +37,23 @@ describe('mergeBinaryMaskSelectionRects', () => {
       1,
       1,
     ]
-    const actualData = Array.from(result.mask!.data)
+    const actualData = Array.from(result.data!)
 
     expect(actualData).toEqual(expectedData)
   })
 
   it('merges a null mask with a defined binary mask', () => {
-    const a = createRect(
-      0,
-      0,
-      2,
-      2,
-    )
+    const a = {
+      x: 0,
+      y: 0,
+      w: 2,
+      h: 2,
+    }
     const maskData = [
       1,
       0,
     ]
-    const b = createRect(
+    const b = makeTestBinaryMaskRect(
       2,
       0,
       2,
@@ -74,13 +61,13 @@ describe('mergeBinaryMaskSelectionRects', () => {
       maskData,
     )
 
-    const result = mergeBinaryMaskSelectionRects(a, b)
+    const result = merge2BinaryMaskRects(a, b)
 
     expect(result.x).toBe(0)
     expect(result.y).toBe(0)
     expect(result.w).toBe(4)
     expect(result.h).toBe(2)
-    expect(result.mask).not.toBeNull()
+    expect(result.data).not.toBeNull()
 
     const expectedData = [
       1,
@@ -92,7 +79,7 @@ describe('mergeBinaryMaskSelectionRects', () => {
       0,
       0,
     ]
-    const actualData = Array.from(result.mask!.data)
+    const actualData = Array.from(result.data!)
 
     expect(actualData).toEqual(expectedData)
   })
@@ -102,7 +89,7 @@ describe('mergeBinaryMaskSelectionRects', () => {
       1,
       0,
     ]
-    const a = createRect(
+    const a = makeTestBinaryMaskRect(
       0,
       0,
       2,
@@ -113,7 +100,7 @@ describe('mergeBinaryMaskSelectionRects', () => {
       0,
       1,
     ]
-    const b = createRect(
+    const b = makeTestBinaryMaskRect(
       1,
       0,
       2,
@@ -121,20 +108,20 @@ describe('mergeBinaryMaskSelectionRects', () => {
       dataB,
     )
 
-    const result = mergeBinaryMaskSelectionRects(a, b)
+    const result = merge2BinaryMaskRects(a, b)
 
     expect(result.x).toBe(0)
     expect(result.y).toBe(0)
     expect(result.w).toBe(3)
     expect(result.h).toBe(1)
-    expect(result.mask).not.toBeNull()
+    expect(result.data).not.toBeNull()
 
     const expectedData = [
       1,
       0,
       1,
     ]
-    const actualData = Array.from(result.mask!.data)
+    const actualData = Array.from(result.data!)
 
     expect(actualData).toEqual(expectedData)
   })
@@ -143,7 +130,7 @@ describe('mergeBinaryMaskSelectionRects', () => {
     const dataA = [
       1,
     ]
-    const a = createRect(
+    const a = makeTestBinaryMaskRect(
       0,
       0,
       1,
@@ -153,7 +140,7 @@ describe('mergeBinaryMaskSelectionRects', () => {
     const dataB = [
       1,
     ]
-    const b = createRect(
+    const b = makeTestBinaryMaskRect(
       2,
       0,
       1,
@@ -161,39 +148,40 @@ describe('mergeBinaryMaskSelectionRects', () => {
       dataB,
     )
 
-    const result = mergeBinaryMaskSelectionRects(a, b)
+    const result = merge2BinaryMaskRects(a, b)
 
     expect(result.x).toBe(0)
     expect(result.y).toBe(0)
     expect(result.w).toBe(3)
     expect(result.h).toBe(1)
-    expect(result.mask).not.toBeNull()
+    expect(result.data).not.toBeNull()
 
     const expectedData = [
       1,
       0,
       1,
     ]
-    const actualData = Array.from(result.mask!.data)
+    const actualData = Array.from(result.data!)
 
     expect(actualData).toEqual(expectedData)
   })
 
   it('generates a mask when merging disjoint rectangles with null masks to preserve empty space', () => {
-    const a = createRect(
-      0,
-      0,
-      1,
-      1,
-    )
-    const b = createRect(
-      2,
-      0,
-      1,
-      1,
-    )
+    const a = {
+      x: 0,
+      y: 0,
+      w: 1,
+      h: 1,
+    }
 
-    const result = mergeBinaryMaskSelectionRects(a, b)
+    const b = {
+      x: 2,
+      y: 0,
+      w: 1,
+      h: 1,
+    }
+
+    const result = merge2BinaryMaskRects(a, b)
 
     // The bounding box covers x:0 to x:3
     expect(result.x).toBe(0)
@@ -203,34 +191,35 @@ describe('mergeBinaryMaskSelectionRects', () => {
 
     // Because there is a gap at x:1, the mask CANNOT be null.
     // It must explicitly map the gap.
-    expect(result.mask).not.toBeNull()
+    expect(result.data).not.toBeNull()
 
     const expectedData = [
       1,
       0,
       1,
     ]
-    const actualData = Array.from(result.mask!.data)
+    const actualData = Array.from(result.data!)
 
     expect(actualData).toEqual(expectedData)
   })
 
   it('returns a null mask when two adjacent rectangles combine into a gapless bounding box', () => {
     // Two 10x10 squares sitting perfectly side-by-side
-    const a = createRect(
-      0,
-      0,
-      10,
-      10,
-    )
-    const b = createRect(
-      10,
-      0,
-      10,
-      10,
-    )
 
-    const result = mergeBinaryMaskSelectionRects(a, b)
+    const a = {
+      x: 0,
+      y: 0,
+      w: 10,
+      h: 10,
+    }
+    const b = {
+      x: 10,
+      y: 0,
+      w: 10,
+      h: 10,
+    }
+
+    const result = merge2BinaryMaskRects(a, b)
 
     // Bounding Box Area: 200. Area A (100) + Area B (100) - Overlap (0) = 200.
     expect(result.x).toBe(0)
@@ -239,25 +228,25 @@ describe('mergeBinaryMaskSelectionRects', () => {
     expect(result.h).toBe(10)
 
     // Because they form a perfect rectangle, it safely skips mask generation
-    expect(result.mask).toBeNull()
+    expect(result.data).toBeNull()
   })
 
   it('returns a null mask when overlapping rectangles form a gapless bounding box', () => {
     // Two 20x10 rectangles overlapping by 10 pixels in the middle
-    const a = createRect(
-      0,
-      0,
-      20,
-      10,
-    )
-    const b = createRect(
-      10,
-      0,
-      20,
-      10,
-    )
+    const a = {
+      x: 0,
+      y: 0,
+      w: 20,
+      h: 10,
+    }
+    const b = {
+      x: 10,
+      y: 0,
+      w: 20,
+      h: 10,
+    }
 
-    const result = mergeBinaryMaskSelectionRects(a, b)
+    const result = merge2BinaryMaskRects(a, b)
 
     // Bounding Box Area: 300. Area A (200) + Area B (200) - Overlap (100) = 300.
     expect(result.x).toBe(0)
@@ -266,6 +255,6 @@ describe('mergeBinaryMaskSelectionRects', () => {
     expect(result.h).toBe(10)
 
     // Because the overlap math perfectly accounts for the bounding box, mask is null
-    expect(result.mask).toBeNull()
+    expect(result.data).toBeNull()
   })
 })
