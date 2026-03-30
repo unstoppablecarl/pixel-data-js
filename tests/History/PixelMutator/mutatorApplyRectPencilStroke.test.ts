@@ -2,13 +2,12 @@ import {
   type BinaryMask,
   forEachLinePoint,
   getRectBrushOrPencilBounds,
-  type Mask,
   MaskType,
   mutatorApplyRectPencilStroke,
   sourceOverPerfect,
 } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { pack, printBinaryMaskGrid } from '../../_helpers'
+import { pack } from '../../_helpers'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyRectPencilStroke', () => {
@@ -122,7 +121,6 @@ describe('mutatorApplyRectPencilStroke', () => {
 
     const mask = blendColorPixelDataBinaryMaskSpy.mock.calls[0][2] as BinaryMask
 
-    printBinaryMaskGrid(mask)
     expect(mask).toEqual({
       w: 5,
       h: 5,

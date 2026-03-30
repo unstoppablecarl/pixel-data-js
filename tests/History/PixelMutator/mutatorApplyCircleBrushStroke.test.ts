@@ -8,7 +8,7 @@ import {
   sourceOverPerfect,
 } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { pack, printAlphaMaskGrid } from '../../_helpers'
+import { pack } from '../../_helpers'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyCircleBrushStroke', () => {
@@ -91,7 +91,6 @@ describe('mutatorApplyCircleBrushStroke', () => {
       color,
       expect.toSatisfy((v: AlphaMask) => {
 
-        printAlphaMaskGrid(v)
         expect(v).toEqual({
           type: MaskType.ALPHA,
           w: 5,

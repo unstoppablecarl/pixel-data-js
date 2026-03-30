@@ -3,11 +3,12 @@ import {
   type Color32,
   forEachLinePoint,
   getCircleBrushOrPencilBounds,
-  getCircleBrushOrPencilStrokeBounds, MaskType,
-  mutatorApplyCirclePencilStroke, sourceOverPerfect,
+  getCircleBrushOrPencilStrokeBounds,
+  MaskType,
+  mutatorApplyCirclePencilStroke,
+  sourceOverPerfect,
 } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { printBinaryMaskGrid } from '../../_helpers'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyCirclePencilStroke', () => {

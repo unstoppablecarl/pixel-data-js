@@ -1,6 +1,6 @@
 import { applyBinaryMaskToPixelData, type BinaryMask, makeBinaryMask, type PixelData } from '@/index'
 import { describe, expect, it } from 'vitest'
-import { makeTestBinaryMask, makeTestPixelData, pack, printBinaryMaskGrid } from '../_helpers'
+import { makeTestBinaryMask, makeTestPixelData, pack } from '../_helpers'
 
 const RED = pack(255, 0, 0, 255)
 const BLUE = pack(0, 0, 255, 255)

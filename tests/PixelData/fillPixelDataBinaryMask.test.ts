@@ -2,7 +2,7 @@ import type { Color32, Rect } from '@/index'
 import { fillPixelDataBinaryMask } from '@/index'
 import { makeBinaryMask } from '@/Mask/BinaryMask'
 import { describe, expect, it } from 'vitest'
-import { getPixel, makeTestPixelData, pack, printPixelDataGrid } from '../_helpers'
+import { getPixel, makeTestPixelData, pack } from '../_helpers'
 
 const RED = pack(255, 0, 0, 255)
 const BLUE = pack(0, 0, 255, 255)
