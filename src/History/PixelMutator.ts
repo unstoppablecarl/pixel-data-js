@@ -2,6 +2,7 @@ import { mutatorApplyAlphaMask } from './PixelMutator/mutatorApplyAlphaMask'
 import { mutatorApplyBinaryMask } from './PixelMutator/mutatorApplyBinaryMask'
 import { mutatorApplyCircleBrush } from './PixelMutator/mutatorApplyCircleBrush'
 import { mutatorApplyCircleBrushStroke } from './PixelMutator/mutatorApplyCircleBrushStroke'
+import { mutatorApplyCirclePencil } from './PixelMutator/mutatorApplyCirclePencil'
 import { mutatorApplyCirclePencilStroke } from './PixelMutator/mutatorApplyCirclePencilStroke'
 import { mutatorApplyRectBrush } from './PixelMutator/mutatorApplyRectBrush'
 import { mutatorApplyRectBrushStroke } from './PixelMutator/mutatorApplyRectBrushStroke'
@@ -29,6 +30,7 @@ export function makeFullPixelMutator(writer: PixelWriter<any>) {
     ...mutatorApplyCircleBrush(writer),
     ...mutatorApplyCircleBrushStroke(writer),
 
+    ...mutatorApplyCirclePencil(writer),
     ...mutatorApplyCirclePencilStroke(writer),
 
     ...mutatorApplyRectBrush(writer),

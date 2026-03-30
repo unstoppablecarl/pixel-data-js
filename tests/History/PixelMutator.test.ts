@@ -18,6 +18,7 @@ describe('PixelMutator', () => {
       'applyBinaryMask',
       'applyCircleBrush',
       'applyCircleBrushStroke',
+      'applyCirclePencil',
       'applyCirclePencilStroke',
       'applyRectBrush',
       'applyRectBrushStroke',
