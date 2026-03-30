@@ -1,5 +1,4 @@
-import { MaskType, type NullableBinaryMaskRect } from '@/_types'
-import { subtractBinaryMaskRects } from '@/MaskRect/subtractBinaryMaskRects'
+import { MaskType, type NullableBinaryMaskRect, subtractBinaryMaskRects } from '@/index'
 import { describe, expect, it } from 'vitest'
 import { makeTestBinaryMaskRect } from '../_helpers'
 

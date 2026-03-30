@@ -1,5 +1,4 @@
-import { type NullableBinaryMaskRect } from '@/_types'
-import { mergeBinaryMaskRects } from '@/MaskRect/mergeBinaryMaskRects'
+import { mergeBinaryMaskRects, type NullableBinaryMaskRect } from '@/index'
 import { describe, expect, it } from 'vitest'
 import { makeTestBinaryMaskRect } from '../_helpers'
 
