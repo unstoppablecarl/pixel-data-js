@@ -12,10 +12,8 @@ import type { ImageDataLike } from '../_types'
  * @param newHeight The target height in pixels.
  * @param offsetX The horizontal offset for placing the
  * original image within the new buffer.
- * @default 0
  * @param offsetY The vertical offset for placing the
  * original image within the new buffer.
- * @default 0
  *
  * @returns A new {@link ImageData} instance with the specified dimensions.
  *

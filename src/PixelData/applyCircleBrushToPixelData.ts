@@ -11,11 +11,9 @@ import { getCircleBrushOrPencilBounds } from '../Rect/getCircleBrushOrPencilBoun
  * @param centerY The center y-coordinate of the brush.
  * @param brushSize The diameter of the brush.
  * @param alpha The overall opacity of the brush (0-255).
- * @default 255
  * @param fallOff A function that returns an alpha multiplier (0-1) based on the normalized distance (0-1) from the circle's center.
  * @param blendFn
  * @param bounds precalculated result from {@link getCircleBrushOrPencilBounds}
- * @default sourceOverPerfect
  */
 export function applyCircleBrushToPixelData(
   target: IPixelData,

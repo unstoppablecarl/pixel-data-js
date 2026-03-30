@@ -28,9 +28,9 @@ export type FloodFillResult = {
  * @param startX - The starting horizontal coordinate.
  * @param startY - The starting vertical coordinate.
  * @param options - Configuration for the fill operation.
- * @param options.contiguous - @default true. If true, only connected pixels are
+ * @param options.contiguous - If true, only connected pixels are
  * selected. If false, all pixels within tolerance are selected regardless of position.
- * @param options.tolerance - @default 0. The maximum allowed difference in color
+ * @param options.tolerance - The maximum allowed difference in color
  * distance (0-255) for a pixel to be included.
  * @param options.bounds - Optional bounding box to restrict the search area.
  *
