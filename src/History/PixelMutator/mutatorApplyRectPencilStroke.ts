@@ -21,6 +21,10 @@ const defaults = {
 }
 
 type Deps = Partial<typeof defaults>
+
+/**
+ * @param deps - @hidden
+ */
 export const mutatorApplyRectPencilStroke = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
   const {
     forEachLinePoint = defaults.forEachLinePoint,

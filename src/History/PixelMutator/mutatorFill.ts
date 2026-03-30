@@ -4,6 +4,10 @@ import { PixelWriter } from '../PixelWriter'
 
 const defaults = { fillPixelData }
 type Deps = Partial<typeof defaults>
+
+/**
+ * @param deps - @hidden
+ */
 export const mutatorFill = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
   const {
     fillPixelData = defaults.fillPixelData,

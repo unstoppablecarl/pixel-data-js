@@ -11,6 +11,9 @@ const defaults = {
 
 type Deps = Partial<typeof defaults>
 
+/**
+ * @param deps - @hidden
+ */
 export const mutatorApplyRectPencil = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
   const {
     applyRectBrushToPixelData = defaults.applyRectBrushToPixelData,

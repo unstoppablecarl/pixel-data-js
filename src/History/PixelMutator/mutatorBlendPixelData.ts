@@ -4,6 +4,10 @@ import { PixelWriter } from '../PixelWriter'
 
 const defaults = { blendPixelData }
 type Deps = Partial<typeof defaults>
+
+/**
+ * @param deps - @hidden
+ */
 export const mutatorBlendPixelData = ((writer: PixelWriter<any>, deps: Partial<Deps> = defaults) => {
   const {
     blendPixelData = defaults.blendPixelData,

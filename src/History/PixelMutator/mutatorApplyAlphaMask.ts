@@ -8,6 +8,9 @@ const defaults = {
 
 type Deps = Partial<typeof defaults>
 
+/**
+ * @param deps - @hidden
+ */
 export const mutatorApplyAlphaMask = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
   const {
     applyAlphaMaskToPixelData = defaults.applyAlphaMaskToPixelData,

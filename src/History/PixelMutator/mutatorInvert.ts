@@ -5,6 +5,9 @@ import { PixelWriter } from '../PixelWriter'
 const defaults = { invertPixelData }
 type Deps = Partial<typeof defaults>
 
+/**
+ * @param deps - @hidden
+ */
 export const mutatorInvert = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
   const {
     invertPixelData = defaults.invertPixelData,

@@ -4,6 +4,10 @@ import { PixelWriter } from '../PixelWriter'
 
 const defaults = { fillPixelDataBinaryMask }
 type Deps = Partial<typeof defaults>
+
+/**
+ * @param deps - @hidden
+ */
 export const mutatorFillBinaryMask = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
   const {
     fillPixelDataBinaryMask = defaults.fillPixelDataBinaryMask,

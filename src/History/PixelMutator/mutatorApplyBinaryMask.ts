@@ -8,6 +8,9 @@ const defaults = {
 
 type Deps = Partial<typeof defaults>
 
+/**
+ * @param deps - @hidden
+ */
 export const mutatorApplyBinaryMask = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
   const {
     applyBinaryMaskToPixelData = defaults.applyBinaryMaskToPixelData,

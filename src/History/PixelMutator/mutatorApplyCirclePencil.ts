@@ -11,6 +11,9 @@ const defaults = {
 
 type Deps = Partial<typeof defaults>
 
+/**
+ * @param deps - @hidden
+ **/
 export const mutatorApplyCirclePencil = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
   const {
     applyCircleBrushToPixelData = defaults.applyCircleBrushToPixelData,
