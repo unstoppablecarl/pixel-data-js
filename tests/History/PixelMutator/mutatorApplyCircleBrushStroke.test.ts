@@ -208,7 +208,7 @@ describe('mutatorApplyCircleBrushStroke', () => {
       getCircleBrushOrPencilStrokeBounds,
     })
 
-    const brush = makeCircleBrushAlphaMask(1, (d) => 1)
+    const brush = makeCircleBrushAlphaMask(1, () => 1)
     mutator.applyCircleBrushStroke(
       0 as any,
       10,
@@ -237,7 +237,7 @@ describe('mutatorApplyCircleBrushStroke', () => {
       forEachLinePoint,
       getCircleBrushOrPencilBounds,
     })
-    const brush = makeCircleBrushAlphaMask(0, (d) => 1)
+    const brush = makeCircleBrushAlphaMask(0, () => 1)
 
     mutator.applyCircleBrushStroke(
       0 as any,

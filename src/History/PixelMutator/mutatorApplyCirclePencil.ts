@@ -6,7 +6,6 @@ import { PixelWriter } from '../PixelWriter'
 const defaults = {
   applyCircleBrushToPixelData,
   getCircleBrushOrPencilBounds,
-  fallOff: () => 1,
 }
 
 type Deps = Partial<typeof defaults>
@@ -18,7 +17,6 @@ export const mutatorApplyCirclePencil = ((writer: PixelWriter<any>, deps: Deps =
   const {
     applyCircleBrushToPixelData = defaults.applyCircleBrushToPixelData,
     getCircleBrushOrPencilBounds = defaults.getCircleBrushOrPencilBounds,
-    fallOff = defaults.fallOff,
   } = deps
 
   const boundsOut: Rect = { x: 0, y: 0, w: 0, h: 0 }

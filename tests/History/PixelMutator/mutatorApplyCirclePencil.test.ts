@@ -3,7 +3,8 @@ import {
   type Color32,
   getCircleBrushOrPencilBounds,
   makeCircleBrushAlphaMask,
-  mutatorApplyCirclePencil, sourceOverPerfect,
+  mutatorApplyCirclePencil,
+  sourceOverPerfect,
 } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockAccumulatorMutator } from './_helpers'
@@ -48,14 +49,14 @@ describe('mutatorApplyCirclePencil', () => {
         mx: 0,
         my: 0,
         blendFn: sourceOverPerfect,
-        ...expectedBounds
+        ...expectedBounds,
       },
     )
   })
 
   it('should respect target clipping in the mutator', () => {
     const color = 0xFFFFFFFF as Color32
-    const { mutator, accumulator, target } = mockAccumulatorMutator(mutatorApplyCirclePencil)
+    const { mutator, accumulator } = mockAccumulatorMutator(mutatorApplyCirclePencil)
 
     const brush = makeCircleBrushAlphaMask(10)
 

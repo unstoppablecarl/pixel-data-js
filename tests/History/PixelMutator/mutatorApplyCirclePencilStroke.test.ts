@@ -4,6 +4,7 @@ import {
   forEachLinePoint,
   getCircleBrushOrPencilBounds,
   getCircleBrushOrPencilStrokeBounds,
+  makeCircleBrushBinaryMask,
   MaskType,
   mutatorApplyCirclePencilStroke,
   sourceOverPerfect,
@@ -38,13 +39,14 @@ describe('mutatorApplyCirclePencilStroke', () => {
     const brushSize = 3
     const alpha = 255
 
+    const brush = makeCircleBrushBinaryMask(brushSize)
     mutator.applyCirclePencilStroke(
       color,
       10,
       10,
       12,
       10,
-      brushSize,
+      brush,
       alpha,
     )
 
@@ -127,7 +129,7 @@ describe('mutatorApplyCirclePencilStroke', () => {
       5,
       5,
       5,
-      0,
+      makeCircleBrushBinaryMask(0),
     )
 
     expect(accumulator.storeRegionBeforeState).not.toHaveBeenCalled()
@@ -145,13 +147,14 @@ describe('mutatorApplyCirclePencilStroke', () => {
       getCircleBrushOrPencilStrokeBounds,
     })
 
+    const brush = makeCircleBrushBinaryMask(2)
     mutator.applyCirclePencilStroke(
       0 as Color32,
       10,
       10,
       12,
       10,
-      2,
+      brush,
     )
 
     const firstCallOut = getCircleBrushOrPencilBoundsSpy.mock.calls[0][5]
