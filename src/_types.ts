@@ -212,15 +212,16 @@ export interface ColorBlendOptions extends PixelRect, Alpha {
 export interface ColorBlendMaskOptions extends ColorBlendOptions, MaskOffset, InvertMask {
 }
 
-export type SelectionRect = Rect & {
-  mask?: Mask | null,
+export type SelectionRect<T extends Mask | null = Mask | null> = Rect & {
+  mask?: T,
 }
+
 export type BinaryMaskRect = Rect & {
-  mask: BinaryMask,
+  mask: BinaryMask
 }
 
 export type AlphaMaskRect = Rect & {
-  mask: AlphaMask,
+  mask: AlphaMask
 }
 
 export type HistoryMutator<T extends {}, D extends {}> = (writer: PixelWriter<any>, deps?: Partial<D>) => T

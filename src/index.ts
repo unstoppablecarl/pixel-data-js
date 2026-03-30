@@ -1,5 +1,4 @@
 // @sort-all
-import { setMaskData } from './Mask/setMaskData'
 
 export * from './_types'
 export * from './color'
@@ -90,8 +89,8 @@ export * from './Mask/extractMaskBuffer'
 export * from './Mask/invertMask'
 export * from './Mask/mergeAlphaMasks'
 export * from './Mask/mergeBinaryMasks'
+export * from './Mask/mergeBinaryMaskSelectionRects'
 export * from './Mask/setMaskData'
-
 
 export * from './PixelData/applyAlphaMaskToPixelData'
 export * from './PixelData/applyBinaryMaskToPixelData'
@@ -123,6 +122,7 @@ export * from './Rect/getCircleBrushOrPencilBounds'
 export * from './Rect/getCircleBrushOrPencilStrokeBounds'
 export * from './Rect/getRectBrushOrPencilBounds'
 export * from './Rect/getRectBrushOrPencilStrokeBounds'
+export * from './Rect/getRectsBounds'
 export * from './Rect/trimRectBounds'
 
 export * from './Algorithm/forEachLinePoint'
