@@ -1,4 +1,3 @@
-import type { AlphaMask } from '../_types'
 import { pixelDataToAlphaMask } from '../PixelData/pixelDataToAlphaMask'
 
 /**
