@@ -1,17 +1,16 @@
 import { type BinaryMask, MaskType } from '../_types'
 
+/**
+ * Creates a Binary Mask
+ * @param w - width
+ * @param h - height
+ * @param data - values 0-1
+ */
 export function makeBinaryMask(w: number, h: number, data?: Uint8Array): BinaryMask {
-  const result: BinaryMask = {
+  return {
     type: MaskType.BINARY,
-    data: data ?? new Uint8Array(w * h) as Uint8Array,
+    data: data ?? new Uint8Array(w * h),
     w,
     h,
-    set(width: number, height: number, data: Uint8Array): void {
-      ;(result as any).w = width
-      ;(result as any).h = height
-      ;(result as any).data = data
-    },
   }
-
-  return result
 }

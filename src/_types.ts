@@ -68,7 +68,6 @@ export interface Mask {
   readonly data: Uint8Array
   readonly w: number
   readonly h: number
-  readonly set: (width: number, height: number, data: Uint8Array) => void
 }
 
 /** Strictly 0 or 1 */
@@ -81,23 +80,16 @@ export interface AlphaMask extends Mask {
   readonly type: MaskType.ALPHA
 }
 
-export interface IAlphaMask extends Omit<AlphaMask, 'set'> {
-}
-
-export interface IBinaryMask extends Omit<BinaryMask, 'set'> {
-}
-
 interface CircleBrush {
   readonly size: number
   readonly radius: number
   readonly minOffset: number
 }
-export interface CircleBrushAlphaMask extends CircleBrush, IAlphaMask {
 
+export interface CircleBrushAlphaMask extends CircleBrush, AlphaMask {
 }
 
-export interface CircleBrushBinaryMask extends CircleBrush, IBinaryMask {
-
+export interface CircleBrushBinaryMask extends CircleBrush, BinaryMask {
 }
 
 export type CircleBrushMask = CircleBrushAlphaMask | CircleBrushBinaryMask

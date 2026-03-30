@@ -1,4 +1,4 @@
-import type { BinaryMask, Color32, IBinaryMask, IPixelData, Rect } from '../_types'
+import type { BinaryMask, Color32, IPixelData } from '../_types'
 import { makeClippedRect, resolveRectClipping } from '../Internal/resolveClipping'
 
 const SCRATCH_RECT = makeClippedRect()
@@ -15,7 +15,7 @@ const SCRATCH_RECT = makeClippedRect()
 export function fillPixelDataBinaryMask(
   dst: IPixelData,
   color: Color32,
-  mask: IBinaryMask,
+  mask: BinaryMask,
   alpha = 255,
   x = 0,
   y = 0,

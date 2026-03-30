@@ -1,17 +1,16 @@
 import { type AlphaMask, MaskType } from '../_types'
 
+/**
+ * Creates an Alpha Mask
+ * @param w - width
+ * @param h - height
+ * @param data - values 0-255
+ */
 export function makeAlphaMask(w: number, h: number, data?: Uint8Array): AlphaMask {
-  const result: AlphaMask = {
+  return {
     type: MaskType.ALPHA,
     data: data ?? new Uint8Array(w * h),
     w,
     h,
-    set(width: number, height: number, data: Uint8Array): void {
-      ;(result as any).w = width
-      ;(result as any).h = height
-      ;(result as any).data = data
-    },
   }
-
-  return result
 }

@@ -1,4 +1,4 @@
-import type { Color32, ColorBlendMaskOptions, IBinaryMask, IPixelData } from '../_types'
+import type { BinaryMask, Color32, ColorBlendMaskOptions, IPixelData } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 
 /**
@@ -16,7 +16,7 @@ import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 export function blendColorPixelDataBinaryMask(
   dst: IPixelData,
   color: Color32,
-  mask: IBinaryMask,
+  mask: BinaryMask,
   opts: ColorBlendMaskOptions = {},
 ) {
   const targetX = opts.x ?? 0

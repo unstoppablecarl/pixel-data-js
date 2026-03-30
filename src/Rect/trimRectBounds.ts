@@ -1,5 +1,6 @@
 import type { Rect, SelectionRect } from '../_types'
 import { extractMaskBuffer } from '../Mask/extractMaskBuffer'
+import { setMaskData } from '../Mask/setMaskData'
 
 /**
  * Intersects a target rectangle with a boundary, trimming dimensions and masks in-place.
@@ -42,7 +43,7 @@ export function trimRectBounds<T extends Rect | SelectionRect>(
 
     if ('mask' in target && target.mask) {
       // This line is now hit by the 'empty intersection' test below
-      target.mask.set(0, 0, new Uint8Array(0))
+      setMaskData(target.mask, 0, 0, new Uint8Array(0))
     }
 
     return
@@ -89,7 +90,7 @@ export function trimRectBounds<T extends Rect | SelectionRect>(
     if (maxX === -1) {
       target.w = 0
       target.h = 0
-      target.mask.set(0, 0, new Uint8Array(0))
+      setMaskData(target.mask, 0, 0, new Uint8Array(0))
 
       return
     }
@@ -108,14 +109,14 @@ export function trimRectBounds<T extends Rect | SelectionRect>(
         finalH,
       )
 
-      target.mask.set(finalW, finalH, newMaskBuffer)
+      setMaskData(target.mask, finalW, finalH, newMaskBuffer)
 
       target.x += minX
       target.y += minY
       target.w = finalW
       target.h = finalH
     } else {
-      target.mask.set(finalW, finalH, currentMaskBuffer)
+      setMaskData(target.mask, finalW, finalH, currentMaskBuffer)
     }
   }
 }

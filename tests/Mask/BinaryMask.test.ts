@@ -14,25 +14,6 @@ describe('makeBinaryMask', () => {
     expect(mask.data.length).toBe(50)
   })
 
-  it('updates data, width, and height when set() is called', () => {
-    const mask = makeBinaryMask(2, 2)
-    const newWidth = 4
-    const newHeight = 1
-    const newData = new Uint8Array(4)
-
-    newData[0] = 255
-    newData[1] = 128
-    newData[2] = 64
-    newData[3] = 0
-
-    mask.set(newWidth, newHeight, newData)
-
-    expect(mask.w).toBe(newWidth)
-    expect(mask.h).toBe(newHeight)
-    expect(mask.data).toBe(newData)
-    expect(mask.data[0]).toBe(255)
-  })
-
   it('creates an BinaryMask with provided data', () => {
     const data = new Uint8Array(4)
 

@@ -1,4 +1,4 @@
-import type { Color32, ColorBlendMaskOptions, IAlphaMask, IPixelData } from '../_types'
+import type { AlphaMask, Color32, ColorBlendMaskOptions, IPixelData } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 
 /**
@@ -16,7 +16,7 @@ import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 export function blendColorPixelDataAlphaMask(
   dst: IPixelData,
   color: Color32,
-  mask: IAlphaMask,
+  mask: AlphaMask,
   opts: ColorBlendMaskOptions = {},
 ): void {
   const targetX = opts.x ?? 0

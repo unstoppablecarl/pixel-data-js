@@ -1,4 +1,6 @@
 // @sort-all
+import { setMaskData } from './Mask/setMaskData'
+
 export * from './_types'
 export * from './color'
 
@@ -83,10 +85,13 @@ export * from './Mask/CircleBrushBinaryMask'
 
 export * from './Mask/applyBinaryMaskToAlphaMask'
 export * from './Mask/copyMask'
+export * from './Mask/extractMask'
 export * from './Mask/extractMaskBuffer'
 export * from './Mask/invertMask'
 export * from './Mask/mergeAlphaMasks'
 export * from './Mask/mergeBinaryMasks'
+export * from './Mask/setMaskData'
+
 
 export * from './PixelData/applyAlphaMaskToPixelData'
 export * from './PixelData/applyBinaryMaskToPixelData'
