@@ -1,25 +1,36 @@
 import type { BinaryMask, Color32, ColorBlendMaskOptions, IPixelData } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 
+
+/**
+ * Blends a solid color into a target pixel buffer using a binary mask.
+ *
+ * @remarks
+ * If the width (`w`) or height (`h`) are omitted from the options, they will safely
+ * default to the dimensions of the provided mask to prevent out-of-bounds memory access.
+ *
+ * @param dst - The destination {@link IPixelData} buffer to modify.
+ * @param color - The solid color to apply.
+ * @param mask - The mask defining the per-pixel opacity of the target area.
+ * @param opts - Configuration options including placement coordinates, bounds, global alpha, and mask offsets.
+ */
 export function blendColorPixelDataBinaryMask(
   dst: IPixelData,
   color: Color32,
   mask: BinaryMask,
   opts: ColorBlendMaskOptions = {},
 ) {
-  const {
-    x: targetX = 0,
-    y: targetY = 0,
-    w: width = dst.width,
-    h: height = dst.height,
-    alpha: globalAlpha = 255,
-    blendFn = sourceOverPerfect,
-    mx = 0,
-    my = 0,
-    invertMask = false,
-  } = opts
+  const targetX = opts.x ?? 0
+  const targetY = opts.y ?? 0
+  let w = opts.w ?? mask.w
+  let h = opts.h ?? mask.h
+  const globalAlpha = opts.alpha ?? 255
+  const blendFn = opts.blendFn ?? sourceOverPerfect
+  const mx = opts.mx ?? 0
+  const my = opts.my ?? 0
+  const invertMask = opts.invertMask ?? false
 
-  if (globalAlpha === 0 || !mask) return
+  if (globalAlpha === 0) return
 
   const baseSrcAlpha = (color >>> 24)
   const isOverwrite = (blendFn as any).isOverwrite || false
@@ -28,8 +39,6 @@ export function blendColorPixelDataBinaryMask(
 
   let x = targetX
   let y = targetY
-  let w = width
-  let h = height
 
   if (x < 0) {
     w += x

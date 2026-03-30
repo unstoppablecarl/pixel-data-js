@@ -1,25 +1,35 @@
-import type { AlphaMask, Color32, ColorBlendMaskOptions, IPixelData } from '../_types'
+import type { Color32, ColorBlendMaskOptions, IAlphaMask, IPixelData } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 
+/**
+ * Blends a solid color into a target pixel buffer using an alpha mask.
+ *
+ * @remarks
+ * If the width (`w`) or height (`h`) are omitted from the options, they will safely
+ * default to the dimensions of the provided mask to prevent out-of-bounds memory access.
+ *
+ * @param dst - The destination {@link IPixelData} buffer to modify.
+ * @param color - The solid color to apply.
+ * @param mask - The mask defining the per-pixel opacity of the target area.
+ * @param opts - Configuration options including placement coordinates, bounds, global alpha, and mask offsets.
+ */
 export function blendColorPixelDataAlphaMask(
   dst: IPixelData,
   color: Color32,
-  mask: AlphaMask,
-  opts: ColorBlendMaskOptions,
-) {
-  const {
-    x: targetX = 0,
-    y: targetY = 0,
-    w: width = dst.width,
-    h: height = dst.height,
-    alpha: globalAlpha = 255,
-    blendFn = sourceOverPerfect,
-    mx = 0,
-    my = 0,
-    invertMask = false,
-  } = opts
+  mask: IAlphaMask,
+  opts: ColorBlendMaskOptions = {},
+): void {
+  const targetX = opts.x ?? 0
+  const targetY = opts.y ?? 0
+  const w = opts.w ?? mask.w
+  const h = opts.h ?? mask.h
+  const globalAlpha = opts.alpha ?? 255
+  const blendFn = opts.blendFn ?? sourceOverPerfect
+  const mx = opts.mx ?? 0
+  const my = opts.my ?? 0
+  const invertMask = opts.invertMask ?? false
 
-  if (globalAlpha === 0 || !mask) return
+  if (globalAlpha === 0) return
 
   const baseSrcAlpha = (color >>> 24)
   const isOverwrite = (blendFn as any).isOverwrite || false
@@ -28,21 +38,21 @@ export function blendColorPixelDataAlphaMask(
 
   let x = targetX
   let y = targetY
-  let w = width
-  let h = height
+  let actualW = w
+  let actualH = h
 
   if (x < 0) {
-    w += x
+    actualW += x
     x = 0
   }
 
   if (y < 0) {
-    h += y
+    actualH += y
     y = 0
   }
 
-  const actualW = Math.min(w, dst.width - x)
-  const actualH = Math.min(h, dst.height - y)
+  actualW = Math.min(actualW, dst.width - x)
+  actualH = Math.min(actualH, dst.height - y)
 
   if (actualW <= 0 || actualH <= 0) return
 
@@ -96,7 +106,7 @@ export function blendColorPixelDataAlphaMask(
           mIdx++
           continue
         }
-        finalCol = (colorRGB | (a << 24)) >>> 0 as Color32
+        finalCol = ((colorRGB | (a << 24)) >>> 0) as Color32
       }
 
       dst32[dIdx] = blendFn(finalCol, dst32[dIdx] as Color32)
