@@ -1,5 +1,4 @@
-import { invertPixelData } from '@/index'
-import { makeBinaryMask } from '@/Mask/BinaryMask'
+import { invertPixelData, makeBinaryMask } from '@/index'
 import { describe, expect, it } from 'vitest'
 import { makeTestPixelData, pack } from '../_helpers'
 
