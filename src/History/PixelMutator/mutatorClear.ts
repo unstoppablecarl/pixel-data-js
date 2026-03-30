@@ -1,4 +1,4 @@
-import type { BinaryMaskRect, Color32, HistoryMutator } from '../../_types'
+import type { BinaryMaskRect, Color32, HistoryMutator, Rect } from '../../_types'
 import { fillPixelData } from '../../PixelData/fillPixelData'
 import { PixelWriter } from '../PixelWriter'
 
@@ -16,7 +16,7 @@ export const mutatorClear = ((writer: PixelWriter<any>, deps: Deps = defaults) =
 
   return {
     clear(
-      rect: Partial<BinaryMaskRect> = {},
+      rect: Partial<Rect> = {},
     ) {
       const x = rect.x ?? 0
       const y = rect.y ?? 0
