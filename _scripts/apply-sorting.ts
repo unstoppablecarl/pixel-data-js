@@ -4,7 +4,9 @@ import { fileURLToPath } from 'node:url'
 import path from 'path'
 
 applySortBlocksToFiles([
-  'src/index.ts',
+  // 'src/index.ts',
+  'src/**/*.ts',
+  'tests/**/*.ts'
 ])
 
 async function applySortBlocksToFiles(pattern: string | string[]): Promise<void> {
@@ -18,7 +20,7 @@ async function applySortBlocksToFiles(pattern: string | string[]): Promise<void>
     return
   }
 
-  const results = await Promise.all(
+  const results = (await Promise.all(
     files.map(async (file): Promise<FileResult> => {
       const original = await readFile(file, 'utf-8')
 
@@ -35,7 +37,8 @@ async function applySortBlocksToFiles(pattern: string | string[]): Promise<void>
       await writeFile(file, sorted, 'utf-8')
       return { file, status: 'updated' }
     }),
-  )
+  )).filter(f => f.status !== 'skipped')
+
 
   const icons: Record<Status, string> = { updated: '✓', unchanged: '–', skipped: '·' }
 
