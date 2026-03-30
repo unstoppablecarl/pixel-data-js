@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { makeFullPixelMutator, PixelAccumulator, PixelData, PixelEngineConfig, PixelWriter } from '@/index'
+import { describe, expect, it } from 'vitest'
 
 describe('PixelMutator', () => {
   it('makeFullPixelMutator should create a mutator with all methods', () => {
@@ -14,6 +14,7 @@ describe('PixelMutator', () => {
     const mutator = makeFullPixelMutator(writer)
 
     const expected = [
+      // @sort
       'applyAlphaMask',
       'applyBinaryMask',
       'applyCircleBrush',
@@ -29,6 +30,7 @@ describe('PixelMutator', () => {
       'blendPixelData',
       'clear',
       'fill',
+      'fillBinaryMask',
       'invert',
     ].sort()
 
