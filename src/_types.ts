@@ -81,6 +81,12 @@ export interface AlphaMask extends Mask {
   readonly type: MaskType.ALPHA
 }
 
+export interface IAlphaMask extends Omit<AlphaMask, 'set'> {
+}
+
+export interface IBinaryMask extends Omit<BinaryMask, 'set'> {
+}
+
 export interface CircleBrushAlphaMask extends Omit<AlphaMask, 'set'> {
   readonly size: number
   readonly radius: number
