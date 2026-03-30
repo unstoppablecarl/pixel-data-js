@@ -1,15 +1,18 @@
-import type { BinaryMask, SelectionRect } from '../_types'
+import type { NullableBinaryMaskRect } from '../_types'
 import { getRectsBounds } from '../Rect/getRectsBounds'
 import { makeBinaryMask } from './BinaryMask'
 
 export function mergeBinaryMaskSelectionRects(
-  a: SelectionRect<BinaryMask | null>,
-  b: SelectionRect<BinaryMask | null>,
-): SelectionRect<BinaryMask | null> {
+  a: NullableBinaryMaskRect,
+  b: NullableBinaryMaskRect,
+): NullableBinaryMaskRect {
   const bounds = getRectsBounds([a, b])
 
   // If both are fully selected, check if they form a perfect, gapless rectangle
-  if (!a.mask && !b.mask) {
+  if (
+    (a.mask === null || a.mask === undefined)
+    && (b.mask === null || b.mask === undefined)
+  ) {
     const ix = Math.max(a.x, b.x)
     const iy = Math.max(a.y, b.y)
     const ir = Math.min(a.x + a.w, b.x + b.w)

@@ -1,5 +1,7 @@
 // @sort-all
 
+import { subtractBinaryMaskSelectionRects } from './Mask/subtractBinaryMaskSelectionRects'
+
 export * from './_types'
 export * from './color'
 
@@ -82,6 +84,7 @@ export * from './Mask/BinaryMask'
 export * from './Mask/CircleBrushAlphaMask'
 export * from './Mask/CircleBrushBinaryMask'
 
+export { subtractBinaryMaskSelectionRects } from './Mask/subtractBinaryMaskSelectionRects'
 export * from './Mask/applyBinaryMaskToAlphaMask'
 export * from './Mask/copyMask'
 export * from './Mask/extractMask'

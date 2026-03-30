@@ -220,6 +220,10 @@ export type BinaryMaskRect = Rect & {
   mask: BinaryMask
 }
 
+export type NullableBinaryMaskRect = Rect & {
+  mask?: BinaryMask | null
+}
+
 export type AlphaMaskRect = Rect & {
   mask: AlphaMask
 }

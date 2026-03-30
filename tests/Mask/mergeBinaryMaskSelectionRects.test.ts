@@ -1,9 +1,4 @@
-import {
-  type BinaryMask,
-  makeBinaryMask,
-  mergeBinaryMaskSelectionRects,
-  type SelectionRect
-} from '@/index'
+import { makeBinaryMask, mergeBinaryMaskSelectionRects, type NullableBinaryMaskRect } from '@/index'
 import { describe, expect, it } from 'vitest'
 
 function createRect(
@@ -11,14 +6,14 @@ function createRect(
   y: number,
   w: number,
   h: number,
-  maskData?: number[]
-): SelectionRect<BinaryMask | null> {
-  const rect: SelectionRect<BinaryMask | null> = {
+  maskData?: number[],
+): NullableBinaryMaskRect {
+  const rect: NullableBinaryMaskRect = {
     x,
     y,
     w,
     h,
-    mask: null
+    mask: null,
   }
 
   if (maskData) {
@@ -53,7 +48,7 @@ describe('mergeBinaryMaskSelectionRects', () => {
       1,
       0,
       1,
-      1
+      1,
     ]
     const actualData = Array.from(result.mask!.data)
 
@@ -65,18 +60,18 @@ describe('mergeBinaryMaskSelectionRects', () => {
       0,
       0,
       2,
-      2
+      2,
     )
     const maskData = [
       1,
-      0
+      0,
     ]
     const b = createRect(
       2,
       0,
       2,
       1,
-      maskData
+      maskData,
     )
 
     const result = mergeBinaryMaskSelectionRects(a, b)
@@ -95,7 +90,7 @@ describe('mergeBinaryMaskSelectionRects', () => {
       1,
       1,
       0,
-      0
+      0,
     ]
     const actualData = Array.from(result.mask!.data)
 
@@ -105,25 +100,25 @@ describe('mergeBinaryMaskSelectionRects', () => {
   it('merges two defined binary masks with an overlap', () => {
     const dataA = [
       1,
-      0
+      0,
     ]
     const a = createRect(
       0,
       0,
       2,
       1,
-      dataA
+      dataA,
     )
     const dataB = [
       0,
-      1
+      1,
     ]
     const b = createRect(
       1,
       0,
       2,
       1,
-      dataB
+      dataB,
     )
 
     const result = mergeBinaryMaskSelectionRects(a, b)
@@ -137,7 +132,7 @@ describe('mergeBinaryMaskSelectionRects', () => {
     const expectedData = [
       1,
       0,
-      1
+      1,
     ]
     const actualData = Array.from(result.mask!.data)
 
@@ -146,24 +141,24 @@ describe('mergeBinaryMaskSelectionRects', () => {
 
   it('handles completely disjoint rectangles with defined masks', () => {
     const dataA = [
-      1
+      1,
     ]
     const a = createRect(
       0,
       0,
       1,
       1,
-      dataA
+      dataA,
     )
     const dataB = [
-      1
+      1,
     ]
     const b = createRect(
       2,
       0,
       1,
       1,
-      dataB
+      dataB,
     )
 
     const result = mergeBinaryMaskSelectionRects(a, b)
@@ -177,7 +172,7 @@ describe('mergeBinaryMaskSelectionRects', () => {
     const expectedData = [
       1,
       0,
-      1
+      1,
     ]
     const actualData = Array.from(result.mask!.data)
 
@@ -189,13 +184,13 @@ describe('mergeBinaryMaskSelectionRects', () => {
       0,
       0,
       1,
-      1
+      1,
     )
     const b = createRect(
       2,
       0,
       1,
-      1
+      1,
     )
 
     const result = mergeBinaryMaskSelectionRects(a, b)
@@ -213,7 +208,7 @@ describe('mergeBinaryMaskSelectionRects', () => {
     const expectedData = [
       1,
       0,
-      1
+      1,
     ]
     const actualData = Array.from(result.mask!.data)
 
@@ -226,13 +221,13 @@ describe('mergeBinaryMaskSelectionRects', () => {
       0,
       0,
       10,
-      10
+      10,
     )
     const b = createRect(
       10,
       0,
       10,
-      10
+      10,
     )
 
     const result = mergeBinaryMaskSelectionRects(a, b)
@@ -253,13 +248,13 @@ describe('mergeBinaryMaskSelectionRects', () => {
       0,
       0,
       20,
-      10
+      10,
     )
     const b = createRect(
       10,
       0,
       20,
-      10
+      10,
     )
 
     const result = mergeBinaryMaskSelectionRects(a, b)
