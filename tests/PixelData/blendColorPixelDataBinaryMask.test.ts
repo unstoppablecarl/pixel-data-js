@@ -1,5 +1,4 @@
-import { blendColorPixelDataBinaryMask, type Color32 } from '@/index'
-import { makeBinaryMask } from '@/Mask/BinaryMask'
+import { blendColorPixelDataBinaryMask, type Color32, makeBinaryMask } from '@/index'
 import { describe, expect, it } from 'vitest'
 import { makeTestPixelData, pack } from '../_helpers'
 

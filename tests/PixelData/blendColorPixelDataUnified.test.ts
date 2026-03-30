@@ -3,11 +3,11 @@ import {
   blendColorPixelDataAlphaMask,
   blendColorPixelDataBinaryMask,
   type Color32,
+  makeAlphaMask,
+  makeBinaryMask,
   sourceOverFast,
   unpackColor,
 } from '@/index'
-import { makeAlphaMask } from '@/Mask/AlphaMask'
-import { makeBinaryMask } from '@/Mask/BinaryMask'
 import { describe, expect, it, vi } from 'vitest'
 import { makeTestPixelData, pack } from '../_helpers'
 
