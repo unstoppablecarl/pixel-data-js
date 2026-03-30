@@ -1,4 +1,4 @@
-import type { BinaryMask, Color32, HistoryMutator, Rect } from '../../_types'
+import type { BinaryMask, Color32, HistoryMutator } from '../../_types'
 import { fillPixelDataBinaryMask } from '../../PixelData/fillPixelDataBinaryMask'
 import { PixelWriter } from '../PixelWriter'
 
@@ -17,16 +17,12 @@ export const mutatorFillBinaryMask = ((writer: PixelWriter<any>, deps: Deps = de
     fillBinaryMask(
       color: Color32,
       mask: BinaryMask,
-      rect: Partial<Rect> = {},
+      alpha = 255,
+      x = 0,
+      y = 0,
     ) {
-      const {
-        x = 0,
-        y = 0,
-        w = writer.target.width,
-        h = writer.target.height,
-      } = rect
-      writer.accumulator.storeRegionBeforeState(x, y, w, h)
-      fillPixelDataBinaryMask(writer.target, color, mask, x, y, w, h)
+      writer.accumulator.storeRegionBeforeState(x, y, mask.w, mask.h)
+      fillPixelDataBinaryMask(writer.target, color, mask, alpha, x, y)
     },
   }
 }) satisfies HistoryMutator<any, Deps>
