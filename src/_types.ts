@@ -87,17 +87,20 @@ export interface IAlphaMask extends Omit<AlphaMask, 'set'> {
 export interface IBinaryMask extends Omit<BinaryMask, 'set'> {
 }
 
-export interface CircleBrushAlphaMask extends Omit<AlphaMask, 'set'> {
+interface CircleBrush {
   readonly size: number
   readonly radius: number
   readonly minOffset: number
+}
+export interface CircleBrushAlphaMask extends CircleBrush, IAlphaMask {
+
 }
 
-export interface CircleBrushBinaryMask extends Omit<BinaryMask, 'set'> {
-  readonly size: number
-  readonly radius: number
-  readonly minOffset: number
+export interface CircleBrushBinaryMask extends CircleBrush, IBinaryMask {
+
 }
+
+export type CircleBrushMask = CircleBrushAlphaMask | CircleBrushBinaryMask
 
 /**
  * Configuration for pixel manipulation operations.

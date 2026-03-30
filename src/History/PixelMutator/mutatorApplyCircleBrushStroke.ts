@@ -1,6 +1,7 @@
 import {
   type AlphaMask,
   type BlendColor32,
+  type CircleBrushAlphaMask,
   type Color32,
   type ColorBlendMaskOptions,
   type HistoryMutator,
@@ -71,17 +72,25 @@ export const mutatorApplyCircleBrushStroke = ((writer: PixelWriter<any>, deps: D
       y0: number,
       x1: number,
       y1: number,
-      brushSize: number,
+      brush: CircleBrushAlphaMask,
       alpha = 255,
-      fallOff: (dist: number) => number,
       blendFn: BlendColor32 = sourceOverPerfect,
     ) {
+      const brushSize = brush.size
+
       const {
         x: bx,
         y: by,
         w: bw,
         h: bh,
-      } = getCircleBrushOrPencilStrokeBounds(x0, y0, x1, y1, brushSize, strokeBoundsOut)
+      } = getCircleBrushOrPencilStrokeBounds(
+        x0,
+        y0,
+        x1,
+        y1,
+        brushSize,
+        strokeBoundsOut,
+      )
 
       if (bw <= 0 || bh <= 0) return
 
@@ -90,54 +99,69 @@ export const mutatorApplyCircleBrushStroke = ((writer: PixelWriter<any>, deps: D
       mask.h = bh
 
       const maskData = mask.data
-      const r = brushSize / 2
-      const rSqr = r * r
-      const invR = 1 / r
-      const centerOffset = (brushSize % 2 === 0) ? 0.5 : 0
+      const brushData = brush.data
+      const minOffset = brush.minOffset
 
       const targetWidth = writer.target.width
       const targetHeight = writer.target.height
 
-      forEachLinePoint(x0, y0, x1, y1, (px, py) => {
-        // 2. Calculate bounds for this specific stamp
-        const {
-          x: cbx,
-          y: cby,
-          w: cbw,
-          h: cbh,
-        } = getCircleBrushOrPencilBounds(px, py, brushSize, targetWidth, targetHeight, circleBrushBounds)
+      forEachLinePoint(
+        x0,
+        y0,
+        x1,
+        y1,
+        (px, py) => {
+          const {
+            x: cbx,
+            y: cby,
+            w: cbw,
+            h: cbh,
+          } = getCircleBrushOrPencilBounds(
+            px,
+            py,
+            brushSize,
+            targetWidth,
+            targetHeight,
+            circleBrushBounds,
+          )
 
-        writer.accumulator.storeRegionBeforeState(cbx, cby, cbw, cbh)
+          writer.accumulator.storeRegionBeforeState(
+            cbx,
+            cby,
+            cbw,
+            cbh,
+          )
 
-        const startX = Math.max(bx, cbx)
-        const startY = Math.max(by, cby)
-        const endX = Math.min(bx + bw, cbx + cbw)
-        const endY = Math.min(by + bh, cby + cbh)
+          const startX = Math.max(bx, cbx)
+          const startY = Math.max(by, cby)
+          const endX = Math.min(bx + bw, cbx + cbw)
+          const endY = Math.min(by + bh, cby + cbh)
 
-        const fPx = Math.floor(px)
-        const fPy = Math.floor(py)
+          const unclippedStartX = Math.floor(px + minOffset)
+          const unclippedStartY = Math.floor(py + minOffset)
 
-        for (let my = startY; my < endY; my++) {
-          const dy = (my - fPy) + centerOffset
-          const dySqr = dy * dy
-          const maskRowOffset = (my - by) * bw
+          for (let my = startY; my < endY; my++) {
+            const strokeMaskY = my - by
+            const strokeMaskRowOffset = strokeMaskY * bw
 
-          for (let mx = startX; mx < endX; mx++) {
-            const dx = (mx - fPx) + centerOffset
-            const dSqr = dx * dx + dySqr
+            const brushY = my - unclippedStartY
+            const brushRowOffset = brushY * brushSize
 
-            if (dSqr <= rSqr) {
-              const maskIdx = maskRowOffset + (mx - bx)
+            for (let mx = startX; mx < endX; mx++) {
+              const brushX = mx - unclippedStartX
+              const brushVal = brushData[brushRowOffset + brushX]
 
-              const dist = Math.sqrt(dSqr) * invR
-              const intensity = (fallOff(1 - dist) * 255) | 0
-              if (intensity > maskData[maskIdx]) {
-                maskData[maskIdx] = intensity
+              if (brushVal > 0) {
+                const strokeMaskIdx = strokeMaskRowOffset + (mx - bx)
+
+                if (brushVal > maskData[strokeMaskIdx]) {
+                  maskData[strokeMaskIdx] = brushVal
+                }
               }
             }
           }
-        }
-      })
+        },
+      )
 
       blendColorPixelOptions.blendFn = blendFn
       blendColorPixelOptions.alpha = alpha
@@ -146,7 +170,12 @@ export const mutatorApplyCircleBrushStroke = ((writer: PixelWriter<any>, deps: D
       blendColorPixelOptions.w = bw
       blendColorPixelOptions.h = bh
 
-      blendColorPixelDataAlphaMask(writer.target, color, mask as AlphaMask, blendColorPixelOptions)
+      blendColorPixelDataAlphaMask(
+        writer.target,
+        color,
+        mask as AlphaMask,
+        blendColorPixelOptions,
+      )
     },
   }
 }) satisfies HistoryMutator<any, Deps>

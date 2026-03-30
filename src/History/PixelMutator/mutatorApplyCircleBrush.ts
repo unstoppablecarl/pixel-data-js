@@ -1,4 +1,12 @@
-import type { BlendColor32, Color32, HistoryMutator, Rect } from '../../_types'
+import type {
+  BlendColor32,
+  CircleBrushAlphaMask,
+  Color32,
+  ColorBlendMaskOptions,
+  HistoryMutator,
+  Rect,
+} from '../../_types'
+import { sourceOverPerfect } from '../../BlendModes/blend-modes-perfect'
 import { applyCircleBrushToPixelData } from '../../PixelData/applyCircleBrushToPixelData'
 import { getCircleBrushOrPencilBounds } from '../../Rect/getCircleBrushOrPencilBounds'
 import { PixelWriter } from '../PixelWriter'
@@ -22,21 +30,29 @@ export const mutatorApplyCircleBrush = ((writer: PixelWriter<any>, deps: Deps = 
 
   const boundsOut: Rect = { x: 0, y: 0, w: 0, h: 0 }
 
+  const blendColorPixelOptions: ColorBlendMaskOptions = {
+    alpha: 255,
+    blendFn: sourceOverPerfect,
+    x: 0,
+    y: 0,
+    w: 0,
+    h: 0,
+  }
+
   return {
     applyCircleBrush(
       color: Color32,
       centerX: number,
       centerY: number,
-      brushSize: number,
+      brush: CircleBrushAlphaMask,
       alpha = 255,
-      fallOff: (dist: number) => number,
       blendFn?: BlendColor32,
     ) {
 
       const bounds = getCircleBrushOrPencilBounds(
         centerX,
         centerY,
-        brushSize,
+        brush.size,
         writer.target.width,
         writer.target.height,
         boundsOut,
@@ -51,10 +67,10 @@ export const mutatorApplyCircleBrush = ((writer: PixelWriter<any>, deps: Deps = 
         color,
         centerX,
         centerY,
-        brushSize,
+        brush,
         alpha,
-        fallOff,
         blendFn,
+        blendColorPixelOptions,
         bounds,
       )
     },

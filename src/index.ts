@@ -78,6 +78,9 @@ export * from './Input/getSupportedRasterFormats'
 export * from './Mask/AlphaMask'
 export * from './Mask/BinaryMask'
 
+export * from './Mask/CircleBrushAlphaMask'
+export * from './Mask/CircleBrushBinaryMask'
+
 export * from './Mask/applyBinaryMaskToAlphaMask'
 export * from './Mask/copyMask'
 export * from './Mask/extractMaskBuffer'

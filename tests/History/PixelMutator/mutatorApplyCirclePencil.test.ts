@@ -1,10 +1,11 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   applyCircleBrushToPixelData,
   type Color32,
   getCircleBrushOrPencilBounds,
-  mutatorApplyCirclePencil,
+  makeCircleBrushAlphaMask,
+  mutatorApplyCirclePencil, sourceOverPerfect,
 } from '@/index'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyCirclePencil', () => {
@@ -29,7 +30,8 @@ describe('mutatorApplyCirclePencil', () => {
       h: 10,
     }
 
-    mutator.applyCirclePencil(color, 20, 20, 10, 255)
+    const brush = makeCircleBrushAlphaMask(10)
+    mutator.applyCirclePencil(color, 20, 20, brush, 255)
 
     expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(15, 15, 10, 10)
 
@@ -38,11 +40,16 @@ describe('mutatorApplyCirclePencil', () => {
       color,
       20,
       20,
-      10,
+      brush,
       255,
-      fallOff,
       undefined,
-      expectedBounds,
+      {
+        alpha: 255,
+        mx: 0,
+        my: 0,
+        blendFn: sourceOverPerfect,
+        ...expectedBounds
+      },
     )
   })
 
@@ -50,7 +57,9 @@ describe('mutatorApplyCirclePencil', () => {
     const color = 0xFFFFFFFF as Color32
     const { mutator, accumulator, target } = mockAccumulatorMutator(mutatorApplyCirclePencil)
 
-    mutator.applyCirclePencil(color, 0, 0, 10)
+    const brush = makeCircleBrushAlphaMask(10)
+
+    mutator.applyCirclePencil(color, 0, 0, brush)
 
     expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, 5, 5)
   })

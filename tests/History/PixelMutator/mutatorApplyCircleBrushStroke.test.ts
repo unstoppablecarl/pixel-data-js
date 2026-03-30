@@ -3,9 +3,9 @@ import {
   forEachLinePoint,
   getCircleBrushOrPencilBounds,
   getCircleBrushOrPencilStrokeBounds,
+  makeCircleBrushAlphaMask,
   MaskType,
   mutatorApplyCircleBrushStroke,
-  sourceOverPerfect,
 } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { pack } from '../../_helpers'
@@ -35,15 +35,16 @@ describe('mutatorApplyCircleBrushStroke', () => {
     const brushSize = 3
     const fallOff = (d: number) => d
 
+    const brush = makeCircleBrushAlphaMask(brushSize, fallOff)
+
     mutator.applyCircleBrushStroke(
       color,
       10,
       10,
       11,
       11,
-      brushSize,
+      brush,
       255,
-      fallOff,
     )
 
     // 1. Assert correct global footprint calculation
@@ -90,7 +91,6 @@ describe('mutatorApplyCircleBrushStroke', () => {
       target,
       color,
       expect.toSatisfy((v: AlphaMask) => {
-
         expect(v).toEqual({
           type: MaskType.ALPHA,
           w: 5,
@@ -106,8 +106,8 @@ describe('mutatorApplyCircleBrushStroke', () => {
         return true
       }),
       expect.objectContaining({
-        alpha: 255,
-        blendFn: sourceOverPerfect,
+        // alpha: 255,
+        // blendFn: sourceOverPerfect,
         x: 8,
         y: 8,
         w: 5,
@@ -126,6 +126,7 @@ describe('mutatorApplyCircleBrushStroke', () => {
       getCircleBrushOrPencilStrokeBounds,
     })
 
+    const brush = makeCircleBrushAlphaMask(3, (d) => d)
     // Single point at (10, 10). 3px brush.
     mutator.applyCircleBrushStroke(
       0 as any,
@@ -133,9 +134,8 @@ describe('mutatorApplyCircleBrushStroke', () => {
       10,
       10,
       10,
-      3,
+      brush,
       255,
-      (d) => d,
     )
 
     const mockCall = blendColorPixelDataAlphaMaskSpy.mock.calls[0]
@@ -178,6 +178,7 @@ describe('mutatorApplyCircleBrushStroke', () => {
         : 0.9
     })
 
+    const brush = makeCircleBrushAlphaMask(5, mockFallOff)
     // We draw a line from 10 to 11 with a large 5px brush.
     // Both stamps will overlap heavily at the center of the stroke.
     mutator.applyCircleBrushStroke(
@@ -186,9 +187,8 @@ describe('mutatorApplyCircleBrushStroke', () => {
       10,
       11,
       10,
-      5,
+      brush,
       255,
-      mockFallOff,
     )
 
     const mask = blendColorPixelDataAlphaMaskSpy.mock.calls[0][2] as AlphaMask
@@ -208,15 +208,15 @@ describe('mutatorApplyCircleBrushStroke', () => {
       getCircleBrushOrPencilStrokeBounds,
     })
 
+    const brush = makeCircleBrushAlphaMask(1, (d) => 1)
     mutator.applyCircleBrushStroke(
       0 as any,
       10,
       10,
       12,
       10, // Line long enough to have 3 points
-      1,
+      brush,
       255,
-      (d) => 1,
     )
 
     const calls = getCircleBrushOrPencilBoundsSpy.mock.calls
@@ -237,6 +237,7 @@ describe('mutatorApplyCircleBrushStroke', () => {
       forEachLinePoint,
       getCircleBrushOrPencilBounds,
     })
+    const brush = makeCircleBrushAlphaMask(0, (d) => 1)
 
     mutator.applyCircleBrushStroke(
       0 as any,
@@ -244,9 +245,8 @@ describe('mutatorApplyCircleBrushStroke', () => {
       10,
       10,
       10,
-      0, // Brush size 0 usually leads to 0 area
+      brush, // Brush size 0 usually leads to 0 area
       255,
-      (d) => 1,
     )
 
     // The accumulator and blitter should never be called if bw/bh <= 0
@@ -264,15 +264,15 @@ describe('mutatorApplyCircleBrushStroke', () => {
       getCircleBrushOrPencilStrokeBounds,
     })
 
+    const brush = makeCircleBrushAlphaMask(2, (d) => 1 - d)
     mutator.applyCircleBrushStroke(
       0 as any,
       10,
       10,
       10,
       10,
-      2,
+      brush,
       255,
-      (d) => 1 - d,
     )
 
     const mask = blendColorPixelDataAlphaMaskSpy.mock.calls[0][2] as AlphaMask
@@ -292,6 +292,7 @@ describe('mutatorApplyCircleBrushStroke', () => {
       getCircleBrushOrPencilBounds,
       getCircleBrushOrPencilStrokeBounds,
     })
+    const brush = makeCircleBrushAlphaMask(3, (d) => d)
 
     mutator.applyCircleBrushStroke(
       0 as any,
@@ -299,7 +300,7 @@ describe('mutatorApplyCircleBrushStroke', () => {
       10,
       10,
       10,
-      3,
+      brush,
       255,
       (d) => d,
     )

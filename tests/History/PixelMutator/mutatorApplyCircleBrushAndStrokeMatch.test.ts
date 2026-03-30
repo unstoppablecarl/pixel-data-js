@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { mutatorApplyCircleBrush, mutatorApplyCircleBrushStroke } from '@/index'
+import { makeCircleBrushAlphaMask, mutatorApplyCircleBrush, mutatorApplyCircleBrushStroke } from '@/index'
 import { comparePixelBuffers, pack } from '../../_helpers'
 import { mockAccumulatorMutator } from './_helpers'
 
@@ -15,6 +15,7 @@ describe('mutatorApplyCircleBrushStroke vs mutatorApplyCircleBrush', () => {
     const size = 7
     const alpha = 180
     const fallOff = (d: number) => 1 - (d * d)
+    const brush = makeCircleBrushAlphaMask(size, fallOff)
 
     // 1. Setup the Single Stamp State
     const stampCtx = mockAccumulatorMutator(mutatorApplyCircleBrush)
@@ -22,9 +23,8 @@ describe('mutatorApplyCircleBrushStroke vs mutatorApplyCircleBrush', () => {
       color,
       x,
       y,
-      size,
+      brush,
       alpha,
-      fallOff,
     )
 
     // 2. Setup the Stroke State
@@ -35,9 +35,8 @@ describe('mutatorApplyCircleBrushStroke vs mutatorApplyCircleBrush', () => {
       y,
       x, // Same start/end
       y,
-      size,
+      brush,
       alpha,
-      fallOff,
     )
 
     // Compare the underlying pixel buffers

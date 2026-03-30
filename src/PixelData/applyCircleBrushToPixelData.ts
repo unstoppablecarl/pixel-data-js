@@ -1,18 +1,28 @@
-import type { BlendColor32, Color32, IPixelData, Rect } from '../_types'
+import {
+  type BlendColor32,
+  type CircleBrushMask,
+  type Color32,
+  type ColorBlendMaskOptions,
+  type IPixelData,
+  MaskType,
+  type Rect,
+} from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 import { getCircleBrushOrPencilBounds } from '../Rect/getCircleBrushOrPencilBounds'
+import { blendColorPixelDataAlphaMask } from './blendColorPixelDataAlphaMask'
+import { blendColorPixelDataBinaryMask } from './blendColorPixelDataBinaryMask'
 
 /**
- * Applies a circular brush to pixel data, blending a color with optional falloff.
+ * Applies a circular brush to pixel data using a pre-calculated alpha mask.
  *
  * @param target The PixelData to modify.
  * @param color The brush color.
  * @param centerX The center x-coordinate of the brush.
  * @param centerY The center y-coordinate of the brush.
- * @param brushSize The diameter of the brush.
+ * @param brush The pre-calculated CircleBrushAlphaMask.
  * @param alpha The overall opacity of the brush (0-255).
- * @param fallOff A function that returns an alpha multiplier (0-1) based on the normalized distance (0-1) from the circle's center.
  * @param blendFn
+ * @param scratchOptions
  * @param bounds precalculated result from {@link getCircleBrushOrPencilBounds}
  */
 export function applyCircleBrushToPixelData(
@@ -20,78 +30,62 @@ export function applyCircleBrushToPixelData(
   color: Color32,
   centerX: number,
   centerY: number,
-  brushSize: number,
+  brush: CircleBrushMask,
   alpha = 255,
-  fallOff: (dist: number) => number,
   blendFn: BlendColor32 = sourceOverPerfect,
+  scratchOptions: ColorBlendMaskOptions = {},
   bounds?: Rect,
 ): void {
-  const targetWidth = target.width
-  const targetHeight = target.height
-
-  // Use provided bounds OR calculate them once
   const b = bounds ?? getCircleBrushOrPencilBounds(
     centerX,
     centerY,
-    brushSize,
-    targetWidth,
-    targetHeight,
+    brush.size,
+    target.width,
+    target.height,
   )
 
   if (b.w <= 0 || b.h <= 0) return
 
-  const data32 = target.data32
-  const r = brushSize / 2
-  const rSqr = r * r
-  const invR = 1 / r
+  const unclippedStartX = Math.floor(centerX + brush.minOffset)
+  const unclippedStartY = Math.floor(centerY + brush.minOffset)
 
-  const centerOffset = (brushSize % 2 === 0) ? 0.5 : 0
+  // Calculate the intersection between the unclipped mask rect and the allowed bounds
+  const ix = Math.max(unclippedStartX, b.x)
+  const iy = Math.max(unclippedStartY, b.y)
+  const ir = Math.min(unclippedStartX + brush.w, b.x + b.w)
+  const ib = Math.min(unclippedStartY + brush.h, b.y + b.h)
 
-  const endX = b.x + b.w
-  const endY = b.y + b.h
+  const iw = ir - ix
+  const ih = ib - iy
 
-  // Anchor the math to the floor of the center for exact pixel art parity
-  const fCenterX = Math.floor(centerX)
-  const fCenterY = Math.floor(centerY)
-  const baseSrcAlpha = (color >>> 24)
-  const colorRGB = color & 0x00ffffff
-  const isOpaque = alpha === 255
-  const isOverwrite = (blendFn as any).isOverwrite
+  // If the mask falls entirely outside the bounds, exit
+  if (iw <= 0 || ih <= 0) return
 
-  for (let cy = b.y; cy < endY; cy++) {
-    const relY = (cy - fCenterY) + centerOffset
-    const dySqr = relY * relY
-    const rowOffset = cy * targetWidth
+  // Apply the intersected coordinates and internal mask offsets
+  scratchOptions.x = ix
+  scratchOptions.y = iy
+  scratchOptions.w = iw
+  scratchOptions.h = ih
+  scratchOptions.mx = ix - unclippedStartX
+  scratchOptions.my = iy - unclippedStartY
+  scratchOptions.alpha = alpha
+  scratchOptions.blendFn = blendFn
 
-    for (let cx = b.x; cx < endX; cx++) {
-      const relX = (cx - fCenterX) + centerOffset
-      const dSqr = relX * relX + dySqr
+  if (brush.type === MaskType.ALPHA) {
+    blendColorPixelDataAlphaMask(
+      target,
+      color,
+      brush,
+      scratchOptions,
+    )
+  }
 
-      if (dSqr <= rSqr) {
-        const idx = rowOffset + cx
-        let weight = alpha
-
-        const strength = fallOff(1 - (Math.sqrt(dSqr) * invR))
-        const maskVal = (strength * 255) | 0
-        if (maskVal === 0) continue
-
-        // Match Blitter's weight calculation exactly
-        if (isOpaque) {
-          weight = maskVal
-        } else if (maskVal !== 255) {
-          weight = (maskVal * alpha + 128) >> 8
-        }
-
-        // Match Blitter's final color calculation exactly
-        let finalCol = color
-        if (weight < 255) {
-          const a = (baseSrcAlpha * weight + 128) >> 8
-          if (a === 0 && !isOverwrite) continue
-          finalCol = (colorRGB | (a << 24)) >>> 0 as Color32
-        }
-
-        data32[idx] = blendFn(finalCol, data32[idx] as Color32)
-      }
-    }
+  if (brush.type === MaskType.BINARY) {
+    blendColorPixelDataBinaryMask(
+      target,
+      color,
+      brush,
+      scratchOptions,
+    )
   }
 }

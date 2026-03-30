@@ -1,5 +1,11 @@
+import {
+  type Color32,
+  getCircleBrushOrPencilBounds,
+  makeCircleBrushAlphaMask,
+  mutatorApplyCircleBrush,
+  sourceOverPerfect,
+} from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { getCircleBrushOrPencilBounds, type Color32, mutatorApplyCircleBrush, sourceOverFast } from '@/index'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyCircleBrush', () => {
@@ -24,7 +30,9 @@ describe('mutatorApplyCircleBrush', () => {
       h: 10,
     }
 
-    mutator.applyCircleBrush(color, 50, 50, 10, 255, fallOff, sourceOverFast)
+    const brush = makeCircleBrushAlphaMask(10, fallOff)
+
+    mutator.applyCircleBrush(color, 50, 50, brush, 255)
 
     expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(
       expectedBounds.x,
@@ -38,10 +46,17 @@ describe('mutatorApplyCircleBrush', () => {
       color,
       50,
       50,
-      10,
+      brush,
       255,
-      fallOff,
-      sourceOverFast,
+      undefined,
+      expect.objectContaining({
+        alpha: 255,
+        blendFn: sourceOverPerfect,
+        x: 0,
+        y: 0,
+        w: 0,
+        h: 0,
+      }),
       expect.objectContaining(expectedBounds),
     )
   })
