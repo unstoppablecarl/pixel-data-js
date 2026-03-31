@@ -45,7 +45,7 @@ describe('applyCircleMaskToPixelData', () => {
     await expect(target).toMatchPixelDataSnapshot()
   })
 
-  it('draws a solid circle within the radius', () => {
+  it('draws a solid circle within the radius', async () => {
     const target = makeTestPixelData(10, 10)
     const color = 0xFF0000FF as any // Red
     const brush = makeCircleAlphaMask(4)
@@ -67,9 +67,11 @@ describe('applyCircleMaskToPixelData', () => {
 
     // A pixel far away (0,0) should be empty
     expect(target.data32[0]).toBe(0)
+
+    await expect(target).toMatchPixelDataSnapshot()
   })
 
-  it('draws a solid circle within the radius for binary mask', () => {
+  it('draws a solid circle within the radius for binary mask', async () => {
     const target = makeTestPixelData(10, 10)
     const color = 0xFF0000FF as any // Red
     const brush = makeCircleBinaryMask(4)
@@ -91,9 +93,10 @@ describe('applyCircleMaskToPixelData', () => {
 
     // A pixel far away (0,0) should be empty
     expect(target.data32[0]).toBe(0)
+    await expect(target).toMatchPixelDataSnapshot()
   })
 
-  it('applies fallOff function correctly', () => {
+  it('applies fallOff function correctly', async () => {
     const target = makeTestPixelData(10, 10)
     const color = 0xFFFFFFFF as any
     const fallOff = vi.fn((d: number) => d) // Linear fade
@@ -120,6 +123,9 @@ describe('applyCircleMaskToPixelData', () => {
 
     expect(alpha).toBeGreaterThan(150)
     expect(alpha).toBeLessThan(180)
+
+    await expect(target).toMatchPixelDataSnapshot()
+
   })
 
   it('clips correctly when brush is partially off-screen (Bottom-Right)', async () => {
@@ -158,7 +164,7 @@ describe('applyCircleMaskToPixelData', () => {
     expect(hasData).toBe(false)
   })
 
-  it('handles clipping at canvas edges', () => {
+  it('handles clipping at canvas edges', async () => {
     const target = makeTestPixelData(10, 10)
     const color = 0xFFFFFFFF as any
     const brush = makeCircleAlphaMask(6)
@@ -180,9 +186,11 @@ describe('applyCircleMaskToPixelData', () => {
 
     // (2,2) should be filled (dist = sqrt(8) = 2.82 < 3)
     expect(unpack(target.data32[0 * 10 + 2])).toEqual(unpack(color))
+
+    await expect(target).toMatchPixelDataSnapshot()
   })
 
-  it('applies the alpha parameter to the final color', () => {
+  it('applies the alpha parameter to the final color', async () => {
     const target = makeTestPixelData(10, 10)
 
     // Use 0xff00ff00 to provide an OPAQUE green base
@@ -207,12 +215,15 @@ describe('applyCircleMaskToPixelData', () => {
       b: 0,
       a: 128, // 50% opacity from the customAlpha multiplier
     })
+
+    await expect(target).toMatchPixelDataSnapshot()
+
   })
 
-  it('respects the provided bounds optimization', () => {
+  it('respects the provided bounds optimization', async () => {
     const target = makeTestPixelData(10, 10)
     const color = RED
-    const brush = makeCircleAlphaMask(10)
+    const brush = makeCircleAlphaMask(5)
 
     // Define bounds that only allow drawing the top-left pixel of the 10x10 brush area
     // Even though brush is huge (10x10), we clip it to 1x1 at (0,0)
@@ -223,11 +234,13 @@ describe('applyCircleMaskToPixelData', () => {
       h: 1,
     }
 
+    const centerX = 5
+    const centerY = 5
     applyCircleMaskToPixelData(
       target,
       color,
-      5,
-      5,
+      centerX,
+      centerY,
       brush,
       255,
       undefined,
@@ -236,14 +249,11 @@ describe('applyCircleMaskToPixelData', () => {
     )
 
     // Only 0,0 is allowed by bounds, but 0,0 is OUTSIDE the radius of a circle at 5,5
-    expect(target.data32[0]).toBe(0)
-
     // Center should NOT be drawn because it's outside 'tightBounds'
-    expect(target.data32[5 * 10 + 5]).toBe(0)
-
+    expect(target.data32.every(p => p === 0)).toBe(true)
   })
 
-  it('calculates center offset correctly for Odd brush sizes', () => {
+  it('calculates center offset correctly for Odd brush sizes', async () => {
     const target = makeTestPixelData(5, 5)
     const color = 0xFFFFFFFF as any
     const fallOff = (d: number) => d
@@ -262,6 +272,7 @@ describe('applyCircleMaskToPixelData', () => {
     )
 
     expect(target.data32[2 * 5 + 2] >>> 24).toBe(255)
+    await expect(target).toMatchPixelDataSnapshot()
   })
 
   it('does nothing if bounds have zero area', () => {

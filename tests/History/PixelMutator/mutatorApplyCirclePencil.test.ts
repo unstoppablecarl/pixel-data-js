@@ -13,9 +13,9 @@ describe('mutatorApplyCirclePencil', () => {
 
   it('should apply rectangular bounds exactly', () => {
     const color = 0xFFFFFFFF as Color32
-    const applyCircleBrushToPixelDataSpy = vi.fn(applyCircleMaskToPixelData)
+    const applyCircleMaskToPixelDataSpy = vi.fn(applyCircleMaskToPixelData)
     const { mutator, accumulator, target } = mockAccumulatorMutator(mutatorApplyCirclePencil, {
-      applyCircleBrushToPixelData: applyCircleBrushToPixelDataSpy,
+      applyCircleMaskToPixelData: applyCircleMaskToPixelDataSpy,
       getCircleBrushOrPencilBounds,
     })
 
@@ -31,7 +31,7 @@ describe('mutatorApplyCirclePencil', () => {
 
     expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(15, 15, 10, 10)
 
-    expect(applyCircleBrushToPixelDataSpy).toHaveBeenCalledWith(
+    expect(applyCircleMaskToPixelDataSpy).toHaveBeenCalledWith(
       target,
       color,
       20,

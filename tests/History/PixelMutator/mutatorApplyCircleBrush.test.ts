@@ -14,9 +14,9 @@ describe('mutatorApplyCircleBrush', () => {
     const color = 0xFF0000FF as Color32
     const fallOff = (d: number) => 1 - d
 
-    const applyCircleBrushToPixelDataSpy = vi.fn()
+    const applyCircleMaskToPixelDataSpy = vi.fn()
     const { mutator, accumulator, target } = mockAccumulatorMutator(mutatorApplyCircleMask, {
-      applyCircleBrushToPixelData: applyCircleBrushToPixelDataSpy,
+      applyCircleMaskToPixelData: applyCircleMaskToPixelDataSpy,
       getCircleBrushOrPencilBounds,
     })
 
@@ -38,7 +38,7 @@ describe('mutatorApplyCircleBrush', () => {
       expectedBounds.h,
     )
 
-    expect(applyCircleBrushToPixelDataSpy).toHaveBeenCalledWith(
+    expect(applyCircleMaskToPixelDataSpy).toHaveBeenCalledWith(
       target,
       color,
       50,
