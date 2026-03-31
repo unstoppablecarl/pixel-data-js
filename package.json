@@ -50,6 +50,7 @@
     "build": "tsup",
     "test": "vitest --coverage --project unit",
     "test:build": "pnpm build && vitest run --project dist",
+    "check-circ": "tsx _scripts/check-circular.ts",
     "test:mutation": "stryker run",
     "docs": "npx typedoc",
     "typecheck": "tsc --noEmit",
