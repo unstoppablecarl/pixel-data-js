@@ -16,7 +16,7 @@ export const mutatorBlendPixelData = ((writer: PixelWriter<any>, deps: Partial<D
   return {
     blendPixelData(
       src: IPixelData,
-      opts: PixelBlendOptions,
+      opts: PixelBlendOptions = {},
     ) {
       const {
         x = 0,

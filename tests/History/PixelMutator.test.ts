@@ -28,6 +28,8 @@ describe('PixelMutator', () => {
       'blendColor',
       'blendPixel',
       'blendPixelData',
+      'blendPixelDataAlphaMask',
+      'blendPixelDataBinaryMask',
       'clear',
       'fill',
       'fillBinaryMask',

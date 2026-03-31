@@ -11,6 +11,8 @@ import { mutatorApplyRectPencilStroke } from './PixelMutator/mutatorApplyRectPen
 import { mutatorBlendColor } from './PixelMutator/mutatorBlendColor'
 import { mutatorBlendPixel } from './PixelMutator/mutatorBlendPixel'
 import { mutatorBlendPixelData } from './PixelMutator/mutatorBlendPixelData'
+import { mutatorBlendPixelDataAlphaMask } from './PixelMutator/mutatorBlendPixelDataAlphaMask'
+import { mutatorBlendPixelDataBinaryMask } from './PixelMutator/mutatorBlendPixelDataBinaryMask'
 import { mutatorClear } from './PixelMutator/mutatorClear'
 import { mutatorFill } from './PixelMutator/mutatorFill'
 import { mutatorFillBinaryMask } from './PixelMutator/mutatorFillBinaryMask'
@@ -33,6 +35,8 @@ export function makeFullPixelMutator(writer: PixelWriter<any>) {
     ...mutatorBlendColor(writer),
     ...mutatorBlendPixel(writer),
     ...mutatorBlendPixelData(writer),
+    ...mutatorBlendPixelDataAlphaMask(writer),
+    ...mutatorBlendPixelDataBinaryMask(writer),
     ...mutatorClear(writer),
     ...mutatorFill(writer),
     ...mutatorFillBinaryMask(writer),
