@@ -3,12 +3,13 @@ import { type ApplyMaskToPixelDataOptions, type BinaryMask, type IPixelData } fr
 /**
  * Directly applies a mask to a region of PixelData,
  * modifying the destination's alpha channel in-place.
+ * @returns true if any pixels were modified, false otherwise.
  */
 export function applyBinaryMaskToPixelData(
   dst: IPixelData,
   mask: BinaryMask,
   opts: ApplyMaskToPixelDataOptions = {},
-): void {
+): boolean {
   const {
     x: targetX = 0,
     y: targetY = 0,
@@ -20,9 +21,8 @@ export function applyBinaryMaskToPixelData(
     invertMask = false,
   } = opts
 
-  if (globalAlpha === 0) return
+  if (globalAlpha === 0) return false
 
-  // 1. Initial Destination Clipping
   let x = targetX
   let y = targetY
   let w = width
@@ -41,12 +41,10 @@ export function applyBinaryMaskToPixelData(
   w = Math.min(w, dst.width - x)
   h = Math.min(h, dst.height - y)
 
-  if (w <= 0) return
-  if (h <= 0) return
+  if (w <= 0 || h <= 0) return false
 
-  // 2. Determine Source Dimensions
   const mPitch = mask.w
-  if (mPitch <= 0) return
+  if (mPitch <= 0) return false
 
   // 3. Source Bounds Clipping
   // Calculate where we would start reading in the mask
@@ -62,9 +60,9 @@ export function applyBinaryMaskToPixelData(
   const finalW = sX1 - sX0
   const finalH = sY1 - sY0
 
-  // This is where your failing tests are now caught
-  if (finalW <= 0) return
-  if (finalH <= 0) return
+  if (finalW <= 0 || finalH <= 0) {
+    return false
+  }
 
   // 4. Align Destination with Source Clipping
   // If the source was clipped on the top/left, we must shift the destination start
@@ -79,24 +77,31 @@ export function applyBinaryMaskToPixelData(
 
   let dIdx = (y + yShift) * dw + (x + xShift)
   let mIdx = sY0 * mPitch + sX0
+  let didChange = false
 
-  for (let iy = 0; iy < h; iy++) {
-    for (let ix = 0; ix < w; ix++) {
+  for (let iy = 0; iy < finalH; iy++) {
+    for (let ix = 0; ix < finalW; ix++) {
       const mVal = maskData[mIdx]
-      // Consistently determines if this pixel should be "masked out" (cleared)
       const isMaskedOut = invertMask ? mVal !== 0 : mVal === 0
 
       if (isMaskedOut) {
-        // Clear alpha channel only (keep RGB)
-        dst32[dIdx] = (dst32[dIdx] & 0x00ffffff) >>> 0
+        const current = dst32[dIdx]
+        const next = (current & 0x00ffffff) >>> 0
+        if (current !== next) {
+          dst32[dIdx] = next
+          didChange = true
+        }
       } else if (globalAlpha !== 255) {
         const d = dst32[dIdx]
         const da = d >>> 24
 
-        // If pixel isn't already fully transparent, apply global alpha
         if (da !== 0) {
           const finalAlpha = da === 255 ? globalAlpha : (da * globalAlpha + 128) >> 8
-          dst32[dIdx] = ((d & 0x00ffffff) | (finalAlpha << 24)) >>> 0
+          const next = ((d & 0x00ffffff) | (finalAlpha << 24)) >>> 0
+          if (d !== next) {
+            dst32[dIdx] = next
+            didChange = true
+          }
         }
       }
 
@@ -107,4 +112,6 @@ export function applyBinaryMaskToPixelData(
     dIdx += dStride
     mIdx += mStride
   }
+
+  return didChange
 }

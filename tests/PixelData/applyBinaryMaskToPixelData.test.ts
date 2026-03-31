@@ -12,13 +12,14 @@ describe('applyBinaryMaskToPixelData', () => {
       const dst = makeTestPixelData(1, 1, RED)
       const mask = makeTestBinaryMask(1, 1, [0])
 
-      applyBinaryMaskToPixelData(dst, mask, {
+      const r = applyBinaryMaskToPixelData(dst, mask, {
         x: 10,
         y: 10,
         w: 1,
         h: 1,
       })
 
+      expect(r).toBe(false)
       expect(dst.data32[0]).toBe(RED)
     })
 
@@ -28,12 +29,14 @@ describe('applyBinaryMaskToPixelData', () => {
       const mask = makeTestBinaryMask(2, 2, [1, 1, 1, 0])
 
       // Clip: x:-1, y:-1 means we sample mask at (1,1) -> index 3
-      applyBinaryMaskToPixelData(dst, mask, {
+      const r = applyBinaryMaskToPixelData(dst, mask, {
         x: -1,
         y: -1,
         w: 2,
         h: 2,
       })
+
+      expect(r).toBe(true)
 
       // dst[0,0] alpha should now be 0
       expect(dst.data32[0]).toBe(pack(255, 0, 0, 0))
@@ -46,15 +49,19 @@ describe('applyBinaryMaskToPixelData', () => {
       const mask = makeTestBinaryMask(2, 2, [1, 0])
 
       // Normal: first pixel stays, second pixel cleared
-      applyBinaryMaskToPixelData(dst, mask, {})
+      const r1 = applyBinaryMaskToPixelData(dst, mask, {})
+      expect(r1).toBe(true)
+
       expect(dst.data32[0]).toBe(RED)
       expect(dst.data32[1] >>> 24).toBe(0)
 
       // Inverted: first pixel cleared, second stays
       const dst2 = makeTestPixelData(2, 1, RED)
-      applyBinaryMaskToPixelData(dst2, mask, {
+      const r2 = applyBinaryMaskToPixelData(dst2, mask, {
         invertMask: true,
       })
+
+      expect(r2).toBe(true)
       expect(dst2.data32[0] >>> 24).toBe(0)
       expect(dst2.data32[1]).toBe(RED)
     })
@@ -75,7 +82,8 @@ describe('applyBinaryMaskToPixelData', () => {
           : 0
       }
 
-      applyBinaryMaskToPixelData(dst, mask)
+      const r = applyBinaryMaskToPixelData(dst, mask)
+      expect(r).toBe(true)
 
       for (let y = 0; y < DH; y++) {
         for (let x = 0; x < DW; x++) {
@@ -98,12 +106,14 @@ describe('applyBinaryMaskToPixelData', () => {
       mask.data[6] = 0 // (1,1) in a 5x5 grid
 
       // Apply a 5x5 mask area starting at (0,0) on a 2x2 dst
-      applyBinaryMaskToPixelData(dst, mask, {
+      const r = applyBinaryMaskToPixelData(dst, mask, {
         x: 0,
         y: 0,
         w: 5,
         h: 5,
       })
+
+      expect(r).toBe(true)
 
       // dst(1,1) is index 3. It corresponds to mask(1,1).
       expect(dst.data32[3] >>> 24).toBe(0)
@@ -120,12 +130,13 @@ describe('applyBinaryMaskToPixelData', () => {
       // If stride math is wrong, this might be applied to dst row 2.
       mask.data[10] = 0
 
-      applyBinaryMaskToPixelData(dst, mask, {
+      const r = applyBinaryMaskToPixelData(dst, mask, {
         x: 1,
         y: 1,
         w: 10,
         h: 1,
       })
+      expect(r).toBe(false)
 
       // (1,1) index 4, (2,1) index 5 should be RED (mask was 255 at those spots)
       expect(dst.data32[4] >>> 24).toBe(255)
@@ -140,13 +151,14 @@ describe('applyBinaryMaskToPixelData', () => {
       const mask = makeTestBinaryMask(2, 2, 0)
 
       // Draw area is far to the right
-      applyBinaryMaskToPixelData(dst, mask, {
+      const r = applyBinaryMaskToPixelData(dst, mask, {
         x: 10,
+
         y: 0,
         w: 2,
         h: 2,
       })
-
+      expect(r).toBe(false)
       // No pixels should have changed
       const isUntouched = Array.from(dst.data32).every((p) => p === RED)
       expect(isUntouched).toBe(true)
@@ -156,10 +168,10 @@ describe('applyBinaryMaskToPixelData', () => {
     const dst = makeTestPixelData(1, 1, RED)
     const mask = makeTestBinaryMask(1, 1)
 
-    applyBinaryMaskToPixelData(dst, mask, {
+    const r = applyBinaryMaskToPixelData(dst, mask, {
       invertMask: false,
     })
-
+    expect(r).toBe(true)
     // effectiveM is 0, alpha should be cleared
     expect(dst.data32[0] >>> 24).toBe(0)
   })
@@ -168,10 +180,10 @@ describe('applyBinaryMaskToPixelData', () => {
     const dst = makeTestPixelData(1, 1, RED)
     const mask = makeTestBinaryMask(1, 1, 1)
 
-    applyBinaryMaskToPixelData(dst, mask, {
+    const r = applyBinaryMaskToPixelData(dst, mask, {
       invertMask: true,
     })
-
+    expect(r).toBe(true)
     // 255 inverted is 0, alpha should be cleared
     expect(dst.data32[0] >>> 24).toBe(0)
   })
@@ -182,10 +194,10 @@ describe('applyBinaryMaskToPixelData', () => {
 
     const globalAlpha = 128
 
-    applyBinaryMaskToPixelData(dst, mask, {
+    const r = applyBinaryMaskToPixelData(dst, mask, {
       alpha: globalAlpha, // weight = (255 * 128 + 128) >> 8 = 128
     })
-
+    expect(r).toBe(true)
     // dst was 255, weight is 128. Identity (da === 255) makes result 128.
     expect(dst.data32[0] >>> 24).toBe(128)
   })
@@ -194,10 +206,10 @@ describe('applyBinaryMaskToPixelData', () => {
     const dst = makeTestPixelData(1, 1, HALF_RED) // da = 128
     const mask = makeTestBinaryMask(1, 1, 1)
 
-    applyBinaryMaskToPixelData(dst, mask, {
+    const r = applyBinaryMaskToPixelData(dst, mask, {
       alpha: 255, // weight = 255
     })
-
+    expect(r).toBe(false)
     // Since weight is 255, da should remain 128
     expect(dst.data32[0] >>> 24).toBe(128)
   })
@@ -207,7 +219,8 @@ describe('applyBinaryMaskToPixelData', () => {
     const dst = makeTestPixelData(1, 1, transparentPixel)
     const mask = makeTestBinaryMask(1, 1, 1)
 
-    applyBinaryMaskToPixelData(dst, mask, {})
+    const r = applyBinaryMaskToPixelData(dst, mask, {})
+    expect(r).toBe(false)
 
     // da was 0, should stay 0
     expect(dst.data32[0] >>> 24).toBe(0)
@@ -217,10 +230,11 @@ describe('applyBinaryMaskToPixelData', () => {
     const dst = makeTestPixelData(1, 1, RED)
     const mask = makeTestBinaryMask(1, 1, 1)
 
-    applyBinaryMaskToPixelData(dst, mask, {
+    const r = applyBinaryMaskToPixelData(dst, mask, {
       alpha: 0,
     })
 
+    expect(r).toBe(false)
     // Should skip processing and stay RED
     expect(dst.data32[0]).toBe(RED)
   })
@@ -231,10 +245,10 @@ describe('applyBinaryMaskToPixelData', () => {
     const mask = makeTestBinaryMask(1, 1, 1)
 
     // 2. Apply with partial globalAlpha (weight = 128)
-    applyBinaryMaskToPixelData(dst, mask, {
+    const r = applyBinaryMaskToPixelData(dst, mask, {
       alpha: 128,
     })
-
+    expect(r).toBe(true)
     // 3. The math branch executes: (da * weight + 128) >> 8
     // (128 * 128 + 128) >> 8 = 16512 >> 8 = 64
     const resultAlpha = (dst.data32[0] >>> 24) & 0xff
@@ -242,7 +256,7 @@ describe('applyBinaryMaskToPixelData', () => {
     expect(resultAlpha).toBe(64)
   })
 
-  describe('applyBinaryMaskToPixelData - Bounds and Early Returns', () => {
+  describe('const r = applyBinaryMaskToPixelData - Bounds and Early Returns', () => {
     const createMockPixelData = (w: number, h: number) => {
       const data32 = new Uint32Array(w * h)
 
@@ -270,11 +284,13 @@ describe('applyBinaryMaskToPixelData', () => {
           h: 0,
         }
 
-        applyBinaryMaskToPixelData(dst, mask, optsW)
+        const r1 = applyBinaryMaskToPixelData(dst, mask, optsW)
         expect(dst.data32[0]).toBe(0xffffffff)
+        expect(r1).toBe(false)
 
-        applyBinaryMaskToPixelData(dst, mask, optsH)
+        const r2 = applyBinaryMaskToPixelData(dst, mask, optsH)
         expect(dst.data32[0]).toBe(0xffffffff)
+        expect(r2).toBe(false)
       })
 
       it('returns early when target X is entirely outside the destination bounds', () => {
@@ -285,7 +301,8 @@ describe('applyBinaryMaskToPixelData', () => {
           y: 0,
         }
 
-        applyBinaryMaskToPixelData(dst, mask, opts)
+        const r = applyBinaryMaskToPixelData(dst, mask, opts)
+        expect(r).toBe(false)
 
         expect(dst.data32[0]).toBe(0xffffffff)
       })
@@ -298,7 +315,8 @@ describe('applyBinaryMaskToPixelData', () => {
           y: 5,
         }
 
-        applyBinaryMaskToPixelData(dst, mask, opts)
+        const r = applyBinaryMaskToPixelData(dst, mask, opts)
+        expect(r).toBe(false)
 
         expect(dst.data32[0]).toBe(0xffffffff)
       })
@@ -312,7 +330,8 @@ describe('applyBinaryMaskToPixelData', () => {
         }
 
         // If x is -2 and w is 2, the clip logic `w += x` results in 0
-        applyBinaryMaskToPixelData(dst, mask, opts)
+        const r = applyBinaryMaskToPixelData(dst, mask, opts)
+        expect(r).toBe(false)
 
         expect(dst.data32[0]).toBe(0xffffffff)
       })
@@ -327,7 +346,8 @@ describe('applyBinaryMaskToPixelData', () => {
       }
 
       // Starting at X index 2 on a 2x2 mask leaves 0 safe width
-      applyBinaryMaskToPixelData(dst, mask, opts)
+      const r = applyBinaryMaskToPixelData(dst, mask, opts)
+      expect(r).toBe(false)
 
       expect(dst.data32[0]).toBe(0xffffffff)
     })
@@ -341,7 +361,8 @@ describe('applyBinaryMaskToPixelData', () => {
       }
 
       // Starting at Y index 2 on a 2x2 mask (height 2) leaves 0 safe height
-      applyBinaryMaskToPixelData(dst, mask, opts)
+      const r = applyBinaryMaskToPixelData(dst, mask, opts)
+      expect(r).toBe(false)
 
       expect(dst.data32[0]).toBe(0xffffffff)
     })
@@ -355,7 +376,8 @@ describe('applyBinaryMaskToPixelData', () => {
       }
 
       // If we offset mx by 1 on a 1x1 mask, safeW becomes 1 - 1 = 0
-      applyBinaryMaskToPixelData(dst, mask, opts)
+      const r = applyBinaryMaskToPixelData(dst, mask, opts)
+      expect(r).toBe(false)
 
       expect(dst.data32[0]).toBe(0xffffffff)
     })
@@ -372,7 +394,8 @@ describe('applyBinaryMaskToPixelData', () => {
       }
 
       // 3 arguments, can stay on one line
-      applyBinaryMaskToPixelData(dst, mask, opts)
+      const r = applyBinaryMaskToPixelData(dst, mask, opts)
+      expect(r).toBe(false)
 
       // Verify the top-left pixel was not cleared
       expect(dst.data32[0]).toBe(0xffffffff)
