@@ -4,9 +4,7 @@ import { makeTestBinaryMask } from '../../_helpers'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyBinaryMask', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
+
 
   it('should call accumulator and applyBinaryMaskToPixelData', () => {
     const mask = makeTestBinaryMask(2, 2, 1)

@@ -12,9 +12,7 @@ import { pack } from '../../_helpers'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyCircleBrushStroke', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
+
 
   it('orchestrates the lifecycle and passes correct args to internal helpers', () => {
     const color = pack(255, 0, 0, 255)

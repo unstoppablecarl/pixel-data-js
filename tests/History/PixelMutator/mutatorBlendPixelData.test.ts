@@ -3,9 +3,7 @@ import { blendPixelData, mutatorBlendPixelData, PixelData } from '@/index'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorBlendPixelData', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
+
 
   it('should call accumulator and blendPixelData', () => {
     const source = new PixelData(new ImageData(10, 10))

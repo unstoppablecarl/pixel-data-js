@@ -3,9 +3,7 @@ import { type Color32, mutatorBlendPixel, sourceOverFast } from '@/index'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorBlendPixel', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
+
 
   it('should call accumulator and modify the pixel data', () => {
     const x = 10

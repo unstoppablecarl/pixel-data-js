@@ -4,9 +4,7 @@ import { makeTestAlphaMask } from '../../_helpers'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyAlphaMask', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
+
 
   it('should call accumulator and applyAlphaMaskToPixelData', () => {
     const mask = makeTestAlphaMask(2, 2, 1)

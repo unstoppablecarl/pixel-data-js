@@ -3,9 +3,7 @@ import { blendColorPixelData, blendPixelData, type Color32, mutatorBlendColor } 
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorBlendColor', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
+
 
   it('should call accumulator and blendColorPixelData', () => {
     const color = 0xFF0000FF as Color32

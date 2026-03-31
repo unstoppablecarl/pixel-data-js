@@ -3,9 +3,7 @@ import { type Color32, getRectBrushOrPencilBounds, mutatorApplyRectBrush } from 
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyRectBrush', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
+
 
   it('orchestrates the brush apply by wiring bounds to accumulator and blitter', () => {
     const getRectBrushOrPencilBoundsSpy = vi.fn(getRectBrushOrPencilBounds)

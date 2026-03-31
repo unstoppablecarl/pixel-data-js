@@ -10,9 +10,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyCirclePencil', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
+
 
   it('should apply rectangular bounds exactly', () => {
     const color = 0xFFFFFFFF as Color32

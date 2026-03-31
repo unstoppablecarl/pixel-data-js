@@ -3,9 +3,7 @@ import { type Color32, mutatorApplyRectPencil } from '@/index'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyRectPencil', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
+
 
   it('passes the optional blend function through to the blitter', () => {
     const applyRectBrushToPixelDataSpy = vi.fn()

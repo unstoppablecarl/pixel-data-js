@@ -11,9 +11,7 @@ import { pack } from '../../_helpers'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyRectPencilStroke', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
+
 
   it('orchestrates the full stroke lifecycle with correct arguments', () => {
     const color = pack(255, 0, 0, 255)
