@@ -18,7 +18,7 @@ import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 export function blendPixelData(
   dst: IPixelData,
   src: IPixelData,
-  opts: PixelBlendOptions,
+  opts: PixelBlendOptions = {},
 ) {
   const {
     x: targetX = 0,

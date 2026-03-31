@@ -5,7 +5,7 @@ export function blendPixelDataBinaryMask(
   dst: IPixelData,
   src: IPixelData,
   binaryMask: BinaryMask,
-  opts: PixelBlendMaskOptions,
+  opts: PixelBlendMaskOptions = {},
 ) {
   const {
     x: targetX = 0,
