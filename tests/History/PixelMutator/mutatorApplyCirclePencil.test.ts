@@ -1,8 +1,8 @@
 import {
-  applyCircleBrushToPixelData,
+  applyCircleMaskToPixelData,
   type Color32,
   getCircleBrushOrPencilBounds,
-  makeCircleBrushAlphaMask,
+  makeCircleAlphaMask,
   mutatorApplyCirclePencil,
   sourceOverPerfect,
 } from '@/index'
@@ -13,7 +13,7 @@ describe('mutatorApplyCirclePencil', () => {
 
   it('should apply rectangular bounds exactly', () => {
     const color = 0xFFFFFFFF as Color32
-    const applyCircleBrushToPixelDataSpy = vi.fn(applyCircleBrushToPixelData)
+    const applyCircleBrushToPixelDataSpy = vi.fn(applyCircleMaskToPixelData)
     const { mutator, accumulator, target } = mockAccumulatorMutator(mutatorApplyCirclePencil, {
       applyCircleBrushToPixelData: applyCircleBrushToPixelDataSpy,
       getCircleBrushOrPencilBounds,
@@ -26,7 +26,7 @@ describe('mutatorApplyCirclePencil', () => {
       h: 10,
     }
 
-    const brush = makeCircleBrushAlphaMask(10)
+    const brush = makeCircleAlphaMask(10)
     mutator.applyCirclePencil(color, 20, 20, brush, 255)
 
     expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(15, 15, 10, 10)
@@ -53,7 +53,7 @@ describe('mutatorApplyCirclePencil', () => {
     const color = 0xFFFFFFFF as Color32
     const { mutator, accumulator } = mockAccumulatorMutator(mutatorApplyCirclePencil)
 
-    const brush = makeCircleBrushAlphaMask(10)
+    const brush = makeCircleAlphaMask(10)
 
     mutator.applyCirclePencil(color, 0, 0, brush)
 

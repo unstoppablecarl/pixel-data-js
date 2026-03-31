@@ -1,7 +1,7 @@
 import {
   type AlphaMask,
   type BlendColor32,
-  type CircleBrushAlphaMask,
+  type CircleAlphaMask,
   type Color32,
   type ColorBlendMaskOptions,
   type HistoryMutator,
@@ -72,7 +72,7 @@ export const mutatorApplyCircleBrushStroke = ((writer: PixelWriter<any>, deps: D
       y0: number,
       x1: number,
       y1: number,
-      brush: CircleBrushAlphaMask,
+      brush: CircleAlphaMask,
       alpha = 255,
       blendFn: BlendColor32 = sourceOverPerfect,
     ) {

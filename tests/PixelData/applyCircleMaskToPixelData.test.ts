@@ -1,20 +1,20 @@
-import { applyCircleBrushToPixelData, makeCircleBrushAlphaMask, makeCircleBrushBinaryMask } from '@/index'
+import { applyCircleMaskToPixelData, makeCircleAlphaMask, makeCircleBinaryMask } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
 import { makeTestPixelData, pack, unpack } from '../_helpers'
 
-describe('applyCircleBrushToPixelData', () => {
+describe('applyCircleMaskToPixelData', () => {
   const RED = pack(255, 0, 0, 255)
 
   it('applies small brush fallOff correctly when provided', async () => {
     const target = makeTestPixelData(10, 10)
     const color = RED
     const fallOff = vi.fn((d: number) => d)
-    const brush = makeCircleBrushAlphaMask(2, fallOff)
+    const brush = makeCircleAlphaMask(2, fallOff)
 
     const x = 5
     const y = 5
 
-    applyCircleBrushToPixelData(
+    applyCircleMaskToPixelData(
       target,
       color,
       x,
@@ -48,11 +48,11 @@ describe('applyCircleBrushToPixelData', () => {
   it('draws a solid circle within the radius', () => {
     const target = makeTestPixelData(10, 10)
     const color = 0xFF0000FF as any // Red
-    const brush = makeCircleBrushAlphaMask(4)
+    const brush = makeCircleAlphaMask(4)
 
     // Brush Size 4 (Radius 2). Centered at 5,5.
     // It should fill a roughly circular area.
-    applyCircleBrushToPixelData(
+    applyCircleMaskToPixelData(
       target,
       color,
       5,
@@ -72,11 +72,11 @@ describe('applyCircleBrushToPixelData', () => {
   it('draws a solid circle within the radius for binary mask', () => {
     const target = makeTestPixelData(10, 10)
     const color = 0xFF0000FF as any // Red
-    const brush = makeCircleBrushBinaryMask(4)
+    const brush = makeCircleBinaryMask(4)
 
     // Brush Size 4 (Radius 2). Centered at 5,5.
     // It should fill a roughly circular area.
-    applyCircleBrushToPixelData(
+    applyCircleMaskToPixelData(
       target,
       color,
       5,
@@ -97,10 +97,10 @@ describe('applyCircleBrushToPixelData', () => {
     const target = makeTestPixelData(10, 10)
     const color = 0xFFFFFFFF as any
     const fallOff = vi.fn((d: number) => d) // Linear fade
-    const brush = makeCircleBrushAlphaMask(4, fallOff)
+    const brush = makeCircleAlphaMask(4, fallOff)
 
     // Size 4 (Radius 2). Center 5,5.
-    applyCircleBrushToPixelData(
+    applyCircleMaskToPixelData(
       target,
       color,
       5,
@@ -125,9 +125,9 @@ describe('applyCircleBrushToPixelData', () => {
   it('clips correctly when brush is partially off-screen (Bottom-Right)', async () => {
     const target = makeTestPixelData(10, 10)
     const color = 0xffffffff as any
-    const brush = makeCircleBrushAlphaMask(10)
+    const brush = makeCircleAlphaMask(10)
 
-    applyCircleBrushToPixelData(
+    applyCircleMaskToPixelData(
       target,
       color,
       9,
@@ -143,9 +143,9 @@ describe('applyCircleBrushToPixelData', () => {
   it('does nothing if the brush is entirely outside the target', () => {
     const target = makeTestPixelData(10, 10)
     const color = 0xffffffff as any
-    const brush = makeCircleBrushAlphaMask(5)
+    const brush = makeCircleAlphaMask(5)
 
-    applyCircleBrushToPixelData(
+    applyCircleMaskToPixelData(
       target,
       color,
       50,
@@ -161,10 +161,10 @@ describe('applyCircleBrushToPixelData', () => {
   it('handles clipping at canvas edges', () => {
     const target = makeTestPixelData(10, 10)
     const color = 0xFFFFFFFF as any
-    const brush = makeCircleBrushAlphaMask(6)
+    const brush = makeCircleAlphaMask(6)
 
     // Circle at 0,0 size 6 (Radius 3)
-    applyCircleBrushToPixelData(
+    applyCircleMaskToPixelData(
       target,
       color,
       0,
@@ -188,9 +188,9 @@ describe('applyCircleBrushToPixelData', () => {
     // Use 0xff00ff00 to provide an OPAQUE green base
     const color = 0xff00ff00 as any
     const customAlpha = 128
-    const brush = makeCircleBrushAlphaMask(2)
+    const brush = makeCircleAlphaMask(2)
 
-    applyCircleBrushToPixelData(
+    applyCircleMaskToPixelData(
       target,
       color,
       5,
@@ -212,7 +212,7 @@ describe('applyCircleBrushToPixelData', () => {
   it('respects the provided bounds optimization', () => {
     const target = makeTestPixelData(10, 10)
     const color = RED
-    const brush = makeCircleBrushAlphaMask(10)
+    const brush = makeCircleAlphaMask(10)
 
     // Define bounds that only allow drawing the top-left pixel of the 10x10 brush area
     // Even though brush is huge (10x10), we clip it to 1x1 at (0,0)
@@ -223,7 +223,7 @@ describe('applyCircleBrushToPixelData', () => {
       h: 1,
     }
 
-    applyCircleBrushToPixelData(
+    applyCircleMaskToPixelData(
       target,
       color,
       5,
@@ -247,12 +247,12 @@ describe('applyCircleBrushToPixelData', () => {
     const target = makeTestPixelData(5, 5)
     const color = 0xFFFFFFFF as any
     const fallOff = (d: number) => d
-    const brush = makeCircleBrushAlphaMask(3, fallOff)
+    const brush = makeCircleAlphaMask(3, fallOff)
 
     // Size 3 (Radius 1.5). Center 2,2.
     // For Odd brushes, center offset is 0.
     // Pixel (2,2) is exactly at distance 0.
-    applyCircleBrushToPixelData(
+    applyCircleMaskToPixelData(
       target,
       color,
       2,
@@ -267,7 +267,7 @@ describe('applyCircleBrushToPixelData', () => {
   it('does nothing if bounds have zero area', () => {
     const target = makeTestPixelData(5, 5)
     const color = 0xFFFFFFFF as any
-    const brush = makeCircleBrushAlphaMask(3)
+    const brush = makeCircleAlphaMask(3)
 
     const bounds = {
       x: 0,
@@ -276,7 +276,7 @@ describe('applyCircleBrushToPixelData', () => {
       h: 0,
     }
 
-    applyCircleBrushToPixelData(
+    applyCircleMaskToPixelData(
       target,
       color,
       2,
@@ -301,7 +301,7 @@ describe('applyCircleBrushToPixelData', () => {
     }
 
     const blendFn = vi.fn()
-    const brush = makeCircleBrushAlphaMask(1, () => 0.5)
+    const brush = makeCircleAlphaMask(1, () => 0.5)
 
     const bounds = {
       x: 0,
@@ -310,7 +310,7 @@ describe('applyCircleBrushToPixelData', () => {
       h: 1,
     }
 
-    applyCircleBrushToPixelData(
+    applyCircleMaskToPixelData(
       pixelData as any,
       0x00000000 as any,
       0,
@@ -340,7 +340,7 @@ describe('applyCircleBrushToPixelData', () => {
       // Explicitly flag the mock function as an overwrite mode
     ;(blendFn as any).isOverwrite = true
 
-    const brush = makeCircleBrushAlphaMask(1, () => 0.5)
+    const brush = makeCircleAlphaMask(1, () => 0.5)
 
     const bounds = {
       x: 0,
@@ -349,7 +349,7 @@ describe('applyCircleBrushToPixelData', () => {
       h: 1,
     }
 
-    applyCircleBrushToPixelData(
+    applyCircleMaskToPixelData(
       pixelData as any,
       0x00000000 as any,
       0,
@@ -368,7 +368,7 @@ describe('applyCircleBrushToPixelData', () => {
   it('exits early if the mask falls entirely outside the calculated bounds (iw <= 0 || ih <= 0)', () => {
     const target = makeTestPixelData(10, 10)
     const color = RED
-    const brush = makeCircleBrushAlphaMask(2)
+    const brush = makeCircleAlphaMask(2)
 
     // Valid bounds, but placed in the top-left
     const disjointBounds = {
@@ -379,7 +379,7 @@ describe('applyCircleBrushToPixelData', () => {
     }
 
     // Brush centered in the bottom-right, completely missing the disjointBounds
-    applyCircleBrushToPixelData(
+    applyCircleMaskToPixelData(
       target,
       color,
       8,

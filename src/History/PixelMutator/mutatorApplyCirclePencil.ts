@@ -1,10 +1,10 @@
-import type { BlendColor32, CircleBrushMask, Color32, HistoryMutator, Rect } from '../../_types'
-import { applyCircleBrushToPixelData } from '../../PixelData/applyCircleBrushToPixelData'
+import type { BlendColor32, CircleMask, Color32, HistoryMutator, Rect } from '../../_types'
+import { applyCircleMaskToPixelData } from '../../PixelData/applyCircleMaskToPixelData'
 import { getCircleBrushOrPencilBounds } from '../../Rect/getCircleBrushOrPencilBounds'
 import { PixelWriter } from '../PixelWriter'
 
 const defaults = {
-  applyCircleBrushToPixelData,
+  applyCircleMaskToPixelData,
   getCircleBrushOrPencilBounds,
 }
 
@@ -15,7 +15,7 @@ type Deps = Partial<typeof defaults>
  **/
 export const mutatorApplyCirclePencil = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
   const {
-    applyCircleBrushToPixelData = defaults.applyCircleBrushToPixelData,
+    applyCircleMaskToPixelData = defaults.applyCircleMaskToPixelData,
     getCircleBrushOrPencilBounds = defaults.getCircleBrushOrPencilBounds,
   } = deps
 
@@ -26,7 +26,7 @@ export const mutatorApplyCirclePencil = ((writer: PixelWriter<any>, deps: Deps =
       color: Color32,
       centerX: number,
       centerY: number,
-      brush: CircleBrushMask,
+      brush: CircleMask,
       alpha = 255,
       blendFn?: BlendColor32,
     ) {
@@ -45,7 +45,7 @@ export const mutatorApplyCirclePencil = ((writer: PixelWriter<any>, deps: Deps =
 
       writer.accumulator.storeRegionBeforeState(x, y, w, h)
 
-      applyCircleBrushToPixelData(
+      applyCircleMaskToPixelData(
         target,
         color,
         centerX,

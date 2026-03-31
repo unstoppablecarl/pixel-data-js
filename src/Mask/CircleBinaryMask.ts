@@ -1,6 +1,6 @@
-import { type CircleBrushBinaryMask, MaskType } from '../_types'
+import { type CircleBinaryMask, MaskType } from '../_types'
 
-export function makeCircleBrushBinaryMask(size: number): CircleBrushBinaryMask {
+export function makeCircleBinaryMask(size: number): CircleBinaryMask {
   const area = size * size
   const data = new Uint8Array(area)
   const radius = size / 2

@@ -1,6 +1,6 @@
 import {
   type BlendColor32,
-  type CircleBrushMask,
+  type CircleMask,
   type Color32,
   type ColorBlendMaskOptions,
   type IPixelData,
@@ -13,7 +13,7 @@ import { blendColorPixelDataAlphaMask } from './blendColorPixelDataAlphaMask'
 import { blendColorPixelDataBinaryMask } from './blendColorPixelDataBinaryMask'
 
 /**
- * Applies a circular brush to pixel data using a pre-calculated alpha mask.
+ * Applies a circular mask to pixel data using a pre-calculated alpha mask.
  *
  * @param target The PixelData to modify.
  * @param color The brush color.
@@ -25,12 +25,12 @@ import { blendColorPixelDataBinaryMask } from './blendColorPixelDataBinaryMask'
  * @param scratchOptions
  * @param bounds precalculated result from {@link getCircleBrushOrPencilBounds}
  */
-export function applyCircleBrushToPixelData(
+export function applyCircleMaskToPixelData(
   target: IPixelData,
   color: Color32,
   centerX: number,
   centerY: number,
-  brush: CircleBrushMask,
+  brush: CircleMask,
   alpha = 255,
   blendFn: BlendColor32 = sourceOverPerfect,
   scratchOptions: ColorBlendMaskOptions = {},
@@ -61,7 +61,6 @@ export function applyCircleBrushToPixelData(
   // If the mask falls entirely outside the bounds, exit
   if (iw <= 0 || ih <= 0) return
 
-  // Apply the intersected coordinates and internal mask offsets
   scratchOptions.x = ix
   scratchOptions.y = iy
   scratchOptions.w = iw

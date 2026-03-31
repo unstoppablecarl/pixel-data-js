@@ -18,8 +18,8 @@ describe('PixelMutator', () => {
       // @sort
       'applyAlphaMask',
       'applyBinaryMask',
-      'applyCircleBrush',
       'applyCircleBrushStroke',
+      'applyCircleMask',
       'applyCirclePencil',
       'applyCirclePencilStroke',
       'applyRectBrush',

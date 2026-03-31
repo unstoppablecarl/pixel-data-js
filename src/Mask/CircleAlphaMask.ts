@@ -1,6 +1,6 @@
-import { type CircleBrushAlphaMask, MaskType } from '../_types'
+import { type CircleAlphaMask, MaskType } from '../_types'
 
-export function makeCircleBrushAlphaMask(size: number, fallOff: (d: number) => number = () => 1): CircleBrushAlphaMask {
+export function makeCircleAlphaMask(size: number, fallOff: (d: number) => number = () => 1): CircleAlphaMask {
   const area = size * size
   const data = new Uint8Array(area)
   const radius = size / 2

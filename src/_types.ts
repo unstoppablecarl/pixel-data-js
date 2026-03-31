@@ -80,19 +80,19 @@ export interface AlphaMask extends Mask {
   readonly type: MaskType.ALPHA
 }
 
-interface CircleBrush {
+interface BaseCircleMask {
   readonly size: number
   readonly radius: number
   readonly minOffset: number
 }
 
-export interface CircleBrushAlphaMask extends CircleBrush, AlphaMask {
+export interface CircleAlphaMask extends BaseCircleMask, AlphaMask {
 }
 
-export interface CircleBrushBinaryMask extends CircleBrush, BinaryMask {
+export interface CircleBinaryMask extends BaseCircleMask, BinaryMask {
 }
 
-export type CircleBrushMask = CircleBrushAlphaMask | CircleBrushBinaryMask
+export type CircleMask = CircleAlphaMask | CircleBinaryMask
 
 /**
  * Configuration for pixel manipulation operations.

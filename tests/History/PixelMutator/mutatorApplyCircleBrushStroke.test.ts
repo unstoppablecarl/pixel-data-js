@@ -3,7 +3,7 @@ import {
   forEachLinePoint,
   getCircleBrushOrPencilBounds,
   getCircleBrushOrPencilStrokeBounds,
-  makeCircleBrushAlphaMask,
+  makeCircleAlphaMask,
   MaskType,
   mutatorApplyCircleBrushStroke,
 } from '@/index'
@@ -32,7 +32,7 @@ describe('mutatorApplyCircleBrushStroke', () => {
     const brushSize = 3
     const fallOff = (d: number) => d
 
-    const brush = makeCircleBrushAlphaMask(brushSize, fallOff)
+    const brush = makeCircleAlphaMask(brushSize, fallOff)
 
     mutator.applyCircleBrushStroke(
       color,
@@ -123,7 +123,7 @@ describe('mutatorApplyCircleBrushStroke', () => {
       getCircleBrushOrPencilStrokeBounds,
     })
 
-    const brush = makeCircleBrushAlphaMask(3, (d) => d)
+    const brush = makeCircleAlphaMask(3, (d) => d)
     // Single point at (10, 10). 3px brush.
     mutator.applyCircleBrushStroke(
       0 as any,
@@ -175,7 +175,7 @@ describe('mutatorApplyCircleBrushStroke', () => {
         : 0.9
     })
 
-    const brush = makeCircleBrushAlphaMask(5, mockFallOff)
+    const brush = makeCircleAlphaMask(5, mockFallOff)
     // We draw a line from 10 to 11 with a large 5px brush.
     // Both stamps will overlap heavily at the center of the stroke.
     mutator.applyCircleBrushStroke(
@@ -205,7 +205,7 @@ describe('mutatorApplyCircleBrushStroke', () => {
       getCircleBrushOrPencilStrokeBounds,
     })
 
-    const brush = makeCircleBrushAlphaMask(1, () => 1)
+    const brush = makeCircleAlphaMask(1, () => 1)
     mutator.applyCircleBrushStroke(
       0 as any,
       10,
@@ -234,7 +234,7 @@ describe('mutatorApplyCircleBrushStroke', () => {
       forEachLinePoint,
       getCircleBrushOrPencilBounds,
     })
-    const brush = makeCircleBrushAlphaMask(0, () => 1)
+    const brush = makeCircleAlphaMask(0, () => 1)
 
     mutator.applyCircleBrushStroke(
       0 as any,
@@ -261,7 +261,7 @@ describe('mutatorApplyCircleBrushStroke', () => {
       getCircleBrushOrPencilStrokeBounds,
     })
 
-    const brush = makeCircleBrushAlphaMask(2, (d) => 1 - d)
+    const brush = makeCircleAlphaMask(2, (d) => 1 - d)
     mutator.applyCircleBrushStroke(
       0 as any,
       10,
@@ -289,7 +289,7 @@ describe('mutatorApplyCircleBrushStroke', () => {
       getCircleBrushOrPencilBounds,
       getCircleBrushOrPencilStrokeBounds,
     })
-    const brush = makeCircleBrushAlphaMask(3, (d) => d)
+    const brush = makeCircleAlphaMask(3, (d) => d)
 
     mutator.applyCircleBrushStroke(
       0 as any,

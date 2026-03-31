@@ -29,8 +29,8 @@ export * from './History/PixelWriter'
 export * from './History/PixelMutator/mutatorApplyAlphaMask'
 export * from './History/PixelMutator/mutatorApplyBinaryMask'
 
-export * from './History/PixelMutator/mutatorApplyCircleBrush'
 export * from './History/PixelMutator/mutatorApplyCircleBrushStroke'
+export * from './History/PixelMutator/mutatorApplyCircleMask'
 
 export * from './History/PixelMutator/mutatorApplyCirclePencil'
 export * from './History/PixelMutator/mutatorApplyCirclePencilStroke'
@@ -81,8 +81,8 @@ export * from './Input/getSupportedRasterFormats'
 export * from './Mask/AlphaMask'
 export * from './Mask/BinaryMask'
 
-export * from './Mask/CircleBrushAlphaMask'
-export * from './Mask/CircleBrushBinaryMask'
+export * from './Mask/CircleAlphaMask'
+export * from './Mask/CircleBinaryMask'
 
 export * from './Mask/applyBinaryMaskToAlphaMask'
 export * from './Mask/copyMask'
@@ -99,7 +99,7 @@ export * from './MaskRect/mergeBinaryMaskRects'
 
 export * from './PixelData/applyAlphaMaskToPixelData'
 export * from './PixelData/applyBinaryMaskToPixelData'
-export * from './PixelData/applyCircleBrushToPixelData'
+export * from './PixelData/applyCircleMaskToPixelData'
 export * from './PixelData/PixelData'
 
 export * from './PixelData/applyRectBrushToPixelData'

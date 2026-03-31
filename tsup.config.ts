@@ -1,5 +1,5 @@
 import { defineConfig } from 'tsup'
-import { esbuildPlugin } from 'unplugin-inline'
+// import { esbuildPlugin } from 'unplugin-inline'
 
 const defaultConfig = {
   sourcemap: true,
@@ -31,14 +31,14 @@ export default defineConfig([
     ...DEV,
     format: 'esm',
     esbuildPlugins: [
-      esbuildPlugin(),
+      // esbuildPlugin(),
     ],
   },
   {
     ...DEV,
     format: 'cjs',
     esbuildPlugins: [
-      esbuildPlugin(),
+      // esbuildPlugin(),
     ],
   },
   {
@@ -46,14 +46,14 @@ export default defineConfig([
     format: 'esm',
     dts: true,
     esbuildPlugins: [
-      esbuildPlugin(),
+      // esbuildPlugin(),
     ],
   },
   {
     ...PROD,
     format: 'cjs',
     esbuildPlugins: [
-      esbuildPlugin(),
+      // esbuildPlugin(),
     ],
   },
 ])

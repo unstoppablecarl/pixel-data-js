@@ -1,4 +1,4 @@
-import { makeCircleBrushAlphaMask, mutatorApplyCircleBrush, mutatorApplyCircleBrushStroke } from '@/index'
+import { makeCircleAlphaMask, mutatorApplyCircleMask, mutatorApplyCircleBrushStroke } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { comparePixelBuffers, pack } from '../../_helpers'
 import { mockAccumulatorMutator } from './_helpers'
@@ -15,11 +15,11 @@ describe('mutatorApplyCircleBrushStroke vs mutatorApplyCircleBrush', () => {
     const size = 7
     const alpha = 180
     const fallOff = (d: number) => 1 - (d * d)
-    const brush = makeCircleBrushAlphaMask(size, fallOff)
+    const brush = makeCircleAlphaMask(size, fallOff)
 
     // 1. Setup the Single Stamp State
-    const stampCtx = mockAccumulatorMutator(mutatorApplyCircleBrush)
-    stampCtx.mutator.applyCircleBrush(
+    const stampCtx = mockAccumulatorMutator(mutatorApplyCircleMask)
+    stampCtx.mutator.applyCircleMask(
       color,
       x,
       y,
