@@ -1,4 +1,4 @@
-import type { BinaryMaskRect, Color32, HistoryMutator, Rect } from '../../_types'
+import type { Color32, HistoryMutator, Rect } from '../../_types'
 import { fillPixelData } from '../../PixelData/fillPixelData'
 import { PixelWriter } from '../PixelWriter'
 
