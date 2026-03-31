@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { getRectBrushOrPencilBounds, getRectBrushOrPencilStrokeBounds, type Rect } from '@/index'
+import { describe, expect, it } from 'vitest'
 
 describe('getRectBrushOrPencilStrokeBounds', () => {
   const createResult = (): Rect => ({

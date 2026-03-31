@@ -1,6 +1,5 @@
-import { type BinaryMask, type BinaryMaskRect, fillPixelData, mutatorClear } from '@/index'
+import { type BinaryMaskRect, fillPixelData, mutatorClear } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
-import { makeTestBinaryMask } from '../../_helpers'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorClear', () => {

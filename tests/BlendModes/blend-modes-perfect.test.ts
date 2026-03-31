@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest'
 import {
   BASE_PERFECT_BLEND_MODE_FUNCTIONS,
   BaseBlendMode,
@@ -6,6 +5,7 @@ import {
   makeBlendModeRegistry,
   makePerfectBlendModeRegistry,
 } from '@/index'
+import { describe, expect, it } from 'vitest'
 import { unpack } from '../_helpers'
 
 const PERFECT_BLEND_MODES = makeBlendModeRegistry(BaseBlendMode, BASE_PERFECT_BLEND_MODE_FUNCTIONS, 'test')

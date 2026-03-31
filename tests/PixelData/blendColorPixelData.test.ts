@@ -1,6 +1,5 @@
+import { blendColorPixelData, type Color32 } from '@/index'
 import { describe, expect, it } from 'vitest'
-import { type Color32 } from '@/index'
-import { blendColorPixelData } from '@/index'
 import { makeTestPixelData, pack } from '../_helpers'
 
 const RED = pack(255, 0, 0, 255)

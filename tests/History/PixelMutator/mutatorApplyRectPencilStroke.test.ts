@@ -6,12 +6,11 @@ import {
   mutatorApplyRectPencilStroke,
   sourceOverPerfect,
 } from '@/index'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { pack } from '../../_helpers'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyRectPencilStroke', () => {
-
 
   it('orchestrates the full stroke lifecycle with correct arguments', () => {
     const color = pack(255, 0, 0, 255)

@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it } from 'vitest'
 import { extractImageDataBuffer } from '@/index'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 describe('extractImageDataBuffer', () => {
   let mockImageData: ImageData

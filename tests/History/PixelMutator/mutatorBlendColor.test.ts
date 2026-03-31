@@ -1,9 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { blendColorPixelData, blendPixelData, type Color32, mutatorBlendColor } from '@/index'
+import { blendColorPixelData, type Color32, mutatorBlendColor } from '@/index'
+import { describe, expect, it, vi } from 'vitest'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorBlendColor', () => {
-
 
   it('should call accumulator and blendColorPixelData', () => {
     const color = 0xFF0000FF as Color32
@@ -16,8 +15,11 @@ describe('mutatorBlendColor', () => {
 
     const blendColorPixelDataSpy = vi.fn(blendColorPixelData)
 
-
-    const { mutator, accumulator, target } = mockAccumulatorMutator(mutatorBlendColor, {blendColorPixelData: blendColorPixelDataSpy})
+    const {
+      mutator,
+      accumulator,
+      target,
+    } = mockAccumulatorMutator(mutatorBlendColor, { blendColorPixelData: blendColorPixelDataSpy })
 
     mutator.blendColor(color, options)
 

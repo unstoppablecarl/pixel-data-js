@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { uInt32ArrayToImageData, uInt32ArrayToImageDataLike } from '../../src/ImageData/uInt32ArrayToImageData'
+import { uInt32ArrayToImageData, uInt32ArrayToImageDataLike } from '@/index'
 
 describe('uInt32ArrayToImageData', () => {
   it('should correctly map a Uint32Array to ImageData', () => {

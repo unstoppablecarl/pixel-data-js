@@ -5,11 +5,10 @@ import {
   mutatorApplyCircleBrush,
   sourceOverPerfect,
 } from '@/index'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyCircleBrush', () => {
-
 
   it('should calculate bounds once and pass them to both accumulator and draw function', () => {
     const color = 0xFF0000FF as Color32

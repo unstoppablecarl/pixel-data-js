@@ -1,9 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { type Color32, mutatorBlendPixel, sourceOverFast } from '@/index'
+import { describe, expect, it, vi } from 'vitest'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorBlendPixel', () => {
-
 
   it('should call accumulator and modify the pixel data', () => {
     const x = 10

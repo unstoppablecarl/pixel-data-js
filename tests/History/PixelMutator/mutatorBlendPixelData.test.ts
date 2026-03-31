@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { blendPixelData, mutatorBlendPixelData, PixelData } from '@/index'
+import { describe, expect, it, vi } from 'vitest'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorBlendPixelData', () => {
@@ -24,7 +24,6 @@ describe('mutatorBlendPixelData', () => {
     expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(20, 20, source.width, source.height)
     expect(blendPixelDataSpy).toHaveBeenCalledWith(target, source, options)
   })
-
 
   it('should call accumulator and blendPixelData with defaults', () => {
     const source = new PixelData(new ImageData(10, 10))

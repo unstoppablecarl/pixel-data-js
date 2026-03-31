@@ -7,12 +7,11 @@ import {
   MaskType,
   mutatorApplyCircleBrushStroke,
 } from '@/index'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { pack } from '../../_helpers'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyCircleBrushStroke', () => {
-
 
   it('orchestrates the lifecycle and passes correct args to internal helpers', () => {
     const color = pack(255, 0, 0, 255)

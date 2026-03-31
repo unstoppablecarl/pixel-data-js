@@ -2,7 +2,7 @@
 import { BaseBlendMode, toBlendModeIndexAndName } from '@/index'
 import { describe, expect, it } from 'vitest'
 
-const { overwrite, sourceOver, darken, multiply } = BaseBlendMode
+const { sourceOver, darken, multiply } = BaseBlendMode
 
 describe('toBlendModeIndexAndName', () => {
   describe('when given a valid name (string)', () => {

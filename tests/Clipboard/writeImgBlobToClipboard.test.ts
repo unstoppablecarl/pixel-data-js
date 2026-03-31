@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { writeImgBlobToClipboard } from '@/index'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('writeImgBlobToClipboard', () => {
   const mockWrite = vi.fn()

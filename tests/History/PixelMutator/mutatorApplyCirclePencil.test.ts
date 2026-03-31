@@ -6,11 +6,10 @@ import {
   mutatorApplyCirclePencil,
   sourceOverPerfect,
 } from '@/index'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyCirclePencil', () => {
-
 
   it('should apply rectangular bounds exactly', () => {
     const color = 0xFFFFFFFF as Color32

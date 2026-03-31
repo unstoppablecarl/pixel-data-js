@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { imageDataToAlphaMaskBuffer } from '@/index'
+import { describe, expect, it } from 'vitest'
 
 describe('imageDataToAlphaMaskBuffer', () => {
   it('extracts alpha values from raw ImageData', () => {

@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
 import { PixelEngineConfig } from '@/index'
+import { describe, expect, it } from 'vitest'
 
 describe('PixelEngineConfig', () => {
   it('should initialize with a valid power-of-two tileSize', () => {

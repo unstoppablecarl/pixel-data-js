@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { getCircleBrushOrPencilBounds } from '@/index'
+import { describe, expect, it } from 'vitest'
 
 describe('getCircleBrushOrPencilBounds', () => {
   it('calculates bounds for an even-sized circle at an integer center', () => {

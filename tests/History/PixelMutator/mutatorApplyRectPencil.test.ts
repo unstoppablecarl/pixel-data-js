@@ -1,9 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { type Color32, mutatorApplyRectPencil } from '@/index'
+import { describe, expect, it, vi } from 'vitest'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyRectPencil', () => {
-
 
   it('passes the optional blend function through to the blitter', () => {
     const applyRectBrushToPixelDataSpy = vi.fn()
@@ -78,7 +77,7 @@ describe('mutatorApplyRectPencil', () => {
       mockBlend,
     )
 
-    const callArgs = applyRectBrushToPixelDataSpy.mock.calls[0];
+    const callArgs = applyRectBrushToPixelDataSpy.mock.calls[0]
     const actualFallOff = callArgs[7]
 
     expect(actualFallOff(0)).toEqual(1)

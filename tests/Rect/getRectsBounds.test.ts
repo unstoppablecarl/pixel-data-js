@@ -7,7 +7,7 @@ describe('getRectsBounds', () => {
       x: 10,
       y: 10,
       w: 50,
-      h: 50
+      h: 50,
     }
 
     const result = getRectsBounds([rect])
@@ -21,13 +21,13 @@ describe('getRectsBounds', () => {
       x: 0,
       y: 0,
       w: 10,
-      h: 10
+      h: 10,
     }
     const r2 = {
       x: 20,
       y: 20,
       w: 10,
-      h: 10
+      h: 10,
     }
 
     const result = getRectsBounds([r1, r2])
@@ -43,13 +43,13 @@ describe('getRectsBounds', () => {
       x: -10,
       y: -10,
       w: 20,
-      h: 20
+      h: 20,
     }
     const r2 = {
       x: 0,
       y: 0,
       w: 20,
-      h: 20
+      h: 20,
     }
 
     const result = getRectsBounds([r1, r2])
@@ -65,13 +65,13 @@ describe('getRectsBounds', () => {
       x: -50,
       y: -50,
       w: 10,
-      h: 10
+      h: 10,
     }
     const r2 = {
       x: -20,
       y: -20,
       w: 5,
-      h: 5
+      h: 5,
     }
 
     const result = getRectsBounds([r1, r2])
@@ -87,13 +87,13 @@ describe('getRectsBounds', () => {
       x: 0,
       y: 0,
       w: 100,
-      h: 100
+      h: 100,
     }
     const r2 = {
       x: 25,
       y: 25,
       w: 50,
-      h: 50
+      h: 50,
     }
 
     const result = getRectsBounds([r1, r2])

@@ -335,7 +335,7 @@ describe('applyCircleBrushToPixelData', () => {
       data32: mockData,
     }
 
-    const blendFn = vi.fn((src, dst) => src)
+    const blendFn = vi.fn((src, _dst) => src)
 
       // Explicitly flag the mock function as an overwrite mode
     ;(blendFn as any).isOverwrite = true
@@ -375,7 +375,7 @@ describe('applyCircleBrushToPixelData', () => {
       x: 0,
       y: 0,
       w: 2,
-      h: 2
+      h: 2,
     }
 
     // Brush centered in the bottom-right, completely missing the disjointBounds
@@ -388,7 +388,7 @@ describe('applyCircleBrushToPixelData', () => {
       255,
       undefined,
       {},
-      disjointBounds
+      disjointBounds,
     )
 
     const hasData = target.data32.some((p) => p !== 0)

@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest'
 import { applyRectBrushToPixelData, type Color32, overwritePerfect, PixelData } from '@/index'
+import { describe, expect, it, vi } from 'vitest'
 import { expectPixelToMatchColor } from '../_helpers'
 
 describe('applyRectBrushToPixelData', () => {
@@ -290,7 +290,7 @@ describe('applyRectBrushToPixelData', () => {
       data32: mockData,
     }
 
-    const blendFn = vi.fn((src, dst) => src)
+    const blendFn = vi.fn((src, _dst) => src)
 
       // Explicitly flag the mock function as an overwrite mode
     ;(blendFn as any).isOverwrite = true

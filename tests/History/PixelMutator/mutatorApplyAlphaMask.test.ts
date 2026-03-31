@@ -1,10 +1,9 @@
 import { mutatorApplyAlphaMask } from '@/index'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { makeTestAlphaMask } from '../../_helpers'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyAlphaMask', () => {
-
 
   it('should call accumulator and applyAlphaMaskToPixelData', () => {
     const mask = makeTestAlphaMask(2, 2, 1)

@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { extractMaskBuffer } from '@/index'
+import { describe, expect, it } from 'vitest'
 
 describe('extractMaskBuffer', () => {
   // 4x4 Mask filled with values 0-15

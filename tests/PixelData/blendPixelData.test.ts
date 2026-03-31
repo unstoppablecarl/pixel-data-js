@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest'
 import { blendPixelData, type Color32, PixelData, sourceOverFast, unpackColor } from '@/index'
+import { describe, expect, it, vi } from 'vitest'
 import { createTestImageData, expectPixelToMatch, makeTestPixelData, pack } from '../_helpers'
 
 const RED = pack(255, 0, 0, 255)

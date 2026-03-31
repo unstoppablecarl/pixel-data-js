@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest'
 import type { IndexedImage } from '@/index'
 import { getIndexedImageColorCounts } from '@/index'
+import { describe, expect, it } from 'vitest'
 
 describe('getIndexedImageColorCounts', () => {
   it('should correctly count color frequencies mapping to palette indices', () => {

@@ -108,7 +108,7 @@ describe('applyBinaryMaskToAlphaMask', () => {
       const src = {
         w: 0,
         h: 1,
-        data: new Uint8Array(1)
+        data: new Uint8Array(1),
       } as BinaryMask
 
       applyBinaryMaskToAlphaMask(
@@ -152,10 +152,10 @@ describe('applyBinaryMaskToAlphaMask', () => {
       const dst = {
         w: 2,
         h: 0,
-        data: new Uint8Array(1).fill(255)
+        data: new Uint8Array(1).fill(255),
       } as AlphaMask
 
-      const src = makeBinaryMask(1,1)
+      const src = makeBinaryMask(1, 1)
 
       applyBinaryMaskToAlphaMask(
         dst,
@@ -170,10 +170,10 @@ describe('applyBinaryMaskToAlphaMask', () => {
       const src = {
         w: 2,
         h: 0,
-        data: new Uint8Array(1).fill(255)
+        data: new Uint8Array(1).fill(255),
       } as BinaryMask
 
-      const dst = makeAlphaMask(1,1)
+      const dst = makeAlphaMask(1, 1)
 
       applyBinaryMaskToAlphaMask(
         dst,
@@ -294,7 +294,7 @@ describe('applyBinaryMaskToAlphaMask', () => {
       const src = {
         w: 1,
         h: 1,
-        data: new Uint8Array(0)
+        data: new Uint8Array(0),
       } as unknown as BinaryMask
       applyBinaryMaskToAlphaMask(
         dst,

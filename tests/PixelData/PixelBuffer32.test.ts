@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { PixelBuffer32 } from '../../src/PixelData/PixelBuffer32'
+import { PixelBuffer32 } from '@/index'
 
 describe('PixelBuffer32', () => {
   it('should initialize with correct dimensions and zeroed data', () => {

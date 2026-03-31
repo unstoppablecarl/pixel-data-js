@@ -1,6 +1,6 @@
+import { PixelData, rotatePixelData } from '@/index'
 import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
-import { PixelData, rotatePixelData } from '@/index'
 
 describe('rotatePixelData', () => {
   it('should rotate a square 2x2 image in-place', () => {

@@ -205,7 +205,7 @@ describe('mutatorApplyRectBrushStroke', () => {
       1,
       1,
       255,
-      (d) => 1,
+      () => 1,
     )
 
     const firstCallOut = getRectBrushOrPencilBoundsSpy.mock.calls[0][6]
@@ -237,7 +237,7 @@ describe('mutatorApplyRectBrushStroke', () => {
       0,
       0,
       255,
-      (d) => 1,
+      () => 1,
     )
 
     expect(forEachLinePointSpy).not.toHaveBeenCalled()

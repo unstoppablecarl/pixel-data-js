@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { IndexedImage, indexedImageToImageData } from '@/index'
+import { describe, expect, it } from 'vitest'
 
 describe('IndexedImage conversions', () => {
   it('should round-trip ImageData correctly', () => {

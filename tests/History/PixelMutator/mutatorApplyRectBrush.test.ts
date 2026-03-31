@@ -1,9 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { type Color32, getRectBrushOrPencilBounds, mutatorApplyRectBrush } from '@/index'
+import { describe, expect, it, vi } from 'vitest'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorApplyRectBrush', () => {
-
 
   it('orchestrates the brush apply by wiring bounds to accumulator and blitter', () => {
     const getRectBrushOrPencilBoundsSpy = vi.fn(getRectBrushOrPencilBounds)

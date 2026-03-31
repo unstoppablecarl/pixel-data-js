@@ -5,7 +5,6 @@ import { getPixel, makeTestPixelData, pack } from '../_helpers'
 
 const RED = pack(255, 0, 0, 255)
 const BLUE = pack(0, 0, 255, 255)
-const COLOR = pack(255, 255, 255, 255)
 
 describe('fillPixelData', () => {
   describe('Guard Conditions & Early Exits', () => {

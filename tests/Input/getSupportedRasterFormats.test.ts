@@ -87,7 +87,7 @@ describe('getSupportedPixelFormats', () => {
   })
   it('handles individual format failures gracefully', async () => {
     const canvasSpy = vi.fn().mockImplementation(
-      (w, h) => new OffscreenCanvasMock(w, h)
+      (w, h) => new OffscreenCanvasMock(w, h),
     )
 
     vi.stubGlobal(

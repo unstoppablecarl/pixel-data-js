@@ -1,12 +1,5 @@
+import { blendColorPixelDataAlphaMask, type Color32, makeAlphaMask, sourceOverFast, unpackAlpha } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
-import {
-  type AlphaMask,
-  blendColorPixelDataAlphaMask,
-  type Color32,
-  makeAlphaMask,
-  sourceOverFast,
-  unpackAlpha,
-} from '@/index'
 import { makeTestPixelData, pack } from '../_helpers'
 
 const RED = pack(255, 0, 0, 255)
@@ -18,7 +11,7 @@ const copyBlend = (s: Color32) => s
 describe('blendColorPixelDataAlphaMask', () => {
   it('scales AlphaMask and handles bit-perfect pass-through', () => {
     const dst = makeTestPixelData(3, 1, BLUE)
-    const mask = makeAlphaMask(3,1)
+    const mask = makeAlphaMask(3, 1)
     mask.data.set([0, 128, 255])
 
     blendColorPixelDataAlphaMask(dst, WHITE, mask, { blendFn: copyBlend })
@@ -30,7 +23,7 @@ describe('blendColorPixelDataAlphaMask', () => {
 
   it('accurately inverts AlphaMask values', () => {
     const dst = makeTestPixelData(1, 1, BLUE)
-    const mask = makeAlphaMask(1,1)
+    const mask = makeAlphaMask(1, 1)
     mask.data[0] = 255
 
     blendColorPixelDataAlphaMask(dst, RED, mask, { invertMask: true, blendFn: copyBlend })
@@ -39,7 +32,7 @@ describe('blendColorPixelDataAlphaMask', () => {
 
   it('covers the weight === 0 branch inside the mask block', () => {
     const dst = makeTestPixelData(1, 1, BLUE)
-    const mask = makeAlphaMask(1,1)
+    const mask = makeAlphaMask(1, 1)
     mask.data[0] = 1
 
     const mockBlend = vi.fn(sourceOverFast)
@@ -53,7 +46,7 @@ describe('blendColorPixelDataAlphaMask', () => {
 
   it('hits the (effM === 255) branch for raw color data with globalAlpha', () => {
     const dst = makeTestPixelData(1, 1, TRANSPARENT)
-    const mask = makeAlphaMask(1,1)
+    const mask = makeAlphaMask(1, 1)
     mask.data[0] = 255
 
     const partialAlpha = 120
@@ -66,7 +59,7 @@ describe('blendColorPixelDataAlphaMask', () => {
 
   it('covers the inverse identity branch where globalAlpha is 255', () => {
     const dst = makeTestPixelData(1, 1, TRANSPARENT)
-    const mask = makeAlphaMask(1,1)
+    const mask = makeAlphaMask(1, 1)
     mask.data[0] = 120
 
     blendColorPixelDataAlphaMask(dst, RED, mask, { alpha: 255 })

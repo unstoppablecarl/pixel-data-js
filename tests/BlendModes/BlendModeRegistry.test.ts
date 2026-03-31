@@ -1,4 +1,3 @@
-import { describe, expect, expectTypeOf, it } from 'vitest'
 import {
   BASE_FAST_BLEND_MODE_FUNCTIONS,
   BaseBlendMode,
@@ -6,6 +5,7 @@ import {
   makeBlendModeRegistry,
   overwriteBase,
 } from '@/index'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 
 describe('BlendModeRegistry', () => {
   describe('full list with custom', () => {
@@ -14,7 +14,7 @@ describe('BlendModeRegistry', () => {
       custom: 99,
     }
 
-    const customBlendFn: BlendColor32 = (src, dst) => src
+    const customBlendFn: BlendColor32 = (src, _dst) => src
 
     const Items = {
       ...BASE_FAST_BLEND_MODE_FUNCTIONS,
@@ -45,7 +45,7 @@ describe('BlendModeRegistry', () => {
       custom: 99,
     } as const
 
-    const blendFn: BlendColor32 = (src, dst) => src
+    const blendFn: BlendColor32 = (src, _dst) => src
 
     const Items = {
       [BlendMode.overwrite]: overwriteBase,
@@ -79,12 +79,12 @@ describe('BlendModeRegistry', () => {
     it('should throw when an index is not a finite number', () => {
       const BlendModes = {
         overwrite: 0,
-        invalid: NaN
+        invalid: NaN,
       } as any
 
       const Entries = {
         0: mockFn,
-        [NaN as any]: otherFn
+        [NaN as any]: otherFn,
       }
 
       expect(() => makeBlendModeRegistry(BlendModes, Entries, 'test'))
@@ -94,11 +94,11 @@ describe('BlendModeRegistry', () => {
     it('should throw when multiple names map to the same index', () => {
       const BlendModes = {
         overwrite: 0,
-        collision: 0
+        collision: 0,
       } as any
 
       const Entries = {
-        0: mockFn
+        0: mockFn,
       }
 
       expect(() => makeBlendModeRegistry(BlendModes, Entries, 'test'))
@@ -109,11 +109,11 @@ describe('BlendModeRegistry', () => {
       // Testing what happens if blendModes defines an index that is missing in initialEntries
       const BlendModes = {
         overwrite: 0,
-        missing: 5
+        missing: 5,
       } as any
 
       const Entries = {
-        0: mockFn
+        0: mockFn,
         // index 5 is missing
       } as any
 

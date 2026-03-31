@@ -26,7 +26,6 @@ describe('mutatorFillBinaryMask', () => {
   })
 
   it('should use default dimensions if rect is not provided', () => {
-    const alpha = 120
     const color = 0xFF0000FF as Color32
 
     const fillPixelDataBinaryMaskSpy = vi.fn(fillPixelDataBinaryMask) as unknown as typeof fillPixelDataBinaryMask

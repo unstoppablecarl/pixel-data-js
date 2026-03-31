@@ -5,8 +5,8 @@ import { makeTestBinaryMask } from '../_helpers'
 describe('mergeBinaryMasks', () => {
   describe('Basic Composition', () => {
     it('clears destination pixels where the source is 0', () => {
-      const dst = makeTestBinaryMask(3, 1,[1,1,1])
-      const src = makeTestBinaryMask(3, 1,[1,0,1])
+      const dst = makeTestBinaryMask(3, 1, [1, 1, 1])
+      const src = makeTestBinaryMask(3, 1, [1, 0, 1])
 
       const opts = {
         w: 3,
@@ -26,8 +26,8 @@ describe('mergeBinaryMasks', () => {
     })
 
     it('clears destination pixels where the source is 1 (Inverted)', () => {
-      const dst = makeTestBinaryMask(3, 1,[1,1,1])
-      const src = makeTestBinaryMask(3, 1,[1,0,1])
+      const dst = makeTestBinaryMask(3, 1, [1, 1, 1])
+      const src = makeTestBinaryMask(3, 1, [1, 0, 1])
 
       const opts = {
         w: 3,

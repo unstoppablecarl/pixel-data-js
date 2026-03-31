@@ -1,7 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { extractPixelDataBuffer, PixelData, type Rect } from '@/index'
 import { ImageData as NapiImageData } from '@napi-rs/canvas'
-import { extractPixelDataBuffer, PixelData } from '@/index'
-import { type Rect } from '@/index'
+import { describe, expect, it } from 'vitest'
 
 describe('extractPixelDataBuffer', () => {
   const createTestPixelData = (w: number, h: number) => {
@@ -96,7 +95,7 @@ describe('extractPixelDataBuffer', () => {
         x: 1,
         y: 1,
         w: 2,
-        h: 2
+        h: 2,
       }
 
       const result = extractPixelDataBuffer(source, rect)
@@ -119,7 +118,7 @@ describe('extractPixelDataBuffer', () => {
         x: -1,
         y: 0,
         w: 2,
-        h: 1
+        h: 1,
       }
 
       const result = extractPixelDataBuffer(source, rect)
@@ -139,7 +138,7 @@ describe('extractPixelDataBuffer', () => {
         y: 0,
         w: 1,
         h: 1,
-        otherParam: 'ignored'
+        otherParam: 'ignored',
       }
 
       const result = extractPixelDataBuffer(source, customRect as Rect)

@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest'
 import { invertPixelData, mutatorInvert } from '@/index'
+import { describe, expect, it, vi } from 'vitest'
 import { mockAccumulatorMutator } from './_helpers'
 
 describe('mutatorInvert', () => {

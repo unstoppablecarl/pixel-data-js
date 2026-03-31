@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import * as imageModule from '../../src/ImageData/imageDataToImgBlob'
 import { writeImageDataToClipboard } from '@/index'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import * as clipboardModule from '../../src/Clipboard/writeImgBlobToClipboard'
+import * as imageModule from '../../src/ImageData/imageDataToImgBlob'
 import { useOffscreenCanvasMock } from '../_helpers/OffscreenCanvasMock'
 
 describe('writeImageDataToClipboard', () => {

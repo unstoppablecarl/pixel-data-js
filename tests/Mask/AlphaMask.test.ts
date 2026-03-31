@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { makeAlphaMask, MaskType } from '@/index'
+import { describe, expect, it } from 'vitest'
 
 describe('makeAlphaMask', () => {
   it('creates an AlphaMask with correct initial dimensions and data length', () => {

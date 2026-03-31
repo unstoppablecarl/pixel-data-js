@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { fileToImageData, UnsupportedFormatError } from '@/index'
 import { OFFSCREEN_CANVAS_CTX_FAILED } from '@/Canvas/_constants'
+import { fileToImageData, UnsupportedFormatError } from '@/index'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   OffscreenCanvasMock,
   offscreenCanvasMockContext,

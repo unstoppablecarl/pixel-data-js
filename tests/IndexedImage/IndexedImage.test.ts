@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { IndexedImage } from '@/index'
+import { describe, expect, it } from 'vitest'
 
 describe('IndexedImage', () => {
   it('should initialize with a width and height', () => {

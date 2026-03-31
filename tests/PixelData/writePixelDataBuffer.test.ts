@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { writePixelDataBuffer } from '@/index'
+import { describe, expect, it } from 'vitest'
 import { getPixel, makeComplexTestPixelData, makeTestPixelData, pack } from '../_helpers'
 
 describe('writePixelDataBuffer', () => {

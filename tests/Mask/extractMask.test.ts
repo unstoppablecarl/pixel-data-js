@@ -53,7 +53,7 @@ describe('extractMask', () => {
     // Only (3,3) is valid; others should stay 0
     const result = extractMask(fullMask, 3, 3, 2, 2)
 
-    const { data, ...rest } = result
+    const { data } = result
 
     expect(Array.from(data)).toEqual([
       15,

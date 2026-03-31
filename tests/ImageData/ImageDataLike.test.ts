@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { makeImageDataLike } from '../../src/ImageData/ImageDataLike'
+import { makeImageDataLike } from '@/index'
 
 describe('makeImageDataLike', () => {
   it('should allocate a new buffer when data is not provided', () => {

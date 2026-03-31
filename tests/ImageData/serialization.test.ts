@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest'
 import {
   base64DecodeArrayBuffer,
   base64EncodeArrayBuffer,
@@ -8,6 +7,7 @@ import {
   serializeImageData,
   serializeNullableImageData,
 } from '@/index'
+import { describe, expect, it } from 'vitest'
 
 describe('ImageData Serialization Utilities', () => {
 

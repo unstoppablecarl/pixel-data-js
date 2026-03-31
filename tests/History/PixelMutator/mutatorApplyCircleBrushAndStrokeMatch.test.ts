@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeCircleBrushAlphaMask, mutatorApplyCircleBrush, mutatorApplyCircleBrushStroke } from '@/index'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { comparePixelBuffers, pack } from '../../_helpers'
 import { mockAccumulatorMutator } from './_helpers'
 

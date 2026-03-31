@@ -274,7 +274,7 @@ describe('subtractBinaryMaskRects', () => {
 // ---------------------------------------------------------------------------
 
   describe('multiple subtracting rects', () => {
-    it('applies each subtractor in order', () => {
+    it('applies each subtracter in order', () => {
       // r: (0,0,10,10) → sub1 removes top half → sub2 removes right half of remainder
       const result = subtractBinaryMaskRects(
         [full(0, 0, 10, 10)],
@@ -286,7 +286,7 @@ describe('subtractBinaryMaskRects', () => {
       expect(result[0]).toMatchObject({ x: 0, y: 5, w: 5, h: 5 })
     })
 
-    it('second subtractor can further split a piece from the first', () => {
+    it('second subtracter can further split a piece from the first', () => {
       const result = subtractBinaryMaskRects(
         [full(0, 0, 20, 10)],
         [full(5, 0, 5, 10), full(0, 0, 4, 5)],

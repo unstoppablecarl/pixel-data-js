@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest'
 import {
   BASE_FAST_BLEND_MODE_FUNCTIONS,
   BaseBlendMode,
@@ -6,6 +5,7 @@ import {
   makeBlendModeRegistry,
   makeFastBlendModeRegistry,
 } from '@/index'
+import { describe, expect, it } from 'vitest'
 import { unpack } from '../_helpers'
 
 const FAST_BLEND_MODES = makeBlendModeRegistry(BaseBlendMode, BASE_FAST_BLEND_MODE_FUNCTIONS, 'test')

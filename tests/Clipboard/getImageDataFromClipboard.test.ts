@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest'
 import { getImageDataFromClipboard } from '@/index'
+import { describe, expect, it, vi } from 'vitest'
 import * as imageModule from '../../src/ImageData/imgBlobToImageData'
 
 describe('getImageDataFromClipboard', () => {
@@ -46,9 +46,6 @@ describe('getImageDataFromClipboard', () => {
   it('should skip non-image items', async () => {
     const textItem = {
       type: 'text/plain',
-      getAsFile: () => {
-        return null
-      },
     }
 
     const event = {
@@ -61,6 +58,7 @@ describe('getImageDataFromClipboard', () => {
 
     expect(result).toBeNull()
   })
+
   it('should continue to the next item if getAsFile returns null', async () => {
     const mockImageData = {
       width: 50,

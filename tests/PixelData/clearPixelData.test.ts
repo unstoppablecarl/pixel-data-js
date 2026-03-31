@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { clearPixelData } from '@/index'
+import { describe, expect, it } from 'vitest'
 import { makeTestPixelData, pack } from '../_helpers'
 
 const BLUE = pack(0, 0, 255, 255)

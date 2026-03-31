@@ -1,4 +1,4 @@
-import { type AlphaMask, applyAlphaMaskToPixelData, type BinaryMask } from '@/index'
+import { type AlphaMask, applyAlphaMaskToPixelData } from '@/index'
 import { describe, expect, it } from 'vitest'
 import { makeTestAlphaMask, makeTestPixelData, pack, unpack } from '../_helpers'
 
