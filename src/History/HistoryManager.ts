@@ -1,13 +1,9 @@
-export interface HistoryAction {
-  undo: () => void
-  redo: () => void
-  dispose?: () => void
-}
+import type { HistoryAction } from './HistoryAction'
 
 export class HistoryManager {
-  public undoStack: HistoryAction[]
-  public redoStack: HistoryAction[]
-  public listeners: Set<() => void>
+  readonly undoStack: HistoryAction[]
+  readonly redoStack: HistoryAction[]
+  readonly listeners: Set<() => void>
 
   constructor(
     public maxSteps = 50,

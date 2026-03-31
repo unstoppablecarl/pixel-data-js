@@ -102,8 +102,9 @@ export const mutatorApplyRectPencilStroke = ((writer: PixelWriter<any>, deps: De
       const halfH = brushHeight / 2
       const centerOffset = (brushWidth % 2 === 0) ? 0.5 : 0
 
-      const targetWidth = writer.target.width
-      const targetHeight = writer.target.height
+      const target = writer.config.target
+      const targetWidth = target.width
+      const targetHeight = target.height
 
       forEachLinePoint(x0, y0, x1, y1, (px, py) => {
         const {
@@ -158,7 +159,7 @@ export const mutatorApplyRectPencilStroke = ((writer: PixelWriter<any>, deps: De
       blendColorPixelOptions.w = bw
       blendColorPixelOptions.h = bh
 
-      blendColorPixelDataBinaryMask(writer.target, color, mask as BinaryMask, blendColorPixelOptions)
+      blendColorPixelDataBinaryMask(target, color, mask as BinaryMask, blendColorPixelOptions)
     },
   }
 }) satisfies HistoryMutator<any, Deps>

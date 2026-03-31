@@ -1,4 +1,3 @@
-import type { IPixelData } from '../_types'
 import type { PixelEngineConfig } from './PixelEngineConfig'
 import { type PixelPatchTiles, PixelTile } from './PixelPatchTiles'
 
@@ -8,7 +7,6 @@ export class PixelAccumulator {
   public pool: PixelTile[]
 
   constructor(
-    public target: IPixelData,
     readonly config: PixelEngineConfig,
   ) {
     this.lookup = []
@@ -59,6 +57,8 @@ export class PixelAccumulator {
         this.pool.push(tile)
       }
     }
+    patch.beforeTiles.length = 0
+    patch.afterTiles.length = 0
   }
 
   /**
@@ -66,9 +66,8 @@ export class PixelAccumulator {
    * @param y pixel y coordinate
    */
   storeTileBeforeState(x: number, y: number): void {
-    let target = this.target
     let shift = this.config.tileShift
-    let columns = (target.width + this.config.tileMask) >> shift
+    let columns = this.config.targetColumns
     let tx = x >> shift
     let ty = y >> shift
     let id = ty * columns + tx
@@ -101,9 +100,8 @@ export class PixelAccumulator {
     w: number,
     h: number,
   ) {
-    let target = this.target
     let shift = this.config.tileShift
-    let columns = (target.width + this.config.tileMask) >> shift
+    let columns = this.config.targetColumns
 
     let startX = x >> shift
     let startY = y >> shift
@@ -131,7 +129,7 @@ export class PixelAccumulator {
   }
 
   extractState(tile: PixelTile) {
-    let target = this.target
+    let target = this.config.target
     let TILE_SIZE = this.config.tileSize
     let dst = tile.data32
     let src = target.data32
@@ -162,15 +160,15 @@ export class PixelAccumulator {
     }
   }
 
-  extractAfterTiles(): PixelTile[] {
+  extractPatch(): PixelPatchTiles {
     let afterTiles: PixelTile[] = []
-    let length = this.beforeTiles.length
+    const length = this.beforeTiles.length
 
     for (let i = 0; i < length; i++) {
-      let beforeTile = this.beforeTiles[i]
+      const beforeTile = this.beforeTiles[i]
 
       if (beforeTile) {
-        let afterTile = this.getTile(
+        const afterTile = this.getTile(
           beforeTile.id,
           beforeTile.tx,
           beforeTile.ty,
@@ -181,11 +179,18 @@ export class PixelAccumulator {
       }
     }
 
-    return afterTiles
+    const beforeTiles = this.beforeTiles
+    this.beforeTiles = []
+    this.lookup.length = 0
+
+    return {
+      beforeTiles,
+      afterTiles,
+    }
   }
 
-  reset() {
-    this.lookup = []
-    this.beforeTiles = []
+  rollback() {
+    this.beforeTiles.length = 0
+    this.lookup.length = 0
   }
 }

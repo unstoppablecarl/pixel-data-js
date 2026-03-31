@@ -19,8 +19,8 @@ describe('PixelWriter', () => {
         w.accumulator.storeTileBeforeState(x, y)
 
         // Simple manual pixel set
-        const idx = y * w.target.width + x
-        w.target.data32[idx] = color
+        const idx = y * w.config.target.width + x
+        w.config.target.data32[idx] = color
       },
       doNothing: () => {
         // Does not touch accumulator or data
@@ -37,7 +37,7 @@ describe('PixelWriter', () => {
 
   it('should be instantiated correctly', () => {
     expect(writer).toBeInstanceOf(PixelWriter)
-    expect(writer.target).toBe(pixelData)
+    expect(writer.config.target).toBe(pixelData)
     expect(writer.historyManager).toBe(historyManager)
     expect(writer.accumulator).toBeInstanceOf(PixelAccumulator)
   })
@@ -138,6 +138,21 @@ describe('PixelWriter', () => {
 
       // The first action should have been disposed, triggering recyclePatch
       expect(recycleSpy).toHaveBeenCalledTimes(1)
+    })
+
+    it('should rollback after exception', () => {
+      const manager = new HistoryManager(1)
+      const localWriter = new PixelWriter(pixelData, createMutator, { historyManager: manager })
+
+      const rollbackSpy = vi.spyOn(localWriter.accumulator, 'rollback')
+
+      expect(() => {
+        localWriter.withHistory(_m => {
+          throw new Error('foo')
+        })
+      }).toThrow(/foo/)
+
+      expect(rollbackSpy).toHaveBeenCalledTimes(1)
     })
   })
 })

@@ -18,14 +18,15 @@ export const mutatorFill = ((writer: PixelWriter<any>, deps: Deps = defaults) =>
       color: Color32,
       rect: Partial<Rect> = {},
     ) {
+      const target = writer.config.target
       const {
         x = 0,
         y = 0,
-        w = writer.target.width,
-        h = writer.target.height,
+        w = target.width,
+        h = target.height,
       } = rect
       writer.accumulator.storeRegionBeforeState(x, y, w, h)
-      fillPixelData(writer.target, color, x, y, w, h)
+      fillPixelData(target, color, x, y, w, h)
     },
   }
 }) satisfies HistoryMutator<any, Deps>

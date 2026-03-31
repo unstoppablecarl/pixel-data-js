@@ -18,7 +18,7 @@ export class PixelTile {
   }
 }
 
-export function applyPatchTiles(target: IPixelData, tiles: PixelTile[], tileSize: number = 256) {
+export function applyPatchTiles(target: IPixelData, tiles: PixelTile[], tileSize: number) {
   for (let i = 0; i < tiles.length; i++) {
     const tile = tiles[i]
 
@@ -34,7 +34,7 @@ export function applyPatchTiles(target: IPixelData, tiles: PixelTile[], tileSize
     // Calculate clamping to prevent wrapping artifacts on image edges
     const copyWidth = Math.max(0, Math.min(tileSize, dstWidth - startX))
 
-    if (copyWidth <= 0) return
+    if (copyWidth <= 0) continue
 
     for (let ly = 0; ly < tileSize; ly++) {
       const globalY = startY + ly

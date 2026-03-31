@@ -1,5 +1,6 @@
 import { PixelAccumulator, PixelData, PixelEngineConfig, type PixelPatchTiles, PixelTile } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { makeTestPixelData } from '../_helpers'
 
 describe('PixelAccumulator', () => {
   let accumulator: PixelAccumulator
@@ -10,18 +11,18 @@ describe('PixelAccumulator', () => {
   const IMAGE_HEIGHT = 10
 
   beforeEach(() => {
-    config = new PixelEngineConfig(TILE_SIZE)
+    target = makeTestPixelData(10, 10)
+    config = new PixelEngineConfig(TILE_SIZE, target)
     const imageData = new ImageData(IMAGE_WIDTH, IMAGE_HEIGHT)
     // Fill with a predictable pattern (pixel index)
     for (let i = 0; i < imageData.data.length / 4; i++) {
       imageData.data[i * 4 + 0] = i // Use R channel to store index
     }
-    target = new PixelData(imageData)
-    accumulator = new PixelAccumulator(target, config)
+    accumulator = new PixelAccumulator(config)
   })
 
   it('should be constructed correctly', () => {
-    expect(accumulator.target).toBe(target)
+    expect(accumulator.config.target).toBe(target)
     expect(accumulator.config).toBe(config)
     expect(accumulator.lookup).toEqual([])
     expect(accumulator.beforeTiles).toEqual([])
@@ -54,14 +55,23 @@ describe('PixelAccumulator', () => {
 
   describe('recyclePatch', () => {
     it('should add before and after tiles to the pool', () => {
+      const beforeTile = new PixelTile(0, 0, 0, 16)
+      const afterTile = new PixelTile(1, 0, 0, 16)
+
       const patch: PixelPatchTiles = {
-        beforeTiles: [new PixelTile(0, 0, 0, 16)],
-        afterTiles: [new PixelTile(1, 0, 0, 16)],
+        beforeTiles: [beforeTile],
+        afterTiles: [afterTile],
       }
+
+      expect(accumulator.pool.length).toBe(0)
       accumulator.recyclePatch(patch)
+      expect(patch.beforeTiles.length).toBe(0)
+      expect(patch.afterTiles.length).toBe(0)
+
       expect(accumulator.pool.length).toBe(2)
-      expect(accumulator.pool).toContain(patch.beforeTiles[0])
-      expect(accumulator.pool).toContain(patch.afterTiles[0])
+      expect(accumulator.pool).toContain(beforeTile)
+      expect(accumulator.pool).toContain(afterTile)
+
     })
 
     it('should handle patches with null/undefined tiles', () => {
@@ -170,13 +180,13 @@ describe('PixelAccumulator', () => {
       target.data32[1 * IMAGE_WIDTH + 1] = newValue
 
       // 3. Extract "after" state
-      const afterTiles = accumulator.extractAfterTiles()
+      const patch = accumulator.extractPatch()
 
-      expect(afterTiles.length).toBe(1)
-      const afterTile = afterTiles[0]
+      expect(patch.afterTiles.length).toBe(1)
+      const afterTile = patch.afterTiles[0]
 
       // Verify the after tile has the new value, and before tile has the old
-      const beforeTile = accumulator.beforeTiles[0]
+      const beforeTile = patch.beforeTiles[0]
       const localIndex = 1 * TILE_SIZE + 1
 
       expect(beforeTile.data32[localIndex]).toBe(originalValue)
@@ -195,7 +205,7 @@ describe('PixelAccumulator', () => {
       expect(accumulator.lookup.some(t => t)).toBe(true)
       expect(accumulator.pool.length).toBe(0) // getTile used the pooled one
 
-      accumulator.reset()
+      accumulator.rollback()
 
       expect(accumulator.beforeTiles.length).toBe(0)
       expect(accumulator.lookup.length).toBe(0)

@@ -1,21 +1,6 @@
 import { applyPatchTiles, PixelData, PixelTile } from '@/index'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-// Mock ImageData if not available
-if (typeof ImageData === 'undefined') {
-  global.ImageData = class ImageData {
-    width: number
-    height: number
-    data: Uint8ClampedArray
-
-    constructor(width: number, height: number) {
-      this.width = width
-      this.height = height
-      this.data = new Uint8ClampedArray(width * height * 4)
-    }
-  } as any
-}
-
 describe('PixelPatchTiles', () => {
   let targetPixelData: PixelData
   const TILE_SIZE = 4 // Use a small tile size for easier testing

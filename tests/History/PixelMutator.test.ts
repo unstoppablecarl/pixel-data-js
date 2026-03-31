@@ -1,11 +1,12 @@
-import { makeFullPixelMutator, PixelAccumulator, PixelData, PixelEngineConfig, PixelWriter } from '@/index'
+import { makeFullPixelMutator, PixelAccumulator, PixelEngineConfig, PixelWriter } from '@/index'
 import { describe, expect, it } from 'vitest'
+import { makeTestPixelData } from '../_helpers'
 
 describe('PixelMutator', () => {
   it('makeFullPixelMutator should create a mutator with all methods', () => {
-    const config = new PixelEngineConfig(16)
-    const target = new PixelData(new ImageData(100, 100))
-    const accumulator = new PixelAccumulator(target, config)
+    const target = makeTestPixelData(100, 100)
+    const config = new PixelEngineConfig(16, target)
+    const accumulator = new PixelAccumulator(config)
 
     const writer = {
       target,

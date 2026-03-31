@@ -102,8 +102,9 @@ export const mutatorApplyCircleBrushStroke = ((writer: PixelWriter<any>, deps: D
       const brushData = brush.data
       const minOffset = brush.minOffset
 
-      const targetWidth = writer.target.width
-      const targetHeight = writer.target.height
+      const target = writer.config.target
+      const targetWidth = target.width
+      const targetHeight = target.height
 
       forEachLinePoint(
         x0,
@@ -171,7 +172,7 @@ export const mutatorApplyCircleBrushStroke = ((writer: PixelWriter<any>, deps: D
       blendColorPixelOptions.h = bh
 
       blendColorPixelDataAlphaMask(
-        writer.target,
+        target,
         color,
         mask as AlphaMask,
         blendColorPixelOptions,

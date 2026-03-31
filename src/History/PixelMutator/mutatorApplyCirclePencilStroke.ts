@@ -97,8 +97,9 @@ export const mutatorApplyCirclePencilStroke = ((writer: PixelWriter<any>, deps: 
       mask.h = bh
 
       const maskData = mask.data
-      const targetWidth = writer.target.width
-      const targetHeight = writer.target.height
+      const target = writer.config.target
+      const targetWidth = target.width
+      const targetHeight = target.height
 
       forEachLinePoint(
         x0,
@@ -161,7 +162,7 @@ export const mutatorApplyCirclePencilStroke = ((writer: PixelWriter<any>, deps: 
       blendColorPixelOptions.h = bh
 
       blendColorPixelDataBinaryMask(
-        writer.target,
+        target,
         color,
         mask as BinaryMask,
         blendColorPixelOptions,

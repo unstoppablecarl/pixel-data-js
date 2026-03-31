@@ -11,7 +11,7 @@ export function mutatorBlendPixel(writer: PixelWriter<any>) {
       alpha: number = 255,
       blendFn: BlendColor32 = overwriteFast,
     ) {
-      let target = writer.target
+      let target = writer.config.target
       let width = target.width
       let height = target.height
 

@@ -18,6 +18,7 @@ export * from './Clipboard/getImageDataFromClipboard'
 export * from './Clipboard/writeImageDataToClipboard'
 export * from './Clipboard/writeImgBlobToClipboard'
 
+export * from './History/HistoryAction'
 export * from './History/HistoryManager'
 export * from './History/PixelAccumulator'
 export * from './History/PixelEngineConfig'

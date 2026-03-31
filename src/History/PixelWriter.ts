@@ -1,13 +1,14 @@
 import type { IPixelData } from '../_types'
-import { type HistoryAction, HistoryManager } from './HistoryManager'
+import { type HistoryActionFactory, makeHistoryAction } from './HistoryAction'
+import { HistoryManager } from './HistoryManager'
 import { PixelAccumulator } from './PixelAccumulator'
 import { PixelEngineConfig } from './PixelEngineConfig'
-import { applyPatchTiles, type PixelPatchTiles } from './PixelPatchTiles'
 
 export interface PixelWriterOptions {
   maxHistorySteps?: number
   tileSize?: number
   historyManager?: HistoryManager
+  historyActionFactory?: HistoryActionFactory
 }
 
 /**
@@ -32,52 +33,43 @@ export interface PixelWriterOptions {
  * })
  */
 export class PixelWriter<M> {
-  public target: IPixelData
-  public historyManager: HistoryManager
-  public accumulator: PixelAccumulator
-  protected config: PixelEngineConfig
+  readonly historyManager: HistoryManager
+  readonly accumulator: PixelAccumulator
+  readonly historyActionFactory: HistoryActionFactory
+  readonly config: PixelEngineConfig
   readonly mutator: M
 
   constructor(target: IPixelData, mutatorFactory: (writer: PixelWriter<any>) => M, {
     tileSize = 256,
     maxHistorySteps = 50,
     historyManager = new HistoryManager(maxHistorySteps),
+    historyActionFactory = makeHistoryAction,
   }: PixelWriterOptions = {}) {
-    this.target = target
-    this.config = new PixelEngineConfig(tileSize)
+    this.config = new PixelEngineConfig(tileSize, target)
     this.historyManager = historyManager
-    this.accumulator = new PixelAccumulator(target, this.config)
+    this.accumulator = new PixelAccumulator(this.config)
+    this.historyActionFactory = historyActionFactory
     this.mutator = mutatorFactory(this)
   }
 
-  withHistory(cb: (mutator: M) => void) {
-    cb(this.mutator)
-
-    this.captureHistory()
-  }
-
-  captureHistory() {
-    const beforeTiles = this.accumulator.beforeTiles
-    if (beforeTiles.length === 0) return
-
-    const afterTiles = this.accumulator.extractAfterTiles()
-
-    const patch: PixelPatchTiles = {
-      beforeTiles: beforeTiles,
-      afterTiles: afterTiles,
+  withHistory(
+    cb: (mutator: M) => void,
+    after?: () => void,
+    afterUndo?: () => void,
+    afterRedo?: () => void,
+  ) {
+    try {
+      cb(this.mutator)
+    } catch (e) {
+      this.accumulator.rollback()
+      throw e
     }
 
-    const target = this.target
-    const tileSize = this.config.tileSize
-    const accumulator = this.accumulator
+    if (this.accumulator.beforeTiles.length === 0) return
 
-    const action: HistoryAction = {
-      undo: () => applyPatchTiles(target, patch.beforeTiles, tileSize),
-      redo: () => applyPatchTiles(target, patch.afterTiles, tileSize),
-      dispose: () => accumulator.recyclePatch(patch),
-    }
+    const patch = this.accumulator.extractPatch()
+    const action = this.historyActionFactory(this, patch, after, afterUndo, afterRedo)
 
     this.historyManager.commit(action)
-    this.accumulator.reset()
   }
 }

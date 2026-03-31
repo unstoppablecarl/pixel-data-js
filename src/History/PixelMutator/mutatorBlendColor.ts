@@ -18,14 +18,15 @@ export const mutatorBlendColor = ((writer: PixelWriter<any>, deps: Deps = defaul
       color: Color32,
       opts: ColorBlendOptions = {},
     ) {
+      const target = writer.config.target
       const {
         x = 0,
         y = 0,
-        w = writer.target.width,
-        h = writer.target.height,
+        w = target.width,
+        h = target.height,
       } = opts
       writer.accumulator.storeRegionBeforeState(x, y, w, h)
-      blendColorPixelData(writer.target, color, opts)
+      blendColorPixelData(target, color, opts)
     },
   }
 }) satisfies HistoryMutator<any, Deps>

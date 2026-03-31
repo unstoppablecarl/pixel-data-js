@@ -107,8 +107,9 @@ export const mutatorApplyRectBrushStroke = ((writer: PixelWriter<any>, deps: Dep
       const centerOffsetX = (brushWidth % 2 === 0) ? 0.5 : 0
       const centerOffsetY = (brushHeight % 2 === 0) ? 0.5 : 0
 
-      const targetWidth = writer.target.width
-      const targetHeight = writer.target.height
+      const target = writer.config.target
+      const targetWidth = target.width
+      const targetHeight = target.height
 
       forEachLinePoint(x0, y0, x1, y1, (px, py) => {
         const {
@@ -172,7 +173,7 @@ export const mutatorApplyRectBrushStroke = ((writer: PixelWriter<any>, deps: Dep
       blendColorPixelOptions.h = bh
 
       blendColorPixelDataAlphaMask(
-        writer.target,
+        target,
         color,
         mask as AlphaMask,
         blendColorPixelOptions,

@@ -26,7 +26,7 @@ export const mutatorBlendPixelData = ((writer: PixelWriter<any>, deps: Partial<D
       } = opts
       writer.accumulator.storeRegionBeforeState(x, y, w, h)
 
-      blendPixelData(writer.target, src, opts)
+      blendPixelData(writer.config.target, src, opts)
     },
   }
 }) satisfies HistoryMutator<any, Deps>

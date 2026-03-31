@@ -26,7 +26,7 @@ export const mutatorBlendPixelDataAlphaMask = ((writer: PixelWriter<any>, deps: 
 
       writer.accumulator.storeRegionBeforeState(x, y, w, h)
 
-      blendPixelDataAlphaMask(writer.target, src, mask, opts)
+      blendPixelDataAlphaMask(writer.config.target, src, mask, opts)
     },
   }
 }) satisfies HistoryMutator<any, Deps>

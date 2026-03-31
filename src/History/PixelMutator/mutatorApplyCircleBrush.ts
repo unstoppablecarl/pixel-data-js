@@ -49,12 +49,13 @@ export const mutatorApplyCircleBrush = ((writer: PixelWriter<any>, deps: Deps = 
       blendFn?: BlendColor32,
     ) {
 
+      const target = writer.config.target
       const bounds = getCircleBrushOrPencilBounds(
         centerX,
         centerY,
         brush.size,
-        writer.target.width,
-        writer.target.height,
+        target.width,
+        target.height,
         boundsOut,
       )
 
@@ -63,7 +64,7 @@ export const mutatorApplyCircleBrush = ((writer: PixelWriter<any>, deps: Deps = 
       writer.accumulator.storeRegionBeforeState(x, y, w, h)
 
       applyCircleBrushToPixelData(
-        writer.target,
+        target,
         color,
         centerX,
         centerY,

@@ -18,12 +18,12 @@ export const mutatorApplyBinaryMask = ((writer: PixelWriter<any>, deps: Deps = d
 
   return {
     applyBinaryMask: (mask: BinaryMask, opts: ApplyMaskToPixelDataOptions = {}) => {
-      let target = writer.target
+      let target = writer.config.target
       const {
         x = 0,
         y = 0,
-        w = writer.target.width,
-        h = writer.target.height,
+        w = target.width,
+        h = target.height,
       } = opts
 
       writer.accumulator.storeRegionBeforeState(x, y, w, h)
