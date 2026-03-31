@@ -89,7 +89,7 @@
     "typedoc-plugin-mdn-links": "^5.1.1",
     "typedoc-rhineai-theme": "^1.2.0",
     "typescript": "^5.9.3",
-    "unplugin-inline": "^1.8.0",
+    "unplugin-inline": "^1.9.0",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "3.2.4"
   },
