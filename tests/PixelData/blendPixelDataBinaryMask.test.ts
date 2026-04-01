@@ -24,7 +24,7 @@ describe('blendPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(dst.width, dst.height)
       mask.data.fill(255)
 
-      blendPixelDataBinaryMask(
+      const r1 = blendPixelDataBinaryMask(
         dst,
         src,
         mask,
@@ -32,7 +32,7 @@ describe('blendPixelDataBinaryMask', () => {
           alpha: 0,
         },
       )
-      blendPixelDataBinaryMask(
+      const r2 = blendPixelDataBinaryMask(
         dst,
         src,
         mask,
@@ -42,6 +42,8 @@ describe('blendPixelDataBinaryMask', () => {
         },
       )
 
+      expect(r1).toBe(false)
+      expect(r2).toBe(false)
       expect(dst.data32[0]).toBe(BLUE)
     })
 
@@ -52,7 +54,7 @@ describe('blendPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(dst.width, dst.height)
       mask.data.fill(255)
 
-      blendPixelDataBinaryMask(
+      const result = blendPixelDataBinaryMask(
         dst,
         src,
         mask,
@@ -61,6 +63,7 @@ describe('blendPixelDataBinaryMask', () => {
         },
       )
 
+      expect(result).toBe(false)
       expect(mockBlend).not.toHaveBeenCalled()
     })
   })
@@ -72,16 +75,17 @@ describe('blendPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(4, 1)
       mask.data.set([255, 0, 255, 0])
 
-      blendPixelDataBinaryMask(
+      const r1 = blendPixelDataBinaryMask(
         dst,
         src,
         mask,
         {},
       )
+      expect(r1).toBe(true)
       expect(dst.data32[0]).toBe(RED)
       expect(dst.data32[1]).toBe(BLUE)
 
-      blendPixelDataBinaryMask(
+      const r2 = blendPixelDataBinaryMask(
         dst,
         src,
         mask,
@@ -89,6 +93,7 @@ describe('blendPixelDataBinaryMask', () => {
           invertMask: true,
         },
       )
+      expect(r2).toBe(true)
       expect(dst.data32[0]).toBe(RED)
       expect(dst.data32[1]).toBe(RED)
     })
@@ -100,7 +105,7 @@ describe('blendPixelDataBinaryMask', () => {
       mask.data.fill(0)
       mask.data[10] = 255
 
-      blendPixelDataBinaryMask(
+      const result = blendPixelDataBinaryMask(
         dst,
         src,
         mask,
@@ -113,6 +118,7 @@ describe('blendPixelDataBinaryMask', () => {
           my: 2,
         },
       )
+      expect(result).toBe(true)
       expect(unpack(dst.data32[55])).toEqual(unpack(RED))
     })
 
@@ -123,7 +129,7 @@ describe('blendPixelDataBinaryMask', () => {
       mask.data[0] = 0
       const mockBlend = vi.fn(sourceOverFast)
 
-      blendPixelDataBinaryMask(
+      const result = blendPixelDataBinaryMask(
         dst,
         src,
         mask,
@@ -133,6 +139,7 @@ describe('blendPixelDataBinaryMask', () => {
         },
       )
 
+      expect(result).toBe(false)
       expect(mockBlend).not.toHaveBeenCalled()
       expect(dst.data32[0]).toBe(BLUE)
     })
@@ -145,7 +152,7 @@ describe('blendPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(dst.width, dst.height)
       mask.data.fill(255)
 
-      blendPixelDataBinaryMask(
+      const result = blendPixelDataBinaryMask(
         dst,
         src,
         mask,
@@ -157,6 +164,7 @@ describe('blendPixelDataBinaryMask', () => {
         },
       )
 
+      expect(result).toBe(true)
       expect(dst.data32[0]).toBe(RED)
       expect(dst.data32[3]).toBe(BLUE)
     })
@@ -167,7 +175,7 @@ describe('blendPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(dst.width, dst.height)
       mask.data.fill(255)
 
-      blendPixelDataBinaryMask(
+      const result = blendPixelDataBinaryMask(
         dst,
         src,
         mask,
@@ -179,6 +187,7 @@ describe('blendPixelDataBinaryMask', () => {
         },
       )
 
+      expect(result).toBe(true)
       expect(dst.data32[0]).toBe(RED)
       expect(dst.data32[2]).toBe(BLUE)
     })
@@ -189,7 +198,7 @@ describe('blendPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(dst.width, dst.height)
       mask.data.fill(255)
 
-      blendPixelDataBinaryMask(
+      const result = blendPixelDataBinaryMask(
         dst,
         src,
         mask,
@@ -201,6 +210,7 @@ describe('blendPixelDataBinaryMask', () => {
         },
       )
 
+      expect(result).toBe(true)
       expect(dst.data32[3]).toBe(RED)
       expect(dst.data32[0]).toBe(BLUE)
     })
@@ -211,7 +221,7 @@ describe('blendPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(5, 5)
       mask.data.fill(255)
 
-      blendPixelDataBinaryMask(
+      const result = blendPixelDataBinaryMask(
         dst,
         src,
         mask,
@@ -223,6 +233,7 @@ describe('blendPixelDataBinaryMask', () => {
         },
       )
 
+      expect(result).toBe(true)
       expect(unpack(dst.data32[0])).toEqual(unpack(RED))
       expect(dst.data32[3]).toBe(BLUE)
     })
@@ -241,7 +252,7 @@ describe('blendPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(5, 5)
       mask.data.fill(255)
 
-      blendPixelDataBinaryMask(
+      const r1 = blendPixelDataBinaryMask(
         dst,
         src,
         mask,
@@ -250,10 +261,11 @@ describe('blendPixelDataBinaryMask', () => {
           blendFn: mockBlend,
         },
       )
+      expect(r1).toBe(false)
       expect(mockBlend).not.toHaveBeenCalled()
 
       const src2 = makeTestPixelData(1, 1, WHITE)
-      blendPixelDataBinaryMask(
+      const r2 = blendPixelDataBinaryMask(
         dst,
         src2,
         mask,
@@ -262,6 +274,7 @@ describe('blendPixelDataBinaryMask', () => {
           blendFn: mockBlend,
         },
       )
+      expect(r2).toBe(true)
       const callArgs = mockBlend.mock.calls[0]
       const argColor = callArgs[0] as Color32
       const rgba = unpackColor(argColor)
@@ -294,7 +307,7 @@ describe('blendPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(5, 5)
       mask.data.fill(255)
 
-      blendPixelDataBinaryMask(
+      const result = blendPixelDataBinaryMask(
         dst,
         src as any,
         mask,
@@ -309,6 +322,7 @@ describe('blendPixelDataBinaryMask', () => {
         },
       )
 
+      expect(result).toBe(true)
       for (let dy = 0; dy < DH; dy++) {
         for (let dx = 0; dx < DW; dx++) {
           const isInsideX = dx >= targetX && dx < targetX + drawW
@@ -341,7 +355,7 @@ describe('blendPixelDataBinaryMask', () => {
         mask.data[i] = i % 2 === 0 ? 255 : 0
       }
 
-      blendPixelDataBinaryMask(
+      const result = blendPixelDataBinaryMask(
         dst,
         src as any,
         mask,
@@ -350,6 +364,7 @@ describe('blendPixelDataBinaryMask', () => {
         },
       )
 
+      expect(result).toBe(true)
       for (let y = 0; y < 5; y++) {
         for (let x = 0; x < 5; x++) {
           const mIdx = y * 5 + x
@@ -376,7 +391,7 @@ describe('blendPixelDataBinaryMask', () => {
 
       const mask = makeBinaryMask(dst.width, dst.height)
       mask.data.fill(255)
-      blendPixelDataBinaryMask(
+      const result = blendPixelDataBinaryMask(
         dst,
         src,
         mask,
@@ -389,6 +404,7 @@ describe('blendPixelDataBinaryMask', () => {
         },
       )
 
+      expect(result).toBe(true)
       expect(dst.data32[0]).toBe(RED)
       expect(dst.data32[1]).toBe(RED)
       expect(dst.data32[2]).toBe(BLUE)
@@ -401,7 +417,7 @@ describe('blendPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(2, 2)
       mask.data.set([0, 0, 0, 255])
 
-      blendPixelDataBinaryMask(
+      const result = blendPixelDataBinaryMask(
         dst,
         src,
         mask,
@@ -414,6 +430,7 @@ describe('blendPixelDataBinaryMask', () => {
         },
       )
 
+      expect(result).toBe(true)
       expect(dst.data32[0]).toBe(RED)
     })
 
@@ -423,7 +440,7 @@ describe('blendPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(1, 1)
       mask.data.set([1])
 
-      blendPixelDataBinaryMask(
+      const result = blendPixelDataBinaryMask(
         dst,
         src,
         mask,
@@ -433,6 +450,7 @@ describe('blendPixelDataBinaryMask', () => {
         },
       )
 
+      expect(result).toBe(false)
       expect(dst.data32[0]).toBe(BLUE)
     })
 
@@ -449,7 +467,7 @@ describe('blendPixelDataBinaryMask', () => {
       mask.data.set([255])
       const partialAlpha = 120
 
-      blendPixelDataBinaryMask(
+      const result = blendPixelDataBinaryMask(
         dst,
         src,
         mask,
@@ -459,6 +477,7 @@ describe('blendPixelDataBinaryMask', () => {
         },
       )
 
+      expect(result).toBe(true)
       expect((dst.data32[0] >>> 24) & 0xff).toBe(119)
     })
   })

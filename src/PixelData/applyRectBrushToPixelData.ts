@@ -2,6 +2,10 @@ import type { BlendColor32, Color32, IPixelData, Rect } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 import { getRectBrushOrPencilBounds } from '../Rect/getRectBrushOrPencilBounds'
 
+/**
+ * Applies a rectangular brush to the pixel data.
+ * @Returns true if any pixels were actually modified.
+ */
 export function applyRectBrushToPixelData(
   target: IPixelData,
   color: Color32,
@@ -13,7 +17,7 @@ export function applyRectBrushToPixelData(
   fallOff: (dist: number) => number,
   blendFn: BlendColor32 = sourceOverPerfect,
   bounds?: Rect,
-): void {
+): boolean {
   const targetWidth = target.width
   const targetHeight = target.height
 
@@ -26,7 +30,9 @@ export function applyRectBrushToPixelData(
     targetHeight,
   )
 
-  if (b.w <= 0 || b.h <= 0) return
+  if (b.w <= 0 || b.h <= 0) {
+    return false
+  }
 
   const data32 = target.data32
   const baseColor = color & 0x00ffffff
@@ -36,7 +42,6 @@ export function applyRectBrushToPixelData(
   const invHalfW = 1 / (brushWidth / 2)
   const invHalfH = 1 / (brushHeight / 2)
 
-  // Restore the pixel-art centering logic
   const centerOffsetX = (brushWidth % 2 === 0) ? 0.5 : 0
   const centerOffsetY = (brushHeight % 2 === 0) ? 0.5 : 0
   const fCenterX = Math.floor(centerX)
@@ -45,6 +50,7 @@ export function applyRectBrushToPixelData(
   const endX = b.x + b.w
   const endY = b.y + b.h
   const isOverwrite = (blendFn as any).isOverwrite
+  let didChange = false
 
   for (let py = b.y; py < endY; py++) {
     const rowOffset = py * targetWidth
@@ -52,7 +58,6 @@ export function applyRectBrushToPixelData(
 
     for (let px = b.x; px < endX; px++) {
       const idx = rowOffset + px
-
       const dx = Math.abs((px - fCenterX) + centerOffsetX) * invHalfW
       const dist = dx > dy ? dx : dy
 
@@ -79,7 +84,15 @@ export function applyRectBrushToPixelData(
         finalCol = ((a << 24) | baseColor) >>> 0 as Color32
       }
 
-      data32[idx] = blendFn(finalCol, data32[idx] as Color32)
+      const current = data32[idx] as Color32
+      const next = blendFn(finalCol, current)
+
+      if (current !== next) {
+        data32[idx] = next
+        didChange = true
+      }
     }
   }
+
+  return didChange
 }

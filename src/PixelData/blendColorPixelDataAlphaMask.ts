@@ -12,13 +12,14 @@ import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
  * @param color - The solid color to apply.
  * @param mask - The mask defining the per-pixel opacity of the target area.
  * @param opts - Configuration options including placement coordinates, bounds, global alpha, and mask offsets.
+ * @Returns true if any pixels were actually modified.
  */
 export function blendColorPixelDataAlphaMask(
   dst: IPixelData,
   color: Color32,
   mask: AlphaMask,
   opts: ColorBlendMaskOptions = {},
-): void {
+): boolean {
   const targetX = opts.x ?? 0
   const targetY = opts.y ?? 0
   const w = opts.w ?? mask.w
@@ -29,12 +30,12 @@ export function blendColorPixelDataAlphaMask(
   const my = opts.my ?? 0
   const invertMask = opts.invertMask ?? false
 
-  if (globalAlpha === 0) return
+  if (globalAlpha === 0) return false
 
   const baseSrcAlpha = (color >>> 24)
   const isOverwrite = (blendFn as any).isOverwrite || false
 
-  if (baseSrcAlpha === 0 && !isOverwrite) return
+  if (baseSrcAlpha === 0 && !isOverwrite) return false
 
   let x = targetX
   let y = targetY
@@ -54,7 +55,7 @@ export function blendColorPixelDataAlphaMask(
   actualW = Math.min(actualW, dst.width - x)
   actualH = Math.min(actualH, dst.height - y)
 
-  if (actualW <= 0 || actualH <= 0) return
+  if (actualW <= 0 || actualH <= 0) return false
 
   const dx = (x - targetX) | 0
   const dy = (y - targetY) | 0
@@ -68,9 +69,10 @@ export function blendColorPixelDataAlphaMask(
   let mIdx = ((my + dy) * mPitch + (mx + dx)) | 0
 
   const dStride = (dw - actualW) | 0
-  let mStride = (mPitch - actualW) | 0
+  const mStride = (mPitch - actualW) | 0
   const isOpaque = globalAlpha === 255
   const colorRGB = color & 0x00ffffff
+  let didChange = false
 
   for (let iy = 0; iy < actualH; iy++) {
     for (let ix = 0; ix < actualW; ix++) {
@@ -109,7 +111,13 @@ export function blendColorPixelDataAlphaMask(
         finalCol = ((colorRGB | (a << 24)) >>> 0) as Color32
       }
 
-      dst32[dIdx] = blendFn(finalCol, dst32[dIdx] as Color32)
+      const current = dst32[dIdx] as Color32
+      const next = blendFn(finalCol, current)
+
+      if (current !== next) {
+        dst32[dIdx] = next
+        didChange = true
+      }
 
       dIdx++
       mIdx++
@@ -118,4 +126,6 @@ export function blendColorPixelDataAlphaMask(
     dIdx += dStride
     mIdx += mStride
   }
+
+  return didChange
 }

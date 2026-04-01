@@ -15,12 +15,14 @@ describe('blendPixelData', () => {
       const dst = makeTestPixelData(1, 1, BLUE)
       const src = makeTestPixelData(1, 1, RED)
 
-      blendPixelData(dst, src, { alpha: 0 })
-      blendPixelData(dst, src, {
+      const result1 = blendPixelData(dst, src, { alpha: 0 })
+      const result2 = blendPixelData(dst, src, {
         x: 10,
         y: 10,
       })
 
+      expect(result1).toBe(false)
+      expect(result2).toBe(false)
       expect(dst.data32[0]).toBe(BLUE)
     })
 
@@ -29,8 +31,9 @@ describe('blendPixelData', () => {
       const src = makeTestPixelData(1, 1, TRANSPARENT)
       const mockBlend = vi.fn(sourceOverFast)
 
-      blendPixelData(dst, src, { blendFn: mockBlend })
+      const result = blendPixelData(dst, src, { blendFn: mockBlend })
 
+      expect(result).toBe(false)
       expect(mockBlend).not.toHaveBeenCalled()
     })
   })
@@ -40,13 +43,14 @@ describe('blendPixelData', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
       const src = makeTestPixelData(2, 2, RED)
 
-      blendPixelData(dst, src, {
+      const result = blendPixelData(dst, src, {
         x: -1,
         y: -1,
         w: 2,
         h: 2,
       })
 
+      expect(result).toBe(true)
       expect(dst.data32[0]).toBe(RED)
       expect(dst.data32[3]).toBe(BLUE)
     })
@@ -55,13 +59,14 @@ describe('blendPixelData', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
       const src = makeTestPixelData(2, 2, RED)
 
-      blendPixelData(dst, src, {
+      const result = blendPixelData(dst, src, {
         x: 0,
         y: -1,
         w: 2,
         h: 2,
       })
 
+      expect(result).toBe(true)
       expect(dst.data32[0]).toBe(RED)
       expect(dst.data32[2]).toBe(BLUE)
     })
@@ -70,13 +75,14 @@ describe('blendPixelData', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
       const src = makeTestPixelData(5, 5, RED)
 
-      blendPixelData(dst, src, {
+      const result = blendPixelData(dst, src, {
         x: 1,
         y: 1,
         w: 10,
         h: 10,
       })
 
+      expect(result).toBe(true)
       expect(dst.data32[3]).toBe(RED)
       expect(dst.data32[0]).toBe(BLUE)
     })
@@ -85,13 +91,14 @@ describe('blendPixelData', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
       const src = makeTestPixelData(2, 2, RED)
 
-      blendPixelData(dst, src, {
+      const result = blendPixelData(dst, src, {
         x: -1,
         y: -1,
         sx: -1,
         sy: -1,
       })
 
+      expect(result).toBe(true)
       expect(dst.data32[0]).toBe(RED)
       expect(dst.data32[3]).toBe(BLUE)
     })
@@ -103,17 +110,20 @@ describe('blendPixelData', () => {
       const src = makeTestPixelData(1, 1, pack(255, 0, 0, 1))
       const mockBlend = vi.fn(copyBlend)
 
-      blendPixelData(dst, src, {
+      const result1 = blendPixelData(dst, src, {
         alpha: 100,
         blendFn: mockBlend,
       })
+      expect(result1).toBe(false)
       expect(mockBlend).not.toHaveBeenCalled()
 
       const src2 = makeTestPixelData(1, 1, WHITE)
-      blendPixelData(dst, src2, {
+      const result2 = blendPixelData(dst, src2, {
         alpha: 128,
         blendFn: mockBlend,
       })
+
+      expect(result2).toBe(true)
       const callArgs = mockBlend.mock.calls[0]
       const argColor = callArgs[0] as Color32
       const rgba = unpackColor(argColor)
@@ -139,7 +149,7 @@ describe('blendPixelData', () => {
       const drawW = 3
       const drawH = 3
 
-      blendPixelData(dst, src as any, {
+      const result = blendPixelData(dst, src as any, {
         x: targetX,
         y: targetY,
         sx: sourceX,
@@ -148,6 +158,8 @@ describe('blendPixelData', () => {
         h: drawH,
         blendFn: copyBlend,
       })
+
+      expect(result).toBe(true)
 
       for (let dy = 0; dy < DH; dy++) {
         for (let dx = 0; dx < DW; dx++) {
@@ -174,7 +186,7 @@ describe('blendPixelData', () => {
       const dst = makeTestPixelData(5, 5, BLUE)
       const src = makeTestPixelData(2, 2, RED)
 
-      blendPixelData(dst, src, {
+      const result = blendPixelData(dst, src, {
         x: 0,
         y: 0,
         w: 5,
@@ -182,6 +194,7 @@ describe('blendPixelData', () => {
         blendFn: (s) => s,
       })
 
+      expect(result).toBe(true)
       expect(dst.data32[0]).toBe(RED)
       expect(dst.data32[1]).toBe(RED)
       expect(dst.data32[2]).toBe(BLUE)

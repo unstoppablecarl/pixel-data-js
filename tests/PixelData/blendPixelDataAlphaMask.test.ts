@@ -23,9 +23,11 @@ describe('blendPixelDataAlphaMask', () => {
       const src = makeTestPixelData(1, 1, RED)
       const mask = makeTestAlphaMask(dst.width, dst.height, 255)
 
-      blendPixelDataAlphaMask(dst, src, mask, { alpha: 0 })
-      blendPixelDataAlphaMask(dst, src, mask, { x: 10, y: 10 })
+      const r1 = blendPixelDataAlphaMask(dst, src, mask, { alpha: 0 })
+      const r2 = blendPixelDataAlphaMask(dst, src, mask, { x: 10, y: 10 })
 
+      expect(r1).toBe(false)
+      expect(r2).toBe(false)
       expect(dst.data32[0]).toBe(BLUE)
     })
 
@@ -35,10 +37,11 @@ describe('blendPixelDataAlphaMask', () => {
       const mockBlend = vi.fn(sourceOverFast)
       const mask = makeTestAlphaMask(dst.width, dst.height, 255)
 
-      blendPixelDataAlphaMask(dst, src, mask, {
+      const result = blendPixelDataAlphaMask(dst, src, mask, {
         blendFn: mockBlend,
       })
 
+      expect(result).toBe(false)
       expect(mockBlend).not.toHaveBeenCalled()
     })
   })
@@ -49,11 +52,13 @@ describe('blendPixelDataAlphaMask', () => {
       const src = makeTestPixelData(4, 1, RED)
       const mask = makeTestAlphaMask(2, 2, [255, 0, 255, 0])
 
-      blendPixelDataAlphaMask(dst, src, mask, {})
+      const r1 = blendPixelDataAlphaMask(dst, src, mask, {})
+      expect(r1).toBe(true)
       expect(dst.data32[0]).toBe(RED)
       expect(dst.data32[1]).toBe(BLUE)
 
-      blendPixelDataAlphaMask(dst, src, mask, { invertMask: true })
+      const r2 = blendPixelDataAlphaMask(dst, src, mask, { invertMask: true })
+      expect(r2).toBe(true)
       expect(dst.data32[0]).toBe(RED)
       expect(dst.data32[1]).toBe(RED) // ← note: original expect was wrong — now both RED after invert
     })
@@ -63,10 +68,11 @@ describe('blendPixelDataAlphaMask', () => {
       const src = makeTestPixelData(3, 1, WHITE)
       const mask = makeTestAlphaMask(3, 1, [0, 128, 255])
 
-      blendPixelDataAlphaMask(dst, src, mask, {
+      const result = blendPixelDataAlphaMask(dst, src, mask, {
         blendFn: copyBlend,
       })
 
+      expect(result).toBe(true)
       const d32 = dst.data32
       expect(d32[0]).toBe(BLUE)
       expect((d32[1] >>> 24) & 0xff).toBe(128)
@@ -80,7 +86,7 @@ describe('blendPixelDataAlphaMask', () => {
 
       mask.data[10] = 255
 
-      blendPixelDataAlphaMask(dst, src, mask, {
+      const result = blendPixelDataAlphaMask(dst, src, mask, {
         x: 5,
         y: 5,
         w: 1,
@@ -88,6 +94,7 @@ describe('blendPixelDataAlphaMask', () => {
         mx: 2,
         my: 2,
       })
+      expect(result).toBe(true)
       expect(unpack(dst.data32[55])).toEqual(unpack(RED))
     })
 
@@ -98,11 +105,12 @@ describe('blendPixelDataAlphaMask', () => {
 
       const mockBlend = vi.fn(sourceOverFast)
 
-      blendPixelDataAlphaMask(dst, src, mask, {
+      const result = blendPixelDataAlphaMask(dst, src, mask, {
         alpha: 100,
         blendFn: mockBlend,
       })
 
+      expect(result).toBe(false)
       expect(mockBlend).not.toHaveBeenCalled()
       expect(dst.data32[0]).toBe(BLUE)
     })
@@ -114,13 +122,14 @@ describe('blendPixelDataAlphaMask', () => {
       const src = makeTestPixelData(2, 2, RED)
       const mask = makeTestAlphaMask(dst.width, dst.height, 255)
 
-      blendPixelDataAlphaMask(dst, src, mask, {
+      const result = blendPixelDataAlphaMask(dst, src, mask, {
         x: -1,
         y: -1,
         w: 2,
         h: 2,
       })
 
+      expect(result).toBe(true)
       expect(dst.data32[0]).toBe(RED)
       expect(dst.data32[3]).toBe(BLUE)
     })
@@ -130,13 +139,14 @@ describe('blendPixelDataAlphaMask', () => {
       const src = makeTestPixelData(2, 2, RED)
       const mask = makeTestAlphaMask(dst.width, dst.height, 255)
 
-      blendPixelDataAlphaMask(dst, src, mask, {
+      const result = blendPixelDataAlphaMask(dst, src, mask, {
         x: 0,
         y: -1,
         w: 2,
         h: 2,
       })
 
+      expect(result).toBe(true)
       expect(dst.data32[0]).toBe(RED)
       expect(dst.data32[2]).toBe(BLUE)
     })
@@ -146,13 +156,14 @@ describe('blendPixelDataAlphaMask', () => {
       const src = makeTestPixelData(5, 5, RED)
       const mask = makeTestAlphaMask(dst.width, dst.height, 255)
 
-      blendPixelDataAlphaMask(dst, src, mask, {
+      const result = blendPixelDataAlphaMask(dst, src, mask, {
         x: 1,
         y: 1,
         w: 10,
         h: 10,
       })
 
+      expect(result).toBe(true)
       expect(dst.data32[3]).toBe(RED)
       expect(dst.data32[0]).toBe(BLUE)
     })
@@ -162,13 +173,14 @@ describe('blendPixelDataAlphaMask', () => {
       const src = makeTestPixelData(2, 2, RED)
       const mask = makeTestAlphaMask(5, 5, 255)
 
-      blendPixelDataAlphaMask(dst, src, mask, {
+      const result = blendPixelDataAlphaMask(dst, src, mask, {
         x: -1,
         y: -1,
         sx: -1,
         sy: -1,
       })
 
+      expect(result).toBe(true)
       expect(unpack(dst.data32[0])).toEqual(unpack(RED))
       expect(dst.data32[3]).toBe(BLUE)
     })
@@ -181,17 +193,19 @@ describe('blendPixelDataAlphaMask', () => {
       const mockBlend = vi.fn(copyBlend)
       const mask = makeTestAlphaMask(5, 5, 255)
 
-      blendPixelDataAlphaMask(dst, src, mask, {
+      const r1 = blendPixelDataAlphaMask(dst, src, mask, {
         alpha: 100,
         blendFn: mockBlend,
       })
+      expect(r1).toBe(false)
       expect(mockBlend).not.toHaveBeenCalled()
 
       const src2 = makeTestPixelData(1, 1, WHITE)
-      blendPixelDataAlphaMask(dst, src2, mask, {
+      const r2 = blendPixelDataAlphaMask(dst, src2, mask, {
         alpha: 128,
         blendFn: mockBlend,
       })
+      expect(r2).toBe(true)
       const callArgs = mockBlend.mock.calls[0]
       const argColor = callArgs[0] as Color32
       const rgba = unpackColor(argColor)
@@ -218,7 +232,7 @@ describe('blendPixelDataAlphaMask', () => {
       const drawH = 3
       const mask = makeTestAlphaMask(5, 5, 255)
 
-      blendPixelDataAlphaMask(dst, src as any, mask, {
+      const result = blendPixelDataAlphaMask(dst, src as any, mask, {
         x: targetX,
         y: targetY,
         sx: sourceX,
@@ -228,6 +242,7 @@ describe('blendPixelDataAlphaMask', () => {
         blendFn: copyBlend,
       })
 
+      expect(result).toBe(true)
       for (let dy = 0; dy < DH; dy++) {
         for (let dx = 0; dx < DW; dx++) {
           const isInsideX = dx >= targetX && dx < targetX + drawW
@@ -255,10 +270,11 @@ describe('blendPixelDataAlphaMask', () => {
         mask.data[i] = i % 2 === 0 ? 255 : 0
       }
 
-      blendPixelDataAlphaMask(dst, src as any, mask, {
+      const result = blendPixelDataAlphaMask(dst, src as any, mask, {
         blendFn: copyBlend,
       })
 
+      expect(result).toBe(true)
       for (let y = 0; y < 5; y++) {
         for (let x = 0; x < 5; x++) {
           const mIdx = y * 5 + x
@@ -279,7 +295,7 @@ describe('blendPixelDataAlphaMask', () => {
 
       const mask = makeTestAlphaMask(dst.width, dst.height, 255)
 
-      blendPixelDataAlphaMask(dst, src, mask, {
+      const result = blendPixelDataAlphaMask(dst, src, mask, {
         x: 0,
         y: 0,
         w: 5,
@@ -287,6 +303,7 @@ describe('blendPixelDataAlphaMask', () => {
         blendFn: (s) => s,
       })
 
+      expect(result).toBe(true)
       expect(dst.data32[0]).toBe(RED)
       expect(dst.data32[1]).toBe(RED)
       expect(dst.data32[2]).toBe(BLUE)
@@ -298,7 +315,7 @@ describe('blendPixelDataAlphaMask', () => {
       src.data32[3] = RED
       const mask = makeTestAlphaMask(2, 2, [0, 0, 0, 255])
 
-      blendPixelDataAlphaMask(dst, src, mask, {
+      const result = blendPixelDataAlphaMask(dst, src, mask, {
         x: -1,
         y: -1,
         w: 2,
@@ -306,6 +323,7 @@ describe('blendPixelDataAlphaMask', () => {
         blendFn: (s) => s,
       })
 
+      expect(result).toBe(true)
       expect(dst.data32[0]).toBe(RED)
     })
 
@@ -314,11 +332,12 @@ describe('blendPixelDataAlphaMask', () => {
       const src = makeTestPixelData(1, 1, RED)
       const mask = makeTestAlphaMask(1, 1, [255])
 
-      blendPixelDataAlphaMask(dst, src, mask, {
+      const result = blendPixelDataAlphaMask(dst, src, mask, {
         invertMask: true,
         blendFn: copyBlend,
       })
 
+      expect(result).toBe(false)
       expect(dst.data32[0]).toBe(BLUE)
     })
 
@@ -329,11 +348,12 @@ describe('blendPixelDataAlphaMask', () => {
       const mask = makeTestAlphaMask(1, 1, [255])
       const partialAlpha = 120
 
-      blendPixelDataAlphaMask(dst, src, mask, {
+      const result = blendPixelDataAlphaMask(dst, src, mask, {
         alpha: partialAlpha,
         blendFn: sourceOverFast,
       })
 
+      expect(result).toBe(true)
       expect((dst.data32[0] >>> 24) & 0xff).toBe(119)
     })
 
@@ -343,10 +363,11 @@ describe('blendPixelDataAlphaMask', () => {
       const dst = makeTestPixelData(1, 1, transparent)
       const mask = makeTestAlphaMask(1, 1, 120)
 
-      blendPixelDataAlphaMask(dst, src, mask, {
+      const result = blendPixelDataAlphaMask(dst, src, mask, {
         alpha: 255,
       })
 
+      expect(result).toBe(true)
       const resultAlpha = unpackAlpha(dst.data32[0] as Color32)
       expect(resultAlpha).toBe(120)
     })

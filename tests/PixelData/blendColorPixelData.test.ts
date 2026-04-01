@@ -16,13 +16,15 @@ describe('blendColorPixelData (No Mask)', () => {
     const drawW = 5
     const drawH = 4
 
-    blendColorPixelData(dst, RED, {
+    const result = blendColorPixelData(dst, RED, {
       x: targetX,
       y: targetY,
       w: drawW,
       h: drawH,
       blendFn: copyBlend,
     })
+
+    expect(result).toBe(true)
 
     for (let dy = 0; dy < DH; dy++) {
       for (let dx = 0; dx < DW; dx++) {

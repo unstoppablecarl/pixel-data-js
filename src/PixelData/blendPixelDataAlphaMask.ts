@@ -6,7 +6,7 @@ export function blendPixelDataAlphaMask(
   src: IPixelData,
   alphaMask: AlphaMask,
   opts: PixelBlendMaskOptions = {},
-) {
+): boolean {
   const {
     x: targetX = 0,
     y: targetY = 0,
@@ -21,7 +21,7 @@ export function blendPixelDataAlphaMask(
     invertMask = false,
   } = opts
 
-  if (globalAlpha === 0) return
+  if (globalAlpha === 0) return false
 
   let x = targetX
   let y = targetY
@@ -56,7 +56,7 @@ export function blendPixelDataAlphaMask(
 
   const actualW = Math.min(w, dst.width - x)
   const actualH = Math.min(h, dst.height - y)
-  if (actualW <= 0 || actualH <= 0) return
+  if (actualW <= 0 || actualH <= 0) return false
 
   // 2. Index Setup
   const dw = dst.width
@@ -82,6 +82,7 @@ export function blendPixelDataAlphaMask(
 
   const isOpaque = globalAlpha === 255
   const isOverwrite = blendFn.isOverwrite || false
+  let didChange = false
 
   for (let iy = 0; iy < actualH; iy++) {
     for (let ix = 0; ix < actualW; ix++) {
@@ -135,8 +136,13 @@ export function blendPixelDataAlphaMask(
         }
         finalCol = ((srcCol & 0x00ffffff) | (a << 24)) >>> 0 as Color32
       }
+      const current = dst32[dIdx] as Color32
+      const next = blendFn(finalCol, dst32[dIdx] as Color32)
 
-      dst32[dIdx] = blendFn(finalCol, dst32[dIdx] as Color32)
+      if (current !== next) {
+        dst32[dIdx] = next
+        didChange = true
+      }
 
       dIdx++
       sIdx++
@@ -146,4 +152,6 @@ export function blendPixelDataAlphaMask(
     sIdx += sStride
     mIdx += mStride
   }
+
+  return didChange
 }

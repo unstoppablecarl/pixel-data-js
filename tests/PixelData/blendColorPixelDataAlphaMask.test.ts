@@ -14,8 +14,9 @@ describe('blendColorPixelDataAlphaMask', () => {
     const mask = makeAlphaMask(3, 1)
     mask.data.set([0, 128, 255])
 
-    blendColorPixelDataAlphaMask(dst, WHITE, mask, { blendFn: copyBlend })
+    const result = blendColorPixelDataAlphaMask(dst, WHITE, mask, { blendFn: copyBlend })
 
+    expect(result).toBe(true)
     expect(dst.data32[0]).toBe(BLUE)
     expect((dst.data32[1] >>> 24) & 0xff).toBe(128)
     expect(dst.data32[2]).toBe(WHITE)
@@ -26,7 +27,9 @@ describe('blendColorPixelDataAlphaMask', () => {
     const mask = makeAlphaMask(1, 1)
     mask.data[0] = 255
 
-    blendColorPixelDataAlphaMask(dst, RED, mask, { invertMask: true, blendFn: copyBlend })
+    const result = blendColorPixelDataAlphaMask(dst, RED, mask, { invertMask: true, blendFn: copyBlend })
+
+    expect(result).toBe(false)
     expect(dst.data32[0]).toBe(BLUE)
   })
 
@@ -38,8 +41,9 @@ describe('blendColorPixelDataAlphaMask', () => {
     const mockBlend = vi.fn(sourceOverFast)
 
     // globalAlpha 100 * mask 1 rounded down goes to 0 weight
-    blendColorPixelDataAlphaMask(dst, RED, mask, { alpha: 100, blendFn: mockBlend })
+    const result = blendColorPixelDataAlphaMask(dst, RED, mask, { alpha: 100, blendFn: mockBlend })
 
+    expect(result).toBe(false)
     expect(mockBlend).not.toHaveBeenCalled()
     expect(dst.data32[0]).toBe(BLUE)
   })
@@ -51,8 +55,9 @@ describe('blendColorPixelDataAlphaMask', () => {
 
     const partialAlpha = 120
 
-    blendColorPixelDataAlphaMask(dst, RED, mask, { alpha: partialAlpha })
+    const result =blendColorPixelDataAlphaMask(dst, RED, mask, { alpha: partialAlpha })
 
+    expect(result).toBe(true)
     const resultAlpha = unpackAlpha(dst.data32[0] as Color32)
     expect(resultAlpha).toBe(120) // Passes through globalAlpha cleanly
   })
@@ -62,9 +67,41 @@ describe('blendColorPixelDataAlphaMask', () => {
     const mask = makeAlphaMask(1, 1)
     mask.data[0] = 120
 
-    blendColorPixelDataAlphaMask(dst, RED, mask, { alpha: 255 })
+    const result = blendColorPixelDataAlphaMask(dst, RED, mask, { alpha: 255 })
 
+    expect(result).toBe(true)
     const resultAlpha = unpackAlpha(dst.data32[0] as Color32)
     expect(resultAlpha).toBe(120) // Passes through mask cleanly
+  })
+
+  it('returns false when blending the exact same color over itself', () => {
+    const dst = makeTestPixelData(1, 1, RED)
+    const mask = makeAlphaMask(1, 1)
+    mask.data[0] = 255
+
+    const result = blendColorPixelDataAlphaMask(
+      dst,
+      RED,
+      mask,
+      { blendFn: sourceOverFast },
+    )
+
+    expect(result).toBe(false)
+    expect(dst.data32[0]).toBe(RED)
+  })
+
+  it('returns false when the destination region is out of bounds', () => {
+    const dst = makeTestPixelData(1, 1, BLUE)
+    const mask = makeAlphaMask(1, 1)
+    mask.data[0] = 255
+
+    const result = blendColorPixelDataAlphaMask(
+      dst,
+      RED,
+      mask,
+      { x: 10 },
+    )
+
+    expect(result).toBe(false)
   })
 })

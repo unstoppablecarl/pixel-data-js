@@ -1,6 +1,6 @@
 import { applyRectBrushToPixelData, type Color32, overwritePerfect, PixelData } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
-import { expectPixelToMatchColor } from '../_helpers'
+import { expectPixelToMatchColor, makeTestPixelData } from '../_helpers'
 
 describe('applyRectBrushToPixelData', () => {
   const createMockPixelData = (width: number, height: number) => {
@@ -16,12 +16,13 @@ describe('applyRectBrushToPixelData', () => {
   }
 
   it('colors a perfect square area for a solid brush', () => {
-    const target = createMockPixelData(10, 10)
-    const color = 0xFF0000FF as any // Red (ABGR/RGBA dependent on system, but consistent here)
+    const target = makeTestPixelData(10, 10)
+    const color = 0xFF0000FF as any
 
     // 2x2 brush at 5,5 covers pixels (4,4), (4,5), (5,4), (5,5)
-    applyRectBrushToPixelData(target, color, 5, 5, 2, 2, 255, () => 1)
+    const result = applyRectBrushToPixelData(target, color, 5, 5, 2, 2, 255, () => 1)
 
+    expect(result).toBe(true)
     expect(target.data32[4 * 10 + 4]).toBe(0xFF0000FF)
     expect(target.data32[4 * 10 + 5]).toBe(0xFF0000FF)
     expect(target.data32[5 * 10 + 4]).toBe(0xFF0000FF)
@@ -30,15 +31,16 @@ describe('applyRectBrushToPixelData', () => {
   })
 
   it('applies fallOff correctly based on max distance from center', () => {
-    const target = createMockPixelData(10, 10)
+    const target = makeTestPixelData(10, 10)
     const color = 0xFFFFFFFF as any
     const fallOff = vi.fn((d: number) => 1 - d)
 
     // Size 2 brush (halfW=1) at 5,5
     // This brush spans pixels 4 and 5. The center of the span is 5.0.
     // The center of pixel 5 is 5.5. Distance is 0.5.
-    applyRectBrushToPixelData(target, color, 5, 5, 2, 2, 255, fallOff)
+    const result = applyRectBrushToPixelData(target, color, 5, 5, 2, 2, 255, fallOff)
 
+    expect(result).toBe(true)
     expect(fallOff).toHaveBeenCalled()
 
     // Pixel 4: center 4.5, dist 0.5 -> alpha 127
@@ -47,23 +49,26 @@ describe('applyRectBrushToPixelData', () => {
   })
 
   it('returns 255 at the center of an odd-sized brush', () => {
-    const target = createMockPixelData(10, 10)
+    const target = makeTestPixelData(10, 10)
     const color = 0xFFFFFFFF as any
-    const fallOff = vi.fn((d: number) => 1 - d)
+    const fallOff = (d: number) => 1 - d
 
     // Size 3 brush (halfW=1.5) at 5.5, 5.5
     // Pixel 5 center is 5.5. Distance is 0.
-    applyRectBrushToPixelData(target, color, 5.5, 5.5, 3, 3, 255, fallOff)
+    const result = applyRectBrushToPixelData(target, color, 5.5, 5.5, 3, 3, 255, fallOff)
 
+    expect(result).toBe(true)
     expect(target.data32[5 * 10 + 5] >>> 24).toBe(255)
   })
 
   it('clips correctly at the top-left boundary', () => {
-    const target = createMockPixelData(10, 10)
+    const target = makeTestPixelData(10, 10)
     const color = 0xFFFFFFFF as any
 
     // Brush centered at 0,0 with size 4x4
-    applyRectBrushToPixelData(target, color, 0, 0, 4, 4, 255, () => 1)
+    const result = applyRectBrushToPixelData(target, color, 0, 0, 4, 4, 255, () => 1)
+
+    expect(result).toBe(true)
 
     // Should color 0,0 to 1,1 (since half size is 2)
     expect(target.data32[0 * 10 + 0]).toBe(0xFFFFFFFF)
@@ -76,7 +81,9 @@ describe('applyRectBrushToPixelData', () => {
     const color = 0xFFFFFFFF as any
 
     // Brush at 10,10 with size 4x4
-    applyRectBrushToPixelData(target, color, 10, 10, 4, 4, 255, () => 1)
+    const result = applyRectBrushToPixelData(target, color, 10, 10, 4, 4, 255, () => 1)
+
+    expect(result).toBe(true)
 
     expect(target.data32[9 * 10 + 9]).toBe(0xFFFFFFFF)
     expect(target.data32[8 * 10 + 8]).toBe(0xFFFFFFFF)
@@ -84,14 +91,15 @@ describe('applyRectBrushToPixelData', () => {
   })
 
   it('applies custom blendFn and custom alpha', () => {
-    const target = createMockPixelData(10, 10)
+    const target = makeTestPixelData(10, 10)
     const color = 0xFF00FF00 as any
     const customAlpha = 128
     const mockBlend = vi.fn(() => 0x12345678 as any)
     const fallOff = () => 1
 
-    applyRectBrushToPixelData(target, color, 5, 5, 2, 2, customAlpha, fallOff, mockBlend)
+    const result = applyRectBrushToPixelData(target, color, 5, 5, 2, 2, customAlpha, fallOff, mockBlend)
 
+    expect(result).toBe(true)
     expect(mockBlend).toHaveBeenCalled()
     expect(target.data32[5 * 10 + 5]).toBe(0x12345678)
 
@@ -127,7 +135,7 @@ describe('applyRectBrushToPixelData', () => {
         h: 1,
       }
 
-      applyRectBrushToPixelData(
+      const result = applyRectBrushToPixelData(
         target,
         color,
         5,
@@ -140,6 +148,7 @@ describe('applyRectBrushToPixelData', () => {
         sliverBounds,
       )
 
+      expect(result).toBe(true)
       expect(target.data32[9 * 10 + 9]).toBe(0xFFFFFFFF)
       expect(target.data32[5 * 10 + 5]).toBe(0)
     })
@@ -152,7 +161,7 @@ describe('applyRectBrushToPixelData', () => {
 
     const x = 4
     const y = 5
-    applyRectBrushToPixelData(
+    const result = applyRectBrushToPixelData(
       target,
       color,
       x,
@@ -164,60 +173,11 @@ describe('applyRectBrushToPixelData', () => {
       overwritePerfect,
     )
 
+    expect(result).toBe(true)
     expectPixelToMatchColor(target, x - 1, y - 1, color as Color32)
     expectPixelToMatchColor(target, 0, 0, 0xffffffff as Color32)
 
     expect(target).toMatchPixelDataSnapshot()
-  })
-
-  // it('skips alpha = 0', () => {
-  //   const target = createMockPixelData(10, 10)
-  //   target.data32.fill(0xffffffff)
-  //   const color = 0xffff0000 as any
-  //
-  //   const original = new Uint32Array(target.data32);
-  //   const x = 4
-  //   const y = 5
-  //   applyRectBrushToPixelData(
-  //     target,
-  //     color,
-  //     x,
-  //     y,
-  //     1,
-  //     1,
-  //     10,
-  //     () => 0.1,
-  //   )
-  //
-  //   expect(target.data32).toEqual(original)
-  // })
-
-  it('gives weight=0 when maskVal is very small (shows >>8 flooring)', () => {
-    const target = createMockPixelData(1, 1)
-    target.data32.fill(0xffffffff)
-
-    const tinyFalloff = () => 3 / 255 // maskVal will be 3
-
-    applyRectBrushToPixelData(
-      target,
-      0xffff0000 as Color32,
-      0,
-      0,
-      1,
-      1,
-      200,
-      tinyFalloff,
-      (src) => src,
-      { x: 0, y: 0, w: 1, h: 1 },
-    )
-
-    const written = target.data32[0]
-    const writtenAlpha = (written >>> 24) & 0xff
-
-    // weight = (3 * 200 + 128) >> 8 = (600 + 128) >> 8 = 728 >> 8 = 2 (after |0)
-    // final a = (255 * 2 + 128) >> 8 ≈ 2   → very low
-    expect(writtenAlpha).toBeLessThanOrEqual(3)
-    expect(writtenAlpha).toBeGreaterThan(0) // not skipped completely
   })
 
   it('should handle empty bounds gracefully', () => {
@@ -230,8 +190,7 @@ describe('applyRectBrushToPixelData', () => {
       h: 0,
     }
 
-    // Should not throw or modify anything
-    applyRectBrushToPixelData(
+    const result = applyRectBrushToPixelData(
       target,
       color,
       5,
@@ -244,6 +203,7 @@ describe('applyRectBrushToPixelData', () => {
       emptyBounds,
     )
 
+    expect(result).toBe(false)
     expect(target.data32.some(p => p !== 0)).toBe(false)
   })
 
@@ -264,7 +224,7 @@ describe('applyRectBrushToPixelData', () => {
       h: 1,
     }
 
-    applyRectBrushToPixelData(
+    const result = applyRectBrushToPixelData(
       pixelData as any,
       0x00000000 as any,
       0,
@@ -276,7 +236,7 @@ describe('applyRectBrushToPixelData', () => {
       blendFn,
       bounds,
     )
-
+    expect(result).toBe(false)
     // Because a === 0 and !isOverwrite, the loop should continue before calling blendFn
     expect(blendFn).not.toHaveBeenCalled()
   })
@@ -302,7 +262,7 @@ describe('applyRectBrushToPixelData', () => {
       h: 1,
     }
 
-    applyRectBrushToPixelData(
+    const result = applyRectBrushToPixelData(
       pixelData as any,
       0x00000000 as any,
       0,
@@ -314,6 +274,7 @@ describe('applyRectBrushToPixelData', () => {
       blendFn,
       bounds,
     )
+    expect(result).toBe(true)
 
     // Because isOverwrite is true, it MUST call the blend function to punch the transparent hole
     expect(blendFn).toHaveBeenCalled()

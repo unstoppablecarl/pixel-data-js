@@ -12,13 +12,14 @@ import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
  * @param color - The solid color to apply.
  * @param mask - The mask defining the per-pixel opacity of the target area.
  * @param opts - Configuration options including placement coordinates, bounds, global alpha, and mask offsets.
+ * @Returns true if any pixels were actually modified.
  */
 export function blendColorPixelDataBinaryMask(
   dst: IPixelData,
   color: Color32,
   mask: BinaryMask,
   opts: ColorBlendMaskOptions = {},
-) {
+): boolean {
   const targetX = opts.x ?? 0
   const targetY = opts.y ?? 0
   let w = opts.w ?? mask.w
@@ -29,12 +30,12 @@ export function blendColorPixelDataBinaryMask(
   const my = opts.my ?? 0
   const invertMask = opts.invertMask ?? false
 
-  if (globalAlpha === 0) return
+  if (globalAlpha === 0) return false
 
   const baseSrcAlpha = (color >>> 24)
   const isOverwrite = (blendFn as any).isOverwrite || false
 
-  if (baseSrcAlpha === 0 && !isOverwrite) return
+  if (baseSrcAlpha === 0 && !isOverwrite) return false
 
   let x = targetX
   let y = targetY
@@ -52,19 +53,18 @@ export function blendColorPixelDataBinaryMask(
   const actualW = Math.min(w, dst.width - x)
   const actualH = Math.min(h, dst.height - y)
 
-  if (actualW <= 0 || actualH <= 0) return
+  if (actualW <= 0 || actualH <= 0) return false
 
   let baseColorWithGlobalAlpha = color
 
   if (globalAlpha < 255) {
     const a = (baseSrcAlpha * globalAlpha + 128) >> 8
-    if (a === 0 && !isOverwrite) return
+    if (a === 0 && !isOverwrite) return false
     baseColorWithGlobalAlpha = ((color & 0x00ffffff) | (a << 24)) >>> 0 as Color32
   }
 
   const dx = (x - targetX) | 0
   const dy = (y - targetY) | 0
-
   const dst32 = dst.data32
   const dw = dst.width
   const mPitch = mask.w
@@ -75,6 +75,7 @@ export function blendColorPixelDataBinaryMask(
   const dStride = (dw - actualW) | 0
   const mStride = (mPitch - actualW) | 0
   const skipVal = invertMask ? 1 : 0
+  let didChange = false
 
   for (let iy = 0; iy < actualH; iy++) {
     for (let ix = 0; ix < actualW; ix++) {
@@ -84,7 +85,13 @@ export function blendColorPixelDataBinaryMask(
         continue
       }
 
-      dst32[dIdx] = blendFn(baseColorWithGlobalAlpha, dst32[dIdx] as Color32)
+      const current = dst32[dIdx] as Color32
+      const next = blendFn(baseColorWithGlobalAlpha, current)
+
+      if (current !== next) {
+        dst32[dIdx] = next
+        didChange = true
+      }
 
       dIdx++
       mIdx++
@@ -93,4 +100,6 @@ export function blendColorPixelDataBinaryMask(
     dIdx += dStride
     mIdx += mStride
   }
+
+  return didChange
 }
