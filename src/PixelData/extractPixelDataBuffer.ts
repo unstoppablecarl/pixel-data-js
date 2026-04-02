@@ -1,4 +1,4 @@
-import type { IPixelData, Rect } from '../_types'
+import type { IPixelData32, Rect } from '../_types'
 import { makeClippedBlit, resolveBlitClipping } from '../Internal/resolveClipping'
 
 const SCRATCH_BLIT = makeClippedBlit()
@@ -7,10 +7,10 @@ const SCRATCH_BLIT = makeClippedBlit()
  * Extracts a rectangular region of pixels from PixelData.
  * Returns a new Uint32Array containing the extracted pixels.
  */
-export function extractPixelDataBuffer(source: IPixelData, rect: Rect): Uint32Array
-export function extractPixelDataBuffer(source: IPixelData, x: number, y: number, w: number, h: number): Uint32Array
+export function extractPixelDataBuffer(source: IPixelData32, rect: Rect): Uint32Array
+export function extractPixelDataBuffer(source: IPixelData32, x: number, y: number, w: number, h: number): Uint32Array
 export function extractPixelDataBuffer(
-  source: IPixelData,
+  source: IPixelData32,
   _x: Rect | number,
   _y?: number,
   _w?: number,

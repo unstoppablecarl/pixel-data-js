@@ -1,11 +1,11 @@
-import { type CircleBinaryMask, MaskType } from '../_types'
+import { MaskType, type PaintBinaryMask } from '../_types'
 
-export function makeCircleBinaryMask(size: number): CircleBinaryMask {
+export function makeCirclePaintBinaryMask(size: number): PaintBinaryMask {
   const area = size * size
   const data = new Uint8Array(area)
   const radius = size / 2
 
-  const minOffset = -Math.ceil(radius - 0.5)
+  const centerOffset = -Math.ceil(radius - 0.5)
 
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
@@ -23,8 +23,7 @@ export function makeCircleBinaryMask(size: number): CircleBinaryMask {
     data,
     w: size,
     h: size,
-    radius,
-    size,
-    minOffset,
+    centerOffsetX: centerOffset,
+    centerOffsetY: centerOffset,
   }
 }

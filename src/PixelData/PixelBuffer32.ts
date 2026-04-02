@@ -1,6 +1,6 @@
-import type { IPixelData } from '../_types'
+import type { IPixelData32 } from '../_types'
 
-export class PixelBuffer32 implements IPixelData {
+export class PixelBuffer32 implements IPixelData32 {
   readonly data32: Uint32Array
 
   constructor(

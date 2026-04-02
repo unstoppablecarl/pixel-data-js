@@ -1,9 +1,9 @@
-import { type AlphaMask, type Color32, type IPixelData, type PixelBlendMaskOptions } from '../_types'
+import { type AlphaMask, type Color32, type IPixelData32, type PixelBlendMaskOptions } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 
 export function blendPixelDataAlphaMask(
-  dst: IPixelData,
-  src: IPixelData,
+  dst: IPixelData32,
+  src: IPixelData32,
   alphaMask: AlphaMask,
   opts: PixelBlendMaskOptions = {},
 ): boolean {

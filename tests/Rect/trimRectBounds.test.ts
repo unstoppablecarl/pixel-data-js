@@ -1,213 +1,47 @@
-import { type BinaryMaskRect, MaskType, type Rect, trimRectBounds } from '@/index'
+import { trimRectBounds } from '@/index'
 import { describe, expect, it } from 'vitest'
-import { makeTestBinaryMask, makeTestBinaryMaskRect } from '../_helpers'
 
-describe('trimRectBounds: Edge Case Analysis', () => {
-  it('preserves identity when target and bounds are identical', () => {
-    const target: Rect = {
-      x: 0,
-      y: 0,
-      w: 100,
-      h: 100,
-    }
-    const bounds: Rect = {
-      x: 0,
-      y: 0,
-      w: 100,
-      h: 100,
-    }
+describe('trimRectBounds', () => {
+  const TARGET_W = 100
+  const TARGET_H = 100
 
-    trimRectBounds(target, bounds)
-
-    expect(target).toEqual({
-      x: 0,
-      y: 0,
-      w: 100,
-      h: 100,
-    })
+  it('should preserve bounds when they are fully within the target area', () => {
+    const result = trimRectBounds(10, 10, 20, 20, TARGET_W, TARGET_H)
+    expect(result).toEqual({ x: 10, y: 10, w: 20, h: 20 })
   })
 
-  it('collapses to zero-dimension when target is strictly outside (The Void)', () => {
-    // Target is to the left of the bounds with no shared edge
-    const target: Rect = {
-      x: -50,
-      y: 0,
-      w: 10,
-      h: 10,
-    }
-    const bounds: Rect = {
-      x: 0,
-      y: 0,
-      w: 100,
-      h: 100,
-    }
-
-    trimRectBounds(target, bounds)
-
-    // A non-intersecting rect should result in 0 width/height
-    // located at the nearest boundary edge
-    expect(target.w).toBe(0)
-    expect(target.h).toBe(0)
+  it('should clip negative x and y coordinates to zero', () => {
+    const result = trimRectBounds(-10, -10, 20, 20, TARGET_W, TARGET_H)
+    // x/y clamped to 0, width/height reduced by the amount clipped
+    expect(result).toEqual({ x: 0, y: 0, w: 10, h: 10 })
   })
 
-  it('maintains a 1px sliver on the boundary (The Gutter)', () => {
-    // Target overlaps the left edge by exactly 1 pixel
-    const target: Rect = {
-      x: -9,
-      y: 0,
-      w: 10,
-      h: 10,
-    }
-    const bounds: Rect = {
-      x: 0,
-      y: 0,
-      w: 100,
-      h: 100,
-    }
-
-    trimRectBounds(target, bounds)
-
-    expect(target.x).toBe(0)
-    expect(target.w).toBe(1)
+  it('should clip width and height if they exceed the target boundaries', () => {
+    const result = trimRectBounds(90, 90, 50, 50, TARGET_W, TARGET_H)
+    // Should stop at 100, so width and height become 10
+    expect(result).toEqual({ x: 90, y: 90, w: 10, h: 10 })
   })
 
-  it('correctly offsets the mask when only the top-left is trimmed', () => {
-    const selection = makeTestBinaryMaskRect(-1, -1, 2, 2, [
-      10, 20,
-      30, 40,
-    ])
-
-    const bounds: Rect = {
-      x: 0,
-      y: 0,
-      w: 100,
-      h: 100,
-    }
-
-    trimRectBounds(selection, bounds)
-
-    /**
-     * The intersection is a 1x1 rect at (0,0).
-     * The offset is (1, 1) into the original mask.
-     * Original mask index (1, 1) is the value 40.
-     */
-    expect(selection.w).toBe(1)
-    expect(selection.h).toBe(1)
-    expect(selection!.data[0]).toBe(40)
+  it('should return zero dimensions for a rectangle entirely outside (negative)', () => {
+    const result = trimRectBounds(-50, 10, 20, 20, TARGET_W, TARGET_H)
+    expect(result.w).toBe(0)
   })
 
-  it('handles "Inside-Out" bounds where target is larger than bounds', () => {
-    const target: Rect = {
-      x: -10,
-      y: -10,
-      w: 200,
-      h: 200,
-    }
-    const bounds: Rect = {
-      x: 0,
-      y: 0,
-      w: 50,
-      h: 50,
-    }
-
-    trimRectBounds(target, bounds)
-
-    // Result should exactly match the bounds
-    expect(target.x).toBe(bounds.x)
-    expect(target.y).toBe(bounds.y)
-    expect(target.w).toBe(bounds.w)
-    expect(target.h).toBe(bounds.h)
+  it('should return zero dimensions for a rectangle entirely outside (beyond target)', () => {
+    const result = trimRectBounds(110, 10, 10, 10, TARGET_W, TARGET_H)
+    expect(result.w).toBe(0)
   })
 
-  it('shrinks the rect to fit a small island of pixels within a larger mask', () => {
-    const w = 10
-    const h = 10
-    const mask = makeTestBinaryMask(w, h)
-
-    // Place a 2x2 square starting at local index (4,4)
-    // Row 4
-    mask.data[44] = 1
-    mask.data[45] = 1
-    // Row 5
-    mask.data[54] = 1
-    mask.data[55] = 1
-
-    const selection: BinaryMaskRect = {
-      x: 100,
-      y: 100,
-      w,
-      h,
-      type: MaskType.BINARY,
-      data: mask.data,
-    }
-
-    const container = {
-      x: 0,
-      y: 0,
-      w: 1000,
-      h: 1000,
-    }
-
-    trimRectBounds(
-      selection,
-      container,
-    )
-
-    // Verify coordinates shifted by the minX/minY found (4, 4)
-    expect(selection.x).toBe(104)
-    expect(selection.y).toBe(104)
-
-    // Verify dimensions became 2x2
-    expect(selection.w).toBe(2)
-    expect(selection.h).toBe(2)
-
-    // Verify mask was reallocated to the tight size
-    expect(selection.data!.length).toBe(4)
+  it('should handle zero-sized input rectangles correctly', () => {
+    const result = trimRectBounds(50, 50, 0, 0, TARGET_W, TARGET_H)
+    expect(result).toEqual({ x: 50, y: 50, w: 0, h: 0 })
   })
 
-  it('handles an entirely empty mask by setting dimensions to zero', () => {
-    const w = 10
-    const h = 10
-    const mask = makeTestBinaryMask(w, h)
+  it('should update and return the provided output object instead of creating a new one', () => {
+    const out = { x: 0, y: 0, w: 0, h: 0 }
+    const result = trimRectBounds(15, 15, 5, 5, TARGET_W, TARGET_H, out)
 
-    const selection: BinaryMaskRect = {
-      x: 10,
-      y: 10,
-      w,
-      h,
-      type: MaskType.BINARY,
-      data: mask.data,
-    }
-
-    trimRectBounds(
-      selection,
-      { x: 0, y: 0, w: 100, h: 100 },
-    )
-
-    expect(selection.w).toBe(0)
-    expect(selection.h).toBe(0)
-  })
-  it('covers empty intersection and zeroed mask', () => {
-    const mask = makeTestBinaryMask(10, 10)
-    const selection: BinaryMaskRect = {
-      x: 500, // Way outside 0-100 range
-      y: 500,
-      w: 10,
-      h: 10,
-      type: MaskType.BINARY,
-      data: mask.data,
-    }
-
-    const container = {
-      x: 0,
-      y: 0,
-      w: 100,
-      h: 100,
-    }
-
-    trimRectBounds(selection, container)
-
-    expect(selection.w).toBe(0)
-    expect(selection.data.length).toBe(0)
+    expect(result).toBe(out) // Referential equality
+    expect(out).toEqual({ x: 15, y: 15, w: 5, h: 5 })
   })
 })

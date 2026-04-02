@@ -1,7 +1,7 @@
 import type { ImageDataLike, IPixelData } from '../_types'
 import { imageDataToUInt32Array } from '../ImageData/imageDataToUInt32Array'
 
-export class PixelData<T extends ImageDataLike = ImageData> implements IPixelData {
+export class PixelData<T extends ImageDataLike = ImageData> implements IPixelData<T> {
   readonly data32: Uint32Array
   readonly imageData: T
   readonly width: number

@@ -1,9 +1,9 @@
-import type { BinaryMask, Color32, IPixelData, PixelBlendMaskOptions } from '../_types'
+import type { BinaryMask, Color32, IPixelData32, PixelBlendMaskOptions } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 
 export function blendPixelDataBinaryMask(
-  dst: IPixelData,
-  src: IPixelData,
+  dst: IPixelData32,
+  src: IPixelData32,
   binaryMask: BinaryMask,
   opts: PixelBlendMaskOptions = {},
 ): boolean {

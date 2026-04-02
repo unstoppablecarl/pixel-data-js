@@ -17,26 +17,16 @@ describe('PixelMutator', () => {
 
     const expected = [
       // @sort
-      'applyAlphaMask',
-      'applyBinaryMask',
-      'applyCircleBrushStroke',
-      'applyCircleMask',
-      'applyCirclePencil',
-      'applyCirclePencilStroke',
-      'applyRectBrush',
-      'applyRectBrushStroke',
-      'applyRectPencil',
-      'applyRectPencilStroke',
-      'blendColor',
-      'blendPixel',
-      'blendPixelData',
-      'blendPixelDataAlphaMask',
-      'blendPixelDataBinaryMask',
-      'clear',
-      'fill',
-      'fillBinaryMask',
-      'fillRect',
-      'invert',
+      "blendColor",
+      "blendPixel",
+      "blendPixelData",
+      "blendPixelDataAlphaMask",
+      "blendPixelDataBinaryMask",
+      "clear",
+      "fill",
+      "fillBinaryMask",
+      "fillRect",
+      "invert",
     ].sort()
 
     expect(Object.keys(mutator).sort()).toEqual(expected)

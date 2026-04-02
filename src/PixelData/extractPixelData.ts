@@ -1,4 +1,4 @@
-import type { IPixelData, Rect } from '../_types'
+import type { IPixelData32, Rect } from '../_types'
 import { extractPixelDataBuffer } from './extractPixelDataBuffer'
 import { PixelData } from './PixelData'
 
@@ -6,10 +6,10 @@ import { PixelData } from './PixelData'
  * High-level extraction that returns a new PixelData instance.
  * Leverages extractPixelDataBuffer for optimized 32-bit memory moves.
  */
-export function extractPixelData(source: IPixelData, rect: Rect): PixelData
-export function extractPixelData(source: IPixelData, x: number, y: number, w: number, h: number): PixelData
+export function extractPixelData(source: IPixelData32, rect: Rect): PixelData
+export function extractPixelData(source: IPixelData32, x: number, y: number, w: number, h: number): PixelData
 export function extractPixelData(
-  source: IPixelData,
+  source: IPixelData32,
   _x: Rect | number,
   _y?: number,
   _w?: number,

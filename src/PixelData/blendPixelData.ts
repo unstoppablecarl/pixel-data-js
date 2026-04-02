@@ -1,4 +1,4 @@
-import { type Color32, type IPixelData, type PixelBlendOptions } from '../_types'
+import { type Color32, type IPixelData32, type PixelBlendOptions } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 
 /**
@@ -16,8 +16,8 @@ import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
  * });
  */
 export function blendPixelData(
-  dst: IPixelData,
-  src: IPixelData,
+  dst: IPixelData32,
+  src: IPixelData32,
   opts: PixelBlendOptions = {},
 ): boolean {
   const {

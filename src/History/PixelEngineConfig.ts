@@ -1,4 +1,4 @@
-import type { IPixelData } from '../_types'
+import type { PixelData } from '../PixelData/PixelData'
 
 export class PixelEngineConfig {
   readonly tileSize: number
@@ -7,10 +7,11 @@ export class PixelEngineConfig {
   readonly tileShift: number
   readonly tileMask: number
   readonly tileArea: number
-  readonly target!: IPixelData
+  readonly target!: PixelData
   readonly targetColumns: number = 0
+  readonly targetRows: number = 0
 
-  constructor(tileSize: number, target: IPixelData) {
+  constructor(tileSize: number, target: PixelData) {
     // Ensure it's a power of 2 to guarantee bitwise math works
     if ((tileSize & (tileSize - 1)) !== 0) {
       throw new Error('tileSize must be a power of 2')
@@ -20,11 +21,8 @@ export class PixelEngineConfig {
     this.tileShift = 31 - Math.clz32(tileSize)
     this.tileMask = tileSize - 1
     this.tileArea = tileSize * tileSize
-    this.setTarget(target)
-  }
-
-  setTarget(target: IPixelData) {
-    ;(this as any).target = target
-    ;(this as any).targetColumns = (target.width + this.tileMask) >> this.tileShift
+    this.target = target
+    this.targetColumns = (target.width + this.tileMask) >> this.tileShift
+    this.targetRows = (target.height + this.tileMask) >> this.tileShift
   }
 }

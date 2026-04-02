@@ -1,4 +1,4 @@
-import type { AlphaMask, HistoryMutator, IPixelData, PixelBlendMaskOptions } from '../../_types'
+import type { AlphaMask, HistoryMutator, IPixelData32, PixelBlendMaskOptions } from '../../_types'
 import { blendPixelDataAlphaMask } from '../../PixelData/blendPixelDataAlphaMask'
 import { PixelWriter } from '../PixelWriter'
 
@@ -15,7 +15,7 @@ export const mutatorBlendPixelDataAlphaMask = ((writer: PixelWriter<any>, deps: 
 
   return {
     blendPixelDataAlphaMask(
-      src: IPixelData,
+      src: IPixelData32,
       mask: AlphaMask,
       opts: PixelBlendMaskOptions = {},
     ): boolean {

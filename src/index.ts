@@ -30,19 +30,6 @@ export * from './History/PixelWriter'
 
 export * from './History/PixelMutator/mutatorApplyAlphaMask'
 export * from './History/PixelMutator/mutatorApplyBinaryMask'
-
-export * from './History/PixelMutator/mutatorApplyCircleBrushStroke'
-export * from './History/PixelMutator/mutatorBlendColorCircleMask'
-
-export * from './History/PixelMutator/mutatorApplyCirclePencil'
-export * from './History/PixelMutator/mutatorApplyCirclePencilStroke'
-
-export * from './History/PixelMutator/mutatorApplyRectPencil'
-export * from './History/PixelMutator/mutatorApplyRectPencilStroke'
-
-export * from './History/PixelMutator/mutatorApplyRectBrush'
-export * from './History/PixelMutator/mutatorApplyRectBrushStroke'
-
 export * from './History/PixelMutator/mutatorBlendColor'
 export * from './History/PixelMutator/mutatorBlendPixel'
 export * from './History/PixelMutator/mutatorBlendPixelData'
@@ -83,9 +70,6 @@ export * from './Input/getSupportedRasterFormats'
 export * from './Mask/AlphaMask'
 export * from './Mask/BinaryMask'
 
-export * from './Mask/CircleAlphaMask'
-export * from './Mask/CircleBinaryMask'
-
 export * from './Mask/applyBinaryMaskToAlphaMask'
 export * from './Mask/copyMask'
 export * from './Mask/extractMask'
@@ -101,10 +85,8 @@ export * from './MaskRect/subtractBinaryMaskRects'
 
 export * from './PixelData/applyAlphaMaskToPixelData'
 export * from './PixelData/applyBinaryMaskToPixelData'
-export * from './PixelData/blendColorPixelDataCircleMask'
 export * from './PixelData/PixelData'
 
-export * from './PixelData/applyRectBrushToPixelData'
 export * from './PixelData/blendColorPixelData'
 export * from './PixelData/blendColorPixelDataAlphaMask'
 export * from './PixelData/blendColorPixelDataBinaryMask'
@@ -126,17 +108,20 @@ export * from './PixelData/pixelDataToAlphaMask'
 export * from './PixelData/reflectPixelData'
 export * from './PixelData/resamplePixelData'
 export * from './PixelData/rotatePixelData'
+export * from './PixelData/writePaintBufferToPixelData'
 export * from './PixelData/writePixelDataBuffer'
 
-export * from './Rect/getCircleBrushOrPencilBounds'
-export * from './Rect/getCircleBrushOrPencilStrokeBounds'
-export * from './Rect/getRectBrushOrPencilBounds'
-export * from './Rect/getRectBrushOrPencilStrokeBounds'
 export * from './Rect/getRectsBounds'
+export * from './Rect/trimMaskRectBounds'
 export * from './Rect/trimRectBounds'
 
-export * from './PixelTile/PaintBuffer'
-export * from './PixelTile/PaintBufferRenderer'
+export * from './Paint/makeCirclePaintAlphaMask'
+export * from './Paint/makeCirclePaintBinaryMask'
+export * from './Paint/makePaintMask'
+export * from './Paint/makeRectFalloffPaintAlphaMask'
+export * from './Paint/PaintBuffer'
+export * from './Paint/PaintBufferCanvasRenderer'
+
 export * from './PixelTile/PixelTile'
 export * from './PixelTile/PixelTilePool'
 

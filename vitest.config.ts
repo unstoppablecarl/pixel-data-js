@@ -16,7 +16,10 @@ export default defineConfig({
       reporter: ['text', 'lcovonly', 'html'],
       all: true,
       include: ['src/**/*'],
-      exclude: ['tests/**/*.ts'],
+      exclude: [
+        'tests/**/*.ts',
+        'src/Canvas/canvas-blend-modes.ts'
+      ],
     },
     // Typecheck is usually best run once across the whole workspace
     typecheck: {

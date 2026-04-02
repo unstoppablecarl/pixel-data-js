@@ -1,4 +1,4 @@
-import type { BinaryMaskRect, Color32, IPixelData } from '../_types'
+import type { BinaryMaskRect, Color32, IPixelData32 } from '../_types'
 import { fillPixelDataFast } from './fillPixelDataFast'
 
 /**
@@ -6,7 +6,7 @@ import { fillPixelDataFast } from './fillPixelDataFast'
  * Internally uses the optimized fillPixelData.
  */
 export function clearPixelData(
-  dst: IPixelData,
+  dst: IPixelData32,
   rect?: Partial<BinaryMaskRect>,
 ): void {
   fillPixelDataFast(dst, 0 as Color32, rect)

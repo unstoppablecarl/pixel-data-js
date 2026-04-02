@@ -1,14 +1,13 @@
 import { CANVAS_CTX_FAILED } from '../Canvas/_constants'
 import type { PaintBuffer } from './PaintBuffer'
 
-export type PaintBufferRenderer = ReturnType<typeof makePaintBufferRenderer>
+export type PaintBufferCanvasRenderer = ReturnType<typeof makePaintBufferCanvasRenderer>
 
 /**
  *
- * @param paintBuffer
  * @param offscreenCanvasClass - @internal
  */
-export function makePaintBufferRenderer(
+export function makePaintBufferCanvasRenderer(
   paintBuffer: PaintBuffer,
   offscreenCanvasClass = OffscreenCanvas,
 ) {
@@ -22,8 +21,14 @@ export function makePaintBufferRenderer(
   ctx.imageSmoothingEnabled = false
 
   return function drawPaintBuffer(
-    target: CanvasRenderingContext2D,
+    targetCtx: CanvasRenderingContext2D,
+    alpha = 255,
+    compOperation: GlobalCompositeOperation = 'source-over',
   ): void {
+
+    targetCtx.globalAlpha = alpha / 255
+    targetCtx.globalCompositeOperation = compOperation
+
     for (let i = 0; i < lookup.length; i++) {
       const tile = lookup[i]
 
@@ -33,8 +38,11 @@ export function makePaintBufferRenderer(
 
         ctx.putImageData(tile.imageData, 0, 0)
 
-        target.drawImage(canvas, dx, dy)
+        targetCtx.drawImage(canvas, dx, dy)
       }
     }
+
+    targetCtx.globalAlpha = 1
+    targetCtx.globalCompositeOperation = 'source-over'
   }
 }

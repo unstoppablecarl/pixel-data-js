@@ -1,10 +1,10 @@
-import { type IPixelData, type PixelMutateOptions } from '../_types'
+import { type IPixelData32, type PixelMutateOptions } from '../_types'
 import { makeClippedRect, resolveRectClipping } from '../Internal/resolveClipping'
 
 const SCRATCH_RECT = makeClippedRect()
 
 export function invertPixelData(
-  pixelData: IPixelData,
+  pixelData: IPixelData32,
   opts: PixelMutateOptions = {},
 ): boolean {
   const dst = pixelData

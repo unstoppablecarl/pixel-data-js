@@ -313,6 +313,30 @@ describe('PixelAccumulator', () => {
     })
   })
 
+  it('recyclePatch should release both before and after tiles to the pool', () => {
+    const config = {} as any
+    const releaseTiles = vi.fn()
+    const tilePool = {
+      releaseTiles: releaseTiles,
+    } as any
+    const accumulator = new PixelAccumulator(config, tilePool)
+    const patch = {
+      beforeTiles: [
+        'before-1',
+        'before-2',
+      ],
+      afterTiles: [
+        'after-1',
+      ],
+    } as any
+
+    accumulator.recyclePatch(patch)
+    expect(releaseTiles.mock.calls).toEqual([
+      [['before-1', 'before-2']],
+      [['after-1']],
+    ])
+  })
+
   describe('rollback', () => {
     it('should physically restore pixels, clear arrays, and release to pool', () => {
       // 1. Store state
@@ -327,7 +351,7 @@ describe('PixelAccumulator', () => {
       expect(target.data32[1 * IMAGE_WIDTH + 1]).toBe(newValue)
 
       // 3. Hard rollback (e.g. user pressed Escape)
-      accumulator.rollback()
+      accumulator.rollbackAfterError()
 
       // 4. Verify physical canvas restoration
       expect(target.data32[1 * IMAGE_WIDTH + 1]).toBe(originalValue)
@@ -338,4 +362,100 @@ describe('PixelAccumulator', () => {
       expect(tilePool.pool.length).toBe(1) // Returned the captured tile to pool
     })
   })
+
+  describe('storeTileBeforeState', () => {
+    let config: any
+    let tilePool: any
+    let accumulator: any
+    let mockTile: any
+
+    beforeEach(() => {
+      config = {
+        target: { width: 32, height: 32 },
+        tileSize: 8,
+        tileShift: 3,
+        targetColumns: 4,
+      }
+
+      mockTile = {
+        id: 5,
+        tx: 1,
+        ty: 1,
+        data32: new Uint32Array(64),
+      }
+
+      tilePool = {
+        getTile: vi.fn().mockReturnValue(mockTile),
+        releaseTile: vi.fn(),
+        releaseTiles: vi.fn(),
+      }
+
+      accumulator = new PixelAccumulator(config, tilePool)
+
+      // Spy on extractState to avoid running the complex canvas math during state tests
+      vi.spyOn(accumulator, 'extractState').mockImplementation(() => {
+      })
+    })
+
+    it('should fetch a new tile, extract state, and store it if not present', () => {
+      const didChange = accumulator.storeTileBeforeState(5, 1, 1)
+
+      expect(tilePool.getTile).toHaveBeenCalledWith(5, 1, 1)
+      expect(accumulator.extractState).toHaveBeenCalledWith(mockTile)
+      expect(accumulator.lookup[5]).toBe(mockTile)
+      expect(accumulator.beforeTiles).toContain(mockTile)
+      expect(typeof didChange).toBe('function')
+    })
+
+    it('should keep the tile in the accumulator if the callback is called with true', () => {
+      const didChange = accumulator.storeTileBeforeState(5, 1, 1)
+
+      const result = didChange(true)
+
+      expect(result).toBe(true)
+      expect(accumulator.lookup[5]).toBe(mockTile)
+      expect(accumulator.beforeTiles).toContain(mockTile)
+      expect(tilePool.releaseTile).not.toHaveBeenCalled()
+    })
+
+    it('should remove and release the tile if the callback is called with false', () => {
+      const didChange = accumulator.storeTileBeforeState(5, 1, 1)
+
+      const result = didChange(false)
+
+      expect(result).toBe(false)
+      expect(accumulator.lookup[5]).toBeUndefined()
+      expect(accumulator.beforeTiles).not.toContain(mockTile)
+      expect(tilePool.releaseTile).toHaveBeenCalledWith(mockTile)
+    })
+
+    it('should not add a duplicate tile if it already existed in the lookup', () => {
+      // Pre-populate the accumulator manually
+      accumulator.lookup[5] = mockTile
+      accumulator.beforeTiles.push(mockTile)
+
+      accumulator.storeTileBeforeState(5, 1, 1)
+
+      // Should not have fetched a new one or extracted state
+      expect(tilePool.getTile).not.toHaveBeenCalled()
+      expect(accumulator.extractState).not.toHaveBeenCalled()
+      expect(accumulator.beforeTiles.length).toBe(1) // Still just the original one
+    })
+
+    it('should not release the tile on rollback if it existed before this operation', () => {
+      accumulator.lookup[5] = mockTile
+      accumulator.beforeTiles.push(mockTile)
+
+      const didChange = accumulator.storeTileBeforeState(5, 1, 1)
+
+      // Rollback this specific action
+      didChange(false)
+
+      // The tile should still remain because it was added by a previous action
+      expect(accumulator.lookup[5]).toBe(mockTile)
+      expect(accumulator.beforeTiles).toContain(mockTile)
+      expect(tilePool.releaseTile).not.toHaveBeenCalled()
+    })
+  })
+
 })

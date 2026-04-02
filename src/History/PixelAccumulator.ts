@@ -111,6 +111,29 @@ export class PixelAccumulator {
     }
   }
 
+  storeTileBeforeState(id: number, tx: number, ty: number): DidChangeFn {
+    let tile = this.lookup[id]
+    let added = false
+
+    if (!tile) {
+      tile = this.tilePool.getTile(id, tx, ty)
+
+      this.extractState(tile)
+      this.lookup[id] = tile
+      this.beforeTiles.push(tile)
+      added = true
+    }
+
+    return (didChange: boolean) => {
+      if (!didChange && added) {
+        this.beforeTiles.pop()
+        this.lookup[id] = undefined
+        this.tilePool.releaseTile(tile!)
+      }
+      return didChange
+    }
+  }
+
   extractState(tile: PixelTile) {
     const target = this.config.target
     const TILE_SIZE = this.config.tileSize
@@ -184,7 +207,7 @@ export class PixelAccumulator {
     }
   }
 
-  rollback() {
+  rollbackAfterError() {
     const target = this.config.target
     const tileSize = this.config.tileSize
     const length = this.beforeTiles.length

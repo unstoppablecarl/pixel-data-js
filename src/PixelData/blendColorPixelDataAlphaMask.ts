@@ -1,4 +1,4 @@
-import type { AlphaMask, Color32, ColorBlendMaskOptions, IPixelData } from '../_types'
+import type { AlphaMask, Color32, ColorBlendMaskOptions, IPixelData32 } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 
 /**
@@ -8,14 +8,14 @@ import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
  * If the width (`w`) or height (`h`) are omitted from the options, they will safely
  * default to the dimensions of the provided mask to prevent out-of-bounds memory access.
  *
- * @param dst - The destination {@link IPixelData} buffer to modify.
+ * @param dst - The destination {@link IPixelData32} buffer to modify.
  * @param color - The solid color to apply.
  * @param mask - The mask defining the per-pixel opacity of the target area.
  * @param opts - Configuration options including placement coordinates, bounds, global alpha, and mask offsets.
  * @returns true if any pixels were actually modified.
  */
 export function blendColorPixelDataAlphaMask(
-  dst: IPixelData,
+  dst: IPixelData32,
   color: Color32,
   mask: AlphaMask,
   opts: ColorBlendMaskOptions = {},

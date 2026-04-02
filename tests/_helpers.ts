@@ -6,10 +6,13 @@ import {
   type Color32,
   type ImageDataLike,
   type ImageDataLikeConstructor,
-  type IPixelData,
+  type IPixelData32,
   makeAlphaMask,
   makeBinaryMask,
+  PaintBuffer,
   PixelData,
+  PixelEngineConfig,
+  PixelTilePool,
   type RGBA,
   unpackAlpha,
   unpackBlue,
@@ -345,7 +348,25 @@ export function printAlphaMaskGrid(dst: AlphaMask, sep = ', '): void {
   }
 }
 
-export function printPixelDataGrid(dst: IPixelData): void {
+export function printPixelDataGrid(dst: IPixelData32, sep = ', '): void {
+  const w = dst.width
+  const h = dst.height
+  const data = dst.data32
+
+  for (let y = 0; y < h; y++) {
+    let rowString = ''
+
+    for (let x = 0; x < w; x++) {
+      const index = y * w + x
+      const pixel = data[index]
+      rowString += ('' + pixel).padStart(8, ' ') + sep
+    }
+
+    console.log(rowString)
+  }
+}
+
+export function printPixelDataGridColor(dst: IPixelData32): void {
   const w = dst.width
   const h = dst.height
   const data = dst.data32
@@ -363,7 +384,7 @@ export function printPixelDataGrid(dst: IPixelData): void {
   }
 }
 
-export function printPixelDataTable(dst: IPixelData): void {
+export function printPixelDataTable(dst: IPixelData32): void {
   const w = dst.width
   const h = dst.height
   const data = dst.data32
@@ -410,4 +431,18 @@ export function copyPixelData<T extends ImageDataLike = ImageData>(target: Pixel
   }
 
   return new PixelData<T>(newImageData)
+}
+
+export function makeTestPaintBuffer(tileSize: number, w = 2, h = 2) {
+  const target = makeTestPixelData(tileSize * w, tileSize * h)
+  const config = new PixelEngineConfig(tileSize, target)
+  const tilePool = new PixelTilePool(config)
+  const paintBuffer = new PaintBuffer(config, tilePool)
+
+  return {
+    target,
+    config,
+    tilePool,
+    paintBuffer,
+  }
 }

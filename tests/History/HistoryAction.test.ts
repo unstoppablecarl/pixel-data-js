@@ -1,9 +1,9 @@
-import { type IPixelData, makeHistoryAction, PixelWriter } from '@/index'
+import { type IPixelData32, makeHistoryAction, PixelWriter } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeTestPixelData } from '../_helpers'
 
 describe('makeHistoryAction', () => {
-  let target: IPixelData
+  let target: IPixelData32
   const tileSize = 16
   let writer: PixelWriter<any>
 

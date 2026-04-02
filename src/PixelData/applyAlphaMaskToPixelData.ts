@@ -1,4 +1,4 @@
-import { type AlphaMask, type ApplyMaskToPixelDataOptions, type Color32, type IPixelData } from '../_types'
+import { type AlphaMask, type ApplyMaskToPixelDataOptions, type Color32, type IPixelData32 } from '../_types'
 
 /**
  * Directly applies a mask to a region of PixelData,
@@ -6,7 +6,7 @@ import { type AlphaMask, type ApplyMaskToPixelDataOptions, type Color32, type IP
  * @returns true if any pixels were actually modified.
  */
 export function applyAlphaMaskToPixelData(
-  dst: IPixelData,
+  dst: IPixelData32,
   mask: AlphaMask,
   opts: ApplyMaskToPixelDataOptions = {},
 ): boolean {

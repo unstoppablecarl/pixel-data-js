@@ -13,6 +13,7 @@ describe('PixelEngineConfig', () => {
     expect(config.tileMask).toBe(127) // 128 - 1
     expect(config.tileArea).toBe(16384) // 128 * 128
     expect(config.targetColumns).toBe(1)
+    expect(config.targetRows).toBe(1)
     expect(config.target).toBe(target) // 128 * 128
 
   })
@@ -31,5 +32,7 @@ describe('PixelEngineConfig', () => {
     expect(config.tileShift).toBe(0)
     expect(config.tileMask).toBe(0)
     expect(config.tileArea).toBe(1)
+    expect(config.targetColumns).toBe(10)
+    expect(config.targetRows).toBe(10)
   })
 })

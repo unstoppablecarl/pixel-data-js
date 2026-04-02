@@ -2,7 +2,7 @@ import { type BinaryMaskRect, type Color32, type ImageDataLike, MaskType, type R
 import { colorDistance } from '../color'
 import { extractImageDataBuffer } from '../ImageData/extractImageDataBuffer'
 import type { PixelData } from '../PixelData/PixelData'
-import { trimRectBounds } from '../Rect/trimRectBounds'
+import { trimMaskRectBounds } from '../Rect/trimMaskRectBounds'
 
 export type FloodFillImageDataOptions = {
   contiguous?: boolean
@@ -205,7 +205,7 @@ export function floodFillSelection(
     }
   }
 
-  trimRectBounds(
+  trimMaskRectBounds(
     selectionRect,
     { x: 0, y: 0, w: width, h: height },
   )

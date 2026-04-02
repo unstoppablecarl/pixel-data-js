@@ -80,19 +80,18 @@ export interface AlphaMask extends Mask {
   readonly type: MaskType.ALPHA
 }
 
-interface BaseCircleMask {
-  readonly size: number
-  readonly radius: number
-  readonly minOffset: number
+interface BasePaintMask {
+  readonly centerOffsetX: number
+  readonly centerOffsetY: number
 }
 
-export interface CircleAlphaMask extends BaseCircleMask, AlphaMask {
+export interface PaintAlphaMask extends BasePaintMask, AlphaMask {
 }
 
-export interface CircleBinaryMask extends BaseCircleMask, BinaryMask {
+export interface PaintBinaryMask extends BasePaintMask, BinaryMask {
 }
 
-export type CircleMask = CircleAlphaMask | CircleBinaryMask
+export type PaintMask = PaintAlphaMask | PaintBinaryMask
 
 /**
  * Configuration for pixel manipulation operations.
@@ -192,7 +191,6 @@ export interface BasePixelBlendOptions {
 }
 
 export interface PixelBlendOptions extends PixelRect, Alpha, BasePixelBlendOptions {
-
 }
 
 export interface PixelBlendMaskOptions extends PixelRect, Alpha, MaskOffset, InvertMask, BasePixelBlendOptions {
@@ -212,15 +210,14 @@ export interface ColorBlendOptions extends PixelRect, Alpha {
 export interface ColorBlendMaskOptions extends ColorBlendOptions, MaskOffset, InvertMask {
 }
 
-export type BinaryMaskRect = Rect & {
-  type: MaskType.BINARY
+export type MaskRect<T extends MaskType> = Rect & {
+  type: T
   data: Uint8Array
 }
 
-export type AlphaMaskRect = Rect & {
-  type: MaskType.ALPHA
-  data: Uint8Array
-}
+export type BinaryMaskRect = MaskRect<MaskType.BINARY>
+
+export type AlphaMaskRect = MaskRect<MaskType.ALPHA>
 
 export type NullableBinaryMaskRect = Rect & ({
   type: MaskType.BINARY
@@ -240,8 +237,12 @@ export type NullableMaskRect = Rect & ({
 
 export type HistoryMutator<T extends {}, D extends {}> = (writer: PixelWriter<any>, deps?: Partial<D>) => T
 
-export interface IPixelData {
+export interface IPixelData32 {
   readonly data32: Uint32Array
   readonly width: number
   readonly height: number
+}
+
+export interface IPixelData<T extends ImageDataLike = ImageData> extends IPixelData32 {
+  readonly imageData: T
 }

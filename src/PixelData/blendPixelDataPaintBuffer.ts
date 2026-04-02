@@ -1,6 +1,6 @@
-import type { BlendColor32, IPixelData } from '../_types'
+import type { BlendColor32, IPixelData32 } from '../_types'
 import { blendPixelData } from './blendPixelData'
-import type { PaintBuffer } from '../PixelTile/PaintBuffer'
+import type { PaintBuffer } from '../Paint/PaintBuffer'
 
 const SCRATCH_OPTS = {
   x: 0,
@@ -11,7 +11,7 @@ const SCRATCH_OPTS = {
 
 export function blendPixelDataPaintBuffer(
   paintBuffer: PaintBuffer,
-  target: IPixelData,
+  target: IPixelData32,
   alpha = 255,
   blendFn?: BlendColor32,
   blendPixelDataFn = blendPixelData,
