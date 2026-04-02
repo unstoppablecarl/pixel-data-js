@@ -3,24 +3,9 @@ import { fillPixelDataBinaryMask, makeBinaryMask } from '@/index'
 import { describe, expect, it } from 'vitest'
 import { getPixel, makeTestPixelData, pack } from '../_helpers'
 
-const RED = pack(
-  255,
-  0,
-  0,
-  255,
-)
-const BLUE = pack(
-  0,
-  0,
-  255,
-  255,
-)
-const COLOR = pack(
-  255,
-  255,
-  255,
-  255,
-)
+const RED = pack(255, 0, 0, 255)
+const BLUE = pack(0, 0, 255, 255)
+const COLOR = pack(255, 255, 255, 255)
 
 describe('fillPixelDataBinaryMask', () => {
   describe('Guard Conditions & Early Exits', () => {
@@ -28,7 +13,7 @@ describe('fillPixelDataBinaryMask', () => {
       const dst = makeTestPixelData(1, 1, BLUE)
       const mask = makeBinaryMask(2, 2)
 
-      fillPixelDataBinaryMask(
+      const result = fillPixelDataBinaryMask(
         dst,
         RED,
         mask,
@@ -37,6 +22,7 @@ describe('fillPixelDataBinaryMask', () => {
         10,
       )
 
+      expect(result).toBe(false)
       expect(dst.data32[0]).toBe(BLUE)
     })
   })
@@ -47,9 +33,7 @@ describe('fillPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(2, 2)
       mask.data.fill(1)
 
-      // Negative offset: fill a 2x2 starting at -1,-1
-      // Only dst[0,0] is covered
-      fillPixelDataBinaryMask(
+      const result = fillPixelDataBinaryMask(
         dst,
         RED,
         mask,
@@ -58,6 +42,7 @@ describe('fillPixelDataBinaryMask', () => {
         -1,
       )
 
+      expect(result).toBe(true)
       expect(dst.data32[0]).toBe(RED)
       expect(dst.data32[3]).toBe(BLUE)
     })
@@ -67,7 +52,7 @@ describe('fillPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(10, 10)
       mask.data.fill(1)
 
-      fillPixelDataBinaryMask(
+      const result = fillPixelDataBinaryMask(
         dst,
         RED,
         mask,
@@ -76,6 +61,7 @@ describe('fillPixelDataBinaryMask', () => {
         1,
       )
 
+      expect(result).toBe(true)
       expect(dst.data32[3]).toBe(RED)
       expect(dst.data32[0]).toBe(BLUE)
     })
@@ -85,7 +71,7 @@ describe('fillPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(2, 2)
       mask.data.fill(1)
 
-      fillPixelDataBinaryMask(
+      const result = fillPixelDataBinaryMask(
         dst,
         RED,
         mask,
@@ -94,10 +80,9 @@ describe('fillPixelDataBinaryMask', () => {
         0,
       )
 
-      // dst[0,0] and dst[0,1] (left column) should be RED
+      expect(result).toBe(true)
       expect(dst.data32[0]).toBe(RED)
       expect(dst.data32[2]).toBe(RED)
-      // Right column remains BLUE
       expect(dst.data32[1]).toBe(BLUE)
     })
 
@@ -106,7 +91,7 @@ describe('fillPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(2, 2)
       mask.data.fill(1)
 
-      fillPixelDataBinaryMask(
+      const result = fillPixelDataBinaryMask(
         dst,
         RED,
         mask,
@@ -115,10 +100,9 @@ describe('fillPixelDataBinaryMask', () => {
         -1,
       )
 
-      // dst[0,0] and dst[1,0] (top row) should be RED
+      expect(result).toBe(true)
       expect(dst.data32[0]).toBe(RED)
       expect(dst.data32[1]).toBe(RED)
-      // Bottom row remains BLUE
       expect(dst.data32[2]).toBe(BLUE)
     })
   })
@@ -136,7 +120,7 @@ describe('fillPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(drawW, drawH)
       mask.data.fill(1)
 
-      fillPixelDataBinaryMask(
+      const result = fillPixelDataBinaryMask(
         dst,
         RED,
         mask,
@@ -145,6 +129,7 @@ describe('fillPixelDataBinaryMask', () => {
         targetY,
       )
 
+      expect(result).toBe(true)
       for (let dy = 0; dy < DH; dy++) {
         for (let dx = 0; dx < DW; dx++) {
           const isInside = dx >= targetX && dx < targetX + drawW && dy >= targetY && dy < targetY + drawH
@@ -164,7 +149,7 @@ describe('fillPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(10, 1)
       mask.data.fill(1)
 
-      fillPixelDataBinaryMask(
+      const result = fillPixelDataBinaryMask(
         dst,
         RED,
         mask,
@@ -173,12 +158,9 @@ describe('fillPixelDataBinaryMask', () => {
         1,
       )
 
-      // Row 1: (1,1) and (2,1) should be RED
+      expect(result).toBe(true)
       expect(dst.data32[4]).toBe(RED)
       expect(dst.data32[5]).toBe(RED)
-
-      // Row 2: (0,2) should still be BLUE.
-      // This confirms we didn't fill past the row end.
       expect(dst.data32[6]).toBe(BLUE)
     })
 
@@ -187,7 +169,7 @@ describe('fillPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(5, 5)
       mask.data.fill(1)
 
-      fillPixelDataBinaryMask(
+      const result = fillPixelDataBinaryMask(
         dst,
         RED,
         mask,
@@ -196,6 +178,7 @@ describe('fillPixelDataBinaryMask', () => {
         0,
       )
 
+      expect(result).toBe(true)
       const allRed = Array.from(dst.data32).every((val) => val === RED)
       expect(allRed).toBe(true)
     })
@@ -208,8 +191,9 @@ describe('fillPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(100, 100)
       mask.data.fill(1)
 
-      fillPixelDataBinaryMask(dst, color, mask)
+      const result = fillPixelDataBinaryMask(dst, color, mask)
 
+      expect(result).toBe(true)
       const pixelAtOrigin = getPixel(dst, 0, 0)
       const pixelAtEnd = getPixel(dst, 99, 99)
 
@@ -229,7 +213,7 @@ describe('fillPixelDataBinaryMask', () => {
         1, 1, 0,
       ])
 
-      fillPixelDataBinaryMask(
+      const result = fillPixelDataBinaryMask(
         dst,
         COLOR,
         mask,
@@ -239,6 +223,7 @@ describe('fillPixelDataBinaryMask', () => {
       )
 
       const C = COLOR
+      expect(result).toBe(true)
       expect(Array.from(dst.data32)).toEqual([
         0, 0, 0, 0, 0,
         0, C, C, C, 0,
@@ -258,7 +243,7 @@ describe('fillPixelDataBinaryMask', () => {
         1, 1, 0,
       ])
 
-      fillPixelDataBinaryMask(
+      const result = fillPixelDataBinaryMask(
         dst,
         COLOR,
         mask,
@@ -268,6 +253,7 @@ describe('fillPixelDataBinaryMask', () => {
       )
 
       const C = COLOR
+      expect(result).toBe(true)
       expect(Array.from(dst.data32)).toEqual([
         0, C, 0, 0, 0,
         C, 0, 0, 0, 0,
@@ -284,7 +270,7 @@ describe('fillPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(1, 1)
       mask.data.fill(1)
 
-      fillPixelDataBinaryMask(
+      const result = fillPixelDataBinaryMask(
         dst,
         RED,
         mask,
@@ -293,6 +279,7 @@ describe('fillPixelDataBinaryMask', () => {
         0,
       )
 
+      expect(result).toBe(false)
       expect(dst.data32[0]).toBe(BLUE)
     })
 
@@ -301,14 +288,9 @@ describe('fillPixelDataBinaryMask', () => {
       const mask = makeBinaryMask(1, 1)
       mask.data.fill(1)
 
-      const expectedRedWithAlpha = pack(
-        255,
-        0,
-        0,
-        128,
-      )
+      const expectedRedWithAlpha = pack(255, 0, 0, 128)
 
-      fillPixelDataBinaryMask(
+      const result = fillPixelDataBinaryMask(
         dst,
         RED,
         mask,
@@ -317,7 +299,18 @@ describe('fillPixelDataBinaryMask', () => {
         0,
       )
 
+      expect(result).toBe(true)
       expect(dst.data32[0]).toBe(expectedRedWithAlpha)
     })
+  })
+
+  it('returns false when no pixels are changed (already match)', () => {
+    const dst = makeTestPixelData(2, 2, RED)
+    const mask = makeBinaryMask(2, 2)
+    mask.data.fill(1)
+
+    const result = fillPixelDataBinaryMask(dst, RED, mask)
+
+    expect(result).toBe(false)
   })
 })

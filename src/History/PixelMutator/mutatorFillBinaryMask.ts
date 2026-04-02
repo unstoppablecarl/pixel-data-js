@@ -21,8 +21,10 @@ export const mutatorFillBinaryMask = ((writer: PixelWriter<any>, deps: Deps = de
       x = 0,
       y = 0,
     ) {
-      writer.accumulator.storeRegionBeforeState(x, y, mask.w, mask.h)
-      fillPixelDataBinaryMask(writer.config.target, color, mask, alpha, x, y)
+      const didChange = writer.accumulator.storeRegionBeforeState(x, y, mask.w, mask.h)
+      return didChange(
+        fillPixelDataBinaryMask(writer.config.target, color, mask, alpha, x, y),
+      )
     },
   }
 }) satisfies HistoryMutator<any, Deps>

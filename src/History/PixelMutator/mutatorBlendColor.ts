@@ -17,7 +17,7 @@ export const mutatorBlendColor = ((writer: PixelWriter<any>, deps: Deps = defaul
     blendColor(
       color: Color32,
       opts: ColorBlendOptions = {},
-    ) {
+    ): boolean {
       const target = writer.config.target
       const {
         x = 0,
@@ -25,8 +25,10 @@ export const mutatorBlendColor = ((writer: PixelWriter<any>, deps: Deps = defaul
         w = target.width,
         h = target.height,
       } = opts
-      writer.accumulator.storeRegionBeforeState(x, y, w, h)
-      blendColorPixelData(target, color, opts)
+      const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
+      return didChange(
+        blendColorPixelData(target, color, opts),
+      )
     },
   }
 }) satisfies HistoryMutator<any, Deps>

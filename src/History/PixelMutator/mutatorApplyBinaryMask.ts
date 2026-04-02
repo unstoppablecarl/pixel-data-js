@@ -17,7 +17,7 @@ export const mutatorApplyBinaryMask = ((writer: PixelWriter<any>, deps: Deps = d
   } = deps
 
   return {
-    applyBinaryMask: (mask: BinaryMask, opts: ApplyMaskToPixelDataOptions = {}) => {
+    applyBinaryMask(mask: BinaryMask, opts: ApplyMaskToPixelDataOptions = {}): boolean {
       let target = writer.config.target
       const {
         x = 0,
@@ -26,8 +26,8 @@ export const mutatorApplyBinaryMask = ((writer: PixelWriter<any>, deps: Deps = d
         h = target.height,
       } = opts
 
-      writer.accumulator.storeRegionBeforeState(x, y, w, h)
-      applyBinaryMaskToPixelData(target, mask, opts)
+      const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
+      return didChange(applyBinaryMaskToPixelData(target, mask, opts))
     },
   }
 }) satisfies HistoryMutator<any, Deps>

@@ -5,6 +5,7 @@ import {
   type BinaryMaskRect,
   type Color32,
   type ImageDataLike,
+  type ImageDataLikeConstructor,
   type IPixelData,
   makeAlphaMask,
   makeBinaryMask,
@@ -384,4 +385,29 @@ export function printPixelDataTable(dst: IPixelData): void {
   }
 
   console.table(grid)
+}
+
+export function copyPixelData<T extends ImageDataLike = ImageData>(target: PixelData<T>): PixelData<T> {
+  const data = target.imageData.data
+  const buffer = new Uint8ClampedArray(data)
+  const Ctor = target.imageData.constructor
+  const isCtorValid = typeof Ctor === 'function'
+
+  let newImageData: T
+  if (isCtorValid && Ctor !== Object) {
+    const ImageConstructor = Ctor as ImageDataLikeConstructor<T>
+    newImageData = new ImageConstructor(
+      buffer,
+      target.width,
+      target.height,
+    )
+  } else {
+    newImageData = {
+      width: target.width,
+      height: target.height,
+      data: buffer,
+    } as unknown as T
+  }
+
+  return new PixelData<T>(newImageData)
 }

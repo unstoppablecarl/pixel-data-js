@@ -19,8 +19,8 @@ export function fillPixelDataBinaryMask(
   alpha = 255,
   x = 0,
   y = 0,
-): void {
-  if (alpha === 0) return
+): boolean {
+  if (alpha === 0) return false
 
   const maskW = mask.w
   const maskH = mask.h
@@ -35,7 +35,7 @@ export function fillPixelDataBinaryMask(
     SCRATCH_RECT,
   )
 
-  if (!clip.inBounds) return
+  if (!clip.inBounds) return false
 
   const {
     x: finalX,
@@ -59,6 +59,8 @@ export function fillPixelDataBinaryMask(
     finalCol = ((colorRGB | (a << 24)) >>> 0) as Color32
   }
 
+  let hasChanged = false
+
   for (let iy = 0; iy < actualH; iy++) {
     const currentY = finalY + iy
     const maskY = currentY - y
@@ -72,8 +74,14 @@ export function fillPixelDataBinaryMask(
       const maskIndex = maskOffset + maskX
 
       if (maskData[maskIndex]) {
-        dst32[dstRowOffset + currentX] = finalCol
+        const current = dst32[dstRowOffset + currentX]
+        if (current !== finalCol) {
+          dst32[dstRowOffset + currentX] = finalCol
+          hasChanged = true
+        }
       }
     }
   }
+
+  return hasChanged
 }

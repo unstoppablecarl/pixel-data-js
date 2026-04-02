@@ -3,7 +3,7 @@ import { type ApplyMaskToPixelDataOptions, type BinaryMask, type IPixelData } fr
 /**
  * Directly applies a mask to a region of PixelData,
  * modifying the destination's alpha channel in-place.
- * @returns true if any pixels were modified, false otherwise.
+ * @returns true if any pixels were actually modified.
  */
 export function applyBinaryMaskToPixelData(
   dst: IPixelData,

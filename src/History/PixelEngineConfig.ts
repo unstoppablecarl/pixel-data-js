@@ -2,6 +2,8 @@ import type { IPixelData } from '../_types'
 
 export class PixelEngineConfig {
   readonly tileSize: number
+  // pixelX = tileX << tileShift
+  // pixelY = tileY << tileShift
   readonly tileShift: number
   readonly tileMask: number
   readonly tileArea: number

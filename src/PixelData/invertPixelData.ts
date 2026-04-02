@@ -6,7 +6,7 @@ const SCRATCH_RECT = makeClippedRect()
 export function invertPixelData(
   pixelData: IPixelData,
   opts: PixelMutateOptions = {},
-): void {
+): boolean {
   const dst = pixelData
   const {
     x: targetX = 0,
@@ -21,7 +21,7 @@ export function invertPixelData(
 
   const clip = resolveRectClipping(targetX, targetY, width, height, dst.width, dst.height, SCRATCH_RECT)
 
-  if (!clip.inBounds) return
+  if (!clip.inBounds) return false
 
   const {
     x,
@@ -72,4 +72,6 @@ export function invertPixelData(
       dIdx += dStride
     }
   }
+
+  return true
 }

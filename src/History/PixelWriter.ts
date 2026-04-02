@@ -3,12 +3,14 @@ import { type HistoryActionFactory, makeHistoryAction } from './HistoryAction'
 import { HistoryManager } from './HistoryManager'
 import { PixelAccumulator } from './PixelAccumulator'
 import { PixelEngineConfig } from './PixelEngineConfig'
+import { PixelTilePool } from '../PixelTile/PixelTilePool'
 
 export interface PixelWriterOptions {
   maxHistorySteps?: number
   tileSize?: number
   historyManager?: HistoryManager
   historyActionFactory?: HistoryActionFactory
+  pixelTilePool?: PixelTilePool,
 }
 
 /**
@@ -44,10 +46,12 @@ export class PixelWriter<M> {
     maxHistorySteps = 50,
     historyManager = new HistoryManager(maxHistorySteps),
     historyActionFactory = makeHistoryAction,
+    pixelTilePool,
   }: PixelWriterOptions = {}) {
     this.config = new PixelEngineConfig(tileSize, target)
     this.historyManager = historyManager
-    this.accumulator = new PixelAccumulator(this.config)
+    pixelTilePool ??= new PixelTilePool(this.config)
+    this.accumulator = new PixelAccumulator(this.config, pixelTilePool)
     this.historyActionFactory = historyActionFactory
     this.mutator = mutatorFactory(this)
   }

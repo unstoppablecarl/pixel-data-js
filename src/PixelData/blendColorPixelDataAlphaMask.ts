@@ -12,7 +12,7 @@ import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
  * @param color - The solid color to apply.
  * @param mask - The mask defining the per-pixel opacity of the target area.
  * @param opts - Configuration options including placement coordinates, bounds, global alpha, and mask offsets.
- * @Returns true if any pixels were actually modified.
+ * @returns true if any pixels were actually modified.
  */
 export function blendColorPixelDataAlphaMask(
   dst: IPixelData,

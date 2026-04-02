@@ -1,4 +1,4 @@
-import { type BinaryMaskRect, fillPixelData, mutatorClear } from '@/index'
+import { type BinaryMaskRect, fillPixelDataFast, mutatorClear } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
 import { mockAccumulatorMutator } from './_helpers'
 
@@ -11,7 +11,7 @@ describe('mutatorClear', () => {
       w: 50,
       h: 50,
     }
-    const fillPixelDataSpy = vi.fn(fillPixelData) as unknown as typeof fillPixelData
+    const fillPixelDataSpy = vi.fn(fillPixelDataFast) as unknown as typeof fillPixelDataFast
 
     const {
       mutator,
@@ -26,7 +26,7 @@ describe('mutatorClear', () => {
   })
 
   it('should use default dimensions if rect is not provided', () => {
-    const fillPixelDataSpy = vi.fn(fillPixelData) as unknown as typeof fillPixelData
+    const fillPixelDataSpy = vi.fn(fillPixelDataFast) as unknown as typeof fillPixelDataFast
 
     const {
       mutator, accumulator, target,

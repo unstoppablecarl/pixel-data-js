@@ -18,7 +18,7 @@ export const mutatorApplyRectPencil = ((writer: PixelWriter<any>, deps: Deps = d
   const {
     applyRectBrushToPixelData = defaults.applyRectBrushToPixelData,
     getRectBrushOrPencilBounds = defaults.getRectBrushOrPencilBounds,
-    fallOff = defaults.fallOff
+    fallOff = defaults.fallOff,
   } = deps
 
   const boundsOut: Rect = { x: 0, y: 0, w: 0, h: 0 }
@@ -32,7 +32,7 @@ export const mutatorApplyRectPencil = ((writer: PixelWriter<any>, deps: Deps = d
       brushHeight: number,
       alpha = 255,
       blendFn?: BlendColor32,
-    ) {
+    ): boolean {
 
       const target = writer.config.target
       const b = getRectBrushOrPencilBounds(
@@ -45,19 +45,20 @@ export const mutatorApplyRectPencil = ((writer: PixelWriter<any>, deps: Deps = d
         boundsOut,
       )
 
-      writer.accumulator.storeRegionBeforeState(b.x, b.y, b.w, b.h)
-
-      applyRectBrushToPixelData(
-        target,
-        color,
-        centerX,
-        centerY,
-        brushWidth,
-        brushHeight,
-        alpha,
-        fallOff,
-        blendFn,
-        b,
+      const didChange = writer.accumulator.storeRegionBeforeState(b.x, b.y, b.w, b.h)
+      return didChange(
+        applyRectBrushToPixelData(
+          target,
+          color,
+          centerX,
+          centerY,
+          brushWidth,
+          brushHeight,
+          alpha,
+          fallOff,
+          blendFn,
+          b,
+        ),
       )
     },
   }

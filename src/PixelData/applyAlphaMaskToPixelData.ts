@@ -3,7 +3,7 @@ import { type AlphaMask, type ApplyMaskToPixelDataOptions, type Color32, type IP
 /**
  * Directly applies a mask to a region of PixelData,
  * modifying the destination's alpha channel in-place.
- * @Returns true if any pixels were actually modified.
+ * @returns true if any pixels were actually modified.
  */
 export function applyAlphaMaskToPixelData(
   dst: IPixelData,

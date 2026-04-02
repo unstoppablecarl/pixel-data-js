@@ -18,15 +18,17 @@ export const mutatorBlendPixelDataBinaryMask = ((writer: PixelWriter<any>, deps:
       src: IPixelData,
       mask: BinaryMask,
       opts: PixelBlendMaskOptions = {},
-    ) {
+    ): boolean {
       const x = opts.x ?? 0
       const y = opts.y ?? 0
       const w = opts.w ?? src.width
       const h = opts.h ?? src.height
 
-      writer.accumulator.storeRegionBeforeState(x, y, w, h)
+      const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
 
-      blendPixelDataBinaryMask(writer.config.target, src, mask, opts)
+      return didChange(
+        blendPixelDataBinaryMask(writer.config.target, src, mask, opts),
+      )
     },
   }
 }) satisfies HistoryMutator<any, Deps>

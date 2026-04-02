@@ -16,7 +16,7 @@ describe('PixelWriter', () => {
     return {
       setPixel: (x: number, y: number, color: number) => {
         // Must notify accumulator before changing
-        w.accumulator.storeTileBeforeState(x, y)
+        w.accumulator.storePixelBeforeState(x, y)
 
         // Simple manual pixel set
         const idx = y * w.config.target.width + x

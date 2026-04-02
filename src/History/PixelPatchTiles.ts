@@ -1,21 +1,9 @@
 import type { IPixelData } from '../_types'
+import { PixelTile } from '../PixelTile/PixelTile'
 
 export type PixelPatchTiles = {
   beforeTiles: PixelTile[]
   afterTiles: PixelTile[]
-}
-
-export class PixelTile {
-  public data32: Uint32Array
-
-  constructor(
-    public id: number,
-    public tx: number,
-    public ty: number,
-    tileArea: number,
-  ) {
-    this.data32 = new Uint32Array(tileArea)
-  }
 }
 
 export function applyPatchTiles(target: IPixelData, tiles: PixelTile[], tileSize: number) {

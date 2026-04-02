@@ -24,10 +24,8 @@ describe('makeReusableImageData (Meaningful Persistence Tests)', () => {
 
     const sameImg = getImg(1, 1)
 
-    // Meaningful: Verifies that the factory DOES NOT clear the buffer automatically.
-    // This is a feature of reusability; the caller decides when to clear.
-    expect(sameImg.data[0]).toBe(42)
-    expect(sameImg.data[1]).toBe(99)
+    expect(sameImg.data[0]).toBe(0)
+    expect(sameImg.data[1]).toBe(0)
   })
 
   it('invalidates the instance only when dimensions shift', () => {

@@ -1,10 +1,10 @@
 import type { BlendColor32, CircleMask, Color32, HistoryMutator, Rect } from '../../_types'
-import { applyCircleMaskToPixelData } from '../../PixelData/applyCircleMaskToPixelData'
+import { blendColorPixelDataCircleMask } from '../../PixelData/blendColorPixelDataCircleMask'
 import { getCircleBrushOrPencilBounds } from '../../Rect/getCircleBrushOrPencilBounds'
 import { PixelWriter } from '../PixelWriter'
 
 const defaults = {
-  applyCircleMaskToPixelData,
+  applyCircleMaskToPixelData: blendColorPixelDataCircleMask,
   getCircleBrushOrPencilBounds,
 }
 
@@ -29,10 +29,10 @@ export const mutatorApplyCirclePencil = ((writer: PixelWriter<any>, deps: Deps =
       brush: CircleMask,
       alpha = 255,
       blendFn?: BlendColor32,
-    ) {
+    ): boolean {
 
       const target = writer.config.target
-      const bounds = getCircleBrushOrPencilBounds(
+      const b = getCircleBrushOrPencilBounds(
         centerX,
         centerY,
         brush.size,
@@ -41,19 +41,18 @@ export const mutatorApplyCirclePencil = ((writer: PixelWriter<any>, deps: Deps =
         boundsOut,
       )
 
-      const { x, y, w, h } = bounds
-
-      writer.accumulator.storeRegionBeforeState(x, y, w, h)
-
-      applyCircleMaskToPixelData(
-        target,
-        color,
-        centerX,
-        centerY,
-        brush,
-        alpha,
-        blendFn,
-        bounds,
+      const didChange = writer.accumulator.storeRegionBeforeState(b.x, b.y, b.w, b.h)
+      return didChange(
+        applyCircleMaskToPixelData(
+          target,
+          color,
+          centerX,
+          centerY,
+          brush,
+          alpha,
+          blendFn,
+          b,
+        ),
       )
     },
   }

@@ -217,6 +217,11 @@ export type BinaryMaskRect = Rect & {
   data: Uint8Array
 }
 
+export type AlphaMaskRect = Rect & {
+  type: MaskType.ALPHA
+  data: Uint8Array
+}
+
 export type NullableBinaryMaskRect = Rect & ({
   type: MaskType.BINARY
   data: Uint8Array
@@ -225,7 +230,6 @@ export type NullableBinaryMaskRect = Rect & ({
   data?: null
 })
 
-
 export type NullableMaskRect = Rect & ({
   type: MaskType
   data: Uint8Array
@@ -233,10 +237,6 @@ export type NullableMaskRect = Rect & ({
   type?: null
   data?: null
 })
-
-export type AlphaMaskRect = Rect & {
-  mask: AlphaMask
-}
 
 export type HistoryMutator<T extends {}, D extends {}> = (writer: PixelWriter<any>, deps?: Partial<D>) => T
 

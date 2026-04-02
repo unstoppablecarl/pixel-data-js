@@ -1,4 +1,4 @@
-import { type HistoryMutator, PixelAccumulator, PixelEngineConfig, PixelWriter } from '@/index'
+import { type HistoryMutator, PixelAccumulator, PixelEngineConfig, PixelTilePool, PixelWriter } from '@/index'
 import { vi } from 'vitest'
 import { makeTestPixelData } from '../../_helpers'
 
@@ -6,11 +6,12 @@ export function mockAccumulatorMutator<T extends {}, D extends {}>(mutatorFuncti
 
   const target = makeTestPixelData(100, 100)
   const config = new PixelEngineConfig(16, target)
-  const accumulator = new PixelAccumulator(config)
+  const tilePool = new PixelTilePool(config)
+  const accumulator = new PixelAccumulator(config, tilePool)
 
   // Mock the accumulator methods
   vi.spyOn(accumulator, 'storeRegionBeforeState')
-  vi.spyOn(accumulator, 'storeTileBeforeState')
+  vi.spyOn(accumulator, 'storePixelBeforeState')
 
   // Create a mock writer object that provides what the mutators need
   const writer = {
@@ -24,6 +25,7 @@ export function mockAccumulatorMutator<T extends {}, D extends {}>(mutatorFuncti
     mutator,
     accumulator,
     target,
+    tilePool,
     config,
   }
 }

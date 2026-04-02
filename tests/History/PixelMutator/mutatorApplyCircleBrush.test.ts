@@ -2,21 +2,21 @@ import {
   type Color32,
   getCircleBrushOrPencilBounds,
   makeCircleAlphaMask,
-  mutatorApplyCircleMask,
+  mutatorBlendColorCircleMask,
   sourceOverPerfect,
 } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
 import { mockAccumulatorMutator } from './_helpers'
 
-describe('mutatorApplyCircleBrush', () => {
+describe('mutatorBlendColorCircleMask', () => {
 
   it('should calculate bounds once and pass them to both accumulator and draw function', () => {
     const color = 0xFF0000FF as Color32
     const fallOff = (d: number) => 1 - d
 
-    const applyCircleMaskToPixelDataSpy = vi.fn()
-    const { mutator, accumulator, target } = mockAccumulatorMutator(mutatorApplyCircleMask, {
-      applyCircleMaskToPixelData: applyCircleMaskToPixelDataSpy,
+    const blendColorPixelDataCircleMaskSpy = vi.fn()
+    const { mutator, accumulator, target } = mockAccumulatorMutator(mutatorBlendColorCircleMask, {
+      blendColorPixelDataCircleMask: blendColorPixelDataCircleMaskSpy,
       getCircleBrushOrPencilBounds,
     })
 
@@ -38,7 +38,7 @@ describe('mutatorApplyCircleBrush', () => {
       expectedBounds.h,
     )
 
-    expect(applyCircleMaskToPixelDataSpy).toHaveBeenCalledWith(
+    expect(blendColorPixelDataCircleMaskSpy).toHaveBeenCalledWith(
       target,
       color,
       50,

@@ -1,11 +1,11 @@
 import type { BlendColor32, CircleMask, Color32, ColorBlendMaskOptions, HistoryMutator, Rect } from '../../_types'
 import { sourceOverPerfect } from '../../BlendModes/blend-modes-perfect'
-import { applyCircleMaskToPixelData } from '../../PixelData/applyCircleMaskToPixelData'
+import { blendColorPixelDataCircleMask } from '../../PixelData/blendColorPixelDataCircleMask'
 import { getCircleBrushOrPencilBounds } from '../../Rect/getCircleBrushOrPencilBounds'
 import { PixelWriter } from '../PixelWriter'
 
 const defaults = {
-  applyCircleMaskToPixelData,
+  blendColorPixelDataCircleMask,
   getCircleBrushOrPencilBounds,
 }
 
@@ -14,9 +14,9 @@ type Deps = Partial<typeof defaults>
 /**
  * @param deps - @hidden
  */
-export const mutatorApplyCircleMask = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
+export const mutatorBlendColorCircleMask = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
   const {
-    applyCircleMaskToPixelData = defaults.applyCircleMaskToPixelData,
+    blendColorPixelDataCircleMask = defaults.blendColorPixelDataCircleMask,
     getCircleBrushOrPencilBounds = defaults.getCircleBrushOrPencilBounds,
 
   } = deps
@@ -40,10 +40,10 @@ export const mutatorApplyCircleMask = ((writer: PixelWriter<any>, deps: Deps = d
       brush: CircleMask,
       alpha = 255,
       blendFn?: BlendColor32,
-    ) {
+    ): boolean {
 
       const target = writer.config.target
-      const bounds = getCircleBrushOrPencilBounds(
+      const b = getCircleBrushOrPencilBounds(
         centerX,
         centerY,
         brush.size,
@@ -52,20 +52,19 @@ export const mutatorApplyCircleMask = ((writer: PixelWriter<any>, deps: Deps = d
         boundsOut,
       )
 
-      const { x, y, w, h } = bounds
-
-      writer.accumulator.storeRegionBeforeState(x, y, w, h)
-
-      applyCircleMaskToPixelData(
-        target,
-        color,
-        centerX,
-        centerY,
-        brush,
-        alpha,
-        blendFn,
-        blendColorPixelOptions,
-        bounds,
+      const didChange = writer.accumulator.storeRegionBeforeState(b.x, b.y, b.w, b.h)
+      return didChange(
+        blendColorPixelDataCircleMask(
+          target,
+          color,
+          centerX,
+          centerY,
+          brush,
+          alpha,
+          blendFn,
+          blendColorPixelOptions,
+          b,
+        ),
       )
     },
   }

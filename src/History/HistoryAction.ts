@@ -1,4 +1,4 @@
-import { applyPatchTiles as baseApplyPatchTiles, type PixelPatchTiles } from './PixelPatchTiles'
+import { applyPatchTiles, type PixelPatchTiles } from './PixelPatchTiles'
 import type { PixelWriter } from './PixelWriter'
 
 export interface HistoryAction {
@@ -15,7 +15,7 @@ export function makeHistoryAction(
   after?: () => void,
   afterUndo?: () => void,
   afterRedo?: () => void,
-  applyPatchTiles = baseApplyPatchTiles,
+  applyPatchTilesFn = applyPatchTiles,
 ): HistoryAction {
 
   const target = writer.config.target
@@ -24,12 +24,12 @@ export function makeHistoryAction(
 
   return {
     undo: () => {
-      applyPatchTiles(target, patch.beforeTiles, tileSize)
+      applyPatchTilesFn(target, patch.beforeTiles, tileSize)
       afterUndo?.()
       after?.()
     },
     redo: () => {
-      applyPatchTiles(target, patch.afterTiles, tileSize)
+      applyPatchTilesFn(target, patch.afterTiles, tileSize)
       afterRedo?.()
       after?.()
     },

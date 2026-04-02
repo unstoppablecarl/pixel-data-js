@@ -1,5 +1,5 @@
 import {
-  applyCircleMaskToPixelData,
+  blendColorPixelDataCircleMask,
   type Color32,
   getCircleBrushOrPencilBounds,
   makeCircleAlphaMask,
@@ -13,7 +13,7 @@ describe('mutatorApplyCirclePencil', () => {
 
   it('should apply rectangular bounds exactly', () => {
     const color = 0xFFFFFFFF as Color32
-    const applyCircleMaskToPixelDataSpy = vi.fn(applyCircleMaskToPixelData)
+    const applyCircleMaskToPixelDataSpy = vi.fn(blendColorPixelDataCircleMask)
     const { mutator, accumulator, target } = mockAccumulatorMutator(mutatorApplyCirclePencil, {
       applyCircleMaskToPixelData: applyCircleMaskToPixelDataSpy,
       getCircleBrushOrPencilBounds,

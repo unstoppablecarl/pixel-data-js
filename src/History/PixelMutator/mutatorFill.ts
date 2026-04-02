@@ -16,17 +16,41 @@ export const mutatorFill = ((writer: PixelWriter<any>, deps: Deps = defaults) =>
   return {
     fill(
       color: Color32,
-      rect: Partial<Rect> = {},
+      x = 0,
+      y = 0,
+      w = writer.config.target.width,
+      h = writer.config.target.height,
     ) {
       const target = writer.config.target
-      const {
-        x = 0,
-        y = 0,
-        w = target.width,
-        h = target.height,
-      } = rect
-      writer.accumulator.storeRegionBeforeState(x, y, w, h)
-      fillPixelData(target, color, x, y, w, h)
+
+      const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
+      return didChange(
+        fillPixelData(target, color, x, y, w, h),
+      )
     },
   }
 }) satisfies HistoryMutator<any, Deps>
+
+/**
+ * @param deps - @hidden
+ */
+export const mutatorFillRect = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
+  const {
+    fillPixelData = defaults.fillPixelData,
+  } = deps
+
+  return {
+    fillRect(
+      color: Color32,
+      rect: Rect,
+    ) {
+      const target = writer.config.target
+
+      const didChange = writer.accumulator.storeRegionBeforeState(rect.x, rect.y, rect.w, rect.h)
+      return didChange(
+        fillPixelData(target, color, rect.x, rect.y, rect.w, rect.h)
+      )
+    },
+  }
+}) satisfies HistoryMutator<any, Deps>
+

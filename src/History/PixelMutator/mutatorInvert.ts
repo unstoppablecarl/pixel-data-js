@@ -22,8 +22,11 @@ export const mutatorInvert = ((writer: PixelWriter<any>, deps: Deps = defaults) 
         w = target.width,
         h = target.height,
       } = opts
-      writer.accumulator.storeRegionBeforeState(x, y, w, h)
-      invertPixelData(target, opts)
+      const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
+
+      return didChange(
+        invertPixelData(target, opts),
+      )
     },
   }
 }) satisfies HistoryMutator<any, Deps>

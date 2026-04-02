@@ -17,12 +17,10 @@ export function makeReusableImageData() {
    * @returns The cached or newly allocated ImageData object.
    */
   return function getReusableImageData(width: number, height: number) {
-    const hasInstance = !!imageData
-    const widthMatches = hasInstance && imageData!.width === width
-    const heightMatches = hasInstance && imageData!.height === height
-
-    if (!widthMatches || !heightMatches) {
+    if (imageData === null || imageData.width !== width || imageData.height !== height) {
       imageData = new ImageData(width, height)
+    } else {
+      imageData.data.fill(0)
     }
 
     return imageData!

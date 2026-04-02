@@ -3,7 +3,8 @@ import {
   type BlendColor32,
   type Color32,
   type ColorBlendOptions,
-  type HistoryMutator, MaskType,
+  type HistoryMutator,
+  MaskType,
   type Rect,
 } from '../../_types'
 import { forEachLinePoint } from '../../Algorithm/forEachLinePoint'

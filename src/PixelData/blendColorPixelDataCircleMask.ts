@@ -25,7 +25,7 @@ import { blendColorPixelDataBinaryMask } from './blendColorPixelDataBinaryMask'
  * @param scratchOptions
  * @param bounds precalculated result from {@link getCircleBrushOrPencilBounds}
  */
-export function applyCircleMaskToPixelData(
+export function blendColorPixelDataCircleMask(
   target: IPixelData,
   color: Color32,
   centerX: number,
@@ -35,7 +35,7 @@ export function applyCircleMaskToPixelData(
   blendFn: BlendColor32 = sourceOverPerfect,
   scratchOptions: ColorBlendMaskOptions = {},
   bounds?: Rect,
-): void {
+): boolean {
   const b = bounds ?? getCircleBrushOrPencilBounds(
     centerX,
     centerY,
@@ -44,7 +44,7 @@ export function applyCircleMaskToPixelData(
     target.height,
   )
 
-  if (b.w <= 0 || b.h <= 0) return
+  if (b.w <= 0 || b.h <= 0) return false
 
   const unclippedStartX = Math.floor(centerX + brush.minOffset)
   const unclippedStartY = Math.floor(centerY + brush.minOffset)
@@ -59,7 +59,7 @@ export function applyCircleMaskToPixelData(
   const ih = ib - iy
 
   // If the mask falls entirely outside the bounds, exit
-  if (iw <= 0 || ih <= 0) return
+  if (iw <= 0 || ih <= 0) return false
 
   scratchOptions.x = ix
   scratchOptions.y = iy
@@ -71,7 +71,7 @@ export function applyCircleMaskToPixelData(
   scratchOptions.blendFn = blendFn
 
   if (brush.type === MaskType.ALPHA) {
-    blendColorPixelDataAlphaMask(
+    return blendColorPixelDataAlphaMask(
       target,
       color,
       brush,
@@ -80,11 +80,13 @@ export function applyCircleMaskToPixelData(
   }
 
   if (brush.type === MaskType.BINARY) {
-    blendColorPixelDataBinaryMask(
+    return blendColorPixelDataBinaryMask(
       target,
       color,
       brush,
       scratchOptions,
     )
   }
+
+  return false
 }

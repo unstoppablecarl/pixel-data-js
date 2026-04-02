@@ -5,17 +5,19 @@ const SCRATCH_RECT = makeClippedRect()
 
 /**
  * Fills a region or the {@link IPixelData} buffer with a solid color.
+ * This function is faster than {@link fillPixelData} but does not
+ * return a boolean value indicating changes were made.
  *
  * @param dst - The target to modify.
  * @param color - The color to apply.
  * @param rect - Defines the area to fill. If omitted, the entire
- * @returns true if any pixels were actually modified.
+ * buffer is filled.
  */
-export function fillPixelData(
+export function fillPixelDataFast(
   dst: IPixelData,
   color: Color32,
   rect?: Partial<Rect>,
-): boolean
+): void
 /**
  * @param dst - The target to modify.
  * @param color - The color to apply.
@@ -24,22 +26,22 @@ export function fillPixelData(
  * @param w - Width of the fill area.
  * @param h - Height of the fill area.
  */
-export function fillPixelData(
+export function fillPixelDataFast(
   dst: IPixelData,
   color: Color32,
   x: number,
   y: number,
   w: number,
   h: number,
-): boolean
-export function fillPixelData(
+): void
+export function fillPixelDataFast(
   dst: IPixelData,
   color: Color32,
   _x?: Partial<Rect> | number,
   _y?: number,
   _w?: number,
   _h?: number,
-): boolean {
+): void {
   let x: number
   let y: number
   let w: number
@@ -62,18 +64,11 @@ export function fillPixelData(
     h = dst.height
   }
 
-  const clip = resolveRectClipping(
-    x,
-    y,
-    w,
-    h,
-    dst.width,
-    dst.height,
-    SCRATCH_RECT,
-  )
+  const clip = resolveRectClipping(x, y, w, h, dst.width, dst.height, SCRATCH_RECT)
 
-  if (!clip.inBounds) return false
+  if (!clip.inBounds) return
 
+  // Use the clipped values
   const {
     x: finalX,
     y: finalY,
@@ -83,20 +78,17 @@ export function fillPixelData(
 
   const dst32 = dst.data32
   const dw = dst.width
-  let hasChanged = false
 
-  for (let iy = 0; iy < actualH; iy++) {
-    const rowOffset = (finalY + iy) * dw
-    const start = rowOffset + finalX
-    const end = start + actualW
-
-    for (let i = start; i < end; i++) {
-      if (dst32[i] !== color) {
-        dst32[i] = color
-        hasChanged = true
-      }
-    }
+  // Optimization: If filling the entire buffer, use the native .fill()
+  if (actualW === dw && actualH === dst.height && finalX === 0 && finalY === 0) {
+    dst32.fill(color)
+    return
   }
 
-  return hasChanged
+  // Row-by-row fill for partial rectangles
+  for (let iy = 0; iy < actualH; iy++) {
+    const start = (finalY + iy) * dw + finalX
+    const end = start + actualW
+    dst32.fill(color, start, end)
+  }
 }

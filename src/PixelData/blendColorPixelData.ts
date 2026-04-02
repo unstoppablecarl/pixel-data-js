@@ -3,7 +3,7 @@ import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 
 /**
  * Blends a solid color into a target pixel buffer.
- * @Returns true if any pixels were actually modified.
+ * @returns true if any pixels were actually modified.
  */
 export function blendColorPixelData(
   dst: IPixelData,

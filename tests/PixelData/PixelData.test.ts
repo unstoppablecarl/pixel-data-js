@@ -1,6 +1,7 @@
 import { type ImageDataLike, PixelData } from '@/index'
 import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
+import { copyPixelData } from '../_helpers'
 
 describe('PixelData', () => {
   it('should initialize width, height, and data32 view', () => {
@@ -39,7 +40,7 @@ describe('PixelData', () => {
     const imageData = createImageData(buffer, 1, 1) as ImageData
 
     const original = new PixelData(imageData)
-    const clone = original.copy()
+    const clone = copyPixelData(original)
 
     // Modify the original
     original.data32[0] = 0x00000000
@@ -69,39 +70,10 @@ describe('PixelData', () => {
     }
 
     const pixelData = new PixelData<MockImageData>(new MockImageData(new Uint8ClampedArray(4), 1, 1))
-    const copied = pixelData.copy()
+    const copied = copyPixelData(pixelData)
 
     expect(copied.width).toBe(1)
     expect(copied.height).toBe(1)
     expect(copied.imageData).toBeInstanceOf(MockImageData)
-  })
-  it('should fallback to a plain object when constructor is not a valid class', () => {
-    const width = 1
-    const height = 1
-    const data = new Uint8ClampedArray([255, 0, 0, 255])
-
-    // Create a plain object (ImageDataLike)
-    // This ensures .constructor === Object
-    const plainImageData: ImageDataLike = {
-      width,
-      height,
-      data,
-    }
-
-    const pixelData = new PixelData<ImageDataLike>(plainImageData)
-    const clone = pixelData.copy()
-
-    // Verify the copy was successful
-    expect(clone.width).toBe(1)
-    expect(clone.imageData.data[0]).toBe(255)
-
-    // Verify it is a plain object and not a class instance
-    // (Plain objects shouldn't have a custom constructor name)
-    const constructorName = clone.imageData.constructor.name
-    expect(constructorName).toBe('Object')
-
-    // Verify deep copy of the buffer
-    clone.imageData.data[0] = 100
-    expect(pixelData.imageData.data[0]).toBe(255)
   })
 })

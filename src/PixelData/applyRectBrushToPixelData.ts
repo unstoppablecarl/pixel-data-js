@@ -4,7 +4,7 @@ import { getRectBrushOrPencilBounds } from '../Rect/getRectBrushOrPencilBounds'
 
 /**
  * Applies a rectangular brush to the pixel data.
- * @Returns true if any pixels were actually modified.
+ * @returns true if any pixels were actually modified.
  */
 export function applyRectBrushToPixelData(
   target: IPixelData,

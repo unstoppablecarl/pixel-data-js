@@ -1,4 +1,4 @@
-import { makeFullPixelMutator, PixelAccumulator, PixelEngineConfig, PixelWriter } from '@/index'
+import { makeFullPixelMutator, PixelAccumulator, PixelEngineConfig, PixelTilePool, PixelWriter } from '@/index'
 import { describe, expect, it } from 'vitest'
 import { makeTestPixelData } from '../_helpers'
 
@@ -6,7 +6,8 @@ describe('PixelMutator', () => {
   it('makeFullPixelMutator should create a mutator with all methods', () => {
     const target = makeTestPixelData(100, 100)
     const config = new PixelEngineConfig(16, target)
-    const accumulator = new PixelAccumulator(config)
+    const tilePool = new PixelTilePool(config)
+    const accumulator = new PixelAccumulator(config, tilePool)
 
     const writer = {
       target,
@@ -34,6 +35,7 @@ describe('PixelMutator', () => {
       'clear',
       'fill',
       'fillBinaryMask',
+      'fillRect',
       'invert',
     ].sort()
 
