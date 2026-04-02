@@ -33,7 +33,8 @@
       "Uint32Array": "#",
       "Uint8Array": "#",
       "Uint8ClampedArray": "#",
-      "createImageBitmap": "#"
+      "createImageBitmap": "#",
+      "OffscreenCanvasRenderingContext2D":"#"
     }
   }
 }
