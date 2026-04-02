@@ -27,11 +27,11 @@ export class PixelAccumulator {
    * @param y pixel y coordinate
    */
   storePixelBeforeState(x: number, y: number): DidChangeFn {
-    let shift = this.config.tileShift
-    let columns = this.config.targetColumns
-    let tx = x >> shift
-    let ty = y >> shift
-    let id = ty * columns + tx
+    const shift = this.config.tileShift
+    const columns = this.config.targetColumns
+    const tx = x >> shift
+    const ty = y >> shift
+    const id = ty * columns + tx
 
     let tile = this.lookup[id]
     let added = false
@@ -67,19 +67,19 @@ export class PixelAccumulator {
     w: number,
     h: number,
   ): DidChangeFn {
-    let shift = this.config.tileShift
-    let columns = this.config.targetColumns
+    const shift = this.config.tileShift
+    const columns = this.config.targetColumns
 
-    let startX = x >> shift
-    let startY = y >> shift
-    let endX = (x + w - 1) >> shift
-    let endY = (y + h - 1) >> shift
+    const startX = x >> shift
+    const startY = y >> shift
+    const endX = (x + w - 1) >> shift
+    const endY = (y + h - 1) >> shift
 
-    let startIndex = this.beforeTiles.length
+    const startIndex = this.beforeTiles.length
 
     for (let ty = startY; ty <= endY; ty++) {
       for (let tx = startX; tx <= endX; tx++) {
-        let id = ty * columns + tx
+        const id = ty * columns + tx
         let tile = this.lookup[id]
 
         if (!tile) {
@@ -94,7 +94,7 @@ export class PixelAccumulator {
 
     return (didChange: boolean) => {
       if (!didChange) {
-        let length = this.beforeTiles.length
+        const length = this.beforeTiles.length
 
         for (let i = startIndex; i < length; i++) {
           let t = this.beforeTiles[i]
@@ -112,14 +112,14 @@ export class PixelAccumulator {
   }
 
   extractState(tile: PixelTile) {
-    let target = this.config.target
-    let TILE_SIZE = this.config.tileSize
-    let dst = tile.data32
-    let src = target.data32
-    let startX = tile.tx * TILE_SIZE
-    let startY = tile.ty * TILE_SIZE
-    let targetWidth = target.width
-    let targetHeight = target.height
+    const target = this.config.target
+    const TILE_SIZE = this.config.tileSize
+    const dst = tile.data32
+    const src = target.data32
+    const startX = tile.tx * TILE_SIZE
+    const startY = tile.ty * TILE_SIZE
+    const targetWidth = target.width
+    const targetHeight = target.height
 
     // If the tile is completely outside the canvas, zero it out.
     if (startX >= targetWidth || startX + TILE_SIZE <= 0 || startY >= targetHeight || startY + TILE_SIZE <= 0) {
@@ -160,8 +160,8 @@ export class PixelAccumulator {
   }
 
   extractPatch(): PixelPatchTiles {
-    let afterTiles: PixelTile[] = []
-    let length = this.beforeTiles.length
+    const afterTiles: PixelTile[] = []
+    const length = this.beforeTiles.length
 
     for (let i = 0; i < length; i++) {
       let beforeTile = this.beforeTiles[i]
@@ -174,7 +174,7 @@ export class PixelAccumulator {
       }
     }
 
-    let beforeTiles = this.beforeTiles
+    const beforeTiles = this.beforeTiles
     this.beforeTiles = []
     this.lookup.length = 0
 
@@ -185,9 +185,9 @@ export class PixelAccumulator {
   }
 
   rollback() {
-    let target = this.config.target
-    let tileSize = this.config.tileSize
-    let length = this.beforeTiles.length
+    const target = this.config.target
+    const tileSize = this.config.tileSize
+    const length = this.beforeTiles.length
 
     applyPatchTiles(target, this.beforeTiles, tileSize)
 
