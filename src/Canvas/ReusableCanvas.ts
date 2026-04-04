@@ -1,4 +1,4 @@
-import { CANVAS_CTX_FAILED } from './_constants'
+import { CANVAS_CTX_FAILED } from '../../support/error-strings'
 
 export type CanvasContext<T> = T extends HTMLCanvasElement
   ? CanvasRenderingContext2D

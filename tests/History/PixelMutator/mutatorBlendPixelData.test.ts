@@ -1,43 +1,40 @@
 import { blendPixelData, mutatorBlendPixelData, PixelData } from '@/index'
-import { describe, expect, it, vi } from 'vitest'
-import { mockAccumulatorMutator } from './_helpers'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { makeTestPixelData } from '../../_helpers'
+import { mockMutator } from './_helpers'
 
 describe('mutatorBlendPixelData', () => {
+  const {
+    mutator,
+    accumulator,
+    target,
+    spyDeps,
+  } = mockMutator(mutatorBlendPixelData, { blendPixelData })
 
-  it('should call accumulator and blendPixelData with args', () => {
-    const source = new PixelData(new ImageData(10, 10))
-    const options = {
-      x: 20,
-      y: 20,
-    }
-
-    const blendPixelDataSpy = vi.fn(blendPixelData)
-
-    const {
-      mutator,
-      accumulator,
-      target,
-    } = mockAccumulatorMutator(mutatorBlendPixelData, { blendPixelData: blendPixelDataSpy })
-
-    mutator.blendPixelData(source, options)
-
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(20, 20, source.width, source.height)
-    expect(blendPixelDataSpy).toHaveBeenCalledWith(target, source, options)
+  beforeEach(() => {
+    vi.resetAllMocks()
   })
 
-  it('should call accumulator and blendPixelData with defaults', () => {
-    const source = new PixelData(new ImageData(10, 10))
-    const blendPixelDataSpy = vi.fn(blendPixelData)
+  it('should call accumulator', () => {
+    const source = makeTestPixelData(10, 12)
+    const o = {
+      x: 20,
+      y: 22,
+      w: 30,
+      h: 33,
+    }
+    mutator.blendPixelData(source, o)
 
-    const {
-      mutator,
-      accumulator,
-      target,
-    } = mockAccumulatorMutator(mutatorBlendPixelData, { blendPixelData: blendPixelDataSpy })
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(o.x, o.y, o.w, o.h)
+    expect(spyDeps.blendPixelData).toHaveBeenCalledWith(target, source, o)
+  })
+
+  it('should call accumulator with defaults', () => {
+    const source = new PixelData(new ImageData(10, 10))
 
     mutator.blendPixelData(source)
 
     expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, source.width, source.height)
-    expect(blendPixelDataSpy).toHaveBeenCalledWith(target, source, {})
+    expect(spyDeps.blendPixelData).toHaveBeenCalledWith(target, source, undefined)
   })
 })

@@ -216,7 +216,8 @@ describe('PixelWriter', () => {
       // The factory is called with (writer, patch, after, afterUndo, afterRedo)
       // 5 arguments means they must be on separate lines
       expect(factorySpy).toHaveBeenCalledWith(
-        writer,
+        writer.config,
+        writer.accumulator,
         expect.anything(),
         after,
         undefined,

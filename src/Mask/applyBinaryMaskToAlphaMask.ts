@@ -3,17 +3,15 @@ import type { AlphaMask, ApplyMaskToPixelDataOptions, BinaryMask } from '../_typ
 export function applyBinaryMaskToAlphaMask(
   alphaMaskDst: AlphaMask,
   binaryMaskSrc: BinaryMask,
-  opts: ApplyMaskToPixelDataOptions = {},
+  opts?: ApplyMaskToPixelDataOptions,
 ): void {
-  const {
-    x: targetX = 0,
-    y: targetY = 0,
-    w: reqWidth = 0,
-    h: reqHeight = 0,
-    mx = 0,
-    my = 0,
-    invertMask = false,
-  } = opts
+  const targetX = opts?.x ?? 0
+  const targetY = opts?.y ?? 0
+  const reqWidth = opts?.w ?? 0
+  const reqHeight = opts?.h ?? 0
+  const mx = opts?.mx ?? 0
+  const my = opts?.my ?? 0
+  const invertMask = opts?.invertMask ?? false
 
   const dstWidth = alphaMaskDst.w
   if (dstWidth <= 0) return

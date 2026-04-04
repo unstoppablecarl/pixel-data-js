@@ -8,27 +8,27 @@ import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
  * If the width (`w`) or height (`h`) are omitted from the options, they will safely
  * default to the dimensions of the provided mask to prevent out-of-bounds memory access.
  *
- * @param dst - The destination {@link IPixelData32} buffer to modify.
+ * @param target - The destination {@link IPixelData32} buffer to modify.
  * @param color - The solid color to apply.
  * @param mask - The mask defining the per-pixel opacity of the target area.
  * @param opts - Configuration options including placement coordinates, bounds, global alpha, and mask offsets.
  * @returns true if any pixels were actually modified.
  */
 export function blendColorPixelDataAlphaMask(
-  dst: IPixelData32,
+  target: IPixelData32,
   color: Color32,
   mask: AlphaMask,
-  opts: ColorBlendMaskOptions = {},
+  opts?: ColorBlendMaskOptions,
 ): boolean {
-  const targetX = opts.x ?? 0
-  const targetY = opts.y ?? 0
-  const w = opts.w ?? mask.w
-  const h = opts.h ?? mask.h
-  const globalAlpha = opts.alpha ?? 255
-  const blendFn = opts.blendFn ?? sourceOverPerfect
-  const mx = opts.mx ?? 0
-  const my = opts.my ?? 0
-  const invertMask = opts.invertMask ?? false
+  const targetX = opts?.x ?? 0
+  const targetY = opts?.y ?? 0
+  const w = opts?.w ?? mask.w
+  const h = opts?.h ?? mask.h
+  const globalAlpha = opts?.alpha ?? 255
+  const blendFn = opts?.blendFn ?? sourceOverPerfect
+  const mx = opts?.mx ?? 0
+  const my = opts?.my ?? 0
+  const invertMask = opts?.invertMask ?? false
 
   if (globalAlpha === 0) return false
 
@@ -52,16 +52,16 @@ export function blendColorPixelDataAlphaMask(
     y = 0
   }
 
-  actualW = Math.min(actualW, dst.width - x)
-  actualH = Math.min(actualH, dst.height - y)
+  actualW = Math.min(actualW, target.width - x)
+  actualH = Math.min(actualH, target.height - y)
 
   if (actualW <= 0 || actualH <= 0) return false
 
   const dx = (x - targetX) | 0
   const dy = (y - targetY) | 0
 
-  const dst32 = dst.data32
-  const dw = dst.width
+  const dst32 = target.data32
+  const dw = target.width
   const mPitch = mask.w
   const maskData = mask.data
 

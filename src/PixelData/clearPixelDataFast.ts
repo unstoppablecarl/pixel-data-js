@@ -3,9 +3,9 @@ import { fillPixelDataFast } from './fillPixelDataFast'
 
 /**
  * Clears a region of the PixelData to transparent (0x00000000).
- * Internally uses the optimized fillPixelData.
+ * Internally uses the optimized fillPixelDataFast.
  */
-export function clearPixelData(
+export function clearPixelDataFast(
   dst: IPixelData32,
   rect?: Partial<BinaryMaskRect>,
 ): void {

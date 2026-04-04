@@ -4,22 +4,19 @@ import { makeClippedRect, resolveRectClipping } from '../Internal/resolveClippin
 const SCRATCH_RECT = makeClippedRect()
 
 export function invertPixelData(
-  pixelData: IPixelData32,
-  opts: PixelMutateOptions = {},
+  target: IPixelData32,
+  opts?: PixelMutateOptions,
 ): boolean {
-  const dst = pixelData
-  const {
-    x: targetX = 0,
-    y: targetY = 0,
-    w: width = pixelData.width,
-    h: height = pixelData.height,
-    mask,
-    mx = 0,
-    my = 0,
-    invertMask = false,
-  } = opts
+  const mask = opts?.mask
+  const targetX = opts?.x ?? 0
+  const targetY = opts?.y ?? 0
+  const mx = opts?.mx ?? 0
+  const my = opts?.my ?? 0
+  const width = opts?.w ?? target.width
+  const height = opts?.h ?? target.height
+  const invertMask = opts?.invertMask ?? false
 
-  const clip = resolveRectClipping(targetX, targetY, width, height, dst.width, dst.height, SCRATCH_RECT)
+  const clip = resolveRectClipping(targetX, targetY, width, height, target.width, target.height, SCRATCH_RECT)
 
   if (!clip.inBounds) return false
 
@@ -30,8 +27,8 @@ export function invertPixelData(
     h: actualH,
   } = clip
 
-  const dst32 = dst.data32
-  const dw = dst.width
+  const dst32 = target.data32
+  const dw = target.width
   const mPitch = mask?.w ?? width
 
   const dx = x - targetX

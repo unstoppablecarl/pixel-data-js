@@ -1,8 +1,8 @@
-import type { Color32, HistoryMutator, Rect } from '../../_types'
-import { fillPixelDataFast } from '../../PixelData/fillPixelDataFast'
-import { PixelWriter } from '../PixelWriter'
+import type { Color32, Rect } from '../../_types'
+import { fillPixelData } from '../../PixelData/fillPixelData'
+import { type HistoryMutator, PixelWriter } from '../PixelWriter'
 
-const defaults = { fillPixelData: fillPixelDataFast }
+const defaults = { fillPixelData }
 
 type Deps = Partial<typeof defaults>
 
@@ -16,16 +16,18 @@ export const mutatorClear = ((writer: PixelWriter<any>, deps: Deps = defaults) =
 
   return {
     clear(
-      rect: Partial<Rect> = {},
+      rect?: Partial<Rect>,
     ) {
       const target = writer.config.target
-      const x = rect.x ?? 0
-      const y = rect.y ?? 0
-      const w = rect.w ?? target.width
-      const h = rect.h ?? target.height
+      const x = rect?.x ?? 0
+      const y = rect?.y ?? 0
+      const w = rect?.w ?? target.width
+      const h = rect?.h ?? target.height
 
-      writer.accumulator.storeRegionBeforeState(x, y, w, h)
-      fillPixelData(target, 0 as Color32, x, y, w, h)
+      const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
+      return didChange(
+        fillPixelData(target, 0 as Color32, x, y, w, h),
+      )
     },
   }
 }) satisfies HistoryMutator<any, Deps>

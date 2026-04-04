@@ -1,6 +1,6 @@
-import type { Color32, HistoryMutator, Rect } from '../../_types'
+import type { Color32, Rect } from '../../_types'
 import { fillPixelData } from '../../PixelData/fillPixelData'
-import { PixelWriter } from '../PixelWriter'
+import { type HistoryMutator, PixelWriter } from '../PixelWriter'
 
 const defaults = { fillPixelData }
 type Deps = Partial<typeof defaults>

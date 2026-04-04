@@ -1,19 +1,12 @@
-import { type BinaryMaskRect, type Color32, type ImageDataLike, MaskType, type Rect } from '../_types'
+import { type BinaryMaskRect, type Color32, MaskType, type Rect } from '../_types'
 import { colorDistance } from '../color'
 import { extractImageDataBuffer } from '../ImageData/extractImageDataBuffer'
 import type { PixelData } from '../PixelData/PixelData'
 import { trimMaskRectBounds } from '../Rect/trimMaskRectBounds'
 
-export type FloodFillImageDataOptions = {
-  contiguous?: boolean
-  tolerance?: number
-  bounds?: Rect
-}
-
-export type FloodFillResult = {
+export type FloodFillResult = BinaryMaskRect & {
   startX: number
   startY: number
-  selectionRect: BinaryMaskRect
   pixels: Uint8ClampedArray
 }
 
@@ -23,16 +16,15 @@ export type FloodFillResult = {
  * color tolerance. It can operate in "contiguous" mode (classic bucket fill) or
  * "non-contiguous" mode (selects all matching pixels in the buffer).
  *
- * @param img - The source image data to process.
+ * @param target - The source image data to process.
  * @param startX - The starting horizontal coordinate.
  * @param startY - The starting vertical coordinate.
- * @param options - Configuration for the fill operation.
- * @param options.contiguous - If true, only connected pixels are
+ * @param contiguous - If true, only connected pixels are
  * selected. If false, all pixels within tolerance are selected regardless of position.
- * @param options.tolerance - The maximum allowed difference in color
+ * @param tolerance - The maximum allowed difference in color
  * distance (0-255) for a pixel to be included.
- * @param options.bounds - Optional bounding box to restrict the search area.
- *
+ * @param bounds - Optional bounding box to restrict the search area.
+ * @param out output object
  * @returns A {@link FloodFillResult} containing the mask and bounds of the selection,
  * or `null` if the starting coordinates are out of bounds.
  *
@@ -50,49 +42,33 @@ export type FloodFillResult = {
  * ```
  */
 export function floodFillSelection(
-  img: ImageDataLike | PixelData,
+  target: PixelData,
   startX: number,
   startY: number,
-  {
-    contiguous = true,
-    tolerance = 0,
-    bounds,
-  }: FloodFillImageDataOptions = {},
+  contiguous = true,
+  tolerance = 0,
+  bounds?: Rect,
+  out?: FloodFillResult,
 ): FloodFillResult | null {
 
-  let imageData: ImageDataLike
-  let data32: Uint32Array
-  if ('data32' in img) {
-    data32 = img.data32
-    imageData = img.imageData
-  } else {
-    data32 = new Uint32Array(
-      img.data.buffer,
-      img.data.byteOffset,
-      img.data.byteLength >> 2,
-    )
-    imageData = img
-  }
-  const {
-    width,
-    height,
-  } = img
+  const data32 = target.data32
+  const width = target.width
+  const height = target.height
 
-  const limit = bounds || {
-    x: 0,
-    y: 0,
-    w: width,
-    h: height,
-  }
+  const lx = bounds?.x ?? 0
+  const ly = bounds?.y ?? 0
+  const lw = bounds?.w ?? width
+  const lh = bounds?.h ?? height
 
-  const xMin = Math.max(0, limit.x)
-  const xMax = Math.min(width - 1, limit.x + limit.w - 1)
-  const yMin = Math.max(0, limit.y)
-  const yMax = Math.min(height - 1, limit.y + limit.h - 1)
+  const xMin = Math.max(0, lx)
+  const xMax = Math.min(width - 1, lx + lw - 1)
+  const yMin = Math.max(0, ly)
+  const yMax = Math.min(height - 1, ly + lh - 1)
 
   if (startX < xMin || startX > xMax || startY < yMin || startY > yMax) {
     return null
   }
+  out = out ?? {} as FloodFillResult
 
   const baseColor = data32[startY * width + startX] as Color32
 
@@ -178,50 +154,43 @@ export function floodFillSelection(
     }
   }
 
-  if (matchCount === 0) {
-    return null
-  }
+  if (matchCount === 0) return null
+
   const w = maxX - minX + 1
   const h = maxY - minY + 1
-  const selectionRect: BinaryMaskRect = {
-    x: minX,
-    y: minY,
-    w,
-    h,
-    data: new Uint8Array(w * h),
-    type: MaskType.BINARY,
-  }
 
-  const sw = selectionRect.w
-  const sh = selectionRect.h
-  const finalMask = selectionRect.data
+  out.startX = startX
+  out.startY = startY
+  out.x = minX
+  out.y = minY
+  out.w = w
+  out.h = h
+  out.data = new Uint8Array(w * h)
+  out.type = MaskType.BINARY
+
+  const finalMask = out.data
 
   for (let i = 0; i < matchCount; i++) {
-    const mx = matchX[i] - selectionRect.x
-    const my = matchY[i] - selectionRect.y
+    const mx = matchX[i] - minX
+    const my = matchY[i] - minY
 
-    if (mx >= 0 && mx < sw && my >= 0 && my < sh) {
-      finalMask[my * sw + mx] = 1
+    if (mx >= 0 && mx < w && my >= 0 && my < h) {
+      finalMask[my * w + mx] = 1
     }
   }
 
   trimMaskRectBounds(
-    selectionRect,
+    out,
     { x: 0, y: 0, w: width, h: height },
   )
 
-  const extracted = extractImageDataBuffer(
-    imageData,
-    selectionRect.x,
-    selectionRect.y,
-    selectionRect.w,
-    selectionRect.h,
+  out.pixels = extractImageDataBuffer(
+    target.imageData,
+    out.x,
+    out.y,
+    out.w,
+    out.h,
   )
 
-  return {
-    startX,
-    startY,
-    selectionRect,
-    pixels: extracted,
-  }
+  return out
 }

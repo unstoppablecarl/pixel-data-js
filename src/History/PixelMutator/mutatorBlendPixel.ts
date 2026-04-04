@@ -1,6 +1,6 @@
-import type { BlendColor32, Color32, HistoryMutator } from '../../_types'
+import type { BlendColor32, Color32 } from '../../_types'
 import { blendPixel } from '../../PixelData/blendPixel'
-import { PixelWriter } from '../PixelWriter'
+import { type HistoryMutator, PixelWriter } from '../PixelWriter'
 
 const defaults = { blendPixel }
 type Deps = Partial<typeof defaults>

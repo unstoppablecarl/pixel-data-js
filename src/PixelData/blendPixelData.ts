@@ -16,20 +16,18 @@ import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
  * });
  */
 export function blendPixelData(
-  dst: IPixelData32,
+  target: IPixelData32,
   src: IPixelData32,
-  opts: PixelBlendOptions = {},
+  opts?: PixelBlendOptions,
 ): boolean {
-  const {
-    x: targetX = 0,
-    y: targetY = 0,
-    sx: sourceX = 0,
-    sy: sourceY = 0,
-    w: width = src.width,
-    h: height = src.height,
-    alpha: globalAlpha = 255,
-    blendFn = sourceOverPerfect,
-  } = opts
+  const targetX = opts?.x ?? 0
+  const targetY = opts?.y ?? 0
+  const sourceX = opts?.sx ?? 0
+  const sourceY = opts?.sy ?? 0
+  const width = opts?.w ?? src.width
+  const height = opts?.h ?? src.height
+  const globalAlpha = opts?.alpha ?? 255
+  const blendFn = opts?.blendFn ?? sourceOverPerfect
 
   if (globalAlpha === 0) return false
 
@@ -63,13 +61,13 @@ export function blendPixelData(
     y = 0
   }
 
-  const actualW = Math.min(w, dst.width - x)
-  const actualH = Math.min(h, dst.height - y)
+  const actualW = Math.min(w, target.width - x)
+  const actualH = Math.min(h, target.height - y)
   if (actualW <= 0 || actualH <= 0) return false
 
-  const dst32 = dst.data32
+  const dst32 = target.data32
   const src32 = src.data32
-  const dw = dst.width
+  const dw = target.width
   const sw = src.width
 
   let dIdx = (y * dw + x) | 0

@@ -14,9 +14,9 @@ function getValueImports(sourceFile: ts.SourceFile, filePath: string): string[] 
   function visit(node: ts.Node) {
     if (ts.isImportDeclaration(node)) {
       // Check if import is type-only
-      const isTypeOnly = node.importClause?.isTypeOnly
+      // const isTypeOnly = node.importClause?.isTypeOnly
 
-      if (!isTypeOnly && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
+      if (node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
         const importPath = node.moduleSpecifier.text
 
         // Resolve relative imports
@@ -122,7 +122,7 @@ const graph = buildModuleGraph(srcDir)
 const cycles = findCircularDependencies(graph)
 
 if (cycles.length === 0) {
-  console.log('✅ No circular value dependencies found!')
+  console.log('✅ No circular value dependencies found')
   process.exit(0)
 } else {
   console.log('❌ Circular value dependencies found:\n')

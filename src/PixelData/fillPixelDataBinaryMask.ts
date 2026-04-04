@@ -5,22 +5,19 @@ const SCRATCH_RECT = makeClippedRect()
 
 /**
  * Fills a region of the {@link IPixelData32} buffer with a solid color using a mask.
- * @param dst - The target to modify.
+ * @param target - The target to modify.
  * @param color - The color to apply.
  * @param mask - The mask defining the area to fill.
- * @param alpha - The overall opacity of the fill (0-255).
  * @param x - Starting horizontal coordinate for the mask placement.
  * @param y - Starting vertical coordinate for the mask placement.
  */
 export function fillPixelDataBinaryMask(
-  dst: IPixelData32,
+  target: IPixelData32,
   color: Color32,
   mask: BinaryMask,
-  alpha = 255,
   x = 0,
   y = 0,
 ): boolean {
-  if (alpha === 0) return false
 
   const maskW = mask.w
   const maskH = mask.h
@@ -30,8 +27,8 @@ export function fillPixelDataBinaryMask(
     y,
     maskW,
     maskH,
-    dst.width,
-    dst.height,
+    target.width,
+    target.height,
     SCRATCH_RECT,
   )
 
@@ -45,19 +42,8 @@ export function fillPixelDataBinaryMask(
   } = clip
 
   const maskData = mask.data
-  const dst32 = dst.data32
-  const dw = dst.width
-
-  // Pre-calculate the alpha-adjusted color once outside the loop
-  let finalCol = color
-
-  if (alpha < 255) {
-    const baseSrcAlpha = color >>> 24
-    const colorRGB = color & 0x00ffffff
-    const a = (baseSrcAlpha * alpha + 128) >> 8
-
-    finalCol = ((colorRGB | (a << 24)) >>> 0) as Color32
-  }
+  const dst32 = target.data32
+  const dw = target.width
 
   let hasChanged = false
 
@@ -75,8 +61,8 @@ export function fillPixelDataBinaryMask(
 
       if (maskData[maskIndex]) {
         const current = dst32[dstRowOffset + currentX]
-        if (current !== finalCol) {
-          dst32[dstRowOffset + currentX] = finalCol
+        if (current !== color) {
+          dst32[dstRowOffset + currentX] = color
           hasChanged = true
         }
       }

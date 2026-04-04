@@ -1,6 +1,6 @@
-import type { HistoryMutator, PixelMutateOptions } from '../../_types'
+import type { PixelMutateOptions } from '../../_types'
 import { invertPixelData } from '../../PixelData/invertPixelData'
-import { PixelWriter } from '../PixelWriter'
+import { type HistoryMutator, PixelWriter } from '../PixelWriter'
 
 const defaults = { invertPixelData }
 type Deps = Partial<typeof defaults>
@@ -14,14 +14,13 @@ export const mutatorInvert = ((writer: PixelWriter<any>, deps: Deps = defaults) 
   } = deps
 
   return {
-    invert(opts: PixelMutateOptions = {}) {
+    invert(opts?: PixelMutateOptions) {
       const target = writer.config.target
-      const {
-        x = 0,
-        y = 0,
-        w = target.width,
-        h = target.height,
-      } = opts
+      const x = opts?.x ?? 0
+      const y = opts?.y ?? 0
+      const w = opts?.w ?? target.width
+      const h = opts?.h ?? target.height
+
       const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
 
       return didChange(

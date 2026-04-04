@@ -8,13 +8,13 @@ const SCRATCH_RECT = makeClippedRect()
  * This function is faster than {@link fillPixelData} but does not
  * return a boolean value indicating changes were made.
  *
- * @param dst - The target to modify.
+ * @param target - The target to modify.
  * @param color - The color to apply.
  * @param rect - Defines the area to fill. If omitted, the entire
  * buffer is filled.
  */
 export function fillPixelDataFast(
-  dst: IPixelData32,
+  target: IPixelData32,
   color: Color32,
   rect?: Partial<Rect>,
 ): void

@@ -1,40 +1,38 @@
-import { type BinaryMaskRect, fillPixelDataFast, mutatorClear } from '@/index'
-import { describe, expect, it, vi } from 'vitest'
-import { mockAccumulatorMutator } from './_helpers'
+import { type BinaryMaskRect, fillPixelData, mutatorClear } from '@/index'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { mockMutator } from './_helpers'
 
 describe('mutatorClear', () => {
+  const {
+    mutator,
+    accumulator,
+    target,
+    spyDeps,
+  } = mockMutator(mutatorClear, { fillPixelData })
 
-  it('should call accumulator and clearPixelData with correct rect', () => {
+  beforeEach(() => {
+    vi.resetAllMocks()
+  })
+
+  it('should call accumulator', () => {
     const r: Partial<BinaryMaskRect> = {
       x: 10,
       y: 10,
       w: 50,
       h: 50,
     }
-    const fillPixelDataSpy = vi.fn(fillPixelDataFast) as unknown as typeof fillPixelDataFast
-
-    const {
-      mutator,
-      accumulator,
-      target,
-    } = mockAccumulatorMutator(mutatorClear, { fillPixelData: fillPixelDataSpy })
 
     mutator.clear(r)
 
     expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(r.x, r.y, r.w, r.h)
-    expect(fillPixelDataSpy).toHaveBeenCalledWith(target, 0, r.x, r.y, r.w, r.h)
+    expect(spyDeps.fillPixelData).toHaveBeenCalledWith(target, 0, r.x, r.y, r.w, r.h)
   })
 
-  it('should use default dimensions if rect is not provided', () => {
-    const fillPixelDataSpy = vi.fn(fillPixelDataFast) as unknown as typeof fillPixelDataFast
-
-    const {
-      mutator, accumulator, target,
-    } = mockAccumulatorMutator(mutatorClear, { fillPixelData: fillPixelDataSpy })
+  it('should call accumulator with defaults', () => {
 
     mutator.clear()
 
     expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, target.width, target.height)
-    expect(fillPixelDataSpy).toHaveBeenCalledWith(target, 0, 0, 0, target.width, target.height)
+    expect(spyDeps.fillPixelData).toHaveBeenCalledWith(target, 0, 0, 0, target.width, target.height)
   })
 })

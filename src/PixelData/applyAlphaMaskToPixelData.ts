@@ -6,20 +6,18 @@ import { type AlphaMask, type ApplyMaskToPixelDataOptions, type Color32, type IP
  * @returns true if any pixels were actually modified.
  */
 export function applyAlphaMaskToPixelData(
-  dst: IPixelData32,
+  target: IPixelData32,
   mask: AlphaMask,
-  opts: ApplyMaskToPixelDataOptions = {},
+  opts?: ApplyMaskToPixelDataOptions,
 ): boolean {
-  const {
-    x: targetX = 0,
-    y: targetY = 0,
-    w: width = dst.width,
-    h: height = dst.height,
-    alpha: globalAlpha = 255,
-    mx = 0,
-    my = 0,
-    invertMask = false,
-  } = opts
+  const targetX = opts?.x ?? 0
+  const targetY = opts?.y ?? 0
+  const width = opts?.w ?? target.width
+  const height = opts?.h ?? target.height
+  const globalAlpha = opts?.alpha ?? 255
+  const mx = opts?.mx ?? 0
+  const my = opts?.my ?? 0
+  const invertMask = opts?.invertMask ?? false
 
   if (globalAlpha === 0) return false
 
@@ -39,8 +37,8 @@ export function applyAlphaMaskToPixelData(
     y = 0
   }
 
-  w = Math.min(w, dst.width - x)
-  h = Math.min(h, dst.height - y)
+  w = Math.min(w, target.width - x)
+  h = Math.min(h, target.height - y)
 
   if (w <= 0) return false
   if (h <= 0) return false
@@ -72,8 +70,8 @@ export function applyAlphaMaskToPixelData(
   const xShift = sX0 - startX
   const yShift = sY0 - startY
 
-  const dst32 = dst.data32
-  const dw = dst.width
+  const dst32 = target.data32
+  const dw = target.width
   const dStride = dw - finalW
   const mStride = mPitch - finalW
   const maskData = mask.data

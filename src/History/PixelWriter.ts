@@ -59,19 +59,15 @@ export class PixelWriter<M> {
 
   private _inProgress = false
 
-  constructor(target: PixelData, mutatorFactory: (writer: PixelWriter<any>) => M, {
-    tileSize = 256,
-    maxHistorySteps = 50,
-    historyManager = new HistoryManager(maxHistorySteps),
-    historyActionFactory = makeHistoryAction,
-    pixelTilePool,
-    accumulator,
-  }: PixelWriterOptions = {}) {
+  constructor(target: PixelData, mutatorFactory: (writer: PixelWriter<any>) => M, options?: PixelWriterOptions) {
+    const tileSize = options?.tileSize ?? 256
+    const maxHistorySteps = options?.maxHistorySteps ?? 50
+
     this.config = new PixelEngineConfig(tileSize, target)
-    this.historyManager = historyManager
-    this.pixelTilePool = pixelTilePool ?? new PixelTilePool(this.config)
-    this.accumulator = accumulator ?? new PixelAccumulator(this.config, this.pixelTilePool)
-    this.historyActionFactory = historyActionFactory
+    this.historyManager = options?.historyManager ?? new HistoryManager(maxHistorySteps)
+    this.historyActionFactory = options?.historyActionFactory ?? makeHistoryAction
+    this.pixelTilePool = options?.pixelTilePool ?? new PixelTilePool(this.config)
+    this.accumulator = options?.accumulator ?? new PixelAccumulator(this.config, this.pixelTilePool)
     this.mutator = mutatorFactory(this)
     this.paintBuffer = new PaintBuffer(this.config, this.pixelTilePool)
   }
@@ -115,7 +111,7 @@ export class PixelWriter<M> {
     if (this.accumulator.beforeTiles.length === 0) return
 
     const patch = this.accumulator.extractPatch()
-    const action = this.historyActionFactory(this, patch, after, afterUndo, afterRedo)
+    const action = this.historyActionFactory(this.config, this.accumulator, patch, after, afterUndo, afterRedo)
 
     this.historyManager.commit(action)
   }
@@ -200,3 +196,5 @@ export class PixelWriter<M> {
     paintBuffer.clear()
   }
 }
+
+export type HistoryMutator<T extends {}, D extends {}> = (writer: PixelWriter<any>, deps?: Partial<D>) => T

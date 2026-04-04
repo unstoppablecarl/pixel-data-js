@@ -2,11 +2,12 @@ import glob from 'fast-glob'
 import { readFile, writeFile } from 'fs/promises'
 import { fileURLToPath } from 'node:url'
 import path from 'path'
+import p from 'picocolors'
 
 applySortBlocksToFiles([
-  // 'src/index.ts',
   'src/**/*.ts',
-  'tests/**/*.ts'
+  'benchmark/**/*.ts',
+  'tests/**/*.ts',
 ])
 
 async function applySortBlocksToFiles(pattern: string | string[]): Promise<void> {
@@ -39,33 +40,37 @@ async function applySortBlocksToFiles(pattern: string | string[]): Promise<void>
     }),
   )).filter(f => f.status !== 'skipped')
 
-
-  const icons: Record<Status, string> = { updated: '✓', unchanged: '–', skipped: '·' }
+  const icons: Record<Status, string> = { updated: p.green('✓'), unchanged: p.yellow('–'), skipped: '·' }
 
   for (const { file, status } of results) {
-    console.log(`${icons[status]} ${file} (${status})`)
-  }
 
-  const counts = results.reduce<Record<Status, number>>(
-    (acc, { status }) => {
-      acc[status]++
-      return acc
-    },
-    { updated: 0, unchanged: 0, skipped: 0 },
-  )
+    let _status: string = status
+    if (status === 'unchanged') {
+      _status = p.yellow(status)
+    } else if (status === 'updated') {
+      _status = p.green(status)
+    }
+
+    console.log(`${icons[status]} ${file} (${_status})`)
+  }
 
   const updated = results.filter(r => r.status === 'updated')
 
   if (updated.length === 0) {
-    console.log('Nothing to sort.')
+    console.log()
+    console.log(p.cyan('  Nothing to sort.'))
     return
   }
 
-  for (const { file } of updated) {
-    console.log(`✓ ${file}`)
+  if (updated.length) {
+    console.log()
+    console.log(p.green('  Updated:'))
+    for (const { file } of updated) {
+      console.log(p.green(`✓ `) + file)
+    }
   }
 
-  console.log(`\nSorted ${updated.length} file${updated.length === 1 ? '' : 's'}`)
+  console.log(p.cyan(`\nSorted ${updated.length} file${updated.length === 1 ? '' : 's'}`))
 }
 
 function applySortBlocks(code: string): string {

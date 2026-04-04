@@ -1,30 +1,39 @@
-import { mutatorApplyBinaryMask } from '@/index'
-import { describe, expect, it, vi } from 'vitest'
+import { applyBinaryMaskToPixelData, mutatorApplyBinaryMask } from '@/index'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeTestBinaryMask } from '../../_helpers'
-import { mockAccumulatorMutator } from './_helpers'
+import { mockMutator } from './_helpers'
 
 describe('mutatorApplyBinaryMask', () => {
+  const {
+    mutator,
+    accumulator,
+    target,
+    spyDeps,
+  } = mockMutator(mutatorApplyBinaryMask, { applyBinaryMaskToPixelData })
 
-  it('should call accumulator and applyBinaryMaskToPixelData', () => {
+  beforeEach(() => {
+    vi.resetAllMocks()
+  })
+
+  it('should call accumulator', () => {
     const mask = makeTestBinaryMask(2, 2, 1)
-    const options = {
+    const o = {
       x: 5,
-      y: 5,
-      w: 2,
-      h: 2,
+      y: 6,
+      w: 7,
+      h: 8,
     }
 
-    const applyBinaryMaskSpy = vi.fn()
+    mutator.applyBinaryMask(mask, o)
 
-    const {
-      mutator,
-      accumulator,
-      target,
-    } = mockAccumulatorMutator(mutatorApplyBinaryMask, { applyBinaryMaskToPixelData: applyBinaryMaskSpy })
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(o.x, o.y, o.w, o.h)
+    expect(spyDeps.applyBinaryMaskToPixelData).toHaveBeenCalledWith(target, mask, o)
+  })
 
-    mutator.applyBinaryMask(mask, options)
-
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(5, 5, 2, 2)
-    expect(applyBinaryMaskSpy).toHaveBeenCalledWith(target, mask, options)
+  it('should call accumulator with defaults', () => {
+    const mask = makeTestBinaryMask(2, 3)
+    mutator.applyBinaryMask(mask)
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, target.width, target.height)
+    expect(spyDeps.applyBinaryMaskToPixelData).toHaveBeenCalledWith(target, mask, undefined)
   })
 })

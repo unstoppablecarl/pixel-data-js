@@ -1,21 +1,18 @@
-import { type Color32, type HistoryMutator, MaskType, type PaintMask } from '../../_types'
+import { type Color32, type PaintAlphaMask } from '../../_types'
 import { sourceOverPerfect } from '../../BlendModes/blend-modes-perfect'
 import { blendColorPixelDataAlphaMask } from '../../PixelData/blendColorPixelDataAlphaMask'
-import { blendColorPixelDataBinaryMask } from '../../PixelData/blendColorPixelDataBinaryMask'
-import { PixelWriter } from '../PixelWriter'
+import { type HistoryMutator, PixelWriter } from '../PixelWriter'
 
 const defaults = {
   blendColorPixelDataAlphaMask,
-  blendColorPixelDataBinaryMask,
 }
 type Deps = Partial<typeof defaults>
 
 /**
  * @param deps - @hidden
  */
-export const mutatorBlendPaintMask = ((writer: PixelWriter<any>, deps: Partial<Deps> = defaults) => {
+export const mutatorBlendColorPaintAlphaMask = ((writer: PixelWriter<any>, deps: Partial<Deps> = defaults) => {
   const {
-    blendColorPixelDataBinaryMask = defaults.blendColorPixelDataBinaryMask,
     blendColorPixelDataAlphaMask = defaults.blendColorPixelDataAlphaMask,
   } = deps
 
@@ -27,9 +24,9 @@ export const mutatorBlendPaintMask = ((writer: PixelWriter<any>, deps: Partial<D
   }
 
   return {
-    blendColorPaintMask(
+    blendColorPaintAlphaMask(
       color: Color32,
-      mask: PaintMask,
+      mask: PaintAlphaMask,
       x: number,
       y: number,
       alpha = 255,
@@ -45,15 +42,9 @@ export const mutatorBlendPaintMask = ((writer: PixelWriter<any>, deps: Partial<D
       OPTS.alpha = alpha
       OPTS.blendFn = blendFn
 
-      if (mask.type === MaskType.BINARY) {
-        return didChange(
-          blendColorPixelDataBinaryMask(writer.config.target, color, mask, OPTS),
-        )
-      } else {
-        return didChange(
-          blendColorPixelDataAlphaMask(writer.config.target, color, mask, OPTS),
-        )
-      }
+      return didChange(
+        blendColorPixelDataAlphaMask(writer.config.target, color, mask, OPTS),
+      )
     },
   }
 }) satisfies HistoryMutator<any, Deps>

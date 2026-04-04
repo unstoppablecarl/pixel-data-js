@@ -10,8 +10,8 @@ const SCRATCH_OPTS = {
 }
 
 export function blendPixelDataPaintBuffer(
-  paintBuffer: PaintBuffer,
   target: IPixelData32,
+  paintBuffer: PaintBuffer,
   alpha = 255,
   blendFn?: BlendColor32,
   blendPixelDataFn = blendPixelData,

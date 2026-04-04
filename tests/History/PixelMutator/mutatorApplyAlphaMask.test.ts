@@ -1,30 +1,39 @@
-import { mutatorApplyAlphaMask } from '@/index'
-import { describe, expect, it, vi } from 'vitest'
+import { applyAlphaMaskToPixelData, mutatorApplyAlphaMask } from '@/index'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeTestAlphaMask } from '../../_helpers'
-import { mockAccumulatorMutator } from './_helpers'
+import { mockMutator } from './_helpers'
 
 describe('mutatorApplyAlphaMask', () => {
+  const {
+    mutator,
+    accumulator,
+    target,
+    spyDeps,
+  } = mockMutator(mutatorApplyAlphaMask, { applyAlphaMaskToPixelData })
 
-  it('should call accumulator and applyAlphaMaskToPixelData', () => {
+  beforeEach(() => {
+    vi.resetAllMocks()
+  })
+
+  it('should call accumulator', () => {
     const mask = makeTestAlphaMask(2, 2, 1)
-    const options = {
+    const o = {
       x: 5,
       y: 5,
       w: 2,
       h: 2,
     }
 
-    const applyAlphaMaskSpy = vi.fn()
+    mutator.applyAlphaMask(mask, o)
 
-    const {
-      mutator,
-      accumulator,
-      target,
-    } = mockAccumulatorMutator(mutatorApplyAlphaMask, { applyAlphaMaskToPixelData: applyAlphaMaskSpy })
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(o.x, o.y, o.w, o.h)
+    expect(spyDeps.applyAlphaMaskToPixelData).toHaveBeenCalledWith(target, mask, o)
+  })
 
-    mutator.applyAlphaMask(mask, options)
-
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(5, 5, 2, 2)
-    expect(applyAlphaMaskSpy).toHaveBeenCalledWith(target, mask, options)
+  it('should call accumulator with defaults', () => {
+    const mask = makeTestAlphaMask(2, 2, 1)
+    mutator.applyAlphaMask(mask)
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, target.width, target.height)
+    expect(spyDeps.applyAlphaMaskToPixelData).toHaveBeenCalledWith(target, mask, undefined)
   })
 })

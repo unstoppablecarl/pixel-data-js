@@ -6,19 +6,16 @@ import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
  * @returns true if any pixels were actually modified.
  */
 export function blendColorPixelData(
-  dst: IPixelData32,
+  target: IPixelData32,
   color: Color32,
-  opts: ColorBlendOptions = {},
+  opts?: ColorBlendOptions,
 ): boolean {
-  const {
-    x: targetX = 0,
-    y: targetY = 0,
-    w: width = dst.width,
-    h: height = dst.height,
-    alpha: globalAlpha = 255,
-    blendFn = sourceOverPerfect,
-  } = opts
-
+  const targetX = opts?.x ?? 0
+  const targetY = opts?.y ?? 0
+  const width = opts?.w ?? target.width
+  const height = opts?.h ?? target.height
+  const globalAlpha = opts?.alpha ?? 255
+  const blendFn = opts?.blendFn ?? sourceOverPerfect
   if (globalAlpha === 0) return false
 
   const baseSrcAlpha = (color >>> 24)
@@ -42,8 +39,8 @@ export function blendColorPixelData(
     y = 0
   }
 
-  const actualW = Math.min(w, dst.width - x)
-  const actualH = Math.min(h, dst.height - y)
+  const actualW = Math.min(w, target.width - x)
+  const actualH = Math.min(h, target.height - y)
 
   if (actualW <= 0 || actualH <= 0) return false
 
@@ -56,8 +53,8 @@ export function blendColorPixelData(
     finalSrcColor = ((color & 0x00ffffff) | (a << 24)) >>> 0 as Color32
   }
 
-  const dst32 = dst.data32
-  const dw = dst.width
+  const dst32 = target.data32
+  const dw = target.width
   let dIdx = (y * dw + x) | 0
   const dStride = (dw - actualW) | 0
   let didChange = false

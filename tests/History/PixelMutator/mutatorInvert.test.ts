@@ -1,26 +1,37 @@
 import { invertPixelData, mutatorInvert } from '@/index'
-import { describe, expect, it, vi } from 'vitest'
-import { mockAccumulatorMutator } from './_helpers'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { mockMutator } from './_helpers'
 
 describe('mutatorInvert', () => {
-  it('should call accumulator and invertPixelData', () => {
-    const options = {
-      x: 15,
+  const {
+    mutator,
+    accumulator,
+    target,
+    spyDeps,
+  } = mockMutator(mutatorInvert, { invertPixelData })
+
+  beforeEach(() => {
+    vi.resetAllMocks()
+  })
+
+  it('should call accumulator', () => {
+    const o = {
+      x: 14,
       y: 15,
       w: 30,
-      h: 30,
+      h: 33,
     }
-    const invertPixelDataSpy = vi.fn(invertPixelData)
 
-    const {
-      mutator,
-      accumulator,
-      target,
-    } = mockAccumulatorMutator(mutatorInvert, { invertPixelData: invertPixelDataSpy })
+    mutator.invert(o)
 
-    mutator.invert(options)
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(o.x, o.y, o.w, o.h)
+    expect(spyDeps.invertPixelData).toHaveBeenCalledWith(target, o)
+  })
 
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(15, 15, 30, 30)
-    expect(invertPixelDataSpy).toHaveBeenCalledWith(target, options)
+  it('should call accumulator with defaults', () => {
+    mutator.invert()
+
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, target.width, target.height)
+    expect(spyDeps.invertPixelData).toHaveBeenCalledWith(target, undefined)
   })
 })

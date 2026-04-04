@@ -1,6 +1,7 @@
-import { CANVAS_CTX_FAILED, makeReusableCanvas, makeReusableOffscreenCanvas } from '@/index'
+import { makeReusableCanvas, makeReusableOffscreenCanvas } from '@/index'
 import { createCanvas } from '@napi-rs/canvas'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { CANVAS_CTX_FAILED } from '../../support/error-strings'
 
 describe('makeReusableCanvas', () => {
   beforeEach(() => {

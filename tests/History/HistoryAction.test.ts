@@ -1,11 +1,12 @@
-import { type IPixelData32, makeHistoryAction, PixelWriter } from '@/index'
+import { type IPixelData32, makeHistoryAction, PixelAccumulator, PixelEngineConfig } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeTestPixelData } from '../_helpers'
 
 describe('makeHistoryAction', () => {
   let target: IPixelData32
   const tileSize = 16
-  let writer: PixelWriter<any>
+  let config: PixelEngineConfig
+  let accumulator: PixelAccumulator
 
   const mockPatch = {
     beforeTiles: [
@@ -27,14 +28,14 @@ describe('makeHistoryAction', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     target = makeTestPixelData(10, 10)
-    writer = {
-      config: {
-        target,
-        tileSize,
-      },
-      accumulator: {
-        recyclePatch: vi.fn(),
-      },
+
+    config = {
+      target,
+      tileSize,
+    } as any
+
+    accumulator = {
+      recyclePatch: vi.fn(),
     } as any
   })
 
@@ -43,7 +44,8 @@ describe('makeHistoryAction', () => {
     const afterUndo = vi.fn()
     const applyPatchTiles = vi.fn()
     const action = makeHistoryAction(
-      writer,
+      config,
+      accumulator,
       mockPatch,
       after,
       afterUndo,
@@ -68,7 +70,8 @@ describe('makeHistoryAction', () => {
     const applyPatchTiles = vi.fn()
 
     const action = makeHistoryAction(
-      writer,
+      config,
+      accumulator,
       mockPatch,
       after,
       undefined,
@@ -89,24 +92,26 @@ describe('makeHistoryAction', () => {
 
   it('should recycle the patch when dispose is called', () => {
     const action = makeHistoryAction(
-      writer,
+      config,
+      accumulator,
       mockPatch,
     )
 
     action.dispose?.()
 
-    expect(writer.accumulator.recyclePatch).toHaveBeenCalledWith(mockPatch)
+    expect(accumulator.recyclePatch).toHaveBeenCalledWith(mockPatch)
   })
 
   it('should not crash if optional callbacks are omitted', () => {
     const applyPatchTiles = vi.fn()
     const action = makeHistoryAction(
-      writer,
+      config,
+      accumulator,
       mockPatch,
       undefined,
       undefined,
       undefined,
-      applyPatchTiles
+      applyPatchTiles,
     )
 
     action.undo()

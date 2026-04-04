@@ -1,0 +1,43 @@
+import { type IPixelData32, type Mask, MaskType, type PixelBlendMaskOptions } from '../../_types'
+import { blendPixelDataAlphaMask } from '../../PixelData/blendPixelDataAlphaMask'
+import { blendPixelDataBinaryMask } from '../../PixelData/blendPixelDataBinaryMask'
+import { type HistoryMutator, PixelWriter } from '../PixelWriter'
+
+const defaults = { blendPixelDataAlphaMask, blendPixelDataBinaryMask }
+type Deps = Partial<typeof defaults>
+
+/**
+ * @param deps - @hidden
+ */
+export const mutatorBlendMask = ((writer: PixelWriter<any>, deps: Partial<Deps> = defaults) => {
+  const {
+    blendPixelDataAlphaMask = defaults.blendPixelDataAlphaMask,
+    blendPixelDataBinaryMask = defaults.blendPixelDataBinaryMask,
+  } = deps
+
+  return {
+    blendMask(
+      src: IPixelData32,
+      mask: Mask,
+      opts?: PixelBlendMaskOptions,
+    ): boolean {
+      const x = opts?.x ?? 0
+      const y = opts?.y ?? 0
+      const w = opts?.w ?? src.width
+      const h = opts?.h ?? src.height
+
+      const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
+
+      if (mask.type === MaskType.BINARY) {
+        return didChange(
+          blendPixelDataBinaryMask(writer.config.target, src, mask, opts),
+        )
+      } else {
+        return didChange(
+          blendPixelDataAlphaMask(writer.config.target, src, mask, opts),
+        )
+      }
+    },
+  }
+}) satisfies HistoryMutator<any, Deps>
+

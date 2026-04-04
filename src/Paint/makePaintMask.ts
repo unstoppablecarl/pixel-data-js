@@ -1,5 +1,5 @@
 import { type AlphaMask, type BinaryMask, MaskType, type PaintAlphaMask, type PaintBinaryMask } from '../_types'
-import { macro_halfAndFloor } from '../Internal/helpers'
+import { _macro_halfAndFloor } from '../Internal/helpers'
 
 export function makePaintBinaryMask(
   mask: BinaryMask,
@@ -9,8 +9,8 @@ export function makePaintBinaryMask(
     data: mask.data,
     w: mask.w,
     h: mask.h,
-    centerOffsetX: -macro_halfAndFloor(mask.w),
-    centerOffsetY: -macro_halfAndFloor(mask.h),
+    centerOffsetX: -_macro_halfAndFloor(mask.w),
+    centerOffsetY: -_macro_halfAndFloor(mask.h),
   }
 }
 
@@ -22,7 +22,7 @@ export function makePaintAlphaMask(
     data: mask.data,
     w: mask.w,
     h: mask.h,
-    centerOffsetX: -macro_halfAndFloor(mask.w),
-    centerOffsetY: -macro_halfAndFloor(mask.h),
+    centerOffsetX: -_macro_halfAndFloor(mask.w),
+    centerOffsetY: -_macro_halfAndFloor(mask.h),
   }
 }

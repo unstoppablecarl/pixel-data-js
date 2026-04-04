@@ -41,7 +41,7 @@ export default defineConfig({
         resolve: {
           alias: {
             // Map the specific entry point for tests
-            '@/index': fileURLToPath(new URL('./dist/index.dev.js', import.meta.url)),
+            '@/index': fileURLToPath(new URL('./dist/index.prod.js', import.meta.url)),
 
             // 2. Map the root alias
             '@/': fileURLToPath(new URL('./dist/', import.meta.url)),
@@ -52,6 +52,7 @@ export default defineConfig({
           include: ['tests/**/*.test.ts'],
           exclude: [
             'tests/Clipboard/*',
+            'tests/**/NonBuild/*.test.ts',
             'tests/Input/*',
           ],
           environment: 'jsdom',

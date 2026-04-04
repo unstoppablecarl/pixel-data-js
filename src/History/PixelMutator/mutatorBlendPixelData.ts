@@ -1,6 +1,6 @@
-import type { HistoryMutator, IPixelData32, PixelBlendOptions } from '../../_types'
+import type { IPixelData32, PixelBlendOptions } from '../../_types'
 import { blendPixelData } from '../../PixelData/blendPixelData'
-import { PixelWriter } from '../PixelWriter'
+import { type HistoryMutator, PixelWriter } from '../PixelWriter'
 
 const defaults = { blendPixelData }
 type Deps = Partial<typeof defaults>
@@ -16,14 +16,13 @@ export const mutatorBlendPixelData = ((writer: PixelWriter<any>, deps: Partial<D
   return {
     blendPixelData(
       src: IPixelData32,
-      opts: PixelBlendOptions = {},
+      opts?: PixelBlendOptions,
     ): boolean {
-      const {
-        x = 0,
-        y = 0,
-        w = src.width,
-        h = src.height,
-      } = opts
+      const x = opts?.x ?? 0
+      const y = opts?.y ?? 0
+      const w = opts?.w ?? src.width
+      const h = opts?.h ?? src.height
+
       const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
 
       return didChange(

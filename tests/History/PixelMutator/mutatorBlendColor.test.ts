@@ -1,29 +1,38 @@
 import { blendColorPixelData, type Color32, mutatorBlendColor } from '@/index'
-import { describe, expect, it, vi } from 'vitest'
-import { mockAccumulatorMutator } from './_helpers'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { mockMutator } from './_helpers'
 
 describe('mutatorBlendColor', () => {
+  const {
+    mutator,
+    accumulator,
+    target,
+    spyDeps,
+  } = mockMutator(mutatorBlendColor, { blendColorPixelData })
 
-  it('should call accumulator and blendColorPixelData', () => {
+  beforeEach(() => {
+    vi.resetAllMocks()
+  })
+
+  it('should call accumulator', () => {
     const color = 0xFF0000FF as Color32
-    const options = {
+    const o = {
       x: 10,
-      y: 10,
+      y: 11,
       w: 20,
-      h: 20,
+      h: 22,
     }
 
-    const blendColorPixelDataSpy = vi.fn(blendColorPixelData)
+    mutator.blendColor(color, o)
 
-    const {
-      mutator,
-      accumulator,
-      target,
-    } = mockAccumulatorMutator(mutatorBlendColor, { blendColorPixelData: blendColorPixelDataSpy })
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(o.x, o.y, o.w, o.h)
+    expect(spyDeps.blendColorPixelData).toHaveBeenCalledWith(target, color, o)
+  })
 
-    mutator.blendColor(color, options)
-
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(10, 10, 20, 20)
-    expect(blendColorPixelDataSpy).toHaveBeenCalledWith(target, color, options)
+  it('should call accumulator with defaults', () => {
+    const color = 0xFF0000FF as Color32
+    mutator.blendColor(color)
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, target.width, target.height)
+    expect(spyDeps.blendColorPixelData).toHaveBeenCalledWith(target, color, undefined)
   })
 })

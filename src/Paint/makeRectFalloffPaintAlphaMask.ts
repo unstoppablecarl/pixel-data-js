@@ -1,5 +1,5 @@
 import { MaskType, type PaintAlphaMask } from '../_types'
-import { macro_halfAndFloor } from '../Internal/helpers'
+import { _macro_halfAndFloor } from '../Internal/helpers'
 
 export function makeRectFalloffPaintAlphaMask(
   width: number,
@@ -41,7 +41,7 @@ export function makeRectFalloffPaintAlphaMask(
     data: data,
     w: width,
     h: height,
-    centerOffsetX: -macro_halfAndFloor(width),
-    centerOffsetY: -macro_halfAndFloor(height),
+    centerOffsetX: -_macro_halfAndFloor(width),
+    centerOffsetY: -_macro_halfAndFloor(height),
   }
 }

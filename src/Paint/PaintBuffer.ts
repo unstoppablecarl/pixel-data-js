@@ -1,7 +1,7 @@
 import type { Color32, PaintAlphaMask, PaintBinaryMask, Rect } from '../_types'
 import { forEachLinePoint } from '../Algorithm/forEachLinePoint'
 import type { PixelEngineConfig } from '../History/PixelEngineConfig'
-import { macro_halfAndFloor } from '../Internal/helpers'
+import { _macro_paintRectCenterOffset } from '../Internal/helpers'
 import type { PixelTile } from '../PixelTile/PixelTile'
 import type { PixelTilePool } from '../PixelTile/PixelTilePool'
 import { trimRectBounds } from '../Rect/trimRectBounds'
@@ -205,8 +205,8 @@ export class PaintBuffer {
     const target = config.target
     const scratch = this.scratchBounds
 
-    const centerOffsetX = macro_halfAndFloor(brushWidth - 1)
-    const centerOffsetY = macro_halfAndFloor(brushHeight - 1)
+    const centerOffsetX = -_macro_paintRectCenterOffset(brushWidth)
+    const centerOffsetY = -_macro_paintRectCenterOffset(brushHeight)
 
     let changed = false
 

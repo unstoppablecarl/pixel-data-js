@@ -1,6 +1,6 @@
-import type { Color32, ColorBlendOptions, HistoryMutator } from '../../_types'
+import type { Color32, ColorBlendOptions } from '../../_types'
 import { blendColorPixelData } from '../../PixelData/blendColorPixelData'
-import { PixelWriter } from '../PixelWriter'
+import { type HistoryMutator, PixelWriter } from '../PixelWriter'
 
 const defaults = { blendColorPixelData }
 type Deps = Partial<typeof defaults>
@@ -16,15 +16,14 @@ export const mutatorBlendColor = ((writer: PixelWriter<any>, deps: Deps = defaul
   return {
     blendColor(
       color: Color32,
-      opts: ColorBlendOptions = {},
+      opts?: ColorBlendOptions,
     ): boolean {
       const target = writer.config.target
-      const {
-        x = 0,
-        y = 0,
-        w = target.width,
-        h = target.height,
-      } = opts
+      const x = opts?.x ?? 0
+      const y = opts?.y ?? 0
+      const w = opts?.w ?? target.width
+      const h = opts?.h ?? target.height
+
       const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
       return didChange(
         blendColorPixelData(target, color, opts),

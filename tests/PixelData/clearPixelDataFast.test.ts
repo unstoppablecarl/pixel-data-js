@@ -1,15 +1,15 @@
-import { clearPixelData } from '@/index'
+import { clearPixelDataFast } from '@/index'
 import { describe, expect, it } from 'vitest'
 import { makeTestPixelData, pack } from '../_helpers'
 
 const BLUE = pack(0, 0, 255, 255)
 
-describe('clearPixelData', () => {
+describe('clearPixelDataFast', () => {
   it('clears a specific region to transparent', () => {
     const dst = makeTestPixelData(2, 2, BLUE)
 
     // Clear the top-left pixel only
-    clearPixelData(dst, {
+    clearPixelDataFast(dst, {
       x: 0,
       y: 0,
       w: 1,
@@ -28,7 +28,7 @@ describe('clearPixelData', () => {
   it('clears the entire buffer by default', () => {
     const dst = makeTestPixelData(5, 5, BLUE)
 
-    clearPixelData(dst)
+    clearPixelDataFast(dst)
 
     const isAllClear = Array.from(dst.data32).every((val) => val === 0)
     expect(isAllClear).toBe(true)

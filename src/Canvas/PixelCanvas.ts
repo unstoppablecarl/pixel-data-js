@@ -1,4 +1,4 @@
-import { CANVAS_CTX_FAILED } from './_constants'
+import { CANVAS_CTX_FAILED } from '../../support/error-strings'
 
 export type PixelCanvas = {
   readonly canvas: HTMLCanvasElement,

@@ -1,5 +1,3 @@
-import { PixelWriter, sourceOverPerfect } from './index'
-
 /** ALL values are 0-255 (including alpha which in CSS is 0-1) */
 export type RGBA = { r: number, g: number, b: number, a: number }
 
@@ -63,20 +61,22 @@ export enum MaskType {
   BINARY
 }
 
-export interface Mask {
+export interface BaseMask {
   readonly type: MaskType
   readonly data: Uint8Array
   readonly w: number
   readonly h: number
 }
 
+export type Mask = BinaryMask | AlphaMask
+
 /** Strictly 0 or 1 */
-export interface BinaryMask extends Mask {
+export interface BinaryMask extends BaseMask {
   readonly type: MaskType.BINARY
 }
 
 /** Strictly 0-255 */
-export interface AlphaMask extends Mask {
+export interface AlphaMask extends BaseMask {
   readonly type: MaskType.ALPHA
 }
 
@@ -210,6 +210,9 @@ export interface ColorBlendOptions extends PixelRect, Alpha {
 export interface ColorBlendMaskOptions extends ColorBlendOptions, MaskOffset, InvertMask {
 }
 
+export interface ColorBlendPaintMaskOptions extends Omit<ColorBlendOptions, 'w' | 'h'> {
+}
+
 export type MaskRect<T extends MaskType> = Rect & {
   type: T
   data: Uint8Array
@@ -234,8 +237,6 @@ export type NullableMaskRect = Rect & ({
   type?: null
   data?: null
 })
-
-export type HistoryMutator<T extends {}, D extends {}> = (writer: PixelWriter<any>, deps?: Partial<D>) => T
 
 export interface IPixelData32 {
   readonly data32: Uint32Array

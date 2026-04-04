@@ -1,8 +1,8 @@
 {
   "name": "pixel-data-js",
   "type": "module",
-  "version": "0.25.2",
-  "packageManager": "pnpm@10.30.0",
+  "version": "0.26.0",
+  "packageManager": "pnpm@10.33.0",
   "description": "JS Pixel and ImageData operations",
   "author": {
     "name": "Carl Olsen",
@@ -27,10 +27,6 @@
     ".": {
       "types": "./dist/index.prod.d.ts",
       "source": "./src/index.ts",
-      "development": {
-        "require": "./dist/index.dev.cjs",
-        "import": "./dist/index.dev.js"
-      },
       "production": {
         "require": "./dist/index.prod.cjs",
         "import": "./dist/index.prod.js"
@@ -49,6 +45,8 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest --coverage --project unit",
+    "re-index": "tsx _scripts/re-index.ts",
+    "check": "npm run check-circ && npm run re-index && npm run sort && npm run typecheck",
     "test:build": "pnpm build && vitest run --project dist",
     "check-circ": "tsx _scripts/check-circular.ts",
     "test:mutation": "stryker run",
@@ -63,7 +61,7 @@
   "devDependencies": {
     "@clack/prompts": "^1.1.0",
     "@mitata/counters": "^0.0.8",
-    "@napi-rs/canvas": "^0.1.93",
+    "@napi-rs/canvas": "^0.1.97",
     "@stryker-mutator/core": "^9.5.1",
     "@stryker-mutator/typescript-checker": "^9.5.1",
     "@stryker-mutator/vitest-runner": "^9.5.1",
@@ -83,13 +81,14 @@
     "sanitize-filename": "^1.6.3",
     "sharp": "^0.34.5",
     "simple-git": "^3.33.0",
+    "source-map": "^0.7.6",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
-    "typedoc": "^0.28.17",
+    "typedoc": "^0.28.18",
     "typedoc-plugin-mdn-links": "^5.1.1",
     "typedoc-rhineai-theme": "^1.2.0",
     "typescript": "^5.9.3",
-    "unplugin-inline": "^1.9.0",
+    "unplugin-inline": "^1.14.0",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "3.2.4"
   },

@@ -1,6 +1,6 @@
-import { type ApplyMaskToPixelDataOptions, type BinaryMask, type HistoryMutator } from '../../_types'
+import { type ApplyMaskToPixelDataOptions, type BinaryMask } from '../../_types'
 import { applyBinaryMaskToPixelData } from '../../PixelData/applyBinaryMaskToPixelData'
-import { PixelWriter } from '../PixelWriter'
+import { type HistoryMutator, PixelWriter } from '../PixelWriter'
 
 const defaults = {
   applyBinaryMaskToPixelData,
@@ -17,14 +17,12 @@ export const mutatorApplyBinaryMask = ((writer: PixelWriter<any>, deps: Deps = d
   } = deps
 
   return {
-    applyBinaryMask(mask: BinaryMask, opts: ApplyMaskToPixelDataOptions = {}): boolean {
-      let target = writer.config.target
-      const {
-        x = 0,
-        y = 0,
-        w = target.width,
-        h = target.height,
-      } = opts
+    applyBinaryMask(mask: BinaryMask, opts?: ApplyMaskToPixelDataOptions): boolean {
+      const target = writer.config.target
+      const x = opts?.x ?? 0
+      const y = opts?.y ?? 0
+      const w = opts?.w ?? target.width
+      const h = opts?.h ?? target.height
 
       const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
       return didChange(applyBinaryMaskToPixelData(target, mask, opts))

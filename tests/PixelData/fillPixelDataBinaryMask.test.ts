@@ -17,7 +17,6 @@ describe('fillPixelDataBinaryMask', () => {
         dst,
         RED,
         mask,
-        255,
         10,
         10,
       )
@@ -37,7 +36,6 @@ describe('fillPixelDataBinaryMask', () => {
         dst,
         RED,
         mask,
-        255,
         -1,
         -1,
       )
@@ -56,7 +54,6 @@ describe('fillPixelDataBinaryMask', () => {
         dst,
         RED,
         mask,
-        255,
         1,
         1,
       )
@@ -75,7 +72,6 @@ describe('fillPixelDataBinaryMask', () => {
         dst,
         RED,
         mask,
-        255,
         -1,
         0,
       )
@@ -95,7 +91,6 @@ describe('fillPixelDataBinaryMask', () => {
         dst,
         RED,
         mask,
-        255,
         0,
         -1,
       )
@@ -124,7 +119,6 @@ describe('fillPixelDataBinaryMask', () => {
         dst,
         RED,
         mask,
-        255,
         targetX,
         targetY,
       )
@@ -153,7 +147,6 @@ describe('fillPixelDataBinaryMask', () => {
         dst,
         RED,
         mask,
-        255,
         1,
         1,
       )
@@ -173,7 +166,6 @@ describe('fillPixelDataBinaryMask', () => {
         dst,
         RED,
         mask,
-        255,
         0,
         0,
       )
@@ -217,7 +209,6 @@ describe('fillPixelDataBinaryMask', () => {
         dst,
         COLOR,
         mask,
-        255,
         1,
         1,
       )
@@ -247,7 +238,6 @@ describe('fillPixelDataBinaryMask', () => {
         dst,
         COLOR,
         mask,
-        255,
         -1,
         -1,
       )
@@ -261,46 +251,6 @@ describe('fillPixelDataBinaryMask', () => {
         0, 0, 0, 0, 0,
         0, 0, 0, 0, 0,
       ])
-    })
-  })
-
-  describe('Alpha Blending', () => {
-    it('skips all work when alpha is 0', () => {
-      const dst = makeTestPixelData(1, 1, BLUE)
-      const mask = makeBinaryMask(1, 1)
-      mask.data.fill(1)
-
-      const result = fillPixelDataBinaryMask(
-        dst,
-        RED,
-        mask,
-        0,
-        0,
-        0,
-      )
-
-      expect(result).toBe(false)
-      expect(dst.data32[0]).toBe(BLUE)
-    })
-
-    it('applies reduced alpha to the output color', () => {
-      const dst = makeTestPixelData(1, 1, BLUE)
-      const mask = makeBinaryMask(1, 1)
-      mask.data.fill(1)
-
-      const expectedRedWithAlpha = pack(255, 0, 0, 128)
-
-      const result = fillPixelDataBinaryMask(
-        dst,
-        RED,
-        mask,
-        128,
-        0,
-        0,
-      )
-
-      expect(result).toBe(true)
-      expect(dst.data32[0]).toBe(expectedRedWithAlpha)
     })
   })
 

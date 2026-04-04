@@ -14,13 +14,7 @@ describe('blendPixelDataPaintBuffer', () => {
     const mockTarget = {} as IPixelData32
     const mockBlend = vi.fn()
 
-    blendPixelDataPaintBuffer(
-      mockPaintBuffer,
-      mockTarget,
-      255,
-      undefined,
-      mockBlend,
-    )
+    blendPixelDataPaintBuffer(mockTarget, mockPaintBuffer, 255, undefined, mockBlend)
 
     expect(mockBlend).not.toHaveBeenCalled()
   })
@@ -61,13 +55,7 @@ describe('blendPixelDataPaintBuffer', () => {
       })
     }) as any
 
-    blendPixelDataPaintBuffer(
-      mockPaintBuffer,
-      mockTarget,
-      undefined, // Should default to 255
-      undefined,
-      mockBlend,
-    )
+    blendPixelDataPaintBuffer(mockTarget, mockPaintBuffer, undefined, undefined, mockBlend)
 
     expect(mockBlend).toHaveBeenCalledTimes(2)
 
@@ -110,13 +98,7 @@ describe('blendPixelDataPaintBuffer', () => {
       })
     }) as any
 
-    blendPixelDataPaintBuffer(
-      mockPaintBuffer,
-      mockTarget,
-      128,
-      mockCustomBlendMode,
-      mockBlend,
-    )
+    blendPixelDataPaintBuffer(mockTarget, mockPaintBuffer, 128, mockCustomBlendMode, mockBlend)
 
     expect(mockBlend).toHaveBeenCalledTimes(1)
     expect(capturedCalls[0].opts.alpha).toBe(128)

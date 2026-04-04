@@ -1,6 +1,6 @@
 import { writeImageDataBuffer } from '@/index'
 import { describe, expect, it } from 'vitest'
-import { createImg, createTestImageData, expectPixelToMatch } from '../_helpers'
+import { makeMockImageData, createTestImageData, expectPixelToMatch } from '../_helpers'
 
 describe('writeImageDataBuffer', () => {
   const W = 10
@@ -59,7 +59,7 @@ describe('writeImageDataBuffer', () => {
   })
 
   it('handles negative coordinates (top-left clipping)', () => {
-    const dst = createImg(5, 5)
+    const dst = makeMockImageData(5, 5)
     const patchW = 4
     const patchH = 4
     const data = new Uint8ClampedArray(patchW * patchH * 4).fill(255)
@@ -76,7 +76,7 @@ describe('writeImageDataBuffer', () => {
   })
 
   it('handles overflow coordinates (bottom-right clipping)', () => {
-    const dst = createImg(2, 2)
+    const dst = makeMockImageData(2, 2)
     const patchW = 10
     const patchH = 10
     const data = new Uint8ClampedArray(patchW * patchH * 4).fill(255)
@@ -93,7 +93,7 @@ describe('writeImageDataBuffer', () => {
   })
 
   it('early exits if the intersection is completely out of bounds', () => {
-    const dst = createImg(5, 5)
+    const dst = makeMockImageData(5, 5)
     const data = new Uint8ClampedArray(16).fill(255)
 
     // Completely off to the right
@@ -109,7 +109,7 @@ describe('writeImageDataBuffer', () => {
   })
 
   it('supports the Rect object overload', () => {
-    const dst = createImg(5, 5)
+    const dst = makeMockImageData(5, 5)
     const data = new Uint8ClampedArray(4).fill(255)
     const rect = {
       x: 0,
@@ -123,7 +123,7 @@ describe('writeImageDataBuffer', () => {
   })
 
   it('does not crash if source data is smaller than requested dimensions', () => {
-    const dst = createImg(10, 10)
+    const dst = makeMockImageData(10, 10)
     // Requested 10x10 (400 bytes) but only provided 4 bytes
     const tinyData = new Uint8ClampedArray(4).fill(255)
 

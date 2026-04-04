@@ -1,5 +1,6 @@
+import type { PixelAccumulator } from './PixelAccumulator'
+import type { PixelEngineConfig } from './PixelEngineConfig'
 import { applyPatchTiles, type PixelPatchTiles } from './PixelPatchTiles'
-import type { PixelWriter } from './PixelWriter'
 
 export interface HistoryAction {
   undo: () => void
@@ -10,7 +11,8 @@ export interface HistoryAction {
 export type HistoryActionFactory = typeof makeHistoryAction
 
 export function makeHistoryAction(
-  writer: PixelWriter<any>,
+  config: PixelEngineConfig,
+  accumulator: PixelAccumulator,
   patch: PixelPatchTiles,
   after?: () => void,
   afterUndo?: () => void,
@@ -18,9 +20,8 @@ export function makeHistoryAction(
   applyPatchTilesFn = applyPatchTiles,
 ): HistoryAction {
 
-  const target = writer.config.target
-  const tileSize = writer.config.tileSize
-  const accumulator = writer.accumulator
+  const target = config.target
+  const tileSize = config.tileSize
 
   return {
     undo: () => {

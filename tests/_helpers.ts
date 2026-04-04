@@ -115,7 +115,7 @@ export const expectPixelToMatch = (
   })
 }
 
-export const createImg = (
+export const makeMockImageData = (
   w: number,
   h: number,
 ): ImageData => {
@@ -145,6 +145,18 @@ export const makeTestPixelData = (
   fill: number = 0,
 ) => {
   const img = new PixelData(new ImageData(w, h))
+  if (fill !== 0) {
+    img.data32.fill(fill)
+  }
+  return img
+}
+
+export const makeTestPixelDataLike = (
+  w: number,
+  h: number,
+  fill: number = 0,
+) => {
+  const img = new PixelData(makeMockImageData(w, h))
   if (fill !== 0) {
     img.data32.fill(fill)
   }
