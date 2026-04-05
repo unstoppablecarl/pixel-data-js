@@ -3,6 +3,7 @@ import { readFile, writeFile } from 'fs/promises'
 import { fileURLToPath } from 'node:url'
 import path from 'path'
 import p from 'picocolors'
+import { standardSort } from './_support'
 
 applySortBlocksToFiles([
   'src/**/*.ts',
@@ -96,7 +97,8 @@ function applySortBlocks(code: string): string {
         i++
       }
 
-      block.sort((a, b) => a.localeCompare(b))
+      block.sort(standardSort)
+
       result.push(...block)
     } else if (sortAll) {
       if (line.trim() !== '') {
@@ -105,7 +107,8 @@ function applySortBlocks(code: string): string {
           block.push(lines[i])
           i++
         }
-        block.sort((a, b) => a.localeCompare(b))
+
+        block.sort(standardSort)
         result.push(...block)
       } else {
         result.push(line)
