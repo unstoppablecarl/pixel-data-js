@@ -38,6 +38,7 @@
   "files": [
     "dist/*",
     "src/*",
+    "support/*",
     "pnpm-lock.yaml",
     "LICENSE",
     "README.md"
