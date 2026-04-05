@@ -5,7 +5,6 @@ import {
   type BinaryMaskRect,
   type Color32,
   type ImageDataLike,
-  type ImageDataLikeConstructor,
   type IPixelData32,
   makeAlphaMask,
   makeBinaryMask,
@@ -418,6 +417,14 @@ export function printPixelDataTable(dst: IPixelData32): void {
   }
 
   console.table(grid)
+}
+
+export type ImageDataLikeConstructor<T extends ImageDataLike = ImageDataLike> = {
+  new(
+    data: Uint8ClampedArray,
+    width: number,
+    height: number,
+  ): T
 }
 
 export function copyTestPixelData<T extends ImageDataLike = ImageData>(target: PixelData<T>): PixelData<T> {

@@ -15,18 +15,10 @@ export type BlendColor32 = {
   isOverwrite?: true
 }
 
-export type ImageDataLike = {
+export interface ImageDataLike {
   width: number
   height: number
   data: Uint8ClampedArray<ArrayBufferLike>
-}
-
-export type ImageDataLikeConstructor<T extends ImageDataLike = ImageDataLike> = {
-  new(
-    data: Uint8ClampedArray,
-    width: number,
-    height: number,
-  ): T
 }
 
 export type SerializedImageData = {
