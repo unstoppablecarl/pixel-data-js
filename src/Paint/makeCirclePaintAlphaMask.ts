@@ -36,6 +36,6 @@ export function makeCirclePaintAlphaMask(size: number, fallOff: (d: number) => n
     w: size,
     h: size,
     centerOffsetX: centerOffset,
-    centerOffsetY: centerOffset
+    centerOffsetY: centerOffset,
   }
 }

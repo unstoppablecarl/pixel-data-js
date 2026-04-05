@@ -1,4 +1,5 @@
-import { PixelData } from './PixelData'
+import type { PixelData } from '../_types'
+import { setPixelData } from './PixelData'
 
 /**
  * Rotates pixel data 90 degrees clockwise.
@@ -38,7 +39,7 @@ export function rotatePixelData(pixelData: PixelData): void {
     newHeight,
   )
 
-  pixelData.set(newImageData)
+  setPixelData(pixelData, newImageData)
 }
 
 function rotateSquareInPlace(pixelData: PixelData): void {

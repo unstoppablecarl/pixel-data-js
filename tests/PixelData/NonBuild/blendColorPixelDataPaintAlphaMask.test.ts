@@ -1,4 +1,4 @@
-import type { Color32, IPixelData32, PaintAlphaMask } from '@/_types'
+import type { Color32, PaintAlphaMask, PixelData32 } from '@/_types'
 import { sourceOverPerfect } from '@/BlendModes/blend-modes-perfect'
 import * as AlphaModule from '@/PixelData/blendColorPixelDataAlphaMask'
 import { blendColorPixelDataPaintAlphaMask } from '@/PixelData/blendColorPixelDataPaintAlphaMask'
@@ -15,7 +15,7 @@ describe('blendColorPixelDataPaintAlphaMask', () => {
 
   it('should calculate correct target position using centerOffset', () => {
     const blendColorPixelDataAlphaMask = AlphaModule.blendColorPixelDataAlphaMask
-    const mockDst: IPixelData32 = {} as IPixelData32
+    const mockDst: PixelData32 = {} as PixelData32
     const mockColor: Color32 = 0xFF0000FF as Color32
     const mockMask: PaintAlphaMask = {
       centerOffsetX: 10,
@@ -56,7 +56,7 @@ describe('blendColorPixelDataPaintAlphaMask', () => {
   it('should use default values when alpha and blendFn are not provided', () => {
     const blendColorPixelDataAlphaMask = AlphaModule.blendColorPixelDataAlphaMask
 
-    const mockDst: IPixelData32 = {} as IPixelData32
+    const mockDst: PixelData32 = {} as PixelData32
     const mockColor: Color32 = 0x00FF00FF as Color32
     const mockMask: PaintAlphaMask = {
       centerOffsetX: 5,
@@ -83,7 +83,7 @@ describe('blendColorPixelDataPaintAlphaMask', () => {
   it('should override blendFn when provided', () => {
     const blendColorPixelDataAlphaMask = AlphaModule.blendColorPixelDataAlphaMask
 
-    const mockDst: IPixelData32 = {} as IPixelData32
+    const mockDst: PixelData32 = {} as PixelData32
     const mockColor: Color32 = 0x0000FFFF as Color32
     const mockMask: PaintAlphaMask = { centerOffsetX: 0, centerOffsetY: 0 } as PaintAlphaMask
     const customBlendFn = vi.fn();
@@ -113,7 +113,7 @@ describe('blendColorPixelDataPaintAlphaMask', () => {
   it('should reuse the same SCRATCH_OPTS object', () => {
     const blendColorPixelDataAlphaMask = AlphaModule.blendColorPixelDataAlphaMask
 
-    const mockDst: IPixelData32 = {} as IPixelData32
+    const mockDst: PixelData32 = {} as PixelData32
     const mockMask: PaintAlphaMask = { centerOffsetX: 0, centerOffsetY: 0 } as PaintAlphaMask;
 
     (blendColorPixelDataAlphaMask as any).mockReturnValue(true)

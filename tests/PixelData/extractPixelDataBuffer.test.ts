@@ -1,4 +1,4 @@
-import { extractPixelDataBuffer, PixelData, type Rect } from '@/index'
+import { extractPixelDataBuffer, makePixelData, type Rect } from '@/index'
 import { ImageData as NapiImageData } from '@napi-rs/canvas'
 import { describe, expect, it } from 'vitest'
 
@@ -6,7 +6,7 @@ describe('extractPixelDataBuffer', () => {
   const createTestPixelData = (w: number, h: number) => {
     const buffer = new Uint8ClampedArray(w * h * 4)
     const imageData = new NapiImageData(buffer, w, h) as unknown as ImageData
-    const pd = new PixelData(imageData)
+    const pd = makePixelData(imageData)
 
     // Fill with unique 32-bit values for identification
     for (let i = 0; i < pd.data32.length; i++) {
@@ -68,7 +68,7 @@ describe('extractPixelDataBuffer', () => {
   it('should maintain bitwise integrity of RGBA values', () => {
     const buffer = new Uint8ClampedArray([255, 128, 64, 200])
     const img = new NapiImageData(buffer, 1, 1) as unknown as ImageData
-    const source = new PixelData(img)
+    const source = makePixelData(img)
 
     const result = extractPixelDataBuffer(source, 0, 0, 1, 1)
 
@@ -80,7 +80,7 @@ describe('extractPixelDataBuffer', () => {
     const createTestPixelData = (w: number, h: number) => {
       const buffer = new Uint8ClampedArray(w * h * 4)
       const imageData = new NapiImageData(buffer, w, h) as unknown as ImageData
-      const pd = new PixelData(imageData)
+      const pd = makePixelData(imageData)
 
       for (let i = 0; i < pd.data32.length; i++) {
         pd.data32[i] = i + 1

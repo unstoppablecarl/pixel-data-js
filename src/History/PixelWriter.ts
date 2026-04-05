@@ -1,8 +1,9 @@
+import type { PixelData } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 import { resizeImageData } from '../ImageData/resizeImageData'
 import { PaintBuffer } from '../Paint/PaintBuffer'
 import { blendPixelData } from '../PixelData/blendPixelData'
-import type { PixelData } from '../PixelData/PixelData'
+import { setPixelData } from '../PixelData/PixelData'
 import { PixelTilePool } from '../PixelTile/PixelTilePool'
 import { type HistoryActionFactory, makeHistoryAction } from './HistoryAction'
 import { HistoryManager } from './HistoryManager'
@@ -139,16 +140,16 @@ export class PixelWriter<M> {
     const beforeImageData = target.imageData
     const afterImageData = resizeImageDataFn(beforeImageData, newWidth, newHeight, offsetX, offsetY)
 
-    target.set(afterImageData)
+    setPixelData(target, afterImageData)
 
     this.historyManager.commit({
       undo: () => {
-        target.set(beforeImageData)
+        setPixelData(target, beforeImageData)
         afterUndo?.(beforeImageData)
         after?.(beforeImageData)
       },
       redo: () => {
-        target.set(afterImageData)
+        setPixelData(target, afterImageData)
         afterRedo?.(afterImageData)
         after?.(afterImageData)
       },

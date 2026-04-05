@@ -1,4 +1,4 @@
-import { type Color32, type IPixelData32, type PaintBinaryMask } from '../_types'
+import { type Color32, type PaintBinaryMask, type PixelData32 } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 import { blendColorPixelDataBinaryMask } from './blendColorPixelDataBinaryMask'
 
@@ -10,7 +10,7 @@ const SCRATCH_OPTS = {
 }
 
 export function blendColorPixelDataPaintBinaryMask(
-  dst: IPixelData32,
+  dst: PixelData32,
   color: Color32,
   mask: PaintBinaryMask,
   x: number,

@@ -1,4 +1,4 @@
-import type { AlphaMask, IPixelData32 } from '../_types'
+import type { AlphaMask, PixelData32 } from '../_types'
 import { makeAlphaMask } from '../Mask/AlphaMask'
 
 /**
@@ -6,7 +6,7 @@ import { makeAlphaMask } from '../Mask/AlphaMask'
  * Returns a Uint8Array branded as AlphaMask.
  */
 export function pixelDataToAlphaMask(
-  pixelData: IPixelData32,
+  pixelData: PixelData32,
 ): AlphaMask {
   const {
     data32,

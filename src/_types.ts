@@ -230,12 +230,12 @@ export type NullableMaskRect = Rect & ({
   data?: null
 })
 
-export interface IPixelData32 {
+export interface PixelData32 {
   readonly data32: Uint32Array
   readonly width: number
   readonly height: number
 }
 
-export interface IPixelData<T extends ImageDataLike = ImageData> extends IPixelData32 {
+export interface PixelData<T extends ImageDataLike = ImageData> extends PixelData32 {
   readonly imageData: T
 }

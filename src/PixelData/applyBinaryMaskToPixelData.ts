@@ -1,4 +1,4 @@
-import { type ApplyMaskToPixelDataOptions, type BinaryMask, type IPixelData32 } from '../_types'
+import { type ApplyMaskToPixelDataOptions, type BinaryMask, type PixelData32 } from '../_types'
 
 /**
  * Directly applies a mask to a region of PixelData,
@@ -6,7 +6,7 @@ import { type ApplyMaskToPixelDataOptions, type BinaryMask, type IPixelData32 } 
  * @returns true if any pixels were actually modified.
  */
 export function applyBinaryMaskToPixelData(
-  target: IPixelData32,
+  target: PixelData32,
   mask: BinaryMask,
   opts?: ApplyMaskToPixelDataOptions,
 ): boolean {

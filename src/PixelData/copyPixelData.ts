@@ -1,10 +1,11 @@
-import { PixelData } from './PixelData'
+import type { ImageDataLike, PixelData } from '../_types'
+import { makePixelData } from './PixelData'
 
-export function copyPixelData(target: PixelData): PixelData {
+export function copyPixelData<T extends ImageDataLike = ImageData>(target: PixelData<T>): PixelData {
   const data = target.imageData.data
   const buffer = new Uint8ClampedArray(data)
 
-  return new PixelData(new ImageData(
+  return makePixelData(new ImageData(
     buffer,
     target.width,
     target.height,

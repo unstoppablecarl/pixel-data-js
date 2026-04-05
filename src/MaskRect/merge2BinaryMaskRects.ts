@@ -34,7 +34,7 @@ export function merge2BinaryMaskRects(
     }
   }
 
- const maskData =  new Uint8Array(bounds.w * bounds.h)
+  const maskData = new Uint8Array(bounds.w * bounds.h)
 
   // --- Write A's contribution ---
   const aOffY = a.y - bounds.y

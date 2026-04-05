@@ -6,7 +6,7 @@ import { normalizePath, ROOT_DIR, standardSort } from './_support'
 const INDEX_FILE_NAME = 'index.ts'
 
 const EXCLUDE = [
-  'Internal/helpers.ts',
+  'Internal/macros.ts',
 ]
 
 const shouldIncludeFile: (absolutePath: string) => boolean = (p) => {

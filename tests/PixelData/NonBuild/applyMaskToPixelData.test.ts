@@ -2,9 +2,9 @@ import {
   type AlphaMask,
   type ApplyMaskToPixelDataOptions,
   type BinaryMask,
-  type IPixelData32,
   type Mask,
   MaskType,
+  type PixelData32,
 } from '@/_types'
 import * as AlphaModule from '@/PixelData/applyAlphaMaskToPixelData'
 import * as BinaryModule from '@/PixelData/applyBinaryMaskToPixelData'
@@ -25,7 +25,7 @@ describe('applyMaskToPixelData', () => {
     const applyBinaryMaskToPixelData = BinaryModule.applyBinaryMaskToPixelData
     const applyAlphaMaskToPixelData = AlphaModule.applyAlphaMaskToPixelData
 
-    const mockDst: IPixelData32 = {} as IPixelData32
+    const mockDst: PixelData32 = {} as PixelData32
     const mockMask = { type: MaskType.BINARY } as Mask
     const mockOpts: ApplyMaskToPixelDataOptions = { x: 10, y: 20 } as ApplyMaskToPixelDataOptions
 
@@ -49,7 +49,7 @@ describe('applyMaskToPixelData', () => {
     const applyBinaryMaskToPixelData = BinaryModule.applyBinaryMaskToPixelData
     const applyAlphaMaskToPixelData = AlphaModule.applyAlphaMaskToPixelData
 
-    const mockDst: IPixelData32 = {} as IPixelData32
+    const mockDst: PixelData32 = {} as PixelData32
     const mockMask = { type: MaskType.ALPHA } as Mask // or any other non-binary type
     const mockOpts: ApplyMaskToPixelDataOptions = { x: 5, y: 15 } as ApplyMaskToPixelDataOptions
 
@@ -70,7 +70,7 @@ describe('applyMaskToPixelData', () => {
   it('should pass undefined options when opts is not provided', () => {
     const applyBinaryMaskToPixelData = BinaryModule.applyBinaryMaskToPixelData
 
-    const mockDst: IPixelData32 = {} as IPixelData32
+    const mockDst: PixelData32 = {} as PixelData32
     const mockMask = { type: MaskType.BINARY } as Mask
 
     (applyBinaryMaskToPixelData as any).mockReturnValue(true)
@@ -85,7 +85,7 @@ describe('applyMaskToPixelData', () => {
   })
 
   it('should handle different non-binary mask types correctly', () => {
-    const mockDst: IPixelData32 = {} as IPixelData32
+    const mockDst: PixelData32 = {} as PixelData32
     const mockMask = { type: MaskType.ALPHA } as Mask
 
     const applyBinaryMaskToPixelData = BinaryModule.applyBinaryMaskToPixelData

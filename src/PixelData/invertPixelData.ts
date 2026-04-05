@@ -1,10 +1,10 @@
-import { type IPixelData32, type PixelMutateOptions } from '../_types'
+import { type PixelData32, type PixelMutateOptions } from '../_types'
 import { makeClippedRect, resolveRectClipping } from '../Internal/resolveClipping'
 
 const SCRATCH_RECT = makeClippedRect()
 
 export function invertPixelData(
-  target: IPixelData32,
+  target: PixelData32,
   opts?: PixelMutateOptions,
 ): boolean {
   const mask = opts?.mask

@@ -1,6 +1,6 @@
 import { writeImageDataBuffer } from '@/index'
 import { describe, expect, it } from 'vitest'
-import { makeMockImageData, createTestImageData, expectPixelToMatch } from '../_helpers'
+import { createTestImageData, expectPixelToMatch, makeMockImageData } from '../_helpers'
 
 describe('writeImageDataBuffer', () => {
   const W = 10

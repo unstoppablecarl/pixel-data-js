@@ -48,7 +48,7 @@ export const mutatorFillRect = ((writer: PixelWriter<any>, deps: Deps = defaults
 
       const didChange = writer.accumulator.storeRegionBeforeState(rect.x, rect.y, rect.w, rect.h)
       return didChange(
-        fillPixelData(target, color, rect.x, rect.y, rect.w, rect.h)
+        fillPixelData(target, color, rect.x, rect.y, rect.w, rect.h),
       )
     },
   }

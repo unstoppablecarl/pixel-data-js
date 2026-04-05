@@ -1,10 +1,10 @@
-import type { Color32, IPixelData32, Rect } from '../_types'
+import type { Color32, PixelData32, Rect } from '../_types'
 import { makeClippedRect, resolveRectClipping } from '../Internal/resolveClipping'
 
 const SCRATCH_RECT = makeClippedRect()
 
 /**
- * Fills a region or the {@link IPixelData32} buffer with a solid color.
+ * Fills a region or the {@link PixelData32} buffer with a solid color.
  * This function is faster than {@link fillPixelData} but does not
  * return a boolean value indicating changes were made.
  *
@@ -14,7 +14,7 @@ const SCRATCH_RECT = makeClippedRect()
  * buffer is filled.
  */
 export function fillPixelDataFast(
-  target: IPixelData32,
+  target: PixelData32,
   color: Color32,
   rect?: Partial<Rect>,
 ): void
@@ -27,7 +27,7 @@ export function fillPixelDataFast(
  * @param h - Height of the fill area.
  */
 export function fillPixelDataFast(
-  dst: IPixelData32,
+  dst: PixelData32,
   color: Color32,
   x: number,
   y: number,
@@ -35,7 +35,7 @@ export function fillPixelDataFast(
   h: number,
 ): void
 export function fillPixelDataFast(
-  dst: IPixelData32,
+  dst: PixelData32,
   color: Color32,
   _x?: Partial<Rect> | number,
   _y?: number,

@@ -1,4 +1,4 @@
-import { PixelData } from '../../src'
+import { makePixelData, type PixelData } from '../index'
 
 export function uInt32ArrayToPixelData(
   data: Uint32Array,
@@ -11,5 +11,5 @@ export function uInt32ArrayToPixelData(
   const clampedArray = new Uint8ClampedArray(buffer, byteOffset, byteLength)
   const imageData = new ImageData(clampedArray, width, height)
 
-  return new PixelData(imageData)
+  return makePixelData(imageData)
 }

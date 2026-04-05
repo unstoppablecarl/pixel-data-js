@@ -1,4 +1,4 @@
-import type { IPixelData32, PixelBlendOptions } from '../../_types'
+import type { PixelBlendOptions, PixelData32 } from '../../_types'
 import { blendPixelData } from '../../PixelData/blendPixelData'
 import { type HistoryMutator, PixelWriter } from '../PixelWriter'
 
@@ -15,7 +15,7 @@ export const mutatorBlendPixelData = ((writer: PixelWriter<any>, deps: Partial<D
 
   return {
     blendPixelData(
-      src: IPixelData32,
+      src: PixelData32,
       opts?: PixelBlendOptions,
     ): boolean {
       const x = opts?.x ?? 0

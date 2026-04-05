@@ -379,7 +379,7 @@ describe('floodFillSelection: Scrutiny Suite', () => {
       2,
       false,
       0,
-      bounds
+      bounds,
     )
 
     expect(result).toBeNull()
@@ -398,9 +398,9 @@ describe('floodFillSelection: Scrutiny Suite', () => {
       5,
       5,
       false,
-        // 0 <= NaN is false.
-        // This allows the guard to pass but the match check to fail.
-      NaN
+      // 0 <= NaN is false.
+      // This allows the guard to pass but the match check to fail.
+      NaN,
     )
 
     expect(result).toBeNull()
@@ -423,7 +423,7 @@ describe('floodFillSelection: Scrutiny Suite', () => {
       false,
       0,
       undefined,
-      out
+      out,
     )
 
     expect(result).toBe(out)

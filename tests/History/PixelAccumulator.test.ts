@@ -1,4 +1,4 @@
-import { makePixelTile, PixelAccumulator, PixelData, PixelEngineConfig, PixelTilePool } from '@/index'
+import { makePixelTile, PixelAccumulator, type PixelData, PixelEngineConfig, PixelTilePool } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeTestPixelData } from '../_helpers'
 

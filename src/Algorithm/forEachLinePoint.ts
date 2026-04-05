@@ -10,7 +10,7 @@ export function forEachLinePoint(
   callback: (x: number, y: number) => void,
 ): void {
 
-  if(x0 === x1 && y0 === y1){
+  if (x0 === x1 && y0 === y1) {
     callback(x0, y0)
     return
   }

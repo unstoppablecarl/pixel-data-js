@@ -2,7 +2,7 @@ import {
   blendPixelDataBinaryMask,
   type Color32,
   makeBinaryMask,
-  PixelData,
+  makePixelData,
   sourceOverFast,
   unpackColor,
 } from '@/index'
@@ -296,7 +296,7 @@ describe('blendPixelDataBinaryMask', () => {
 
     it('accurately maps every pixel in a complex clipped blit', () => {
       const dst = makeTestPixelData(DW, DH, BLUE)
-      const src = new PixelData(createTestImageData(SW, SH))
+      const src = makePixelData(createTestImageData(SW, SH))
 
       const targetX = 2
       const targetY = 2
@@ -348,7 +348,7 @@ describe('blendPixelDataBinaryMask', () => {
 
     it('verifies multi-row mask alignment across every pixel', () => {
       const dst = makeTestPixelData(5, 5, 0)
-      const src = new PixelData(createTestImageData(5, 5))
+      const src = makePixelData(createTestImageData(5, 5))
 
       const mask = makeBinaryMask(5, 5)
       for (let i = 0; i < 25; i++) {

@@ -1,4 +1,4 @@
-import { blendPixelData, type Color32, PixelData, sourceOverFast, unpackColor } from '@/index'
+import { blendPixelData, type Color32, makePixelData, sourceOverFast, unpackColor } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
 import { createTestImageData, expectPixelToMatch, makeTestPixelData, pack } from '../_helpers'
 
@@ -140,7 +140,7 @@ describe('blendPixelData', () => {
 
     it('accurately maps every pixel in a complex clipped blit', () => {
       const dst = makeTestPixelData(DW, DH, BLUE)
-      const src = new PixelData(createTestImageData(SW, SH))
+      const src = makePixelData(createTestImageData(SW, SH))
 
       const targetX = 2
       const targetY = 2

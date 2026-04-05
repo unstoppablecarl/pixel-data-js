@@ -133,6 +133,7 @@ export * from './PixelData/pixelDataToAlphaMask'
 export * from './PixelData/reflectPixelData'
 export * from './PixelData/resamplePixelData'
 export * from './PixelData/rotatePixelData'
+export * from './PixelData/uInt32ArrayToPixelData'
 export * from './PixelData/writePaintBufferToPixelData'
 export * from './PixelData/writePixelDataBuffer'
 

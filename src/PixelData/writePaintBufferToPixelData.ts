@@ -1,4 +1,4 @@
-import type { IPixelData } from '../_types'
+import type { PixelData } from '../_types'
 import type { PaintBuffer } from '../Paint/PaintBuffer'
 import { writePixelDataBuffer } from './writePixelDataBuffer'
 
@@ -6,7 +6,7 @@ import { writePixelDataBuffer } from './writePixelDataBuffer'
  * @param writePixelDataBufferFn - @hidden
  */
 export function writePaintBufferToPixelData(
-  target: IPixelData,
+  target: PixelData,
   paintBuffer: PaintBuffer,
   writePixelDataBufferFn = writePixelDataBuffer,
 ) {

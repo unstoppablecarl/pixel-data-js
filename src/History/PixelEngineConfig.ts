@@ -1,4 +1,4 @@
-import type { PixelData } from '../PixelData/PixelData'
+import type { PixelData } from '../_types'
 
 export class PixelEngineConfig {
   readonly tileSize: number

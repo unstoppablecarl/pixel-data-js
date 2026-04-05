@@ -1,4 +1,4 @@
-import { extractPixelData, PixelData, type Rect } from '@/index'
+import { extractPixelData, makePixelData, type Rect } from '@/index'
 import { ImageData as NapiImageData } from '@napi-rs/canvas'
 import { describe, expect, it } from 'vitest'
 
@@ -6,7 +6,7 @@ describe('extractPixelData', () => {
   const createTestPixelData = (w: number, h: number) => {
     const buffer = new Uint8ClampedArray(w * h * 4)
     const imageData = new NapiImageData(buffer, w, h) as unknown as ImageData
-    const pd = new PixelData(imageData)
+    const pd = makePixelData(imageData)
 
     for (let i = 0; i < pd.data32.length; i++) {
       pd.data32[i] = i + 1
@@ -17,12 +17,16 @@ describe('extractPixelData', () => {
 
   it('should return a new PixelData instance with correct dimensions', () => {
     const source = createTestPixelData(10, 10)
-    const result = extractPixelData(source, 0, 0, 5, 5)
+    const w = 5
+    const h = 6
+    const result = extractPixelData(source, 0, 0, w, h)
 
-    expect(result).toBeInstanceOf(PixelData)
-    expect(result.width).toBe(5)
-    expect(result.height).toBe(5)
-    expect(result.data32.length).toBe(25)
+    expect(result.width).toBe(w)
+    expect(result.height).toBe(h)
+    expect(result.imageData.width).toBe(w)
+    expect(result.imageData.height).toBe(h)
+
+    expect(result.data32.length).toBe(w * h)
   })
 
   it('should extract correct pixel values using individual arguments', () => {

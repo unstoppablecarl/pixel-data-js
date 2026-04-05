@@ -1,10 +1,10 @@
-import type { BinaryMask, Color32, IPixelData32 } from '../_types'
+import type { BinaryMask, Color32, PixelData32 } from '../_types'
 import { makeClippedRect, resolveRectClipping } from '../Internal/resolveClipping'
 
 const SCRATCH_RECT = makeClippedRect()
 
 /**
- * Fills a region of the {@link IPixelData32} buffer with a solid color using a mask.
+ * Fills a region of the {@link PixelData32} buffer with a solid color using a mask.
  * @param target - The target to modify.
  * @param color - The color to apply.
  * @param mask - The mask defining the area to fill.
@@ -12,7 +12,7 @@ const SCRATCH_RECT = makeClippedRect()
  * @param y - Starting vertical coordinate for the mask placement.
  */
 export function fillPixelDataBinaryMask(
-  target: IPixelData32,
+  target: PixelData32,
   color: Color32,
   mask: BinaryMask,
   x = 0,

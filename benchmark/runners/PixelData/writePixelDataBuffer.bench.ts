@@ -1,4 +1,4 @@
-import { PixelData } from '@/PixelData/PixelData'
+import type { PixelData } from '@/_types'
 import { command } from 'cmd-ts'
 import { bench, do_not_optimize } from 'mitata-ts'
 import { writePixelDataBuffer as writePixelDataBufferDist } from '../../../dist/index.prod'

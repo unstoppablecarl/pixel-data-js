@@ -1,4 +1,4 @@
-import { blendPixelDataAlphaMask, type Color32, PixelData, sourceOverFast, unpackAlpha, unpackColor } from '@/index'
+import { blendPixelDataAlphaMask, type Color32, makePixelData, sourceOverFast, unpackAlpha, unpackColor } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
 import {
   createTestImageData,
@@ -222,7 +222,7 @@ describe('blendPixelDataAlphaMask', () => {
 
     it('accurately maps every pixel in a complex clipped blit', () => {
       const dst = makeTestPixelData(DW, DH, BLUE)
-      const src = new PixelData(createTestImageData(SW, SH))
+      const src = makePixelData(createTestImageData(SW, SH))
 
       const targetX = 2
       const targetY = 2
@@ -262,7 +262,7 @@ describe('blendPixelDataAlphaMask', () => {
 
     it('verifies multi-row mask alignment across every pixel', () => {
       const dst = makeTestPixelData(5, 5, 0)
-      const src = new PixelData(createTestImageData(5, 5))
+      const src = makePixelData(createTestImageData(5, 5))
 
       const mask = makeTestAlphaMask(5, 5)
 

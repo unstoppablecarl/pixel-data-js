@@ -1,4 +1,4 @@
-import { PixelData, resamplePixelData } from '@/index'
+import { makePixelData, resamplePixelData } from '@/index'
 import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
 
@@ -11,7 +11,7 @@ describe('resamplePixelData', () => {
     }
     const imageData = createImageData(data, w, h) as ImageData
 
-    return new PixelData(imageData)
+    return makePixelData(imageData)
   }
 
   it('should upscale by a factor of 2', () => {
@@ -53,7 +53,7 @@ describe('resamplePixelData', () => {
     const data = new Uint8ClampedArray(4)
     data.set([255, 128, 64, 200]) // Specific RGBA
     const imageData = createImageData(data, 1, 1) as ImageData
-    const source = new PixelData(imageData)
+    const source = makePixelData(imageData)
 
     const result = resamplePixelData(source, 2)
 

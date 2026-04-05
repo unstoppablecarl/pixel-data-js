@@ -1,4 +1,4 @@
-import { type ImageDataLike, PixelData } from '@/index'
+import { type ImageDataLike, makePixelData } from '@/index'
 import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
 import { copyTestPixelData } from '../_helpers'
@@ -11,7 +11,7 @@ describe('PixelData', () => {
     const buffer = new Uint8ClampedArray(16)
     const imageData = createImageData(buffer, width, height) as ImageData
 
-    const pixelData = new PixelData(imageData)
+    const pixelData = makePixelData(imageData)
 
     expect(pixelData.width).toBe(width)
     expect(pixelData.height).toBe(height)
@@ -27,7 +27,7 @@ describe('PixelData', () => {
     buffer[3] = 255
     const imageData = createImageData(buffer, 1, 1) as ImageData
 
-    const pixelData = new PixelData(imageData)
+    const pixelData = makePixelData(imageData)
 
     // On little-endian systems, 0xFF0000FF is Red
     // 0x (Alpha)(Blue)(Green)(Red) -> 0xFF 00 00 FF
@@ -39,7 +39,7 @@ describe('PixelData', () => {
     buffer.fill(255)
     const imageData = createImageData(buffer, 1, 1) as ImageData
 
-    const original = new PixelData(imageData)
+    const original = makePixelData(imageData)
     const clone = copyTestPixelData(original)
 
     // Modify the original
@@ -69,7 +69,7 @@ describe('PixelData', () => {
       }
     }
 
-    const pixelData = new PixelData<MockImageData>(new MockImageData(new Uint8ClampedArray(4), 1, 1))
+    const pixelData = makePixelData<MockImageData>(new MockImageData(new Uint8ClampedArray(4), 1, 1))
     const copied = copyTestPixelData(pixelData)
 
     expect(copied.width).toBe(1)

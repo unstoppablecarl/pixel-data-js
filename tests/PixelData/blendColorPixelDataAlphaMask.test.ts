@@ -55,7 +55,7 @@ describe('blendColorPixelDataAlphaMask', () => {
 
     const partialAlpha = 120
 
-    const result =blendColorPixelDataAlphaMask(dst, RED, mask, { alpha: partialAlpha })
+    const result = blendColorPixelDataAlphaMask(dst, RED, mask, { alpha: partialAlpha })
 
     expect(result).toBe(true)
     const resultAlpha = unpackAlpha(dst.data32[0] as Color32)

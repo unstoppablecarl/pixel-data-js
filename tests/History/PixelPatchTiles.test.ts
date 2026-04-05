@@ -1,4 +1,4 @@
-import { applyPatchTiles, makePixelTile, PixelData } from '@/index'
+import { applyPatchTiles, makePixelData, makePixelTile, type PixelData } from '@/index'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 describe('PixelPatchTiles', () => {
@@ -8,7 +8,7 @@ describe('PixelPatchTiles', () => {
   beforeEach(() => {
     // Create a 10x10 image, initialized to black (0)
     const imageData = new ImageData(10, 10)
-    targetPixelData = new PixelData(imageData)
+    targetPixelData = makePixelData(imageData)
   })
 
   describe('applyPatchTiles', () => {

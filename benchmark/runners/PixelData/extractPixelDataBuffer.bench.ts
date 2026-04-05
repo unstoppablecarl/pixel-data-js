@@ -1,5 +1,4 @@
-import type { Rect } from '@/_types'
-import { PixelData } from '@/PixelData/PixelData'
+import type { PixelData, Rect } from '@/_types'
 import { command } from 'cmd-ts'
 import { bench, do_not_optimize, group } from 'mitata-ts'
 import { extractPixelDataBuffer as extractPixelDataBufferDist } from '../../../dist/index.prod'

@@ -1,4 +1,4 @@
-import { type IPixelData32, PixelData } from '../index'
+import { makePixelData, type PixelData, type PixelData32 } from '../index'
 import { resample32 } from '../Internal/resample32'
 
 /**
@@ -6,12 +6,12 @@ import { resample32 } from '../Internal/resample32'
  * Factor > 1 upscales, Factor < 1 downscales.
  */
 export function resamplePixelData(
-  pixelData: IPixelData32,
+  pixelData: PixelData32,
   factor: number,
 ): PixelData {
   const { data, width, height } = resample32(pixelData.data32, pixelData.width, pixelData.height, factor)
 
-  return new PixelData(new ImageData(
+  return makePixelData(new ImageData(
     new Uint8ClampedArray(data.buffer) as ImageDataArray,
     width,
     height,

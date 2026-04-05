@@ -1,4 +1,12 @@
-import { HistoryManager, PaintBuffer, PixelAccumulator, PixelData, PixelWriter, sourceOverPerfect } from '@/index'
+import {
+  HistoryManager,
+  makePixelData,
+  PaintBuffer,
+  PixelAccumulator,
+  type PixelData,
+  PixelWriter,
+  sourceOverPerfect,
+} from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('PixelWriter', () => {
@@ -27,7 +35,7 @@ describe('PixelWriter', () => {
 
   beforeEach(() => {
     const imageData = new ImageData(100, 100)
-    pixelData = new PixelData(imageData)
+    pixelData = makePixelData(imageData)
     historyManager = new HistoryManager(50)
     writer = new PixelWriter(pixelData, createMutator, {
       historyManager: historyManager,
@@ -228,7 +236,7 @@ describe('PixelWriter', () => {
 
   it('getPaintBuffer', () => {
     const imageData = new ImageData(16, 16)
-    const target = new PixelData(imageData)
+    const target = makePixelData(imageData)
     const writer = new PixelWriter(target, () => ({}))
 
     const buffer = writer.paintBuffer
@@ -248,7 +256,7 @@ describe('PixelWriter', () => {
 
     beforeEach(() => {
       imageData = new ImageData(32, 32)
-      target = new PixelData(imageData)
+      target = makePixelData(imageData)
 
       const options = {
         tileSize: 8,

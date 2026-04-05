@@ -1,9 +1,9 @@
-import { type Color32, type ColorBlendMaskOptions, type IPixelData32, type Mask, MaskType } from '../_types'
+import { type Color32, type ColorBlendMaskOptions, type Mask, MaskType, type PixelData32 } from '../_types'
 import { blendColorPixelDataAlphaMask } from './blendColorPixelDataAlphaMask'
 import { blendColorPixelDataBinaryMask } from './blendColorPixelDataBinaryMask'
 
 export function blendColorPixelDataMask(
-  dst: IPixelData32,
+  dst: PixelData32,
   color: Color32,
   mask: Mask,
   opts?: ColorBlendMaskOptions,

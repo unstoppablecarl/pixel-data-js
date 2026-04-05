@@ -1,14 +1,14 @@
 export const CIRCLE_BINARY_MASK_SIZE_EXPECTATIONS = [
   {
     size: 1,
-    data: [1]
+    data: [1],
   },
   {
     size: 2,
     data: [
       1, 1,
       1, 1,
-    ]
+    ],
   },
   {
     size: 3,
@@ -16,7 +16,7 @@ export const CIRCLE_BINARY_MASK_SIZE_EXPECTATIONS = [
       1, 1, 1,
       1, 1, 1,
       1, 1, 1,
-    ]
+    ],
   },
   {
     size: 4,
@@ -25,7 +25,7 @@ export const CIRCLE_BINARY_MASK_SIZE_EXPECTATIONS = [
       1, 1, 1, 1,
       1, 1, 1, 1,
       0, 1, 1, 0,
-    ]
+    ],
   },
   {
     size: 5,
@@ -35,7 +35,7 @@ export const CIRCLE_BINARY_MASK_SIZE_EXPECTATIONS = [
       1, 1, 1, 1, 1,
       1, 1, 1, 1, 1,
       0, 1, 1, 1, 0,
-    ]
+    ],
   },
   {
     size: 8,
@@ -48,6 +48,6 @@ export const CIRCLE_BINARY_MASK_SIZE_EXPECTATIONS = [
       1, 1, 1, 1, 1, 1, 1, 1,
       0, 1, 1, 1, 1, 1, 1, 0,
       0, 0, 1, 1, 1, 1, 0, 0,
-    ]
-  }
+    ],
+  },
 ]

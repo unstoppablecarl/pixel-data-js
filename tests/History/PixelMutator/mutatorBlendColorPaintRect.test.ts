@@ -1,4 +1,10 @@
-import { blendColorPixelData, type Color32, mutatorBlendColorPaintRect, overwritePerfect, sourceOverPerfect } from '@/index'
+import {
+  blendColorPixelData,
+  type Color32,
+  mutatorBlendColorPaintRect,
+  overwritePerfect,
+  sourceOverPerfect,
+} from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockMutator } from './_helpers'
 

@@ -1,7 +1,7 @@
 import type { Color32, PaintAlphaMask, PaintBinaryMask, Rect } from '../_types'
 import { forEachLinePoint } from '../Algorithm/forEachLinePoint'
 import type { PixelEngineConfig } from '../History/PixelEngineConfig'
-import { _macro_paintRectCenterOffset } from '../Internal/helpers'
+import { _macro_paintRectCenterOffset } from '../Internal/macros'
 import type { PixelTile } from '../PixelTile/PixelTile'
 import type { PixelTilePool } from '../PixelTile/PixelTilePool'
 import { trimRectBounds } from '../Rect/trimRectBounds'

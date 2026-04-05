@@ -1,4 +1,4 @@
-import { type Color32, type ColorBlendOptions, type IPixelData32 } from '../_types'
+import { type Color32, type ColorBlendOptions, type PixelData32 } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 
 /**
@@ -6,7 +6,7 @@ import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
  * @returns true if any pixels were actually modified.
  */
 export function blendColorPixelData(
-  target: IPixelData32,
+  target: PixelData32,
   color: Color32,
   opts?: ColorBlendOptions,
 ): boolean {

@@ -1,7 +1,6 @@
-import { type BinaryMaskRect, type Color32, MaskType, type Rect } from '../_types'
+import { type BinaryMaskRect, type Color32, MaskType, type PixelData, type Rect } from '../_types'
 import { colorDistance } from '../color'
 import { extractImageDataBuffer } from '../ImageData/extractImageDataBuffer'
-import type { PixelData } from '../PixelData/PixelData'
 import { trimMaskRectBounds } from '../Rect/trimMaskRectBounds'
 
 export type FloodFillResult = BinaryMaskRect & {
@@ -11,7 +10,7 @@ export type FloodFillResult = BinaryMaskRect & {
 }
 
 /**
- * Performs a color-based flood fill selection on {@link ImageData} or {@link PixelData}.
+ * Performs a color-based flood fill selection {@link PixelData}.
  * This utility identifies pixels starting from a specific coordinate that fall within a
  * color tolerance. It can operate in "contiguous" mode (classic bucket fill) or
  * "non-contiguous" mode (selects all matching pixels in the buffer).

@@ -1,6 +1,6 @@
-import type { IPixelData } from '../_types'
+import type { PixelData } from '../_types'
 
-export type PixelTile = IPixelData & {
+export type PixelTile = PixelData & {
   id: number
   tx: number
   ty: number

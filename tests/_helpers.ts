@@ -5,11 +5,12 @@ import {
   type BinaryMaskRect,
   type Color32,
   type ImageDataLike,
-  type IPixelData32,
   makeAlphaMask,
   makeBinaryMask,
+  makePixelData,
   PaintBuffer,
-  PixelData,
+  type PixelData,
+  type PixelData32,
   PixelEngineConfig,
   PixelTilePool,
   type RGBA,
@@ -143,7 +144,7 @@ export const makeTestPixelData = (
   h: number,
   fill: number = 0,
 ) => {
-  const img = new PixelData(new ImageData(w, h))
+  const img = makePixelData(new ImageData(w, h))
   if (fill !== 0) {
     img.data32.fill(fill)
   }
@@ -155,7 +156,7 @@ export const makeTestPixelDataLike = (
   h: number,
   fill: number = 0,
 ) => {
-  const img = new PixelData(makeMockImageData(w, h))
+  const img = makePixelData(makeMockImageData(w, h))
   if (fill !== 0) {
     img.data32.fill(fill)
   }
@@ -174,7 +175,7 @@ export function getPixel(
 
 export function makeComplexTestPixelData(w: number, h: number): PixelData {
   const img = new ImageData(w, h)
-  const pixelData = new PixelData(img)
+  const pixelData = makePixelData(img)
   const data = pixelData.data32
   for (let i = 0; i < data.length; i++) {
     const x = i % w
@@ -359,7 +360,7 @@ export function printAlphaMaskGrid(dst: AlphaMask, sep = ', '): void {
   }
 }
 
-export function printPixelDataGrid(dst: IPixelData32, sep = ', '): void {
+export function printPixelDataGrid(dst: PixelData32, sep = ', '): void {
   const w = dst.width
   const h = dst.height
   const data = dst.data32
@@ -377,7 +378,7 @@ export function printPixelDataGrid(dst: IPixelData32, sep = ', '): void {
   }
 }
 
-export function printPixelDataGridColor(dst: IPixelData32): void {
+export function printPixelDataGridColor(dst: PixelData32): void {
   const w = dst.width
   const h = dst.height
   const data = dst.data32
@@ -395,7 +396,7 @@ export function printPixelDataGridColor(dst: IPixelData32): void {
   }
 }
 
-export function printPixelDataTable(dst: IPixelData32): void {
+export function printPixelDataTable(dst: PixelData32): void {
   const w = dst.width
   const h = dst.height
   const data = dst.data32
@@ -449,7 +450,7 @@ export function copyTestPixelData<T extends ImageDataLike = ImageData>(target: P
     } as unknown as T
   }
 
-  return new PixelData<T>(newImageData)
+  return makePixelData<T>(newImageData)
 }
 
 export function makeTestPaintBuffer(tileSize: number, w = 2, h = 2) {

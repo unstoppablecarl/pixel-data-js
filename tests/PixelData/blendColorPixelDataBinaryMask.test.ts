@@ -31,7 +31,7 @@ describe('blendColorPixelDataBinaryMask', () => {
     const mask = makeBinaryMask(4, 4)
     mask.data[10] = 1 // At mw: 4, this is x:2, y:2
 
-   const result = blendColorPixelDataBinaryMask(dst, RED, mask, {
+    const result = blendColorPixelDataBinaryMask(dst, RED, mask, {
       x: 5, y: 5, w: 1, h: 1, mx: 2, my: 2,
     })
 
@@ -61,7 +61,7 @@ describe('blendColorPixelDataBinaryMask', () => {
     const dst = makeTestPixelData(1, 1, BLUE)
     const mask = makeBinaryMask(2, 2)
     mask.data.set([0, 0, 0, 1])
-    const result =    blendColorPixelDataBinaryMask(dst, RED, mask, {
+    const result = blendColorPixelDataBinaryMask(dst, RED, mask, {
       x: -1, y: -1, w: 2, h: 2, mx: 0, my: 0, blendFn: copyBlend,
     })
 

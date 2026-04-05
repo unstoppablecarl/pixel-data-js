@@ -21,7 +21,7 @@ describe('mutatorFillBinaryMask', () => {
     const y = 15
     const mask = makeTestBinaryMask(2, 3, 1)
 
-   mutator.fillBinaryMask(color, mask, x, y)
+    mutator.fillBinaryMask(color, mask, x, y)
 
     expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(x, y, mask.w, mask.h)
     expect(spyDeps.fillPixelDataBinaryMask).toHaveBeenCalledWith(target, color, mask, x, y)

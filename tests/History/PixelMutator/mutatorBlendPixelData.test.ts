@@ -1,4 +1,4 @@
-import { blendPixelData, mutatorBlendPixelData, PixelData } from '@/index'
+import { blendPixelData, makePixelData, mutatorBlendPixelData } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeTestPixelData } from '../../_helpers'
 import { mockMutator } from './_helpers'
@@ -30,7 +30,7 @@ describe('mutatorBlendPixelData', () => {
   })
 
   it('should call accumulator with defaults', () => {
-    const source = new PixelData(new ImageData(10, 10))
+    const source = makePixelData(new ImageData(10, 10))
 
     mutator.blendPixelData(source)
 

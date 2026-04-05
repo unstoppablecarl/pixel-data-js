@@ -1,4 +1,4 @@
-import type { IPixelData32, PaintBuffer, PixelTile } from '@/index'
+import type { PaintBuffer, PixelData32, PixelTile } from '@/index'
 import { blendPixelDataPaintBuffer } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -11,7 +11,7 @@ describe('blendPixelDataPaintBuffer', () => {
       lookup: [],
     } as unknown as PaintBuffer
 
-    const mockTarget = {} as IPixelData32
+    const mockTarget = {} as PixelData32
     const mockBlend = vi.fn()
 
     blendPixelDataPaintBuffer(mockTarget, mockPaintBuffer, 255, undefined, mockBlend)
@@ -41,7 +41,7 @@ describe('blendPixelDataPaintBuffer', () => {
       ],
     } as unknown as PaintBuffer
 
-    const mockTarget = {} as IPixelData32
+    const mockTarget = {} as PixelData32
 
     // We must clone the opts parameter inside the mock to capture
     // its state before the next iteration mutates it.
@@ -87,7 +87,7 @@ describe('blendPixelDataPaintBuffer', () => {
       ],
     } as unknown as PaintBuffer
 
-    const mockTarget = {} as IPixelData32
+    const mockTarget = {} as PixelData32
     const mockCustomBlendMode = vi.fn() as any
 
     const capturedCalls: any[] = []

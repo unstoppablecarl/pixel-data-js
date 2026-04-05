@@ -1,6 +1,6 @@
+import { setPixelData, uInt32ArrayToPixelData } from '@/index'
 import { describe, expect, it } from 'vitest'
 import { copyTestPixelData } from '../_helpers'
-import { uInt32ArrayToPixelData } from './uInt32ArrayToPixelData'
 
 describe('uInt32ArrayToPixelData', () => {
   it('should create a PixelData instance with correct dimensions', () => {
@@ -46,11 +46,11 @@ describe('PixelData Class Methods', () => {
     expect(original.data32[0]).toBe(0xffffffff)
   })
 
-  it('should update properties when using set()', () => {
+  it('should update properties when using setPixelData()', () => {
     const initial = uInt32ArrayToPixelData(new Uint32Array([0]), 1, 1)
     const newBuffer = new Uint8ClampedArray([255, 255, 255, 255])
     const newImg = new ImageData(newBuffer, 1, 1)
-    initial.set(newImg)
+    setPixelData(initial, newImg)
     expect(initial.data32[0]).toBe(0xffffffff)
   })
 })

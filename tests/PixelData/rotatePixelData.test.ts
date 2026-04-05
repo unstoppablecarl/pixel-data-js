@@ -1,4 +1,4 @@
-import { PixelData, rotatePixelData } from '@/index'
+import { makePixelData, rotatePixelData } from '@/index'
 import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
 
@@ -6,7 +6,7 @@ describe('rotatePixelData', () => {
   it('should rotate a square 2x2 image in-place', () => {
     const imageData = createImageData(2, 2) as ImageData
 
-    const pixelData = new PixelData(imageData)
+    const pixelData = makePixelData(imageData)
     const data = pixelData.data32
 
     // Initial: [1, 2]
@@ -31,7 +31,7 @@ describe('rotatePixelData', () => {
   it('should rotate a rectangular 3x2 image and update dimensions', () => {
     const imageData = createImageData(3, 2) as ImageData
 
-    const pixelData = new PixelData(imageData)
+    const pixelData = makePixelData(imageData)
     const data = pixelData.data32
 
     // Initial (3w x 2h):
@@ -63,7 +63,7 @@ describe('rotatePixelData', () => {
   it('should preserve all pixels after a full 360-degree rotation', () => {
     const imageData = createImageData(2, 2) as ImageData
 
-    const pixelData = new PixelData(imageData)
+    const pixelData = makePixelData(imageData)
     pixelData.data32[0] = 10
     pixelData.data32[1] = 20
     pixelData.data32[2] = 30
