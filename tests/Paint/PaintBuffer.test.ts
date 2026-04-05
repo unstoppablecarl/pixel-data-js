@@ -19,12 +19,12 @@ describe('PaintBuffer', () => {
   const color = 0xFF0000FF as Color32
   const C = color
 
-  describe(`writePaintAlphaMaskStroke`, () => {
+  describe(`paintAlphaMask`, () => {
     it('should return false if alpha is 0', () => {
       const { paintBuffer, tilePool } = makeTestPaintBuffer(8)
       vi.spyOn(tilePool, 'getTile')
       const brush = makeCirclePaintAlphaMask(0, () => 1)
-      const result = paintBuffer.writePaintAlphaMaskStroke(
+      const result = paintBuffer.paintAlphaMask(
         color,
         brush,
         1,
@@ -44,11 +44,9 @@ describe('PaintBuffer', () => {
       const x = 4
       const y = 5
 
-      const changed = paintBuffer.writePaintAlphaMaskStroke(
+      const changed = paintBuffer.paintAlphaMask(
         color,
         brush,
-        x,
-        y,
         x,
         y,
       )
@@ -76,7 +74,7 @@ describe('PaintBuffer', () => {
       const x = 10
       const y = 12
 
-      const changed = paintBuffer.writePaintAlphaMaskStroke(
+      const changed = paintBuffer.paintAlphaMask(
         color,
         brush,
         x,
@@ -97,7 +95,7 @@ describe('PaintBuffer', () => {
       const { paintBuffer, tilePool } = makeTestPaintBuffer(8)
       vi.spyOn(tilePool, 'getTile')
 
-      const result = paintBuffer.writePaintAlphaMaskStroke(
+      const result = paintBuffer.paintAlphaMask(
         0x00000000 as Color32,
         null as any,
         1,
@@ -112,7 +110,7 @@ describe('PaintBuffer', () => {
 
   })
 
-  describe(`writePaintBinaryMaskStroke`, () => {
+  describe(`paintBinaryMask`, () => {
 
     it('should draw a single point', () => {
       const brush = makeCirclePaintBinaryMask(3)
@@ -121,11 +119,9 @@ describe('PaintBuffer', () => {
       const x = 4
       const y = 5
 
-      const changed = paintBuffer.writePaintBinaryMaskStroke(
+      const changed = paintBuffer.paintBinaryMask(
         color,
         brush,
-        x,
-        y,
         x,
         y,
       )
@@ -153,7 +149,7 @@ describe('PaintBuffer', () => {
       const x = 10
       const y = 12
 
-      const changed = paintBuffer.writePaintBinaryMaskStroke(
+      const changed = paintBuffer.paintBinaryMask(
         color,
         brush,
         x,
@@ -235,7 +231,7 @@ describe('PaintBuffer', () => {
       const { paintBuffer, tilePool } = makeTestPaintBuffer(8)
       vi.spyOn(tilePool, 'getTile')
 
-      const result = paintBuffer.writePaintBinaryMaskStroke(
+      const result = paintBuffer.paintBinaryMask(
         0x00000000 as Color32,
         null as any,
         1,
@@ -249,19 +245,17 @@ describe('PaintBuffer', () => {
     })
   })
 
-  describe('writeRectStroke', () => {
+  describe('paintRect', () => {
     it('should draw a single point', () => {
       const tileSize = 8
       const { paintBuffer } = makeTestPaintBuffer(tileSize)
       const x = 2
       const y = 2
 
-      const result = paintBuffer.writeRectStroke(
+      const result = paintBuffer.paintRect(
         color,
         1,
         1,
-        x,
-        y,
         x,
         y,
       )
@@ -286,7 +280,7 @@ describe('PaintBuffer', () => {
       const x = 1
       const y = 1
 
-      const result = paintBuffer.writeRectStroke(
+      const result = paintBuffer.paintRect(
         color,
         1,
         1,
@@ -328,7 +322,7 @@ describe('PaintBuffer', () => {
       const { paintBuffer, tilePool } = makeTestPaintBuffer(8)
       vi.spyOn(tilePool, 'getTile')
 
-      const result = paintBuffer.writeRectStroke(
+      const result = paintBuffer.paintRect(
         0x00000000 as Color32,
         1,
         1,
@@ -346,7 +340,7 @@ describe('PaintBuffer', () => {
       const { paintBuffer } = makeTestPaintBuffer(8)
 
       // Using a 0x0 brush should trigger the scratch.w <= 0 check
-      const result = paintBuffer.writeRectStroke(
+      const result = paintBuffer.paintRect(
         color,
         0,
         0,
@@ -366,7 +360,7 @@ describe('PaintBuffer', () => {
 
       vi.spyOn(tilePool, 'getTile')
 
-      paintBuffer.writeRectStroke(
+      paintBuffer.paintRect(
         color,
         1,
         1,
@@ -376,7 +370,7 @@ describe('PaintBuffer', () => {
         10,
       )
 
-      paintBuffer.writeRectStroke(
+      paintBuffer.paintRect(
         color,
         1,
         1,
@@ -396,7 +390,7 @@ describe('PaintBuffer', () => {
       vi.spyOn(tilePool, 'getTile')
 
       // Tile (0,0)
-      paintBuffer.writeRectStroke(
+      paintBuffer.paintRect(
         color,
         1,
         1,
@@ -407,7 +401,7 @@ describe('PaintBuffer', () => {
       )
 
       // // Tile (1,1) because size is 16
-      paintBuffer.writeRectStroke(
+      paintBuffer.paintRect(
         color,
         1,
         1,

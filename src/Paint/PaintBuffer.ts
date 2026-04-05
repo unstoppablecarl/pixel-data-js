@@ -58,13 +58,27 @@ export class PaintBuffer {
     }
   }
 
-  writePaintAlphaMaskStroke(
+  paintAlphaMask(
+    color: Color32,
+    brush: PaintAlphaMask,
+    x: number,
+    y: number,
+  ): boolean
+  paintAlphaMask(
+    color: Color32,
+    brush: PaintAlphaMask,
+    startX: number,
+    startY: number,
+    endX: number,
+    endY: number,
+  ): boolean
+  paintAlphaMask(
     color: Color32,
     brush: PaintAlphaMask,
     x0: number,
     y0: number,
-    x1: number,
-    y1: number,
+    x1: number = x0,
+    y1: number = y0,
   ): boolean {
     const cA = color >>> 24
     if (cA === 0) return false
@@ -127,13 +141,27 @@ export class PaintBuffer {
     return changed
   }
 
-  writePaintBinaryMaskStroke(
+  paintBinaryMask(
+    color: Color32,
+    brush: PaintBinaryMask,
+    x: number,
+    y: number,
+  ): boolean
+  paintBinaryMask(
+    color: Color32,
+    brush: PaintBinaryMask,
+    startX: number,
+    startY: number,
+    endX: number,
+    endY: number,
+  ): boolean
+  paintBinaryMask(
     color: Color32,
     brush: PaintBinaryMask,
     x0: number,
     y0: number,
-    x1: number,
-    y1: number,
+    x1: number = x0,
+    y1: number = y0,
   ): boolean {
     const alphaIsZero = (color >>> 24) === 0
     if (alphaIsZero) return false
@@ -187,14 +215,30 @@ export class PaintBuffer {
     return changed
   }
 
-  writeRectStroke(
+  paintRect(
+    color: Color32,
+    brushWidth: number,
+    brushHeight: number,
+    x: number,
+    y: number,
+  ): boolean
+  paintRect(
+    color: Color32,
+    brushWidth: number,
+    brushHeight: number,
+    startX: number,
+    startY: number,
+    endX: number,
+    endY: number,
+  ): boolean
+  paintRect(
     color: Color32,
     brushWidth: number,
     brushHeight: number,
     x0: number,
     y0: number,
-    x1: number,
-    y1: number,
+    x1: number = x0,
+    y1: number = y0,
   ): boolean {
     const alphaIsZero = (color >>> 24) === 0
     if (alphaIsZero) return false
