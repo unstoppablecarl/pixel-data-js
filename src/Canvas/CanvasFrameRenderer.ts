@@ -1,27 +1,24 @@
-import type { PixelCanvas } from './PixelCanvas'
+import type { DrawPixelLayer, DrawScreenLayer, PixelCanvas, ReusableCanvasFactory } from './_canvas-types'
 import { makeReusableOffscreenCanvas } from './ReusableCanvas'
 
-type CanvasCtx = CanvasRenderingContext2D
-type OffCanvasCtx = OffscreenCanvasRenderingContext2D
+export type CanvasFrameRenderer<T extends HTMLCanvasElement | OffscreenCanvas = OffscreenCanvas> =
+  ReturnType<typeof makeCanvasFrameRenderer<T>>
 
-export type DrawPixelLayer<T extends CanvasCtx | OffCanvasCtx> = (ctx: T) => void
-export type DrawScreenLayer = (ctx: CanvasCtx, scale: number) => void
-export type CanvasFrameRenderer = ReturnType<typeof makeCanvasFrameRenderer>
-
-export function makeCanvasFrameRenderer(reusableCanvasFactory = makeReusableOffscreenCanvas) {
+export function makeCanvasFrameRenderer<T extends HTMLCanvasElement | OffscreenCanvas = OffscreenCanvas>(
+  reusableCanvasFactory: () => ReusableCanvasFactory<T> = makeReusableOffscreenCanvas as unknown as () => ReusableCanvasFactory<T>
+) {
   const bufferCanvas = reusableCanvasFactory()
-  type BufferCtx = ReturnType<typeof bufferCanvas>['ctx']
 
   return function renderCanvasFrame(
     pixelCanvas: PixelCanvas,
     scale: number,
     getImageData: () => ImageData | undefined | null,
-    drawPixelLayer?: DrawPixelLayer<BufferCtx>,
+    drawPixelLayer?: DrawPixelLayer<T>,
     drawScreenLayer?: DrawScreenLayer,
   ) {
     const { canvas, ctx } = pixelCanvas
 
-    // 1. Clear pixel buffer (unscaled)
+    // 1. Clear pixel buffer
     const { ctx: pxCtx, canvas: pxCanvas } = bufferCanvas(canvas.width, canvas.height)
 
     // 2. Draw pixel data into pixel buffer

@@ -1,6 +1,12 @@
-import type { PixelCanvas } from '@/index'
-import { makeCanvasFrameRenderer } from '@/index'
-import { describe, expect, it, vi } from 'vitest'
+import {
+  type CanvasFrameRenderer,
+  type DrawPixelLayer,
+  type DrawScreenLayer,
+  makeCanvasFrameRenderer,
+  makeReusableCanvas,
+  type PixelCanvas,
+} from '@/index'
+import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 
 describe('makeCanvasFrameRenderer', () => {
   it('executes the full rendering pipeline in the correct order', () => {
@@ -100,5 +106,104 @@ describe('makeCanvasFrameRenderer', () => {
     )
 
     expect(mockPxCtx.putImageData).not.toHaveBeenCalled()
+  })
+
+  describe('types', () => {
+
+    describe('default (OffscreenCanvas)', () => {
+      const renderer = makeCanvasFrameRenderer()
+
+      it('returns a function', () => {
+        expectTypeOf(renderer).toBeFunction()
+      })
+
+      it('has correct parameter signature', () => {
+        expectTypeOf(renderer).parameters.toEqualTypeOf<[
+          PixelCanvas,
+          number,
+          () => ImageData | undefined | null,
+          DrawPixelLayer<OffscreenCanvas>?,
+          DrawScreenLayer?,
+        ]>()
+      })
+
+      it('drawPixelLayer ctx is OffscreenCanvasRenderingContext2D', () => {
+        expectTypeOf(renderer).parameter(3).toEqualTypeOf<
+        DrawPixelLayer<OffscreenCanvas> | undefined
+        > ()
+      })
+
+      it('matches CanvasFrameRenderer default type alias', () => {
+        expectTypeOf(renderer).toEqualTypeOf<CanvasFrameRenderer>()
+      })
+    })
+
+    describe('explicit HTMLCanvasElement', () => {
+      const renderer = makeCanvasFrameRenderer<HTMLCanvasElement>(makeReusableCanvas)
+
+      it('drawPixelLayer ctx is CanvasRenderingContext2D', () => {
+        expectTypeOf(renderer).parameter(3).toEqualTypeOf<
+        DrawPixelLayer<HTMLCanvasElement> | undefined
+        > ()
+      })
+
+      it('does not accept an OffscreenCanvas drawPixelLayer', () => {
+        expectTypeOf(renderer).parameter(3).not.toEqualTypeOf<
+        DrawPixelLayer < OffscreenCanvas >
+        > ()
+      })
+
+      it('matches typed CanvasFrameRenderer alias', () => {
+        expectTypeOf(renderer).toEqualTypeOf<CanvasFrameRenderer<HTMLCanvasElement>>()
+      })
+    })
+
+    describe('DrawPixelLayer', () => {
+      it('OffscreenCanvas variant receives OffscreenCanvasRenderingContext2D', () => {
+        expectTypeOf<DrawPixelLayer<OffscreenCanvas>>().toBeFunction()
+        expectTypeOf<DrawPixelLayer<OffscreenCanvas>>()
+          .parameters.toEqualTypeOf<[OffscreenCanvasRenderingContext2D]>()
+      })
+
+      it('HTMLCanvasElement variant receives CanvasRenderingContext2D', () => {
+        expectTypeOf<DrawPixelLayer<HTMLCanvasElement>>().toBeFunction()
+        expectTypeOf<DrawPixelLayer<HTMLCanvasElement>>()
+          .parameters.toEqualTypeOf<[CanvasRenderingContext2D]>()
+      })
+
+      it('HTMLCanvasElement variant does not accept OffscreenCanvasRenderingContext2D', () => {
+        expectTypeOf<DrawPixelLayer<HTMLCanvasElement>>()
+          .not.toEqualTypeOf<DrawPixelLayer<OffscreenCanvas>>()
+      })
+
+      it('OffscreenCanvas variant does not accept CanvasRenderingContext2D', () => {
+        expectTypeOf<DrawPixelLayer<OffscreenCanvas>>()
+          .not.toEqualTypeOf<DrawPixelLayer<HTMLCanvasElement>>()
+      })
+    })
+
+    describe('DrawScreenLayer', () => {
+      it('is a function taking ctx and scale', () => {
+        expectTypeOf<DrawScreenLayer>().toBeFunction()
+        expectTypeOf<DrawScreenLayer>()
+          .parameters.toEqualTypeOf<[CanvasRenderingContext2D, number]>()
+      })
+    })
+
+    describe('CanvasFrameRenderer type alias', () => {
+      it('defaults to OffscreenCanvas', () => {
+        expectTypeOf<CanvasFrameRenderer>()
+          .toEqualTypeOf<CanvasFrameRenderer<OffscreenCanvas>>()
+      })
+
+      it('accepts HTMLCanvasElement generic', () => {
+        expectTypeOf<CanvasFrameRenderer<HTMLCanvasElement>>().toBeFunction()
+      })
+
+      it('HTMLCanvasElement and OffscreenCanvas variants are not interchangeable', () => {
+        expectTypeOf<CanvasFrameRenderer<HTMLCanvasElement>>()
+          .not.toEqualTypeOf<CanvasFrameRenderer<OffscreenCanvas>>()
+      })
+    })
   })
 })
