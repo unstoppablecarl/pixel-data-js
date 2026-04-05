@@ -13,7 +13,7 @@ type Deps = Partial<typeof defaults>
 /**
  * @param deps - @hidden
  */
-export const mutatorBlendPaintRect = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
+export const mutatorBlendColorPaintRect = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
   const {
     blendColorPixelData = defaults.blendColorPixelData,
   } = deps
@@ -21,7 +21,7 @@ export const mutatorBlendPaintRect = ((writer: PixelWriter<any>, deps: Deps = de
   const OPTS = { x: 0, y: 0, w: 0, h: 0, blendFn: sourceOverPerfect, alpha: 255 }
 
   return {
-    blendPaintRect(
+    blendColorPaintRect(
       color: Color32,
       centerX: number,
       centerY: number,

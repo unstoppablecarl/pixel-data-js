@@ -8,7 +8,7 @@ import { mutatorBlendColorPaintAlphaMask } from './PixelMutator/mutatorBlendColo
 import { mutatorBlendColorPaintBinaryMask } from './PixelMutator/mutatorBlendColorPaintBinaryMask'
 import { mutatorBlendColorPaintMask } from './PixelMutator/mutatorBlendColorPaintMask'
 import { mutatorBlendMask } from './PixelMutator/mutatorBlendMask'
-import { mutatorBlendPaintRect } from './PixelMutator/mutatorBlendPaintRect'
+import { mutatorBlendColorPaintRect } from './PixelMutator/mutatorBlendColorPaintRect'
 import { mutatorBlendPixel } from './PixelMutator/mutatorBlendPixel'
 import { mutatorBlendPixelData } from './PixelMutator/mutatorBlendPixelData'
 import { mutatorClear } from './PixelMutator/mutatorClear'
@@ -29,8 +29,8 @@ export function makeFullPixelMutator(writer: PixelWriter<any>) {
     ...mutatorBlendColorPaintAlphaMask(writer),
     ...mutatorBlendColorPaintBinaryMask(writer),
     ...mutatorBlendColorPaintMask(writer),
+    ...mutatorBlendColorPaintRect(writer),
     ...mutatorBlendMask(writer),
-    ...mutatorBlendPaintRect(writer),
     ...mutatorBlendPixel(writer),
     ...mutatorBlendPixelData(writer),
     ...mutatorClear(writer),

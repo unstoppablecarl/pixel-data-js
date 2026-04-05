@@ -1,14 +1,14 @@
-import { blendColorPixelData, type Color32, mutatorBlendPaintRect, overwritePerfect, sourceOverPerfect } from '@/index'
+import { blendColorPixelData, type Color32, mutatorBlendColorPaintRect, overwritePerfect, sourceOverPerfect } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockMutator } from './_helpers'
 
-describe('mutatorBlendPaintRect', () => {
+describe('mutatorBlendColorPaintRect', () => {
   const {
     mutator,
     accumulator,
     target,
     spyDeps,
-  } = mockMutator(mutatorBlendPaintRect, { blendColorPixelData })
+  } = mockMutator(mutatorBlendColorPaintRect, { blendColorPixelData })
 
   beforeEach(() => {
     vi.resetAllMocks()
@@ -24,7 +24,7 @@ describe('mutatorBlendPaintRect', () => {
     const alpha = 120
     const blendFn = overwritePerfect
 
-    mutator.blendPaintRect(color, x, y, brushWidth, brushHeight, alpha, blendFn)
+    mutator.blendColorPaintRect(color, x, y, brushWidth, brushHeight, alpha, blendFn)
 
     // should be macro inlined macro_paintRectCenterOffset()
     const topLeftX = x + -((brushWidth - 1) >> 1)
@@ -55,7 +55,7 @@ describe('mutatorBlendPaintRect', () => {
     const brushWidth = 10
     const brushHeight = 5
 
-    mutator.blendPaintRect(color, x, y, brushWidth, brushHeight)
+    mutator.blendColorPaintRect(color, x, y, brushWidth, brushHeight)
 
     // should be macro inlined macro_paintRectCenterOffset()
     const topLeftX = x + -((brushWidth - 1) >> 1)
