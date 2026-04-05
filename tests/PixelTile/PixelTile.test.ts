@@ -1,4 +1,4 @@
-import { PixelTile } from '@/index'
+import { makePixelTile } from '@/index'
 import { describe, expect, it } from 'vitest'
 
 describe('PixelTile', () => {
@@ -7,7 +7,7 @@ describe('PixelTile', () => {
 
   it('should be constructed correctly', () => {
 
-    const tile = new PixelTile(0, 1, 2, tileSize, tileArea)
+    const tile = makePixelTile(0, 1, 2, tileSize, tileArea)
     expect(tile.id).toBe(0)
     expect(tile.tx).toBe(1)
     expect(tile.ty).toBe(2)

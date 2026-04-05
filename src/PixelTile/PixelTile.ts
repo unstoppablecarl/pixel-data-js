@@ -1,21 +1,29 @@
 import type { IPixelData } from '../_types'
 
-export class PixelTile implements IPixelData {
-  readonly data32: Uint32Array
-  readonly width: number
-  readonly height: number
-  readonly imageData: ImageData
+export type PixelTile = IPixelData & {
+  id: number
+  tx: number
+  ty: number
+}
 
-  constructor(
-    public id: number,
-    public tx: number,
-    public ty: number,
-    tileSize: number,
-    tileArea: number,
-  ) {
-    this.width = this.height = tileSize
-    this.data32 = new Uint32Array(tileArea)
-    const data8 = new Uint8ClampedArray(this.data32.buffer) as Uint8ClampedArray<ArrayBuffer>
-    this.imageData = new ImageData(data8, tileSize, tileSize)
+export function makePixelTile(
+  id: number,
+  tx: number,
+  ty: number,
+  tileSize: number,
+  tileArea: number,
+): PixelTile {
+  const data32 = new Uint32Array(tileArea)
+  const data8 = new Uint8ClampedArray(data32.buffer) as Uint8ClampedArray<ArrayBuffer>
+
+  new ImageData(data8, tileSize, tileSize)
+  return {
+    id,
+    tx,
+    ty,
+    width: tileSize,
+    height: tileSize,
+    data32,
+    imageData: new ImageData(data8, tileSize, tileSize),
   }
 }

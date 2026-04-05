@@ -1,6 +1,6 @@
 import type { PixelEngineConfig } from '../History/PixelEngineConfig'
 
-import { PixelTile } from './PixelTile'
+import { makePixelTile, type PixelTile } from './PixelTile'
 
 export class PixelTilePool {
   public pool: PixelTile[]
@@ -34,7 +34,7 @@ export class PixelTilePool {
       return tile
     }
 
-    return new PixelTile(
+    return makePixelTile(
       id,
       tx,
       ty,

@@ -1,4 +1,4 @@
-import { applyPatchTiles, PixelData, PixelTile } from '@/index'
+import { applyPatchTiles, makePixelTile, PixelData } from '@/index'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 describe('PixelPatchTiles', () => {
@@ -14,7 +14,7 @@ describe('PixelPatchTiles', () => {
   describe('applyPatchTiles', () => {
     const tileArea = tileSize * tileSize
     it('should apply a single tile to the target', () => {
-      const tile = new PixelTile(0, 1, 1, tileSize, tileArea)
+      const tile = makePixelTile(0, 1, 1, tileSize, tileArea)
       // Fill the tile with a solid color (white)
       tile.data32.fill(0xFFFFFFFF)
 
@@ -33,10 +33,10 @@ describe('PixelPatchTiles', () => {
     })
 
     it('should apply multiple tiles', () => {
-      const tile1 = new PixelTile(0, 0, 0, tileSize, tileArea)
+      const tile1 = makePixelTile(0, 0, 0, tileSize, tileArea)
       tile1.data32.fill(0xFF0000FF) // Red
 
-      const tile2 = new PixelTile(1, 1, 0, tileSize, tileArea)
+      const tile2 = makePixelTile(1, 1, 0, tileSize, tileArea)
       tile2.data32.fill(0x00FF00FF) // Green
 
       applyPatchTiles(targetPixelData, [tile1, tile2], tileSize)
@@ -53,7 +53,7 @@ describe('PixelPatchTiles', () => {
     it('should correctly clamp tiles at the image boundaries', () => {
       // A tile at (tx=2, ty=2) would be at pixel coords (8,8)
       // For a 10x10 image, this tile should only draw in a 2x2 area (x=8,9 y=8,9)
-      const tile = new PixelTile(0, 2, 2, tileSize, tileArea)
+      const tile = makePixelTile(0, 2, 2, tileSize, tileArea)
 
       // Fill the tile with a pattern to check correctness
       for (let i = 0; i < tile.data32.length; i++) {
@@ -78,7 +78,7 @@ describe('PixelPatchTiles', () => {
     })
 
     it('should do nothing if a tile is outside the image bounds', () => {
-      const tile = new PixelTile(0, 3, 3, tileSize, tileArea) // Starts at pixel (12,12)
+      const tile = makePixelTile(0, 3, 3, tileSize, tileArea) // Starts at pixel (12,12)
       tile.data32.fill(0xFFFFFFFF)
 
       applyPatchTiles(targetPixelData, [tile], tileSize)
@@ -94,7 +94,7 @@ describe('PixelPatchTiles', () => {
     })
 
     it('should skip undefined or null tiles in the array', () => {
-      const tile = new PixelTile(0, 0, 0, tileSize, tileArea)
+      const tile = makePixelTile(0, 0, 0, tileSize, tileArea)
       tile.data32.fill(0xFFFFFFFF)
 
       // Pass an array with undefined/null values

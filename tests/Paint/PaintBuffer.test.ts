@@ -4,7 +4,7 @@ import {
   makeCirclePaintBinaryMask,
   PaintBuffer,
   PixelEngineConfig,
-  PixelTile,
+  type PixelTile,
   writePaintBufferToPixelData,
 } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'

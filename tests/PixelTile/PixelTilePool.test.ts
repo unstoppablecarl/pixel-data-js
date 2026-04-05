@@ -1,5 +1,5 @@
 import type { PixelEngineConfig } from '@/index'
-import { PixelTile, PixelTilePool } from '@/index'
+import { type PixelTile, PixelTilePool } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('PixelTilePool', () => {

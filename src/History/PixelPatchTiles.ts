@@ -1,5 +1,5 @@
 import type { IPixelData32 } from '../_types'
-import { PixelTile } from '../PixelTile/PixelTile'
+import { type PixelTile } from '../PixelTile/PixelTile'
 
 export type PixelPatchTiles = {
   beforeTiles: PixelTile[]

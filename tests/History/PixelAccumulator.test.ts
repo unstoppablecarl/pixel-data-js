@@ -1,4 +1,4 @@
-import { PixelAccumulator, PixelData, PixelEngineConfig, PixelTile, PixelTilePool } from '@/index'
+import { makePixelTile, PixelAccumulator, PixelData, PixelEngineConfig, PixelTilePool } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeTestPixelData } from '../_helpers'
 
@@ -148,7 +148,7 @@ describe('PixelAccumulator', () => {
 
   describe('extractState', () => {
     it('should extract state for a tile fully inside the image', () => {
-      let tile = new PixelTile(
+      let tile = makePixelTile(
         0,
         1,
         1,
@@ -166,7 +166,7 @@ describe('PixelAccumulator', () => {
     })
 
     it('should pad with 0 for tiles partially outside the right edge', () => {
-      let tile = new PixelTile(
+      let tile = makePixelTile(
         0,
         2,
         1,
@@ -184,7 +184,7 @@ describe('PixelAccumulator', () => {
     })
 
     it('should pad with 0 for tiles partially outside the bottom edge', () => {
-      let tile = new PixelTile(
+      let tile = makePixelTile(
         0,
         1,
         2,
@@ -205,7 +205,7 @@ describe('PixelAccumulator', () => {
     })
 
     it('should pad with 0 for tiles partially outside the left edge', () => {
-      let tile = new PixelTile(
+      let tile = makePixelTile(
         0,
         -0.5, // Simulates a tile starting at x: -2
         0,
@@ -222,7 +222,7 @@ describe('PixelAccumulator', () => {
     })
 
     it('should pad with 0 for tiles partially outside the top edge', () => {
-      let tile = new PixelTile(
+      let tile = makePixelTile(
         0,
         0,
         -0.5, // Simulates a tile starting at y: -2
@@ -239,7 +239,7 @@ describe('PixelAccumulator', () => {
     })
 
     it('should zero out the tile if completely outside the canvas (left and right)', () => {
-      let leftTile = new PixelTile(
+      let leftTile = makePixelTile(
         0,
         -1, // x: -4
         0,
@@ -249,7 +249,7 @@ describe('PixelAccumulator', () => {
       accumulator.extractState(leftTile)
       expect(leftTile.data32.every(v => v === 0)).toBe(true)
 
-      let rightTile = new PixelTile(
+      let rightTile = makePixelTile(
         0,
         3, // x: 12
         0,
@@ -261,7 +261,7 @@ describe('PixelAccumulator', () => {
     })
 
     it('should zero out the tile if completely outside the canvas (top and bottom)', () => {
-      let topTile = new PixelTile(
+      let topTile = makePixelTile(
         0,
         0,
         -1, // y: -4
@@ -271,7 +271,7 @@ describe('PixelAccumulator', () => {
       accumulator.extractState(topTile)
       expect(topTile.data32.every(v => v === 0)).toBe(true)
 
-      let bottomTile = new PixelTile(
+      let bottomTile = makePixelTile(
         0,
         0,
         3, // y: 12

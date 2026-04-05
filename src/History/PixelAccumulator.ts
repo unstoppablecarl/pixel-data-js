@@ -1,4 +1,4 @@
-import { PixelTile } from '../PixelTile/PixelTile'
+import { type PixelTile } from '../PixelTile/PixelTile'
 import type { PixelTilePool } from '../PixelTile/PixelTilePool'
 import type { PixelEngineConfig } from './PixelEngineConfig'
 import { applyPatchTiles, type PixelPatchTiles } from './PixelPatchTiles'
