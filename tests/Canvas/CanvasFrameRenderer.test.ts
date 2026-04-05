@@ -18,9 +18,7 @@ describe('makeCanvasFrameRenderer', () => {
       ctx: mockPxCtx,
     })
 
-    const renderCanvasFrame = makeCanvasFrameRenderer({
-      makeReusableCanvas: (() => mockBufferFactory) as any,
-    })
+    const renderCanvasFrame = makeCanvasFrameRenderer((() => mockBufferFactory) as any)
 
     const mockCtx = {
       setTransform: vi.fn(),
@@ -77,12 +75,11 @@ describe('makeCanvasFrameRenderer', () => {
       putImageData: vi.fn(),
     }
 
-    const renderCanvasFrame = makeCanvasFrameRenderer({
-      makeReusableCanvas: (() => vi.fn().mockReturnValue({
+    const renderCanvasFrame = makeCanvasFrameRenderer((() => vi.fn().mockReturnValue({
         canvas: {},
         ctx: mockPxCtx,
       })) as any,
-    })
+    )
 
     const pixelCanvas = {
       canvas: {

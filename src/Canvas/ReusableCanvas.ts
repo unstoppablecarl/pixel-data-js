@@ -9,6 +9,11 @@ export type ReusableCanvas<T extends HTMLCanvasElement | OffscreenCanvas> = {
   readonly ctx: CanvasContext<T>
 }
 
+export type ReusableCanvasFactory<T extends HTMLCanvasElement | OffscreenCanvas> = {
+  (w: number, h: number): ReusableCanvas<T>,
+  reset(): void
+}
+
 /**
  * Creates a reusable HTMLCanvasElement and context that are not part of the DOM.
  * Ensures it is always set to `context.imageSmoothingEnabled = false`
@@ -38,7 +43,7 @@ export function makeReusableOffscreenCanvas() {
 
 function makeReusableCanvasMeta<T extends HTMLCanvasElement | OffscreenCanvas>(
   factory: (w: number, h: number) => T,
-) {
+): ReusableCanvasFactory<T> {
   let canvas: T | null = null
   let ctx: CanvasContext<T> | null = null
 

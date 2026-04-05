@@ -1,31 +1,22 @@
 import type { PixelCanvas } from './PixelCanvas'
-import { makeReusableCanvas } from './ReusableCanvas'
+import { makeReusableOffscreenCanvas } from './ReusableCanvas'
 
-export type DrawPixelLayer = (ctx: CanvasRenderingContext2D) => void
-export type DrawScreenLayer = (ctx: CanvasRenderingContext2D, scale: number) => void
+type CanvasCtx = CanvasRenderingContext2D
+type OffCanvasCtx = OffscreenCanvasRenderingContext2D
+
+export type DrawPixelLayer<T extends CanvasCtx | OffCanvasCtx> = (ctx: T) => void
+export type DrawScreenLayer = (ctx: CanvasCtx, scale: number) => void
 export type CanvasFrameRenderer = ReturnType<typeof makeCanvasFrameRenderer>
 
-const defaults = {
-  makeReusableCanvas,
-}
-
-type Deps = Partial<typeof defaults>
-
-/**
- * @param deps - @hidden
- */
-export function makeCanvasFrameRenderer(deps: Deps = defaults) {
-  const {
-    makeReusableCanvas = defaults.makeReusableCanvas,
-  } = deps
-
-  const bufferCanvas = makeReusableCanvas()
+export function makeCanvasFrameRenderer(reusableCanvasFactory = makeReusableOffscreenCanvas) {
+  const bufferCanvas = reusableCanvasFactory()
+  type BufferCtx = ReturnType<typeof bufferCanvas>['ctx']
 
   return function renderCanvasFrame(
     pixelCanvas: PixelCanvas,
     scale: number,
     getImageData: () => ImageData | undefined | null,
-    drawPixelLayer?: DrawPixelLayer,
+    drawPixelLayer?: DrawPixelLayer<BufferCtx>,
     drawScreenLayer?: DrawScreenLayer,
   ) {
     const { canvas, ctx } = pixelCanvas
