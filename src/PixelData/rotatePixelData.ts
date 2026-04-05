@@ -7,8 +7,8 @@ import { setPixelData } from './PixelData'
  * If rectangular, it replaces the internal ImageData with a new rotated version.
  */
 export function rotatePixelData(pixelData: PixelData): void {
-  const width = pixelData.width
-  const height = pixelData.height
+  const width = pixelData.w
+  const height = pixelData.h
   const data = pixelData.data32
 
   if (width === height) {
@@ -43,7 +43,7 @@ export function rotatePixelData(pixelData: PixelData): void {
 }
 
 function rotateSquareInPlace(pixelData: PixelData): void {
-  const n = pixelData.width
+  const n = pixelData.w
   const data = pixelData.data32
 
   for (let i = 0; i < n / 2; i++) {

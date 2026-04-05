@@ -21,8 +21,8 @@ export const mutatorBlendBinaryMask = ((writer: PixelWriter<any>, deps: Partial<
     ): boolean {
       const x = opts?.x ?? 0
       const y = opts?.y ?? 0
-      const w = opts?.w ?? src.width
-      const h = opts?.h ?? src.height
+      const w = opts?.w ?? src.w
+      const h = opts?.h ?? src.h
 
       const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
 

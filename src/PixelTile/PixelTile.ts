@@ -21,8 +21,8 @@ export function makePixelTile(
     id,
     tx,
     ty,
-    width: tileSize,
-    height: tileSize,
+    w: tileSize,
+    h: tileSize,
     data32,
     imageData: new ImageData(data8, tileSize, tileSize),
   }

@@ -27,8 +27,8 @@ export function fillPixelDataBinaryMask(
     y,
     maskW,
     maskH,
-    target.width,
-    target.height,
+    target.w,
+    target.h,
     SCRATCH_RECT,
   )
 
@@ -43,7 +43,7 @@ export function fillPixelDataBinaryMask(
 
   const maskData = mask.data
   const dst32 = target.data32
-  const dw = target.width
+  const dw = target.w
 
   let hasChanged = false
 

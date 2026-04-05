@@ -20,7 +20,7 @@ export function writePaintBufferToPixelData(
       const dx = tile.tx << tileShift
       const dy = tile.ty << tileShift
 
-      writePixelDataBufferFn(target, tile.data32, dx, dy, tile.width, tile.height)
+      writePixelDataBufferFn(target, tile.data32, dx, dy, tile.w, tile.h)
     }
   }
 }

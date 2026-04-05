@@ -18,8 +18,8 @@ export const mutatorFill = ((writer: PixelWriter<any>, deps: Deps = defaults) =>
       color: Color32,
       x = 0,
       y = 0,
-      w = writer.config.target.width,
-      h = writer.config.target.height,
+      w = writer.config.target.w,
+      h = writer.config.target.h,
     ) {
       const target = writer.config.target
 

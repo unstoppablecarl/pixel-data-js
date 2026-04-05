@@ -51,8 +51,8 @@ export function floodFillSelection(
 ): FloodFillResult | null {
 
   const data32 = target.data32
-  const width = target.width
-  const height = target.height
+  const width = target.w
+  const height = target.h
 
   const lx = bounds?.x ?? 0
   const ly = bounds?.y ?? 0

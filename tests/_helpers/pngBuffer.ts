@@ -20,5 +20,5 @@ export async function uint32ArrayToPngBuffer(
 }
 
 export async function pixelDataToPngBuffer(target: PixelData32) {
-  return uint32ArrayToPngBuffer(target.data32, target.width, target.height)
+  return uint32ArrayToPngBuffer(target.data32, target.w, target.h)
 }

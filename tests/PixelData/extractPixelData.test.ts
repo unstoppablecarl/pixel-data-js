@@ -21,8 +21,8 @@ describe('extractPixelData', () => {
     const h = 6
     const result = extractPixelData(source, 0, 0, w, h)
 
-    expect(result.width).toBe(w)
-    expect(result.height).toBe(h)
+    expect(result.w).toBe(w)
+    expect(result.h).toBe(h)
     expect(result.imageData.width).toBe(w)
     expect(result.imageData.height).toBe(h)
 
@@ -49,7 +49,7 @@ describe('extractPixelData', () => {
 
     const result = extractPixelData(source, rect)
 
-    expect(result.width).toBe(2)
+    expect(result.w).toBe(2)
     // Row 2, Col 2 in 4x4 is index 10 (value 11)
     expect(result.data32[0]).toBe(11)
   })
@@ -58,8 +58,8 @@ describe('extractPixelData', () => {
     const source = createTestPixelData(2, 2)
     const result = extractPixelData(source, 10, 10, 2, 2)
 
-    expect(result.width).toBe(2)
-    expect(result.height).toBe(2)
+    expect(result.w).toBe(2)
+    expect(result.h).toBe(2)
     expect(result.data32.every((v) => v === 0)).toBe(true)
   })
 

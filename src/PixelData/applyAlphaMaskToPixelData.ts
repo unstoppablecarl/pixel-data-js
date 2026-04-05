@@ -12,8 +12,8 @@ export function applyAlphaMaskToPixelData(
 ): boolean {
   const targetX = opts?.x ?? 0
   const targetY = opts?.y ?? 0
-  const width = opts?.w ?? target.width
-  const height = opts?.h ?? target.height
+  const width = opts?.w ?? target.w
+  const height = opts?.h ?? target.h
   const globalAlpha = opts?.alpha ?? 255
   const mx = opts?.mx ?? 0
   const my = opts?.my ?? 0
@@ -37,8 +37,8 @@ export function applyAlphaMaskToPixelData(
     y = 0
   }
 
-  w = Math.min(w, target.width - x)
-  h = Math.min(h, target.height - y)
+  w = Math.min(w, target.w - x)
+  h = Math.min(h, target.h - y)
 
   if (w <= 0) return false
   if (h <= 0) return false
@@ -71,7 +71,7 @@ export function applyAlphaMaskToPixelData(
   const yShift = sY0 - startY
 
   const dst32 = target.data32
-  const dw = target.width
+  const dw = target.w
   const dStride = dw - finalW
   const mStride = mPitch - finalW
   const maskData = mask.data

@@ -181,8 +181,8 @@ export class PixelWriter<M> {
 
         opts.x = dx
         opts.y = dy
-        opts.w = tile.width
-        opts.h = tile.height
+        opts.w = tile.w
+        opts.h = tile.h
 
         didChange(
           blendPixelDataFn(

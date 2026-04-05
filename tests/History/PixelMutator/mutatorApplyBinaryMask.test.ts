@@ -33,7 +33,7 @@ describe('mutatorApplyBinaryMask', () => {
   it('should call accumulator with defaults', () => {
     const mask = makeTestBinaryMask(2, 3)
     mutator.applyBinaryMask(mask)
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, target.width, target.height)
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, target.w, target.h)
     expect(spyDeps.applyBinaryMaskToPixelData).toHaveBeenCalledWith(target, mask, undefined)
   })
 })

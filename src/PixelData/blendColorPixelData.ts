@@ -12,8 +12,8 @@ export function blendColorPixelData(
 ): boolean {
   const targetX = opts?.x ?? 0
   const targetY = opts?.y ?? 0
-  const width = opts?.w ?? target.width
-  const height = opts?.h ?? target.height
+  const width = opts?.w ?? target.w
+  const height = opts?.h ?? target.h
   const globalAlpha = opts?.alpha ?? 255
   const blendFn = opts?.blendFn ?? sourceOverPerfect
   if (globalAlpha === 0) return false
@@ -39,8 +39,8 @@ export function blendColorPixelData(
     y = 0
   }
 
-  const actualW = Math.min(w, target.width - x)
-  const actualH = Math.min(h, target.height - y)
+  const actualW = Math.min(w, target.w - x)
+  const actualH = Math.min(h, target.h - y)
 
   if (actualW <= 0 || actualH <= 0) return false
 
@@ -54,7 +54,7 @@ export function blendColorPixelData(
   }
 
   const dst32 = target.data32
-  const dw = target.width
+  const dw = target.w
   let dIdx = (y * dw + x) | 0
   const dStride = (dw - actualW) | 0
   let didChange = false

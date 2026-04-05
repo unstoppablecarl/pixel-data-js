@@ -21,7 +21,7 @@ describe('blendPixelDataBinaryMask', () => {
     it('skips all work for invalid globalAlpha or out-of-bounds targets', () => {
       const dst = makeTestPixelData(1, 1, BLUE)
       const src = makeTestPixelData(1, 1, RED)
-      const mask = makeBinaryMask(dst.width, dst.height)
+      const mask = makeBinaryMask(dst.w, dst.h)
       mask.data.fill(255)
 
       const r1 = blendPixelDataBinaryMask(
@@ -51,7 +51,7 @@ describe('blendPixelDataBinaryMask', () => {
       const dst = makeTestPixelData(1, 1, BLUE)
       const src = makeTestPixelData(1, 1, TRANSPARENT)
       const mockBlend = vi.fn(sourceOverFast)
-      const mask = makeBinaryMask(dst.width, dst.height)
+      const mask = makeBinaryMask(dst.w, dst.h)
       mask.data.fill(255)
 
       const result = blendPixelDataBinaryMask(
@@ -149,7 +149,7 @@ describe('blendPixelDataBinaryMask', () => {
     it('handles negative x, y offsets', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
       const src = makeTestPixelData(2, 2, RED)
-      const mask = makeBinaryMask(dst.width, dst.height)
+      const mask = makeBinaryMask(dst.w, dst.h)
       mask.data.fill(255)
 
       const result = blendPixelDataBinaryMask(
@@ -172,7 +172,7 @@ describe('blendPixelDataBinaryMask', () => {
     it('covers clipping height from the top (y < 0)', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
       const src = makeTestPixelData(2, 2, RED)
-      const mask = makeBinaryMask(dst.width, dst.height)
+      const mask = makeBinaryMask(dst.w, dst.h)
       mask.data.fill(255)
 
       const result = blendPixelDataBinaryMask(
@@ -195,7 +195,7 @@ describe('blendPixelDataBinaryMask', () => {
     it('covers clipping from the right/bottom edge', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
       const src = makeTestPixelData(5, 5, RED)
-      const mask = makeBinaryMask(dst.width, dst.height)
+      const mask = makeBinaryMask(dst.w, dst.h)
       mask.data.fill(255)
 
       const result = blendPixelDataBinaryMask(
@@ -389,7 +389,7 @@ describe('blendPixelDataBinaryMask', () => {
       const dst = makeTestPixelData(5, 5, BLUE)
       const src = makeTestPixelData(2, 2, RED)
 
-      const mask = makeBinaryMask(dst.width, dst.height)
+      const mask = makeBinaryMask(dst.w, dst.h)
       mask.data.fill(255)
       const result = blendPixelDataBinaryMask(
         dst,

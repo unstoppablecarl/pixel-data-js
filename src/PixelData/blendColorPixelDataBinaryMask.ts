@@ -50,8 +50,8 @@ export function blendColorPixelDataBinaryMask(
     y = 0
   }
 
-  const actualW = Math.min(w, target.width - x)
-  const actualH = Math.min(h, target.height - y)
+  const actualW = Math.min(w, target.w - x)
+  const actualH = Math.min(h, target.h - y)
 
   if (actualW <= 0 || actualH <= 0) return false
 
@@ -66,7 +66,7 @@ export function blendColorPixelDataBinaryMask(
   const dx = (x - targetX) | 0
   const dy = (y - targetY) | 0
   const dst32 = target.data32
-  const dw = target.width
+  const dw = target.w
   const mPitch = mask.w
   const maskData = mask.data
   let dIdx = (y * dw + x) | 0

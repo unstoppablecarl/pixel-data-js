@@ -7,7 +7,7 @@ export function copyPixelData<T extends ImageDataLike = ImageData>(target: Pixel
 
   return makePixelData(new ImageData(
     buffer,
-    target.width,
-    target.height,
+    target.w,
+    target.h,
   ))
 }

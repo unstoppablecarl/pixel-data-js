@@ -39,8 +39,8 @@ export function writePixelDataBuffer(
       h: _h!,
     }
 
-  const dstW = target.width
-  const dstH = target.height
+  const dstW = target.w
+  const dstH = target.h
   const dstData = target.data32
 
   // treat the source buffer as a Source Image starting at 0,0 with size w,h

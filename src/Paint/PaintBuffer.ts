@@ -99,8 +99,8 @@ export class PaintBuffer {
         topLeftY,
         bW,
         bH,
-        target.width,
-        target.height,
+        target.w,
+        target.h,
         scratch,
       )
 
@@ -180,8 +180,8 @@ export class PaintBuffer {
         topLeftY,
         bW,
         bH,
-        target.width,
-        target.height,
+        target.w,
+        target.h,
         scratch,
       )
 
@@ -268,8 +268,8 @@ export class PaintBuffer {
           topLeftY,
           brushWidth,
           brushHeight,
-          target.width,
-          target.height,
+          target.w,
+          target.h,
           scratch,
         )
 

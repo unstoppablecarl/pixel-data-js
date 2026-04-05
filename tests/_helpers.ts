@@ -53,24 +53,28 @@ export const expectPixelToMatch = (
   expectedY: number,
   overrideStep = 10,
 ) => {
-  const i = (y * img.width + x) * 4
 
   let step: number
+  let h: number
   let d: Uint8ClampedArray
   if ('imageData' in img) {
     d = img.imageData.data
-    step = img.width
+    step = img.w
+    h = img.h
   } else {
     d = img.data
     step = img.width
+    h = img.height
   }
+
+  const i = (y * step + x) * 4
 
   step = overrideStep ?? step
 
   if (d[i] === undefined) {
     throw new Error(
       `Out of Bounds: Accessing index ${i} (x:${x}, y:${y}) in buffer of length ${d.length}.
-       Expected Width: ${img.width}, Expected Height: ${img.height}`,
+       Expected Width: ${step}, Expected Height: ${h}`,
     )
   }
 
@@ -168,7 +172,7 @@ export function getPixel(
   x: number,
   y: number,
 ): Color32 {
-  const index = y * src.width + x
+  const index = y * src.w + x
 
   return src.data32[index] as Color32
 }
@@ -272,7 +276,7 @@ export const expectPixelToMatchColor = (
   color: Color32,
 ) => {
 
-  const value = getPixelColorFromUInt32Array(target.data32, x, y, target.width)
+  const value = getPixelColorFromUInt32Array(target.data32, x, y, target.w)
 
   expect(unpack(color)).toEqual(unpack(value))
 }
@@ -300,8 +304,8 @@ export function forEachPixel(
 ): void {
 
   let index = 0
-  const height = target.height
-  const width1 = target.width
+  const height = target.h
+  const width1 = target.w
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width1; x++) {
@@ -361,8 +365,8 @@ export function printAlphaMaskGrid(dst: AlphaMask, sep = ', '): void {
 }
 
 export function printPixelDataGrid(dst: PixelData32, sep = ', '): void {
-  const w = dst.width
-  const h = dst.height
+  const w = dst.w
+  const h = dst.h
   const data = dst.data32
 
   for (let y = 0; y < h; y++) {
@@ -379,8 +383,8 @@ export function printPixelDataGrid(dst: PixelData32, sep = ', '): void {
 }
 
 export function printPixelDataGridColor(dst: PixelData32): void {
-  const w = dst.width
-  const h = dst.height
+  const w = dst.w
+  const h = dst.h
   const data = dst.data32
 
   for (let y = 0; y < h; y++) {
@@ -397,8 +401,8 @@ export function printPixelDataGridColor(dst: PixelData32): void {
 }
 
 export function printPixelDataTable(dst: PixelData32): void {
-  const w = dst.width
-  const h = dst.height
+  const w = dst.w
+  const h = dst.h
   const data = dst.data32
   const grid = []
 
@@ -439,13 +443,13 @@ export function copyTestPixelData<T extends ImageDataLike = ImageData>(target: P
     const ImageConstructor = Ctor as ImageDataLikeConstructor<T>
     newImageData = new ImageConstructor(
       buffer,
-      target.width,
-      target.height,
+      target.w,
+      target.h,
     )
   } else {
     newImageData = {
-      width: target.width,
-      height: target.height,
+      width: target.w,
+      height: target.h,
       data: buffer,
     } as unknown as T
   }

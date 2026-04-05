@@ -37,7 +37,7 @@ describe('mutatorBlendAlphaMask', () => {
     const mask = makeTestAlphaMask(5, 3)
     mutator.blendAlphaMask(source, mask)
 
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, source.width, source.height)
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, source.w, source.h)
     expect(spyDeps.blendPixelDataAlphaMask).toHaveBeenCalledWith(target, source, mask, undefined)
   })
 })

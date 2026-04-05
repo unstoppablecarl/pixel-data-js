@@ -24,7 +24,7 @@ describe('PixelWriter', () => {
       setPixel: (x: number, y: number, color: number) => {
         w.accumulator.storePixelBeforeState(x, y)
         const target = w.config.target
-        const idx = y * target.width + x
+        const idx = y * target.w + x
         target.data32[idx] = color
       },
       doNothing: () => {
@@ -124,8 +124,8 @@ describe('PixelWriter', () => {
 
       writer.resize(200, 200, 0, 0, undefined, undefined, undefined, mockResize)
 
-      expect(pixelData.width).toBe(200)
-      expect(pixelData.height).toBe(200)
+      expect(pixelData.w).toBe(200)
+      expect(pixelData.h).toBe(200)
       expect(commitSpy).toHaveBeenCalledTimes(1)
     })
 
@@ -135,13 +135,13 @@ describe('PixelWriter', () => {
       })
 
       writer.resize(10, 10, 0, 0, undefined, undefined, undefined, mockResize)
-      expect(pixelData.width).toBe(10)
+      expect(pixelData.w).toBe(10)
 
       historyManager.undo()
-      expect(pixelData.width).toBe(100)
+      expect(pixelData.w).toBe(100)
 
       historyManager.redo()
-      expect(pixelData.width).toBe(10)
+      expect(pixelData.w).toBe(10)
     })
 
     it('should execute callbacks during undo/redo', () => {
@@ -303,8 +303,8 @@ describe('PixelWriter', () => {
         id: 10,
         tx: 2,
         ty: 3,
-        width: 8,
-        height: 8,
+        w: 8,
+        h: 8,
       }
 
       const mockBlendResult = true

@@ -24,8 +24,8 @@ export const mutatorApplyMask = ((writer: PixelWriter<any>, deps: Deps = default
       const target = writer.config.target
       const x = opts?.x ?? 0
       const y = opts?.y ?? 0
-      const w = opts?.w ?? target.width
-      const h = opts?.h ?? target.height
+      const w = opts?.w ?? target.w
+      const h = opts?.h ?? target.h
 
       const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
 

@@ -12,11 +12,11 @@ export function invertPixelData(
   const targetY = opts?.y ?? 0
   const mx = opts?.mx ?? 0
   const my = opts?.my ?? 0
-  const width = opts?.w ?? target.width
-  const height = opts?.h ?? target.height
+  const width = opts?.w ?? target.w
+  const height = opts?.h ?? target.h
   const invertMask = opts?.invertMask ?? false
 
-  const clip = resolveRectClipping(targetX, targetY, width, height, target.width, target.height, SCRATCH_RECT)
+  const clip = resolveRectClipping(targetX, targetY, width, height, target.w, target.h, SCRATCH_RECT)
 
   if (!clip.inBounds) return false
 
@@ -28,7 +28,7 @@ export function invertPixelData(
   } = clip
 
   const dst32 = target.data32
-  const dw = target.width
+  const dw = target.w
   const mPitch = mask?.w ?? width
 
   const dx = x - targetX

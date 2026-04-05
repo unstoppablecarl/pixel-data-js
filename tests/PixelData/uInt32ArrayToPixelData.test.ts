@@ -8,8 +8,8 @@ describe('uInt32ArrayToPixelData', () => {
     const height = 2
     const data = new Uint32Array(4)
     const result = uInt32ArrayToPixelData(data, width, height)
-    expect(result.width).toBe(width)
-    expect(result.height).toBe(height)
+    expect(result.w).toBe(width)
+    expect(result.h).toBe(height)
     expect(result.data32.length).toBe(4)
   })
 
@@ -39,7 +39,7 @@ describe('PixelData Class Methods', () => {
     const data = new Uint32Array([0xffffffff])
     const original = uInt32ArrayToPixelData(data, 1, 1)
     const clone = copyTestPixelData(original)
-    expect(clone.width).toBe(original.width)
+    expect(clone.w).toBe(original.w)
     expect(clone.data32[0]).toBe(0xffffffff)
     // Verify they are independent memory blocks
     clone.data32[0] = 0x00000000

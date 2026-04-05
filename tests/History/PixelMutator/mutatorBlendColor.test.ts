@@ -32,7 +32,7 @@ describe('mutatorBlendColor', () => {
   it('should call accumulator with defaults', () => {
     const color = 0xFF0000FF as Color32
     mutator.blendColor(color)
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, target.width, target.height)
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, target.w, target.h)
     expect(spyDeps.blendColorPixelData).toHaveBeenCalledWith(target, color, undefined)
   })
 })

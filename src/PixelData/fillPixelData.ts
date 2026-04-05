@@ -48,8 +48,8 @@ export function fillPixelData(
   if (typeof _x === 'object') {
     x = _x.x ?? 0
     y = _x.y ?? 0
-    w = _x.w ?? dst.width
-    h = _x.h ?? dst.height
+    w = _x.w ?? dst.w
+    h = _x.h ?? dst.h
   } else if (typeof _x === 'number') {
     x = _x
     y = _y!
@@ -58,8 +58,8 @@ export function fillPixelData(
   } else {
     x = 0
     y = 0
-    w = dst.width
-    h = dst.height
+    w = dst.w
+    h = dst.h
   }
 
   const clip = resolveRectClipping(
@@ -67,8 +67,8 @@ export function fillPixelData(
     y,
     w,
     h,
-    dst.width,
-    dst.height,
+    dst.w,
+    dst.h,
     SCRATCH_RECT,
   )
 
@@ -82,7 +82,7 @@ export function fillPixelData(
   } = clip
 
   const dst32 = dst.data32
-  const dw = dst.width
+  const dw = dst.w
   let hasChanged = false
 
   for (let iy = 0; iy < actualH; iy++) {

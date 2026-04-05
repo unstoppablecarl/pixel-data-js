@@ -264,8 +264,8 @@ describe('applyBinaryMaskToPixelData', () => {
       data32.fill(0xffffffff)
 
       return {
-        width: w,
-        height: h,
+        w,
+        h,
         data32,
       } as unknown as PixelData
     }

@@ -51,7 +51,7 @@ describe('mutatorBlendMask', () => {
       mask,
     )
 
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, src.width, src.height)
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, src.w, src.h)
     expect(spyDeps.blendPixelDataBinaryMask).toHaveBeenCalledWith(target, src, mask, undefined)
   })
   it('should call accumulator for Alpha', () => {
@@ -87,7 +87,7 @@ describe('mutatorBlendMask', () => {
       mask,
     )
 
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, src.width, src.height)
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, src.w, src.h)
     expect(spyDeps.blendPixelDataAlphaMask).toHaveBeenCalledWith(target, src, mask, undefined)
   })
 })

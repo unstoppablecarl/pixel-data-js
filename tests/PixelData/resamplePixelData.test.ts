@@ -18,8 +18,8 @@ describe('resamplePixelData', () => {
     const source = createTestPixelData(2, 2)
     const result = resamplePixelData(source, 2)
 
-    expect(result.width).toBe(4)
-    expect(result.height).toBe(4)
+    expect(result.w).toBe(4)
+    expect(result.h).toBe(4)
     // Nearest neighbor: the first 2x2 block in the 4x4 should match source[0,0]
     expect(result.data32[0]).toBe(source.data32[0])
     expect(result.data32[1]).toBe(source.data32[0])
@@ -31,8 +31,8 @@ describe('resamplePixelData', () => {
     const source = createTestPixelData(4, 4)
     const result = resamplePixelData(source, 0.5)
 
-    expect(result.width).toBe(2)
-    expect(result.height).toBe(2)
+    expect(result.w).toBe(2)
+    expect(result.h).toBe(2)
     // Should pick every second pixel
     expect(result.data32[0]).toBe(source.data32[0])
     expect(result.data32[1]).toBe(source.data32[2])
@@ -43,8 +43,8 @@ describe('resamplePixelData', () => {
     const source = createTestPixelData(10, 10)
     const result = resamplePixelData(source, 0.001)
 
-    expect(result.width).toBe(1)
-    expect(result.height).toBe(1)
+    expect(result.w).toBe(1)
+    expect(result.h).toBe(1)
     expect(result.data32.length).toBe(1)
     expect(result.data32[0]).toBe(source.data32[0])
   })

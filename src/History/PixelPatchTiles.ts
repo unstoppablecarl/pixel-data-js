@@ -14,8 +14,8 @@ export function applyPatchTiles(target: PixelData32, tiles: PixelTile[], tileSiz
 
     const dst = target.data32
     const src = tile.data32
-    const dstWidth = target.width
-    const dstHeight = target.height
+    const dstWidth = target.w
+    const dstHeight = target.h
     const startX = tile.tx * tileSize
     const startY = tile.ty * tileSize
 

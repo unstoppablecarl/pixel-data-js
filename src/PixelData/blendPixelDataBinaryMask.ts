@@ -11,8 +11,8 @@ export function blendPixelDataBinaryMask(
   const targetY = opts?.y ?? 0
   const sourceX = opts?.sx ?? 0
   const sourceY = opts?.sy ?? 0
-  const width = opts?.w ?? src.width
-  const height = opts?.h ?? src.height
+  const width = opts?.w ?? src.w
+  const height = opts?.h ?? src.h
   const globalAlpha = opts?.alpha ?? 255
   const blendFn = opts?.blendFn ?? sourceOverPerfect
   const mx = opts?.mx ?? 0
@@ -39,8 +39,8 @@ export function blendPixelDataBinaryMask(
     h += sy
     sy = 0
   }
-  w = Math.min(w, src.width - sx)
-  h = Math.min(h, src.height - sy)
+  w = Math.min(w, src.w - sx)
+  h = Math.min(h, src.h - sy)
 
   // 2. Destination Clipping
   if (x < 0) {
@@ -54,8 +54,8 @@ export function blendPixelDataBinaryMask(
     y = 0
   }
 
-  const actualW = Math.min(w, target.width - x)
-  const actualH = Math.min(h, target.height - y)
+  const actualW = Math.min(w, target.w - x)
+  const actualH = Math.min(h, target.h - y)
 
   if (actualW <= 0 || actualH <= 0) return false
 
@@ -67,8 +67,8 @@ export function blendPixelDataBinaryMask(
 
   const dst32 = target.data32
   const src32 = src.data32
-  const dw = target.width
-  const sw = src.width
+  const dw = target.w
+  const sw = src.w
   const mPitch = binaryMask.w
   const maskData = binaryMask.data
 

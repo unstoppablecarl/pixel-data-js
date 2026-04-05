@@ -50,8 +50,8 @@ export function fillPixelDataFast(
   if (typeof _x === 'object') {
     x = _x.x ?? 0
     y = _x.y ?? 0
-    w = _x.w ?? dst.width
-    h = _x.h ?? dst.height
+    w = _x.w ?? dst.w
+    h = _x.h ?? dst.h
   } else if (typeof _x === 'number') {
     x = _x
     y = _y!
@@ -60,11 +60,11 @@ export function fillPixelDataFast(
   } else {
     x = 0
     y = 0
-    w = dst.width
-    h = dst.height
+    w = dst.w
+    h = dst.h
   }
 
-  const clip = resolveRectClipping(x, y, w, h, dst.width, dst.height, SCRATCH_RECT)
+  const clip = resolveRectClipping(x, y, w, h, dst.w, dst.h, SCRATCH_RECT)
 
   if (!clip.inBounds) return
 
@@ -77,10 +77,10 @@ export function fillPixelDataFast(
   } = clip
 
   const dst32 = dst.data32
-  const dw = dst.width
+  const dw = dst.w
 
   // Optimization: If filling the entire buffer, use the native .fill()
-  if (actualW === dw && actualH === dst.height && finalX === 0 && finalY === 0) {
+  if (actualW === dw && actualH === dst.h && finalX === 0 && finalY === 0) {
     dst32.fill(color)
     return
   }

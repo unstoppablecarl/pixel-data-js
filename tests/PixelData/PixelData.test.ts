@@ -13,8 +13,8 @@ describe('PixelData', () => {
 
     const pixelData = makePixelData(imageData)
 
-    expect(pixelData.width).toBe(width)
-    expect(pixelData.height).toBe(height)
+    expect(pixelData.w).toBe(width)
+    expect(pixelData.h).toBe(height)
     expect(pixelData.data32.length).toBe(4)
   })
 
@@ -46,8 +46,8 @@ describe('PixelData', () => {
     original.data32[0] = 0x00000000
 
     expect(clone.data32[0]).toBe(0xFFFFFFFF)
-    expect(clone.width).toBe(original.width)
-    expect(clone.height).toBe(original.height)
+    expect(clone.w).toBe(original.w)
+    expect(clone.h).toBe(original.h)
     expect(clone).not.toBe(original)
   })
 
@@ -72,8 +72,8 @@ describe('PixelData', () => {
     const pixelData = makePixelData<MockImageData>(new MockImageData(new Uint8ClampedArray(4), 1, 1))
     const copied = copyTestPixelData(pixelData)
 
-    expect(copied.width).toBe(1)
-    expect(copied.height).toBe(1)
+    expect(copied.w).toBe(1)
+    expect(copied.h).toBe(1)
     expect(copied.imageData).toBeInstanceOf(MockImageData)
   })
 })

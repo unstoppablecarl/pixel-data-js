@@ -1,8 +1,8 @@
 import type { PixelData32 } from '../_types'
 
 export function reflectPixelDataHorizontal(pixelData: PixelData32): void {
-  const width = pixelData.width
-  const height = pixelData.height
+  const width = pixelData.w
+  const height = pixelData.h
   const data = pixelData.data32
   const halfWidth = Math.floor(width / 2)
 
@@ -21,8 +21,8 @@ export function reflectPixelDataHorizontal(pixelData: PixelData32): void {
 }
 
 export function reflectPixelDataVertical(pixelData: PixelData32): void {
-  const width = pixelData.width
-  const height = pixelData.height
+  const width = pixelData.w
+  const height = pixelData.h
   const data = pixelData.data32
   const halfHeight = Math.floor(height / 2)
 

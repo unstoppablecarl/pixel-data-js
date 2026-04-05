@@ -23,7 +23,7 @@ describe('PixelPatchTiles', () => {
       // The tile is at (tx=1, ty=1) with TILE_SIZE=4, so it covers x=4-7, y=4-7
       for (let y = 4; y < 8; y++) {
         for (let x = 4; x < 8; x++) {
-          const idx = y * targetPixelData.width + x
+          const idx = y * targetPixelData.w + x
           expect(targetPixelData.data32[idx]).toBe(0xFFFFFFFF)
         }
       }
@@ -43,11 +43,11 @@ describe('PixelPatchTiles', () => {
 
       // Check tile1 area (0,0) -> (3,3)
       expect(targetPixelData.data32[0]).toBe(0xFF0000FF)
-      expect(targetPixelData.data32[3 * targetPixelData.width + 3]).toBe(0xFF0000FF)
+      expect(targetPixelData.data32[3 * targetPixelData.w + 3]).toBe(0xFF0000FF)
 
       // Check tile2 area (4,0) -> (7,3)
       expect(targetPixelData.data32[4]).toBe(0x00FF00FF)
-      expect(targetPixelData.data32[3 * targetPixelData.width + 7]).toBe(0x00FF00FF)
+      expect(targetPixelData.data32[3 * targetPixelData.w + 7]).toBe(0x00FF00FF)
     })
 
     it('should correctly clamp tiles at the image boundaries', () => {

@@ -52,8 +52,8 @@ export function blendColorPixelDataAlphaMask(
     y = 0
   }
 
-  actualW = Math.min(actualW, target.width - x)
-  actualH = Math.min(actualH, target.height - y)
+  actualW = Math.min(actualW, target.w - x)
+  actualH = Math.min(actualH, target.h - y)
 
   if (actualW <= 0 || actualH <= 0) return false
 
@@ -61,7 +61,7 @@ export function blendColorPixelDataAlphaMask(
   const dy = (y - targetY) | 0
 
   const dst32 = target.data32
-  const dw = target.width
+  const dw = target.w
   const mPitch = mask.w
   const maskData = mask.data
 

@@ -141,8 +141,8 @@ export class PixelAccumulator {
     const src = target.data32
     const startX = tile.tx * TILE_SIZE
     const startY = tile.ty * TILE_SIZE
-    const targetWidth = target.width
-    const targetHeight = target.height
+    const targetWidth = target.w
+    const targetHeight = target.h
 
     // If the tile is completely outside the canvas, zero it out.
     if (startX >= targetWidth || startX + TILE_SIZE <= 0 || startY >= targetHeight || startY + TILE_SIZE <= 0) {

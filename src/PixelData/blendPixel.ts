@@ -11,8 +11,8 @@ export function blendPixel(
 ): boolean {
   if (alpha === 0) return false
 
-  let width = target.width
-  let height = target.height
+  let width = target.w
+  let height = target.h
 
   if (x < 0 || x >= width || y < 0 || y >= height) return false
 

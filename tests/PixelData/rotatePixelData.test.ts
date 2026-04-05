@@ -24,8 +24,8 @@ describe('rotatePixelData', () => {
     expect(data[1]).toBe(1)
     expect(data[2]).toBe(4)
     expect(data[3]).toBe(2)
-    expect(pixelData.width).toBe(2)
-    expect(pixelData.height).toBe(2)
+    expect(pixelData.w).toBe(2)
+    expect(pixelData.h).toBe(2)
   })
 
   it('should rotate a rectangular 3x2 image and update dimensions', () => {
@@ -50,8 +50,8 @@ describe('rotatePixelData', () => {
     // [4, 1]
     // [5, 2]
     // [6, 3]
-    expect(pixelData.width).toBe(2)
-    expect(pixelData.height).toBe(3)
+    expect(pixelData.w).toBe(2)
+    expect(pixelData.h).toBe(3)
     expect(pixelData.data32[0]).toBe(4)
     expect(pixelData.data32[1]).toBe(1)
     expect(pixelData.data32[2]).toBe(5)

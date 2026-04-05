@@ -15,14 +15,14 @@ describe('copyPixelData', () => {
 
     const target = {
       imageData: imageData,
-      width: width,
-      height: height,
+      w: width,
+      h: height,
     } as any
 
     const copy = copyPixelData(target)
 
-    expect(copy.width).toBe(width)
-    expect(copy.height).toBe(height)
+    expect(copy.w).toBe(width)
+    expect(copy.h).toBe(height)
     expect(Array.from(copy.imageData.data)).toEqual(Array.from(originalBuffer))
 
     expect(copy.imageData.data).not.toBe(originalBuffer)

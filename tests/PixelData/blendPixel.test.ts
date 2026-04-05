@@ -60,7 +60,7 @@ describe('blendPixel', () => {
 
     let result = blendPixel(target, x, y, color, alpha, sourceOverFast)
 
-    let index = y * target.width + x
+    let index = y * target.w + x
     let finalColor = target.data32[index]
     let finalAlpha = finalColor >>> 24
 
@@ -105,7 +105,7 @@ describe('blendPixel', () => {
     let bgColor = 0xFF00FF00 as Color32
     let srcColor = 0x80FF0000 as Color32
 
-    let index = y * target.width + x
+    let index = y * target.w + x
     target.data32[index] = bgColor
 
     let blendFn = vi.fn().mockReturnValue(0xDEADBEEF as Color32) as unknown as BlendColor32

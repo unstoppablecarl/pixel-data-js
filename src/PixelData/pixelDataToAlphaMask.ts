@@ -10,11 +10,11 @@ export function pixelDataToAlphaMask(
 ): AlphaMask {
   const {
     data32,
-    width,
-    height,
+    w,
+    h,
   } = pixelData
   const len = data32.length
-  const mask = makeAlphaMask(width, height)
+  const mask = makeAlphaMask(w, h)
   const maskData = mask.data
 
   for (let i = 0; i < len; i++) {

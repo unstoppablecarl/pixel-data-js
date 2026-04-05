@@ -22,7 +22,7 @@ export class PixelEngineConfig {
     this.tileMask = tileSize - 1
     this.tileArea = tileSize * tileSize
     this.target = target
-    this.targetColumns = (target.width + this.tileMask) >> this.tileShift
-    this.targetRows = (target.height + this.tileMask) >> this.tileShift
+    this.targetColumns = (target.w + this.tileMask) >> this.tileShift
+    this.targetRows = (target.h + this.tileMask) >> this.tileShift
   }
 }

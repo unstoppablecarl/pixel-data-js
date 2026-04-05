@@ -21,8 +21,8 @@ export const mutatorClear = ((writer: PixelWriter<any>, deps: Deps = defaults) =
       const target = writer.config.target
       const x = rect?.x ?? 0
       const y = rect?.y ?? 0
-      const w = rect?.w ?? target.width
-      const h = rect?.h ?? target.height
+      const w = rect?.w ?? target.w
+      const h = rect?.h ?? target.h
 
       const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
       return didChange(

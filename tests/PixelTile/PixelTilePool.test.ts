@@ -29,7 +29,7 @@ describe('PixelTilePool', () => {
       expect(tile.id).toBe(1)
       expect(tile.tx).toBe(5)
       expect(tile.ty).toBe(10)
-      expect(tile.width).toBe(mockConfig.tileSize)
+      expect(tile.w).toBe(mockConfig.tileSize)
       expect(tile.data32.length).toBe(mockConfig.tileArea)
 
     })

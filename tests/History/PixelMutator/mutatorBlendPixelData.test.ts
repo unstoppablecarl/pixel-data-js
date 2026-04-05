@@ -34,7 +34,7 @@ describe('mutatorBlendPixelData', () => {
 
     mutator.blendPixelData(source)
 
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, source.width, source.height)
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, source.w, source.h)
     expect(spyDeps.blendPixelData).toHaveBeenCalledWith(target, source, undefined)
   })
 })

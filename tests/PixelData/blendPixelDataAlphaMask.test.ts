@@ -21,7 +21,7 @@ describe('blendPixelDataAlphaMask', () => {
     it('skips all work for invalid globalAlpha or out-of-bounds targets', () => {
       const dst = makeTestPixelData(1, 1, BLUE)
       const src = makeTestPixelData(1, 1, RED)
-      const mask = makeTestAlphaMask(dst.width, dst.height, 255)
+      const mask = makeTestAlphaMask(dst.w, dst.h, 255)
 
       const r1 = blendPixelDataAlphaMask(dst, src, mask, { alpha: 0 })
       const r2 = blendPixelDataAlphaMask(dst, src, mask, { x: 10, y: 10 })
@@ -35,7 +35,7 @@ describe('blendPixelDataAlphaMask', () => {
       const dst = makeTestPixelData(1, 1, BLUE)
       const src = makeTestPixelData(1, 1, TRANSPARENT)
       const mockBlend = vi.fn(sourceOverFast)
-      const mask = makeTestAlphaMask(dst.width, dst.height, 255)
+      const mask = makeTestAlphaMask(dst.w, dst.h, 255)
 
       const result = blendPixelDataAlphaMask(dst, src, mask, {
         blendFn: mockBlend,
@@ -120,7 +120,7 @@ describe('blendPixelDataAlphaMask', () => {
     it('handles negative x, y offsets', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
       const src = makeTestPixelData(2, 2, RED)
-      const mask = makeTestAlphaMask(dst.width, dst.height, 255)
+      const mask = makeTestAlphaMask(dst.w, dst.h, 255)
 
       const result = blendPixelDataAlphaMask(dst, src, mask, {
         x: -1,
@@ -137,7 +137,7 @@ describe('blendPixelDataAlphaMask', () => {
     it('covers clipping height from the top (y < 0)', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
       const src = makeTestPixelData(2, 2, RED)
-      const mask = makeTestAlphaMask(dst.width, dst.height, 255)
+      const mask = makeTestAlphaMask(dst.w, dst.h, 255)
 
       const result = blendPixelDataAlphaMask(dst, src, mask, {
         x: 0,
@@ -154,7 +154,7 @@ describe('blendPixelDataAlphaMask', () => {
     it('covers clipping from the right/bottom edge', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
       const src = makeTestPixelData(5, 5, RED)
-      const mask = makeTestAlphaMask(dst.width, dst.height, 255)
+      const mask = makeTestAlphaMask(dst.w, dst.h, 255)
 
       const result = blendPixelDataAlphaMask(dst, src, mask, {
         x: 1,
@@ -293,7 +293,7 @@ describe('blendPixelDataAlphaMask', () => {
       const dst = makeTestPixelData(5, 5, BLUE)
       const src = makeTestPixelData(2, 2, RED)
 
-      const mask = makeTestAlphaMask(dst.width, dst.height, 255)
+      const mask = makeTestAlphaMask(dst.w, dst.h, 255)
 
       const result = blendPixelDataAlphaMask(dst, src, mask, {
         x: 0,

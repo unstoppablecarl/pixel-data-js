@@ -85,7 +85,7 @@ describe('PaintBuffer', () => {
 
       expect(changed).toBe(true)
 
-      const dst = makeTestPixelData(target.width, target.height)
+      const dst = makeTestPixelData(target.w, target.h)
 
       writePaintBufferToPixelData(dst, paintBuffer)
       expect(dst).toMatchPixelDataSnapshot()
@@ -433,8 +433,8 @@ describe('PaintBuffer', () => {
 
     beforeEach(() => {
       const target = {
-        width: 1024,
-        height: 1024,
+        w: 1024,
+        h: 1024,
       } as any
 
       // 256px tile size (tileShift = 8)

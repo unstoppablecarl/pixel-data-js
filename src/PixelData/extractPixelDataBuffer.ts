@@ -20,8 +20,8 @@ export function extractPixelDataBuffer(
     ? _x
     : { x: _x, y: _y!, w: _w!, h: _h! }
 
-  const srcW = source.width
-  const srcH = source.height
+  const srcW = source.w
+  const srcH = source.h
   const srcData = source.data32
 
   // Safety check for empty or invalid dimensions
