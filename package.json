@@ -17,7 +17,9 @@
     "color",
     "blend modes",
     "color blend",
-    "canvas"
+    "canvas",
+    "draw",
+    "paint"
   ],
   "main": "./dist/index.prod.cjs",
   "module": "./dist/index.prod.js",
@@ -45,18 +47,17 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest --coverage --project unit",
-    "re-index": "tsx _scripts/re-index.ts",
-    "check": "npm run check-circ && npm run re-index && npm run sort && npm run typecheck",
     "test:build": "pnpm build && vitest run --project dist",
-    "check-circ": "tsx _scripts/check-circular.ts",
     "test:mutation": "stryker run",
-    "docs": "npx typedoc",
-    "typecheck": "tsc --noEmit",
-    "check-exports": "tsx _scripts/check-exports.ts",
+    "re-index": "tsx _scripts/re-index.ts",
+    "check-circ": "tsx _scripts/check-circular.ts",
     "sort": "tsx _scripts/apply-sorting.ts",
+    "check": "pnpm run check-circ && pnpm run re-index && pnpm run sort && pnpm run typecheck",
+    "typecheck": "tsc --noEmit",
     "bench": "tsx ./benchmark/run.ts",
     "bench:all": "tsx ./benchmark/run-all.ts",
-    "bench:compare": "tsx ./benchmark/compare.ts"
+    "bench:compare": "tsx ./benchmark/compare.ts",
+    "docs": "npx typedoc"
   },
   "devDependencies": {
     "@clack/prompts": "^1.1.0",
