@@ -1,6 +1,5 @@
-import { makePaintBufferCanvasRenderer } from '@/index'
+import { makePaintBufferCanvasRenderer, ERRORS } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
-import { CANVAS_CTX_FAILED } from '../../support/error-strings'
 
 describe('makePaintBufferCanvasRenderer', () => {
   it('throws an error if the context cannot be initialized', () => {
@@ -21,7 +20,7 @@ describe('makePaintBufferCanvasRenderer', () => {
       }
     }
 
-    expect(() => makePaintBufferCanvasRenderer(mockBuffer as any, BadOffscreenCanvas as any)).toThrowError(CANVAS_CTX_FAILED)
+    expect(() => makePaintBufferCanvasRenderer(mockBuffer as any, BadOffscreenCanvas as any)).toThrowError(ERRORS.CANVAS_CTX_FAILED)
   })
 
   it('initializes the offscreen canvas with correct dimensions and disables smoothing', () => {

@@ -1,4 +1,4 @@
-import { CANVAS_CTX_FAILED } from '../../support/error-strings'
+import { CANVAS_CTX_FAILED } from '../Internal/_errors'
 import type { PaintBuffer } from './PaintBuffer'
 
 export type PaintBufferCanvasRenderer = ReturnType<typeof makePaintBufferCanvasRenderer>

@@ -1,4 +1,4 @@
-import { OFFSCREEN_CANVAS_CTX_FAILED } from '../../support/error-strings'
+import { OFFSCREEN_CANVAS_CTX_FAILED } from '../Internal/_errors'
 
 /**
  * Thrown when the user provides a file that isn't an image.

@@ -8,17 +8,6 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 export const ROOT_DIR = path.resolve(__dirname, '../src')
 
-export function sortWithUnderscoreFirst(a: string, b: string): number {
-  const baseName = (s: string) => s.trimStart().split('/').pop() ?? s
-  const aBase = baseName(a)
-  const bBase = baseName(b)
-  const aUnder = aBase.startsWith('_')
-  const bUnder = bBase.startsWith('_')
-  if (aUnder && !bUnder) return -1
-  if (!aUnder && bUnder) return 1
-  return a.localeCompare(b)
-}
-
 export function standardSort(a: string, b: string): number {
   const al = a.toLowerCase()
   const bl = b.toLowerCase()
