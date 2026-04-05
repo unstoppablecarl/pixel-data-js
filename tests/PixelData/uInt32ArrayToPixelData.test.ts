@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { copyPixelData } from '../_helpers'
+import { copyTestPixelData } from '../_helpers'
 import { uInt32ArrayToPixelData } from './uInt32ArrayToPixelData'
 
 describe('uInt32ArrayToPixelData', () => {
@@ -38,7 +38,7 @@ describe('PixelData Class Methods', () => {
   it('should correctly copy a PixelData instance', () => {
     const data = new Uint32Array([0xffffffff])
     const original = uInt32ArrayToPixelData(data, 1, 1)
-    const clone = copyPixelData(original)
+    const clone = copyTestPixelData(original)
     expect(clone.width).toBe(original.width)
     expect(clone.data32[0]).toBe(0xffffffff)
     // Verify they are independent memory blocks

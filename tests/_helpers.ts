@@ -420,7 +420,7 @@ export function printPixelDataTable(dst: IPixelData32): void {
   console.table(grid)
 }
 
-export function copyPixelData<T extends ImageDataLike = ImageData>(target: PixelData<T>): PixelData<T> {
+export function copyTestPixelData<T extends ImageDataLike = ImageData>(target: PixelData<T>): PixelData<T> {
   const data = target.imageData.data
   const buffer = new Uint8ClampedArray(data)
   const Ctor = target.imageData.constructor

@@ -1,7 +1,7 @@
 import { type ImageDataLike, PixelData } from '@/index'
 import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
-import { copyPixelData } from '../_helpers'
+import { copyTestPixelData } from '../_helpers'
 
 describe('PixelData', () => {
   it('should initialize width, height, and data32 view', () => {
@@ -40,7 +40,7 @@ describe('PixelData', () => {
     const imageData = createImageData(buffer, 1, 1) as ImageData
 
     const original = new PixelData(imageData)
-    const clone = copyPixelData(original)
+    const clone = copyTestPixelData(original)
 
     // Modify the original
     original.data32[0] = 0x00000000
@@ -70,7 +70,7 @@ describe('PixelData', () => {
     }
 
     const pixelData = new PixelData<MockImageData>(new MockImageData(new Uint8ClampedArray(4), 1, 1))
-    const copied = copyPixelData(pixelData)
+    const copied = copyTestPixelData(pixelData)
 
     expect(copied.width).toBe(1)
     expect(copied.height).toBe(1)
