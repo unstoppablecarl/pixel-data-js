@@ -1,4 +1,4 @@
-import { IndexedImage, indexedImageToImageData } from '@/index'
+import { indexedImageToImageData, makeIndexedImageFromImageData, makeIndexedImageFromImageDataRaw } from '@/index'
 import { describe, expect, it } from 'vitest'
 
 describe('IndexedImage conversions', () => {
@@ -14,7 +14,7 @@ describe('IndexedImage conversions', () => {
     data32[2] = 0xFFFF0000 // Blue
     data32[3] = 0x00000000 // Transparent
 
-    const indexed = IndexedImage.fromImageData(imageData)
+    const indexed = makeIndexedImageFromImageData(imageData)
     const result = indexedImageToImageData(indexed)
     const result32 = new Uint32Array(result.data.buffer)
 
@@ -31,10 +31,10 @@ describe('IndexedImage conversions', () => {
     const height = 1
     const data = new Uint8ClampedArray([255, 0, 0, 255])
 
-    const indexed = IndexedImage.fromRaw(data, width, height)
+    const indexed = makeIndexedImageFromImageDataRaw(data, width, height)
 
-    expect(indexed.width).toBe(1)
-    expect(indexed.height).toBe(1)
+    expect(indexed.w).toBe(1)
+    expect(indexed.h).toBe(1)
     expect(indexed.palette.length).toBe(2) // Transparent (0) + Red (1)
   })
 
@@ -47,7 +47,7 @@ describe('IndexedImage conversions', () => {
 
     data32.fill(color)
 
-    const indexed = IndexedImage.fromImageData(imageData)
+    const indexed = makeIndexedImageFromImageData(imageData)
 
     // Palette should only have 2 entries: [Transparent, Color]
     expect(indexed.palette.length).toBe(2)
@@ -65,7 +65,7 @@ describe('IndexedImage conversions', () => {
     data32[0] = 0x00112233
     data32[1] = 0x00445566
 
-    const indexed = IndexedImage.fromImageData(imageData)
+    const indexed = makeIndexedImageFromImageData(imageData)
 
     expect(indexed.data[0]).toBe(indexed.transparentPalletIndex)
     expect(indexed.data[1]).toBe(indexed.transparentPalletIndex)

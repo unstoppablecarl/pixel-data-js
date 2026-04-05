@@ -1,12 +1,12 @@
-import { IndexedImage, indexedImageToAverageColor, packRGBA } from '@/index'
+import { type IndexedImage, indexedImageToAverageColor, makeIndexedImageFromImageData, packRGBA } from '@/index'
 import { describe, expect, it } from 'vitest'
 import { pack } from '../_helpers'
 
 describe('indexedImageToAverageColor', () => {
   it('should return a zeroed RGBA object for an empty image', () => {
     const indexedImage = {
-      width: 0,
-      height: 0,
+      w: 0,
+      h: 0,
       data: new Int32Array([]),
       palette: new Uint32Array([]),
       transparentPalletIndex: 0,
@@ -25,8 +25,8 @@ describe('indexedImageToAverageColor', () => {
   it('should calculate the average color weighted by pixel frequency', () => {
     // 3 pixels: 2 Red, 1 Blue
     const indexedImage = {
-      width: 3,
-      height: 1,
+      w: 3,
+      h: 1,
       data: new Int32Array([1, 1, 2]),
       palette: new Uint32Array([
         pack(0, 0, 0, 0),       // ID 0: Transparent
@@ -52,8 +52,8 @@ describe('indexedImageToAverageColor', () => {
   it('should ignore transparent pixels when includeTransparent is false', () => {
     // 2 pixels: 1 Red, 1 Transparent
     const indexedImage = {
-      width: 2,
-      height: 1,
+      w: 2,
+      h: 1,
       data: new Int32Array([0, 1]),
       palette: new Uint32Array([
         pack(0, 0, 0, 0),
@@ -75,8 +75,8 @@ describe('indexedImageToAverageColor', () => {
 
   it('should include transparent pixels in the average when includeTransparent is true', () => {
     const indexedImage = {
-      width: 2,
-      height: 1,
+      w: 2,
+      h: 1,
       data: new Int32Array([0, 1]),
       palette: new Uint32Array([
         pack(0, 0, 0, 0),
@@ -115,7 +115,7 @@ describe('indexedImageToAverageColor', () => {
     data[6] = 0
     data[7] = 255
 
-    const indexedImage = IndexedImage.fromImageData(imageData)
+    const indexedImage = makeIndexedImageFromImageData(imageData)
 
     const result = indexedImageToAverageColor(indexedImage, true)
 
@@ -135,8 +135,8 @@ describe('indexedImageToAverageColor', () => {
 
   it('should skip palette colors that do not appear in the data', () => {
     const indexedImage = {
-      width: 1,
-      height: 1,
+      w: 1,
+      h: 1,
       data: new Int32Array([1]),
       palette: new Uint32Array([
         pack(0, 0, 0, 0),
@@ -158,8 +158,8 @@ describe('indexedImageToAverageColor', () => {
 
   it('should return zeros if all pixels are filtered out', () => {
     const indexedImage = {
-      width: 1,
-      height: 1,
+      w: 1,
+      h: 1,
       data: new Int32Array([0]),
       palette: new Uint32Array([pack(0, 0, 0, 0)]),
       transparentPalletIndex: 0,

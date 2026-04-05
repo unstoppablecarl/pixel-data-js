@@ -1,4 +1,4 @@
-import type { IndexedImage } from './IndexedImage.ts'
+import type { IndexedImage } from '../_types'
 
 /**
  * Calculates the frequency of each palette index based on the image data.

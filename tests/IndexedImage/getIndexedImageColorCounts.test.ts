@@ -5,8 +5,8 @@ import { describe, expect, it } from 'vitest'
 describe('getIndexedImageColorCounts', () => {
   it('should correctly count color frequencies mapping to palette indices', () => {
     const mockImage = {
-      width: 2,
-      height: 2,
+      w: 2,
+      h: 2,
       data: new Int32Array([0, 1, 1, 2]),
       palette: new Uint32Array([0xFF000000, 0xFFFFFFFF, 0xFFFF0000]),
       transparentPalletIndex: 0,
@@ -23,8 +23,8 @@ describe('getIndexedImageColorCounts', () => {
 
   it('should return zeros for palette indices not present in the data', () => {
     const mockImage = {
-      width: 2,
-      height: 1,
+      w: 2,
+      h: 1,
       data: new Int32Array([0, 0]),
       palette: new Uint32Array([0x00, 0x01, 0x02]),
       transparentPalletIndex: 0,
@@ -39,8 +39,8 @@ describe('getIndexedImageColorCounts', () => {
 
   it('should handle an empty data array', () => {
     const mockImage = {
-      width: 0,
-      height: 0,
+      w: 0,
+      h: 0,
       data: new Int32Array([]),
       palette: new Uint32Array([0x00, 0x01]),
       transparentPalletIndex: 0,
@@ -54,8 +54,8 @@ describe('getIndexedImageColorCounts', () => {
   it('should match the length of the palette regardless of data values', () => {
     const palette = new Uint32Array(10)
     const mockImage = {
-      width: 1,
-      height: 1,
+      w: 1,
+      h: 1,
       data: new Int32Array([5]),
       palette: palette,
       transparentPalletIndex: 0,
