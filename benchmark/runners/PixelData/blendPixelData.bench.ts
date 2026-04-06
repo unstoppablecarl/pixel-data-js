@@ -76,7 +76,7 @@ export const blendPixelDataBenchmark = (
         },
         bench(d: PixelData, s: PixelData, o: any) {
           blendPixelDataDist(d, s, o)
-          return do_not_optimize(d.data32[0])
+          return do_not_optimize(d.data[0])
         },
       }
     })
@@ -101,7 +101,7 @@ export const blendPixelDataBenchmark = (
         },
         bench(d: PixelData, s: PixelData, o: any) {
           blendPixelDataDist(d, s, o)
-          return do_not_optimize(d.data32[0])
+          return do_not_optimize(d.data[0])
         },
       }
     })
@@ -137,7 +137,7 @@ export const blendPixelDataBenchmark = (
         },
         bench(d: PixelData, s: PixelData, o: any) {
           blendPixelDataDist(d, s, o)
-          return do_not_optimize(d.data32[0])
+          return do_not_optimize(d.data[0])
         },
       }
     })

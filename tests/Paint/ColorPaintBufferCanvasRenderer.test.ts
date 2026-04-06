@@ -1,7 +1,7 @@
-import { makePaintBufferCanvasRenderer, ERRORS } from '@/index'
+import { ERRORS, makeColorPaintBufferCanvasRenderer } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
 
-describe('makePaintBufferCanvasRenderer', () => {
+describe('ColorPaintBufferCanvasRenderer', () => {
   it('throws an error if the context cannot be initialized', () => {
     const mockBuffer = {
       config: {
@@ -20,7 +20,7 @@ describe('makePaintBufferCanvasRenderer', () => {
       }
     }
 
-    expect(() => makePaintBufferCanvasRenderer(mockBuffer as any, BadOffscreenCanvas as any)).toThrowError(ERRORS.CANVAS_CTX_FAILED)
+    expect(() => makeColorPaintBufferCanvasRenderer(mockBuffer as any, BadOffscreenCanvas as any)).toThrowError(ERRORS.CANVAS_CTX_FAILED)
   })
 
   it('initializes the offscreen canvas with correct dimensions and disables smoothing', () => {
@@ -47,7 +47,7 @@ describe('makePaintBufferCanvasRenderer', () => {
       getContext = getContextSpy
     }
 
-    makePaintBufferCanvasRenderer(mockBuffer as any, MockCanvas as any)
+    makeColorPaintBufferCanvasRenderer(mockBuffer as any, MockCanvas as any)
 
     expect(constructorSpy).toHaveBeenCalledWith(256, 256)
     expect(getContextSpy).toHaveBeenCalledWith('2d')
@@ -98,7 +98,7 @@ describe('makePaintBufferCanvasRenderer', () => {
       }
     }
 
-    const drawPaintBuffer = makePaintBufferCanvasRenderer(mockBuffer as any, MockCanvas as any)
+    const drawPaintBuffer = makeColorPaintBufferCanvasRenderer(mockBuffer as any, MockCanvas as any)
 
     const targetCtx = {
       drawImage: vi.fn(),

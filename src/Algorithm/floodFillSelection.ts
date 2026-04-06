@@ -50,7 +50,7 @@ export function floodFillSelection(
   out?: FloodFillResult,
 ): FloodFillResult | null {
 
-  const data32 = target.data32
+  const data32 = target.data
   const width = target.w
   const height = target.h
 

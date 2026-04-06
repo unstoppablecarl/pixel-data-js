@@ -231,7 +231,7 @@ export type NullableMaskRect = Rect & ({
 })
 
 export interface PixelData32 {
-  readonly data32: Uint32Array
+  readonly data: Uint32Array
   readonly w: number
   readonly h: number
 }

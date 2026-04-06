@@ -1,5 +1,5 @@
 import type { PixelData32 } from '../_types'
-import { type PixelTile } from '../PixelTile/PixelTile'
+import type { PixelTile } from '../Tile/_tile-types'
 
 export type PixelPatchTiles = {
   beforeTiles: PixelTile[]
@@ -12,8 +12,8 @@ export function applyPatchTiles(target: PixelData32, tiles: PixelTile[], tileSiz
 
     if (!tile) continue
 
-    const dst = target.data32
-    const src = tile.data32
+    const dst = target.data
+    const src = tile.data
     const dstWidth = target.w
     const dstHeight = target.h
     const startX = tile.tx * tileSize

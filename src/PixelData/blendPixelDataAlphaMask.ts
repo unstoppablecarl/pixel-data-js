@@ -67,8 +67,8 @@ export function blendPixelDataAlphaMask(
   const dx = (x - targetX) | 0
   const dy = (y - targetY) | 0
 
-  const dst32 = target.data32
-  const src32 = src.data32
+  const dst32 = target.data
+  const src32 = src.data
 
   let dIdx = (y * dw + x) | 0
   let sIdx = (sy * sw + sx) | 0

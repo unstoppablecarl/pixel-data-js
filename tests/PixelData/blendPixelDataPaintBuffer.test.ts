@@ -1,4 +1,4 @@
-import type { PaintBuffer, PixelData32, PixelTile } from '@/index'
+import type { ColorPaintBuffer, PixelData32, PixelTile } from '@/index'
 import { blendPixelDataPaintBuffer } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -9,7 +9,7 @@ describe('blendPixelDataPaintBuffer', () => {
         tileShift: 8,
       },
       lookup: [],
-    } as unknown as PaintBuffer
+    } as unknown as ColorPaintBuffer
 
     const mockTarget = {} as PixelData32
     const mockBlend = vi.fn()
@@ -39,7 +39,7 @@ describe('blendPixelDataPaintBuffer', () => {
         undefined,
         tileC,
       ],
-    } as unknown as PaintBuffer
+    } as unknown as ColorPaintBuffer
 
     const mockTarget = {} as PixelData32
 
@@ -85,7 +85,7 @@ describe('blendPixelDataPaintBuffer', () => {
       lookup: [
         tileA,
       ],
-    } as unknown as PaintBuffer
+    } as unknown as ColorPaintBuffer
 
     const mockTarget = {} as PixelData32
     const mockCustomBlendMode = vi.fn() as any

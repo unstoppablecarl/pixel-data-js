@@ -22,7 +22,7 @@ export function blendPixel(
   // Early exit for transparent source unless we are in an overwrite mode
   if (srcAlpha === 0 && !isOverwrite) return false
 
-  let dst32 = target.data32
+  let dst32 = target.data
   let index = y * width + x
   let finalColor = color
 

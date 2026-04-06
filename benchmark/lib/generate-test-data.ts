@@ -51,7 +51,7 @@ export function makeRndPixelData(w: number, h: number, seed = 1): PixelData {
   const rand = makeMulberry32(seed)
   const img = makeImageData(w, h)
   const pixelData = makePixelData(img)
-  const data = pixelData.data32
+  const data = pixelData.data
 
   for (let i = 0; i < data.length; i++) {
     data[i] = (rand() * 0x100000000) >>> 0

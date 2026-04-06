@@ -19,7 +19,7 @@ describe('applyAlphaMaskToPixelData', () => {
         h: 1,
       })
 
-      expect(dst.data32[0]).toBe(RED)
+      expect(dst.data[0]).toBe(RED)
     })
 
     it('handles negative x, y offsets with mask synchronization', () => {
@@ -36,7 +36,7 @@ describe('applyAlphaMaskToPixelData', () => {
       })
 
       // dst[0,0] alpha should now be 0
-      expect(dst.data32[0]).toBe(pack(255, 0, 0, 0))
+      expect(dst.data[0]).toBe(pack(255, 0, 0, 0))
     })
   })
 
@@ -47,16 +47,16 @@ describe('applyAlphaMaskToPixelData', () => {
 
       // Normal: first pixel stays, second pixel cleared
       applyAlphaMaskToPixelData(dst, mask, {})
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[1] >>> 24).toBe(0)
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[1] >>> 24).toBe(0)
 
       // Inverted: first pixel cleared, second stays
       const dst2 = makeTestPixelData(2, 1, RED)
       applyAlphaMaskToPixelData(dst2, mask, {
         invertMask: true,
       })
-      expect(dst2.data32[0] >>> 24).toBe(0)
-      expect(dst2.data32[1]).toBe(RED)
+      expect(dst2.data[0] >>> 24).toBe(0)
+      expect(dst2.data[1]).toBe(RED)
     })
 
     it('multiplies existing alpha in AlphaMask mode', () => {
@@ -68,10 +68,10 @@ describe('applyAlphaMaskToPixelData', () => {
       applyAlphaMaskToPixelData(dst, mask, {})
 
       // Math: (128 * 128 + 128) >> 8 = 64
-      const finalAlpha = (dst.data32[0] >>> 24) & 0xff
+      const finalAlpha = (dst.data[0] >>> 24) & 0xff
       expect(finalAlpha).toBe(64)
       // RGB should remain untouched
-      expect(dst.data32[0] & 0x00ffffff).toBe(RED & 0x00ffffff)
+      expect(dst.data[0] & 0x00ffffff).toBe(RED & 0x00ffffff)
     })
   })
 
@@ -99,11 +99,12 @@ describe('applyAlphaMaskToPixelData', () => {
             ? 255
             : 0
 
-          expect((dst.data32[idx] >>> 24) & 0xff).toBe(expectedAlpha)
+          expect((dst.data[idx] >>> 24) & 0xff).toBe(expectedAlpha)
         }
       }
     })
   })
+
   describe('applyMaskToPixelData - Clipping & Bounds', () => {
     it('covers clipping from the right/bottom edge', () => {
       const dst = makeTestPixelData(2, 2, RED)
@@ -121,9 +122,9 @@ describe('applyAlphaMaskToPixelData', () => {
       })
 
       // dst(1,1) is index 3. It corresponds to mask(1,1).
-      expect(dst.data32[3] >>> 24).toBe(0)
+      expect(dst.data[3] >>> 24).toBe(0)
       // dst(0,0) is index 0. It corresponds to mask(0,0), which is 255.
-      expect(dst.data32[0] >>> 24).toBe(255)
+      expect(dst.data[0] >>> 24).toBe(255)
     })
 
     it('prevents memory wrap-around when mask width exceeds bounds', () => {
@@ -143,11 +144,11 @@ describe('applyAlphaMaskToPixelData', () => {
       })
 
       // (1,1) index 4, (2,1) index 5 should be RED (mask was 255 at those spots)
-      expect(dst.data32[4] >>> 24).toBe(255)
-      expect(dst.data32[5] >>> 24).toBe(255)
+      expect(dst.data[4] >>> 24).toBe(255)
+      expect(dst.data[5] >>> 24).toBe(255)
 
       // (0,2) index 6 should NOT be affected by mask index 10
-      expect(dst.data32[6] >>> 24).toBe(255)
+      expect(dst.data[6] >>> 24).toBe(255)
     })
 
     it('handles the case where the draw area is entirely outside the destination', () => {
@@ -163,10 +164,11 @@ describe('applyAlphaMaskToPixelData', () => {
       })
 
       // No pixels should have changed
-      const isUntouched = Array.from(dst.data32).every((p) => p === RED)
+      const isUntouched = Array.from(dst.data).every((p) => p === RED)
       expect(isUntouched).toBe(true)
     })
   })
+
   it('covers AlphaMask short-circuit (effectiveM === 0)', () => {
     const dst = makeTestPixelData(1, 1, RED)
     const mask = makeTestAlphaMask(1, 1)
@@ -176,7 +178,7 @@ describe('applyAlphaMaskToPixelData', () => {
     })
 
     // effectiveM is 0, alpha should be cleared
-    expect(dst.data32[0] >>> 24).toBe(0)
+    expect(dst.data[0] >>> 24).toBe(0)
   })
 
   it('covers AlphaMask inversion (effectiveM = 255 - mVal)', () => {
@@ -188,7 +190,7 @@ describe('applyAlphaMaskToPixelData', () => {
     })
 
     // 255 inverted is 0, alpha should be cleared
-    expect(dst.data32[0] >>> 24).toBe(0)
+    expect(dst.data[0] >>> 24).toBe(0)
   })
 
   it('covers globalAlpha scaling logic (weight calculation)', () => {
@@ -202,7 +204,7 @@ describe('applyAlphaMaskToPixelData', () => {
     })
 
     // dst was 255, weight is 128. Identity (da === 255) makes result 128.
-    expect(dst.data32[0] >>> 24).toBe(128)
+    expect(dst.data[0] >>> 24).toBe(128)
   })
 
   it('covers weight === 0 clearing branch', () => {
@@ -216,7 +218,7 @@ describe('applyAlphaMaskToPixelData', () => {
       alpha: globalAlpha,
     })
 
-    expect(dst.data32[0] >>> 24).toBe(0)
+    expect(dst.data[0] >>> 24).toBe(0)
   })
 
   it('covers identity logic (da === 255)', () => {
@@ -228,7 +230,7 @@ describe('applyAlphaMaskToPixelData', () => {
     })
 
     // Since da was 255, finalAlpha should be exactly the weight (100)
-    expect(dst.data32[0] >>> 24).toBe(100)
+    expect(dst.data[0] >>> 24).toBe(100)
   })
 
   it('covers identity logic (weight === 255)', () => {
@@ -240,7 +242,7 @@ describe('applyAlphaMaskToPixelData', () => {
     })
 
     // Since weight is 255, da should remain 128
-    expect(dst.data32[0] >>> 24).toBe(128)
+    expect(dst.data[0] >>> 24).toBe(128)
   })
 
   it('covers already transparent destination (da === 0)', () => {
@@ -251,7 +253,7 @@ describe('applyAlphaMaskToPixelData', () => {
     applyAlphaMaskToPixelData(dst, mask, {})
 
     // da was 0, should stay 0
-    expect(dst.data32[0] >>> 24).toBe(0)
+    expect(dst.data[0] >>> 24).toBe(0)
   })
 
   it('covers globalAlpha === 0 short-circuit', () => {
@@ -263,7 +265,7 @@ describe('applyAlphaMaskToPixelData', () => {
     })
 
     // Should skip processing and stay RED
-    expect(dst.data32[0]).toBe(RED)
+    expect(dst.data[0]).toBe(RED)
   })
 
   it('covers fractional destination alpha combined with fractional weight', () => {
@@ -278,7 +280,25 @@ describe('applyAlphaMaskToPixelData', () => {
 
     // 3. The math branch executes: (da * weight + 128) >> 8
     // (128 * 128 + 128) >> 8 = 16512 >> 8 = 64
-    const resultAlpha = (dst.data32[0] >>> 24) & 0xff
+    const resultAlpha = (dst.data[0] >>> 24) & 0xff
+
+    expect(resultAlpha).toBe(64)
+  })
+
+  it('covers fractional destination alpha combined with fractional weight inverted', () => {
+    // 1. Destination has partial alpha (da = 128)
+    const dst = makeTestPixelData(1, 1, HALF_RED)
+    const mask = makeTestAlphaMask(1, 1, 0)
+
+    // 2. Apply with partial globalAlpha (weight = 128)
+    applyAlphaMaskToPixelData(dst, mask, {
+      alpha: 128,
+      invertMask: true,
+    })
+
+    // 3. The math branch executes: (da * weight + 128) >> 8
+    // (128 * 128 + 128) >> 8 = 16512 >> 8 = 64
+    const resultAlpha = (dst.data[0] >>> 24) & 0xff
 
     expect(resultAlpha).toBe(64)
   })
@@ -300,10 +320,10 @@ describe('applyAlphaMaskToPixelData', () => {
         }
 
         applyAlphaMaskToPixelData(dst, mask, optsW)
-        expect(dst.data32[0]).toBe(0xffffffff)
+        expect(dst.data[0]).toBe(0xffffffff)
 
         applyAlphaMaskToPixelData(dst, mask, optsH)
-        expect(dst.data32[0]).toBe(0xffffffff)
+        expect(dst.data[0]).toBe(0xffffffff)
       })
 
       it('returns early when target X is entirely outside the destination bounds', () => {
@@ -317,7 +337,7 @@ describe('applyAlphaMaskToPixelData', () => {
 
         applyAlphaMaskToPixelData(dst, mask, opts)
 
-        expect(dst.data32[0]).toBe(0xffffffff)
+        expect(dst.data[0]).toBe(0xffffffff)
       })
 
       it('returns early when target Y is entirely outside the destination bounds', () => {
@@ -331,7 +351,7 @@ describe('applyAlphaMaskToPixelData', () => {
 
         applyAlphaMaskToPixelData(dst, mask, opts)
 
-        expect(dst.data32[0]).toBe(0xffffffff)
+        expect(dst.data[0]).toBe(0xffffffff)
       })
 
       it('returns early when negative target X pushes the effective width to 0', () => {
@@ -346,7 +366,7 @@ describe('applyAlphaMaskToPixelData', () => {
         // If x is -2 and w is 2, the clip logic `w += x` results in 0
         applyAlphaMaskToPixelData(dst, mask, opts)
 
-        expect(unpack(dst.data32[0])).toEqual(unpack(0xffffffff))
+        expect(unpack(dst.data[0])).toEqual(unpack(0xffffffff))
       })
     })
 
@@ -362,7 +382,7 @@ describe('applyAlphaMaskToPixelData', () => {
       // Starting at X index 2 on a 2x2 mask leaves 0 safe width
       applyAlphaMaskToPixelData(dst, mask, opts)
 
-      expect(unpack(dst.data32[0])).toEqual(unpack(0xffffffff))
+      expect(unpack(dst.data[0])).toEqual(unpack(0xffffffff))
     })
 
     it('returns early when source Y offset (my) exceeds mask height', () => {
@@ -377,7 +397,7 @@ describe('applyAlphaMaskToPixelData', () => {
       // Starting at Y index 2 on a 2x2 mask (height 2) leaves 0 safe height
       applyAlphaMaskToPixelData(dst, mask, opts)
 
-      expect(dst.data32[0]).toBe(0xffffffff)
+      expect(dst.data[0]).toBe(0xffffffff)
     })
 
     it('returns early when requested width extends beyond a smaller mask', () => {
@@ -392,7 +412,7 @@ describe('applyAlphaMaskToPixelData', () => {
       // If we offset mx by 1 on a 1x1 mask, safeW becomes 1 - 1 = 0
       applyAlphaMaskToPixelData(dst, mask, opts)
 
-      expect(dst.data32[0]).toBe(0xffffffff)
+      expect(dst.data[0]).toBe(0xffffffff)
     })
 
     it('returns early when the mask pitch (mw) is 0', () => {
@@ -412,7 +432,7 @@ describe('applyAlphaMaskToPixelData', () => {
       applyAlphaMaskToPixelData(dst, mask, opts)
 
       // Verify the top-left pixel was not cleared
-      expect(dst.data32[0]).toBe(0xffffffff)
+      expect(dst.data[0]).toBe(0xffffffff)
     })
   })
 

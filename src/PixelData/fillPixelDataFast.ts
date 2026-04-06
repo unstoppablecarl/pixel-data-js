@@ -76,7 +76,7 @@ export function fillPixelDataFast(
     h: actualH,
   } = clip
 
-  const dst32 = dst.data32
+  const dst32 = dst.data
   const dw = dst.w
 
   // Optimization: If filling the entire buffer, use the native .fill()

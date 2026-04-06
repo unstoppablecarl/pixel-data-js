@@ -9,7 +9,7 @@ import { setPixelData } from './PixelData'
 export function rotatePixelData(pixelData: PixelData): void {
   const width = pixelData.w
   const height = pixelData.h
-  const data = pixelData.data32
+  const data = pixelData.data
 
   if (width === height) {
     rotateSquareInPlace(pixelData)
@@ -44,7 +44,7 @@ export function rotatePixelData(pixelData: PixelData): void {
 
 function rotateSquareInPlace(pixelData: PixelData): void {
   const n = pixelData.w
-  const data = pixelData.data32
+  const data = pixelData.data
 
   for (let i = 0; i < n / 2; i++) {
     for (let j = i; j < n - i - 1; j++) {

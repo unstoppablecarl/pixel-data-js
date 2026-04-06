@@ -9,8 +9,8 @@ describe('extractPixelDataBuffer', () => {
     const pd = makePixelData(imageData)
 
     // Fill with unique 32-bit values for identification
-    for (let i = 0; i < pd.data32.length; i++) {
-      pd.data32[i] = i + 1
+    for (let i = 0; i < pd.data.length; i++) {
+      pd.data[i] = i + 1
     }
 
     return pd
@@ -73,7 +73,7 @@ describe('extractPixelDataBuffer', () => {
     const result = extractPixelDataBuffer(source, 0, 0, 1, 1)
 
     // Check that the 32-bit value matches exactly
-    expect(result[0]).toBe(source.data32[0])
+    expect(result[0]).toBe(source.data[0])
   })
 
   describe('extractPixelDataBuffer - Rect Overload', () => {
@@ -82,8 +82,8 @@ describe('extractPixelDataBuffer', () => {
       const imageData = new NapiImageData(buffer, w, h) as unknown as ImageData
       const pd = makePixelData(imageData)
 
-      for (let i = 0; i < pd.data32.length; i++) {
-        pd.data32[i] = i + 1
+      for (let i = 0; i < pd.data.length; i++) {
+        pd.data[i] = i + 1
       }
 
       return pd

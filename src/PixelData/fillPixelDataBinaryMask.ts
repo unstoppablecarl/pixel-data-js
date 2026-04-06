@@ -42,7 +42,7 @@ export function fillPixelDataBinaryMask(
   } = clip
 
   const maskData = mask.data
-  const dst32 = target.data32
+  const dst32 = target.data
   const dw = target.w
 
   let hasChanged = false

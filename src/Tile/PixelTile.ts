@@ -1,10 +1,4 @@
-import type { PixelData } from '../_types'
-
-export type PixelTile = PixelData & {
-  id: number
-  tx: number
-  ty: number
-}
+import { type PixelTile, TileType } from './_tile-types'
 
 export function makePixelTile(
   id: number,
@@ -16,14 +10,14 @@ export function makePixelTile(
   const data32 = new Uint32Array(tileArea)
   const data8 = new Uint8ClampedArray(data32.buffer) as Uint8ClampedArray<ArrayBuffer>
 
-  new ImageData(data8, tileSize, tileSize)
   return {
+    tileType: TileType.PIXEL,
     id,
     tx,
     ty,
     w: tileSize,
     h: tileSize,
-    data32,
+    data: data32,
     imageData: new ImageData(data8, tileSize, tileSize),
   }
 }

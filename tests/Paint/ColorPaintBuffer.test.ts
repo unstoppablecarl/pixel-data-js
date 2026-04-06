@@ -1,19 +1,37 @@
 import {
   type Color32,
+  ColorPaintBuffer,
   makeCirclePaintAlphaMask,
   makeCirclePaintBinaryMask,
-  PaintBuffer,
+  makePixelTile,
   PixelEngineConfig,
   type PixelTile,
+  PixelWriter,
+  sourceOverPerfect,
+  TilePool,
   writePaintBufferToPixelData,
 } from '@/index'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { makeTestPaintBuffer, makeTestPixelData } from '../_helpers'
+import { describe, expect, it, vi } from 'vitest'
+import { makeTestPixelData } from '../_helpers'
 
-describe('PaintBuffer', () => {
+describe('ColorPaintBuffer', () => {
+
+  function makeTestPaintBuffer(tileSize: number, w = 2, h = 2) {
+    const target = makeTestPixelData(tileSize * w, tileSize * h)
+    const config = new PixelEngineConfig(tileSize, target)
+    const tilePool = new TilePool(config, makePixelTile)
+    const paintBuffer = new ColorPaintBuffer(config, tilePool)
+
+    return {
+      target,
+      config,
+      tilePool,
+      paintBuffer,
+    }
+  }
 
   function expectTileDataToEqual(tile: PixelTile | undefined, expected: number[]) {
-    expect(Array.from(tile?.data32 ?? [])).toEqual(expected)
+    expect(Array.from(tile?.data ?? [])).toEqual(expected)
   }
 
   const color = 0xFF0000FF as Color32
@@ -66,7 +84,7 @@ describe('PaintBuffer', () => {
       ])
     })
 
-    it('should draw a multi tile stroke', () => {
+    it('should draw a multi tile stroke', async () => {
       const brush = makeCirclePaintAlphaMask(5)
       const tileSize = 8
       const { paintBuffer, target } = makeTestPaintBuffer(tileSize, 4, 4)
@@ -88,7 +106,7 @@ describe('PaintBuffer', () => {
       const dst = makeTestPixelData(target.w, target.h)
 
       writePaintBufferToPixelData(dst, paintBuffer)
-      expect(dst).toMatchPixelDataSnapshot()
+      await expect(dst).toMatchPixelDataSnapshot()
     })
 
     it('should return false if alpha is 0', () => {
@@ -262,7 +280,7 @@ describe('PaintBuffer', () => {
 
       expect(result).toBe(true)
 
-      expect(Array.from(paintBuffer.lookup[0]?.data32!)).toEqual([
+      expect(Array.from(paintBuffer.lookup[0]?.data!)).toEqual([
         0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, C, 0, 0, 0, 0, 0,
@@ -292,7 +310,7 @@ describe('PaintBuffer', () => {
 
       expect(result).toBe(true)
       expect(paintBuffer.lookup.length).toBe(4)
-      expect(Array.from(paintBuffer.lookup[0]?.data32!)).toEqual([
+      expect(Array.from(paintBuffer.lookup[0]?.data!)).toEqual([
         0, 0, 0, 0, 0, 0, 0, 0,
         0, C, 0, 0, 0, 0, 0, 0,
         0, 0, C, 0, 0, 0, 0, 0,
@@ -306,7 +324,7 @@ describe('PaintBuffer', () => {
       expect(paintBuffer.lookup[1]).toBe(undefined)
       expect(paintBuffer.lookup[2]).toBe(undefined)
 
-      expect(Array.from(paintBuffer.lookup[3]?.data32!)).toEqual([
+      expect(Array.from(paintBuffer.lookup[3]?.data!)).toEqual([
         C, 0, 0, 0, 0, 0, 0, 0,
         0, C, 0, 0, 0, 0, 0, 0,
         0, 0, C, 0, 0, 0, 0, 0,
@@ -426,122 +444,140 @@ describe('PaintBuffer', () => {
     })
   })
 
-  describe('eachTileInBounds', () => {
-    let config: PixelEngineConfig
-    let tilePool: any
-    let paintBuffer: any
-
-    beforeEach(() => {
-      const target = {
-        w: 1024,
-        h: 1024,
-      } as any
-
-      // 256px tile size (tileShift = 8)
-      config = new PixelEngineConfig(
-        256,
-        target,
-      )
-
-      tilePool = {
-        getTile: vi.fn((id, tx, ty) => {
-          return {
-            id: id,
-            tx: tx,
-            ty: ty,
-          }
-        }),
-      }
-
-      paintBuffer = new PaintBuffer(
-        config,
-        tilePool,
-      )
+  function mockColorPaintBuffer() {
+    let didChangeFn = vi.fn()
+    let blendPixelDataFn = vi.fn()
+    const target = makeTestPixelData(32, 32)
+    const writer = new PixelWriter(target, () => ({}), {
+      tileSize: 8,
     })
 
-    it('should call the callback once for bounds within a single tile', () => {
-      const callback = vi.fn()
-      const bounds = {
-        x: 10,
-        y: 10,
-        w: 50,
-        h: 50,
-      }
+    vi.spyOn(writer.accumulator, 'storeTileBeforeState').mockReturnValue(didChangeFn)
 
-      paintBuffer['eachTileInBounds'](bounds, callback)
+    const paintBuffer = new ColorPaintBuffer(writer.config, writer.accumulator.pixelTilePool, blendPixelDataFn)
 
-      expect(callback).toHaveBeenCalledTimes(1)
-      // callback(tile, bX, bY, bW, bH) -> 5 args, so multi-line
-      expect(callback).toHaveBeenCalledWith(
-        expect.any(Object),
-        10,
-        10,
-        50,
-        50,
-      )
+    vi.spyOn(paintBuffer, 'clear')
+
+    return {
+      didChangeFn,
+      target,
+      blendPixelDataFn,
+      writer,
+      paintBuffer,
+    }
+  }
+
+  describe('commit', () => {
+
+    it('should immediately clear the buffer and do nothing if lookup is empty', () => {
+      const { paintBuffer, writer, blendPixelDataFn } = mockColorPaintBuffer()
+      paintBuffer.commit(writer.accumulator, 255, sourceOverPerfect)
+
+      expect(writer.accumulator.storeTileBeforeState).not.toHaveBeenCalled()
+      expect(blendPixelDataFn).not.toHaveBeenCalled()
+      expect(paintBuffer.clear).toHaveBeenCalledTimes(1)
     })
 
-    it('should span two tiles horizontally when bounds cross the 256px mark', () => {
-      const callback = vi.fn()
-      const bounds = {
-        x: 250,
-        y: 10,
-        w: 20,
-        h: 10,
-      }
+    it('should skip undefined tiles in a sparse lookup array', () => {
+      const { paintBuffer, writer, blendPixelDataFn, didChangeFn, target } = mockColorPaintBuffer()
+      const blendFn = vi.fn()
+      const tile = {
+        id: 5,
+        tx: 2,
+        ty: 1,
+        w: 8,
+        h: 8,
+      } as PixelTile
 
-      paintBuffer['eachTileInBounds'](bounds, callback)
+      const result = true
+      blendPixelDataFn.mockReturnValue(result)
 
-      // Should call for tile (0,0) and tile (1,0)
-      expect(callback).toHaveBeenCalledTimes(2)
+      paintBuffer.lookup[0] = undefined
+      paintBuffer.lookup[tile.id] = tile
+      const alpha = 120
 
-      // First tile (0,0) part: x=250 to 256 (width 6)
-      expect(callback).toHaveBeenNthCalledWith(
-        1,
-        expect.objectContaining({ tx: 0, ty: 0 }),
-        250,
-        10,
-        6,
-        10,
-      )
+      paintBuffer.commit(writer.accumulator, alpha, blendFn)
 
-      // Second tile (1,0) part: x=256 to 270 (width 14)
-      expect(callback).toHaveBeenNthCalledWith(
-        2,
-        expect.objectContaining({ tx: 1, ty: 0 }),
-        256,
-        10,
-        14,
-        10,
-      )
+      expect(writer.accumulator.storeTileBeforeState).toHaveBeenCalledExactlyOnceWith(tile.id, tile.tx, tile.ty)
+
+      expect(blendPixelDataFn).toHaveBeenCalledExactlyOnceWith(target, tile, {
+        alpha,
+        blendFn,
+        x: tile.tx * tile.w,
+        y: tile.ty * tile.h,
+        w: tile.w,
+        h: tile.h,
+      })
+      expect(paintBuffer.clear).toHaveBeenCalledTimes(1)
+      expect(didChangeFn).toHaveBeenCalledExactlyOnceWith(result)
     })
 
-    it('should iterate over 4 tiles (2x2) when bounds cross both X and Y boundaries', () => {
-      const callback = vi.fn()
-      const bounds = {
-        x: 250,
-        y: 250,
-        w: 20,
-        h: 20,
-      }
+    it('should calculate accurate coordinates using tileShift and propagate the didChange result', () => {
+      const { paintBuffer, writer, blendPixelDataFn, didChangeFn, target } = mockColorPaintBuffer()
+      const blendFn = vi.fn()
 
-      paintBuffer['eachTileInBounds'](bounds, callback)
+      const tile = {
+        id: 10,
+        tx: 2,
+        ty: 3,
+        w: 8,
+        h: 8,
+      } as PixelTile
 
-      expect(callback).toHaveBeenCalledTimes(4)
+      const result = true
+      blendPixelDataFn.mockReturnValue(result)
+
+      paintBuffer.lookup[tile.id] = tile
+
+      const alpha = 111
+      paintBuffer.commit(writer.accumulator, alpha, blendFn)
+
+      expect(writer.accumulator.storeTileBeforeState).toHaveBeenCalledWith(tile.id, tile.tx, tile.ty)
+
+      expect(blendPixelDataFn).toHaveBeenCalledExactlyOnceWith(target, tile, {
+        alpha,
+        blendFn,
+        x: tile.tx * tile.w,
+        y: tile.ty * tile.h,
+        w: tile.w,
+        h: tile.h,
+      })
+
+      expect(didChangeFn).toHaveBeenCalledExactlyOnceWith(result)
+      expect(paintBuffer.clear).toHaveBeenCalledTimes(1)
     })
 
-    it('should return early and not call the callback if bounds are out of range', () => {
-      const callback = vi.fn()
-      const bounds = {
-        x: -100,
-        y: -100,
-        w: 50,
-        h: 50,
-      }
+    it('zzzzzz should reuse the exact same shared options object across multiple tiles to avoid GC pressure', () => {
+      const { paintBuffer, writer, blendPixelDataFn } = mockColorPaintBuffer()
+      const blendFn = vi.fn()
 
-      paintBuffer['eachTileInBounds'](bounds, callback)
+      const tile1 = {
+        id: 1,
+        tx: 1,
+        ty: 0,
+        w: 8,
+        h: 8,
+      } as PixelTile
 
-      expect(callback).not.toHaveBeenCalled()
+      const tile2 = {
+        id: 2,
+        tx: 2,
+        ty: 0,
+        w: 8,
+        h: 8,
+      } as PixelTile
+
+      paintBuffer.lookup[1] = tile1
+      paintBuffer.lookup[2] = tile2
+
+      const alpha = 44
+      paintBuffer.commit(writer.accumulator, alpha, blendFn)
+
+      const call1Opts = blendPixelDataFn.mock.calls[0][2]
+      const call2Opts = blendPixelDataFn.mock.calls[1][2]
+
+      // Strict referential equality ensures we aren't creating new objects in the loop
+      expect(call1Opts).toBe(call2Opts)
     })
   })
 })

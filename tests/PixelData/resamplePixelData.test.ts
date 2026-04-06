@@ -21,10 +21,10 @@ describe('resamplePixelData', () => {
     expect(result.w).toBe(4)
     expect(result.h).toBe(4)
     // Nearest neighbor: the first 2x2 block in the 4x4 should match source[0,0]
-    expect(result.data32[0]).toBe(source.data32[0])
-    expect(result.data32[1]).toBe(source.data32[0])
-    expect(result.data32[4]).toBe(source.data32[0])
-    expect(result.data32[5]).toBe(source.data32[0])
+    expect(result.data[0]).toBe(source.data[0])
+    expect(result.data[1]).toBe(source.data[0])
+    expect(result.data[4]).toBe(source.data[0])
+    expect(result.data[5]).toBe(source.data[0])
   })
 
   it('should downscale by a factor of 0.5', () => {
@@ -34,9 +34,9 @@ describe('resamplePixelData', () => {
     expect(result.w).toBe(2)
     expect(result.h).toBe(2)
     // Should pick every second pixel
-    expect(result.data32[0]).toBe(source.data32[0])
-    expect(result.data32[1]).toBe(source.data32[2])
-    expect(result.data32[2]).toBe(source.data32[8])
+    expect(result.data[0]).toBe(source.data[0])
+    expect(result.data[1]).toBe(source.data[2])
+    expect(result.data[2]).toBe(source.data[8])
   })
 
   it('should handle extremely small factors by clamping to 1px', () => {
@@ -45,8 +45,8 @@ describe('resamplePixelData', () => {
 
     expect(result.w).toBe(1)
     expect(result.h).toBe(1)
-    expect(result.data32.length).toBe(1)
-    expect(result.data32[0]).toBe(source.data32[0])
+    expect(result.data.length).toBe(1)
+    expect(result.data[0]).toBe(source.data[0])
   })
 
   it('should maintain color integrity (32-bit values)', () => {
@@ -57,7 +57,7 @@ describe('resamplePixelData', () => {
 
     const result = resamplePixelData(source, 2)
 
-    expect(result.data32[0]).toBe(source.data32[0])
-    expect(result.data32[3]).toBe(source.data32[0])
+    expect(result.data[0]).toBe(source.data[0])
+    expect(result.data[3]).toBe(source.data[0])
   })
 })

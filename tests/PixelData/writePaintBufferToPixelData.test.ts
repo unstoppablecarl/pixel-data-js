@@ -1,4 +1,4 @@
-import { writePaintBufferToPixelData } from '@/index'
+import { type PixelTile, writePaintBufferToPixelData } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
 
 describe('writePaintBufferToPixelData', () => {
@@ -37,18 +37,18 @@ describe('writePaintBufferToPixelData', () => {
     const tileA = {
       tx: 1, // 1 << 3 = 8
       ty: 0, // 0 << 3 = 0
-      data32: dataA,
+      data: dataA,
       w: 8,
       h: 8,
-    }
+    } as PixelTile
 
     const tileB = {
       tx: 0, // 0 << 3 = 0
       ty: 2, // 2 << 3 = 16
-      data32: dataB,
+      data: dataB,
       w: 8,
       h: 8,
-    }
+    } as PixelTile
 
     const paintBuffer = {
       config: { tileShift },

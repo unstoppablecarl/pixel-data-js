@@ -9,16 +9,16 @@ export function pixelDataToAlphaMask(
   pixelData: PixelData32,
 ): AlphaMask {
   const {
-    data32,
+    data,
     w,
     h,
   } = pixelData
-  const len = data32.length
+  const len = data.length
   const mask = makeAlphaMask(w, h)
   const maskData = mask.data
 
   for (let i = 0; i < len; i++) {
-    const val = data32[i]
+    const val = data[i]
 
     // Extract the Alpha byte (top 8 bits in ABGR / Little-Endian)
     // Shift right by 24 moves the 4th byte to the 1st position

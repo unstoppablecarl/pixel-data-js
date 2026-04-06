@@ -60,7 +60,7 @@ export function blendColorPixelDataAlphaMask(
   const dx = (x - targetX) | 0
   const dy = (y - targetY) | 0
 
-  const dst32 = target.data32
+  const dst32 = target.data
   const dw = target.w
   const mPitch = mask.w
   const maskData = mask.data

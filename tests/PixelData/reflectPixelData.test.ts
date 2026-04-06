@@ -9,7 +9,7 @@ describe('Reflection Functions', () => {
       const imageData = createImageData(buffer, 2, 2) as ImageData
 
       const pixelData = makePixelData(imageData)
-      const data = pixelData.data32
+      const data = pixelData.data
 
       // Initial: [1, 2]
       //          [3, 4]
@@ -35,7 +35,7 @@ describe('Reflection Functions', () => {
       const imageData = createImageData(buffer, 2, 2) as ImageData
 
       const pixelData = makePixelData(imageData)
-      const data = pixelData.data32
+      const data = pixelData.data
 
       // Initial: [1, 2]
       //          [3, 4]
@@ -60,11 +60,11 @@ describe('Reflection Functions', () => {
     const imageData = createImageData(buffer, 2, 2) as ImageData
 
     const pixelData = makePixelData(imageData)
-    pixelData.data32[0] = 100
+    pixelData.data[0] = 100
 
     reflectPixelDataHorizontal(pixelData)
     reflectPixelDataHorizontal(pixelData)
 
-    expect(pixelData.data32[0]).toBe(100)
+    expect(pixelData.data[0]).toBe(100)
   })
 })

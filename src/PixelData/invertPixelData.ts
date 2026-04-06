@@ -27,7 +27,7 @@ export function invertPixelData(
     h: actualH,
   } = clip
 
-  const dst32 = target.data32
+  const dst32 = target.data
   const dw = target.w
   const mPitch = mask?.w ?? width
 

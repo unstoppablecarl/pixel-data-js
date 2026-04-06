@@ -15,7 +15,7 @@ describe('PixelData', () => {
 
     expect(pixelData.w).toBe(width)
     expect(pixelData.h).toBe(height)
-    expect(pixelData.data32.length).toBe(4)
+    expect(pixelData.data.length).toBe(4)
   })
 
   it('should correctly map Uint8 colors to a single Uint32 value', () => {
@@ -31,7 +31,7 @@ describe('PixelData', () => {
 
     // On little-endian systems, 0xFF0000FF is Red
     // 0x (Alpha)(Blue)(Green)(Red) -> 0xFF 00 00 FF
-    expect(pixelData.data32[0]).toBe(0xFF0000FF)
+    expect(pixelData.data[0]).toBe(0xFF0000FF)
   })
 
   it('should create a deep copy with the copy() method', () => {
@@ -43,9 +43,9 @@ describe('PixelData', () => {
     const clone = copyTestPixelData(original)
 
     // Modify the original
-    original.data32[0] = 0x00000000
+    original.data[0] = 0x00000000
 
-    expect(clone.data32[0]).toBe(0xFFFFFFFF)
+    expect(clone.data[0]).toBe(0xFFFFFFFF)
     expect(clone.w).toBe(original.w)
     expect(clone.h).toBe(original.h)
     expect(clone).not.toBe(original)

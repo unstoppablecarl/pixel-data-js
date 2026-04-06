@@ -13,7 +13,7 @@ describe('mutatorApplyMask', () => {
 
   beforeEach(() => {
     vi.resetAllMocks()
-    target.data32.fill(1)
+    target.data.fill(1)
   })
 
   it('should call accumulator for Binary', () => {

@@ -1,30 +1,40 @@
+import type { Color32 } from '../_types'
 import { CANVAS_CTX_FAILED } from '../Internal/_errors'
-import type { PaintBuffer } from './PaintBuffer'
+import { makePixelData } from '../PixelData/PixelData'
+import type { BinaryMaskPaintBuffer } from './BinaryMaskPaintBuffer'
 
-export type PaintBufferCanvasRenderer = ReturnType<typeof makePaintBufferCanvasRenderer>
+export type BinaryMaskPaintBufferCanvasRenderer = ReturnType<typeof makeBinaryMaskPaintBufferCanvasRenderer>
 
-/**
- *
- * @param offscreenCanvasClass - @internal
- */
-export function makePaintBufferCanvasRenderer(
-  paintBuffer: PaintBuffer,
+export function makeBinaryMaskPaintBufferCanvasRenderer(
+  paintBuffer: BinaryMaskPaintBuffer,
   offscreenCanvasClass = OffscreenCanvas,
 ) {
   const config = paintBuffer.config
   const tileSize = config.tileSize
   const tileShift = config.tileShift
+  const tileArea = config.tileArea
   const lookup = paintBuffer.lookup
+
   const canvas = new offscreenCanvasClass(tileSize, tileSize)
   const ctx = canvas.getContext('2d')
+
   if (!ctx) throw new Error(CANVAS_CTX_FAILED)
+
   ctx.imageSmoothingEnabled = false
+
+  const bridge = makePixelData(new ImageData(tileSize, tileSize))
+  const view32 = bridge.data
 
   return function drawPaintBuffer(
     targetCtx: CanvasRenderingContext2D,
+    color: Color32,
     alpha = 255,
     compOperation: GlobalCompositeOperation = 'source-over',
   ): void {
+    if (alpha === 0) return
+
+    const baseSrcAlpha = (color >>> 24)
+    if (baseSrcAlpha === 0) return
 
     targetCtx.globalAlpha = alpha / 255
     targetCtx.globalCompositeOperation = compOperation
@@ -33,11 +43,20 @@ export function makePaintBufferCanvasRenderer(
       const tile = lookup[i]
 
       if (tile) {
+        const data8 = tile.data
+        view32.fill(0)
+
+        for (let p = 0; p < tileArea; p++) {
+          // If mask is solid, the final pixel is just the unmodified color
+          if (data8[p] === 1) {
+            view32[p] = color
+          }
+        }
+
         const dx = tile.tx << tileShift
         const dy = tile.ty << tileShift
 
-        ctx.putImageData(tile.imageData, 0, 0)
-
+        ctx.putImageData(bridge.imageData, 0, 0)
         targetCtx.drawImage(canvas, dx, dy)
       }
     }

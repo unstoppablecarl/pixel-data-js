@@ -51,7 +51,7 @@ export const fillPixelDataBenchmark = (opts: FnOptions) => {
       },
       bench(d: PixelData, c: any, r: any) {
         fillPixelDataDist(d, c, r)
-        return do_not_optimize(d.data32[0])
+        return do_not_optimize(d.data[0])
       },
     }
   })

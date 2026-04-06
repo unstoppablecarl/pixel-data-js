@@ -22,7 +22,7 @@ export function extractPixelDataBuffer(
 
   const srcW = source.w
   const srcH = source.h
-  const srcData = source.data32
+  const srcData = source.data
 
   // Safety check for empty or invalid dimensions
   if (w <= 0 || h <= 0) {

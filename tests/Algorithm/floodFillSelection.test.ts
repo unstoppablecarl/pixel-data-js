@@ -8,11 +8,11 @@ describe('floodFillSelection: Scrutiny Suite', () => {
     const black = pack(0, 0, 0, 255)
     const target = makeTestPixelData(10, 10)
 
-    target.data32.fill(white)
+    target.data.fill(white)
 
     // Create a horizontal black moat at y = 5
     for (let x = 0; x < 10; x++) {
-      target.data32[5 * 10 + x] = black
+      target.data[5 * 10 + x] = black
     }
 
     // Start fill at (0,0) - top half
@@ -39,11 +39,11 @@ describe('floodFillSelection: Scrutiny Suite', () => {
     const black = pack(0, 0, 0, 255)
     const target = makeTestPixelData(10, 10)
 
-    target.data32.fill(white)
+    target.data.fill(white)
 
     // Create a horizontal black moat at y = 5
     for (let x = 0; x < 10; x++) {
-      target.data32[5 * 10 + x] = black
+      target.data[5 * 10 + x] = black
     }
 
     // Start fill at (0,0) - top half
@@ -70,7 +70,7 @@ describe('floodFillSelection: Scrutiny Suite', () => {
     const black = pack(0, 0, 0, 255)
     const target = makeTestPixelData(3, 3)
 
-    target.data32.fill(white)
+    target.data.fill(white)
 
     /**
      * W B W
@@ -78,10 +78,10 @@ describe('floodFillSelection: Scrutiny Suite', () => {
      * W B W
      * Center pixel (1,1) is white but surrounded by black on 4 sides.
      */
-    target.data32[1] = black // (1,0)
-    target.data32[3] = black // (0,1)
-    target.data32[5] = black // (2,1)
-    target.data32[7] = black // (1,2)
+    target.data[1] = black // (1,0)
+    target.data[3] = black // (0,1)
+    target.data[5] = black // (2,1)
+    target.data[7] = black // (1,2)
 
     const result = floodFillSelection(
       target,
@@ -103,10 +103,10 @@ describe('floodFillSelection: Scrutiny Suite', () => {
     const target = makeTestPixelData(4, 1)
 
     // Pattern: White, Black, White, Black
-    target.data32[0] = white
-    target.data32[1] = black
-    target.data32[2] = white
-    target.data32[3] = black
+    target.data[0] = white
+    target.data[1] = black
+    target.data[2] = white
+    target.data[3] = black
 
     const result = floodFillSelection(
       target,
@@ -218,7 +218,7 @@ describe('floodFillSelection: Scrutiny Suite', () => {
     const target = makeTestPixelData(3, 1, white)
 
     // Pattern: [White, Black, White]
-    target.data32[1] = black
+    target.data[1] = black
 
     const result = floodFillSelection(
       target,
@@ -267,9 +267,9 @@ describe('floodFillSelection: Scrutiny Suite', () => {
 
       // Set a matching pixel at the top-left (0,0) and bottom-right (9,9)
       // Start the fill at (5,5)
-      target.data32[0] = white
-      target.data32[5 * 10 + 5] = white
-      target.data32[9 * 10 + 9] = white
+      target.data[0] = white
+      target.data[5 * 10 + 5] = white
+      target.data[9 * 10 + 9] = white
 
       const result = floodFillSelection(
         target,
@@ -296,7 +296,7 @@ describe('floodFillSelection: Scrutiny Suite', () => {
       const target = makeTestPixelData(3, 3, black)
 
       // Only the starting pixel is white
-      target.data32[1 * 3 + 1] = white
+      target.data[1 * 3 + 1] = white
 
       const result = floodFillSelection(
         target,

@@ -8,8 +8,8 @@ describe('extractPixelData', () => {
     const imageData = new NapiImageData(buffer, w, h) as unknown as ImageData
     const pd = makePixelData(imageData)
 
-    for (let i = 0; i < pd.data32.length; i++) {
-      pd.data32[i] = i + 1
+    for (let i = 0; i < pd.data.length; i++) {
+      pd.data[i] = i + 1
     }
 
     return pd
@@ -26,7 +26,7 @@ describe('extractPixelData', () => {
     expect(result.imageData.width).toBe(w)
     expect(result.imageData.height).toBe(h)
 
-    expect(result.data32.length).toBe(w * h)
+    expect(result.data.length).toBe(w * h)
   })
 
   it('should extract correct pixel values using individual arguments', () => {
@@ -34,8 +34,8 @@ describe('extractPixelData', () => {
     // [[1, 2], [3, 4]] -> Extract second column [2, 4]
     const result = extractPixelData(source, 1, 0, 1, 2)
 
-    expect(result.data32[0]).toBe(2)
-    expect(result.data32[1]).toBe(4)
+    expect(result.data[0]).toBe(2)
+    expect(result.data[1]).toBe(4)
   })
 
   it('should extract correct pixel values using a Rect object', () => {
@@ -51,7 +51,7 @@ describe('extractPixelData', () => {
 
     expect(result.w).toBe(2)
     // Row 2, Col 2 in 4x4 is index 10 (value 11)
-    expect(result.data32[0]).toBe(11)
+    expect(result.data[0]).toBe(11)
   })
 
   it('should handle out-of-bounds regions by returning a cleared PixelData', () => {
@@ -60,7 +60,7 @@ describe('extractPixelData', () => {
 
     expect(result.w).toBe(2)
     expect(result.h).toBe(2)
-    expect(result.data32.every((v) => v === 0)).toBe(true)
+    expect(result.data.every((v) => v === 0)).toBe(true)
   })
 
   it('should ensure the returned PixelData has a valid ImageData reference', () => {
@@ -70,6 +70,6 @@ describe('extractPixelData', () => {
     // This is critical for your production "no ImageDataLike" rule
     expect(result.imageData).toBeDefined()
     expect(result.imageData.width).toBe(1)
-    expect(result.data32.buffer).toBe(result.imageData.data.buffer)
+    expect(result.data.buffer).toBe(result.imageData.data.buffer)
   })
 })

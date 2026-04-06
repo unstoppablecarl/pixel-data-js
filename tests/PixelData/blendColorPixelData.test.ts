@@ -30,9 +30,9 @@ describe('blendColorPixelData (No Mask)', () => {
       for (let dx = 0; dx < DW; dx++) {
         const isInside = dx >= targetX && dx < targetX + drawW && dy >= targetY && dy < targetY + drawH
         if (isInside) {
-          expect(dst.data32[dy * DW + dx]).toBe(RED)
+          expect(dst.data[dy * DW + dx]).toBe(RED)
         } else {
-          expect(dst.data32[dy * DW + dx]).toBe(BLUE)
+          expect(dst.data[dy * DW + dx]).toBe(BLUE)
         }
       }
     }

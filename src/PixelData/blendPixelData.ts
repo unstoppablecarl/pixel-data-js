@@ -65,8 +65,8 @@ export function blendPixelData(
   const actualH = Math.min(h, target.h - y)
   if (actualW <= 0 || actualH <= 0) return false
 
-  const dst32 = target.data32
-  const src32 = src.data32
+  const dst32 = target.data
+  const src32 = src.data
   const dw = target.w
   const sw = src.w
 

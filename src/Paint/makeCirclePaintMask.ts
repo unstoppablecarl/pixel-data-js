@@ -1,4 +1,4 @@
-import { MaskType, type PaintAlphaMask } from '../_types'
+import { MaskType, type PaintAlphaMask, type PaintBinaryMask } from '../_types'
 
 export function makeCirclePaintAlphaMask(size: number, fallOff: (d: number) => number = (d) => d): PaintAlphaMask {
   const area = size * size
@@ -32,6 +32,34 @@ export function makeCirclePaintAlphaMask(size: number, fallOff: (d: number) => n
 
   return {
     type: MaskType.ALPHA,
+    data,
+    w: size,
+    h: size,
+    centerOffsetX: centerOffset,
+    centerOffsetY: centerOffset,
+  }
+}
+
+export function makeCirclePaintBinaryMask(size: number): PaintBinaryMask {
+  const area = size * size
+  const data = new Uint8Array(area)
+  const radius = size / 2
+
+  const centerOffset = -Math.ceil(radius - 0.5)
+
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const dx = x - radius + 0.5
+      const dy = y - radius + 0.5
+      const distSqr = dx * dx + dy * dy
+      if (distSqr <= (radius * radius)) {
+        data[y * size + x] = 1
+      }
+    }
+  }
+
+  return {
+    type: MaskType.BINARY,
     data,
     w: size,
     h: size,

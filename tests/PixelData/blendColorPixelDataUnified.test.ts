@@ -62,7 +62,7 @@ describe.each(testVariants)('Unified: blendColorPixelData ($name)', ({ fn, maskO
 
       expect(resultAlpha).toBe(false)
       expect(resultBounds).toBe(false)
-      expect(dst.data32[0]).toBe(BLUE)
+      expect(dst.data[0]).toBe(BLUE)
     })
 
     it('bypasses blendFn for transparent source pixels', () => {
@@ -91,8 +91,8 @@ describe.each(testVariants)('Unified: blendColorPixelData ($name)', ({ fn, maskO
       })
 
       expect(result).toBe(true)
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[3]).toBe(BLUE)
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[3]).toBe(BLUE)
     })
 
     it('covers clipping height from the top (y < 0)', () => {
@@ -106,8 +106,8 @@ describe.each(testVariants)('Unified: blendColorPixelData ($name)', ({ fn, maskO
       })
 
       expect(result).toBe(true)
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[2]).toBe(BLUE)
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[2]).toBe(BLUE)
     })
 
     it('covers clipping from the right/bottom edge', () => {
@@ -121,8 +121,8 @@ describe.each(testVariants)('Unified: blendColorPixelData ($name)', ({ fn, maskO
       })
 
       expect(result).toBe(true)
-      expect(dst.data32[3]).toBe(RED)
-      expect(dst.data32[0]).toBe(BLUE)
+      expect(dst.data[3]).toBe(RED)
+      expect(dst.data[0]).toBe(BLUE)
     })
   })
 
@@ -171,9 +171,9 @@ describe.each(testVariants)('Unified: blendColorPixelData ($name)', ({ fn, maskO
       })
 
       expect(result).toBe(true)
-      expect(dst.data32[4]).toBe(RED)
-      expect(dst.data32[5]).toBe(RED)
-      expect(dst.data32[6]).toBe(BLUE)
+      expect(dst.data[4]).toBe(RED)
+      expect(dst.data[5]).toBe(RED)
+      expect(dst.data[6]).toBe(BLUE)
     })
   })
 })

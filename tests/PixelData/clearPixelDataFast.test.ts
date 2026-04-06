@@ -17,12 +17,12 @@ describe('clearPixelDataFast', () => {
     })
 
     // Pixel (0,0) should be 0
-    expect(dst.data32[0]).toBe(0)
+    expect(dst.data[0]).toBe(0)
 
     // Remaining pixels should still be BLUE
-    expect(dst.data32[1]).toBe(BLUE)
-    expect(dst.data32[2]).toBe(BLUE)
-    expect(dst.data32[3]).toBe(BLUE)
+    expect(dst.data[1]).toBe(BLUE)
+    expect(dst.data[2]).toBe(BLUE)
+    expect(dst.data[3]).toBe(BLUE)
   })
 
   it('clears the entire buffer by default', () => {
@@ -30,7 +30,7 @@ describe('clearPixelDataFast', () => {
 
     clearPixelDataFast(dst)
 
-    const isAllClear = Array.from(dst.data32).every((val) => val === 0)
+    const isAllClear = Array.from(dst.data).every((val) => val === 0)
     expect(isAllClear).toBe(true)
   })
 })

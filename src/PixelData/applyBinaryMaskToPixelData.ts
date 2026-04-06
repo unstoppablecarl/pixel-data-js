@@ -67,7 +67,7 @@ export function applyBinaryMaskToPixelData(
   const xShift = sX0 - startX
   const yShift = sY0 - startY
 
-  const dst32 = target.data32
+  const dst32 = target.data
   const dw = target.w
   const dStride = dw - finalW
   const mStride = mPitch - finalW

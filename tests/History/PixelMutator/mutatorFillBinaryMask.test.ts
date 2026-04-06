@@ -1,7 +1,7 @@
 import { type Color32, fillPixelDataBinaryMask, mutatorFillBinaryMask } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeTestBinaryMask } from '../../_helpers'
-import { mockAccumulatorMutator, mockMutator } from './_helpers'
+import { mockMutator } from './_helpers'
 
 describe('mutatorFillBinaryMask', () => {
   const {
@@ -37,7 +37,7 @@ describe('mutatorFillBinaryMask', () => {
       mutator,
       accumulator,
       target,
-    } = mockAccumulatorMutator(mutatorFillBinaryMask, { fillPixelDataBinaryMask: fillPixelDataBinaryMaskSpy })
+    } = mockMutator(mutatorFillBinaryMask, { fillPixelDataBinaryMask: fillPixelDataBinaryMaskSpy })
 
     mutator.fillBinaryMask(color, mask)
 

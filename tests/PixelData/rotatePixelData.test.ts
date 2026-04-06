@@ -7,7 +7,7 @@ describe('rotatePixelData', () => {
     const imageData = createImageData(2, 2) as ImageData
 
     const pixelData = makePixelData(imageData)
-    const data = pixelData.data32
+    const data = pixelData.data
 
     // Initial: [1, 2]
     //          [3, 4]
@@ -32,7 +32,7 @@ describe('rotatePixelData', () => {
     const imageData = createImageData(3, 2) as ImageData
 
     const pixelData = makePixelData(imageData)
-    const data = pixelData.data32
+    const data = pixelData.data
 
     // Initial (3w x 2h):
     // [1, 2, 3]
@@ -52,29 +52,29 @@ describe('rotatePixelData', () => {
     // [6, 3]
     expect(pixelData.w).toBe(2)
     expect(pixelData.h).toBe(3)
-    expect(pixelData.data32[0]).toBe(4)
-    expect(pixelData.data32[1]).toBe(1)
-    expect(pixelData.data32[2]).toBe(5)
-    expect(pixelData.data32[3]).toBe(2)
-    expect(pixelData.data32[4]).toBe(6)
-    expect(pixelData.data32[5]).toBe(3)
+    expect(pixelData.data[0]).toBe(4)
+    expect(pixelData.data[1]).toBe(1)
+    expect(pixelData.data[2]).toBe(5)
+    expect(pixelData.data[3]).toBe(2)
+    expect(pixelData.data[4]).toBe(6)
+    expect(pixelData.data[5]).toBe(3)
   })
 
   it('should preserve all pixels after a full 360-degree rotation', () => {
     const imageData = createImageData(2, 2) as ImageData
 
     const pixelData = makePixelData(imageData)
-    pixelData.data32[0] = 10
-    pixelData.data32[1] = 20
-    pixelData.data32[2] = 30
-    pixelData.data32[3] = 40
+    pixelData.data[0] = 10
+    pixelData.data[1] = 20
+    pixelData.data[2] = 30
+    pixelData.data[3] = 40
 
     rotatePixelData(pixelData)
     rotatePixelData(pixelData)
     rotatePixelData(pixelData)
     rotatePixelData(pixelData)
 
-    expect(pixelData.data32[0]).toBe(10)
-    expect(pixelData.data32[3]).toBe(40)
+    expect(pixelData.data[0]).toBe(10)
+    expect(pixelData.data[3]).toBe(40)
   })
 })

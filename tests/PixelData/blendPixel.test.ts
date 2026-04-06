@@ -10,7 +10,7 @@ describe('blendPixel', () => {
     let result = blendPixel(target, 0, 0, color, 0, sourceOverFast)
 
     expect(result).toBe(false)
-    expect(target.data32[0]).toBe(0)
+    expect(target.data[0]).toBe(0)
   })
 
   it('should return false if coordinates are out of bounds', () => {
@@ -21,7 +21,7 @@ describe('blendPixel', () => {
     expect(blendPixel(target, 5, -1, color)).toBe(false)
     expect(blendPixel(target, 10, 5, color)).toBe(false)
     expect(blendPixel(target, 5, 10, color)).toBe(false)
-    expect(target.data32.some((p) => p !== 0)).toBe(false)
+    expect(target.data.some((p) => p !== 0)).toBe(false)
   })
 
   it('should return false if source color is completely transparent and not in overwrite mode', () => {
@@ -37,7 +37,7 @@ describe('blendPixel', () => {
 
   it('should NOT return false for transparent source if blend mode is isOverwrite', () => {
     let target = makeTestPixelData(1, 1)
-    target.data32[0] = 0xFFFFFFFF as Color32 // Opaque white background
+    target.data[0] = 0xFFFFFFFF as Color32 // Opaque white background
 
     let transparentColor = 0x00FF0000 as Color32 // Transparent red
 
@@ -48,7 +48,7 @@ describe('blendPixel', () => {
 
     expect(result).toBe(true)
     expect(mockBlend).toHaveBeenCalled()
-    expect(target.data32[0]).toBe(transparentColor)
+    expect(target.data[0]).toBe(transparentColor)
   })
 
   it('should apply partial alpha correctly and modify the target', () => {
@@ -61,7 +61,7 @@ describe('blendPixel', () => {
     let result = blendPixel(target, x, y, color, alpha, sourceOverFast)
 
     let index = y * target.w + x
-    let finalColor = target.data32[index]
+    let finalColor = target.data[index]
     let finalAlpha = finalColor >>> 24
 
     expect(result).toBe(true)
@@ -83,7 +83,7 @@ describe('blendPixel', () => {
 
   it('should NOT return false if partial alpha reduces to 0 but blend mode is isOverwrite', () => {
     let target = makeTestPixelData(1, 1)
-    target.data32[0] = 0xFFFFFFFF as Color32
+    target.data[0] = 0xFFFFFFFF as Color32
 
     let color = 0x01FFFFFF as Color32
     let lowAlpha = 1
@@ -95,7 +95,7 @@ describe('blendPixel', () => {
 
     expect(result).toBe(true)
     expect(mockBlend).toHaveBeenCalled()
-    expect(target.data32[0]).toBe(0x00FFFFFF)
+    expect(target.data[0]).toBe(0x00FFFFFF)
   })
 
   it('should use the specified blend function', () => {
@@ -106,7 +106,7 @@ describe('blendPixel', () => {
     let srcColor = 0x80FF0000 as Color32
 
     let index = y * target.w + x
-    target.data32[index] = bgColor
+    target.data[index] = bgColor
 
     let blendFn = vi.fn().mockReturnValue(0xDEADBEEF as Color32) as unknown as BlendColor32
 
@@ -114,13 +114,13 @@ describe('blendPixel', () => {
 
     expect(result).toBe(true)
     expect(blendFn).toHaveBeenCalledWith(srcColor, bgColor)
-    expect(target.data32[index]).toBe(0xDEADBEEF)
+    expect(target.data[index]).toBe(0xDEADBEEF)
   })
 
   it('should return false and not update the buffer if the blend function results in the exact same color', () => {
     let target = makeTestPixelData(1, 1)
     let bgColor = 0xFF000000 as Color32
-    target.data32[0] = bgColor
+    target.data[0] = bgColor
 
     let srcColor = 0xFF000000 as Color32
 
@@ -128,6 +128,6 @@ describe('blendPixel', () => {
     let result = blendPixel(target, 0, 0, srcColor, 255, sourceOverFast)
 
     expect(result).toBe(false)
-    expect(target.data32[0]).toBe(bgColor) // Buffer untouched
+    expect(target.data[0]).toBe(bgColor) // Buffer untouched
   })
 })

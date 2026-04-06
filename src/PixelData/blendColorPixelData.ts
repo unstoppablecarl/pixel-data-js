@@ -53,7 +53,7 @@ export function blendColorPixelData(
     finalSrcColor = ((color & 0x00ffffff) | (a << 24)) >>> 0 as Color32
   }
 
-  const dst32 = target.data32
+  const dst32 = target.data
   const dw = target.w
   let dIdx = (y * dw + x) | 0
   const dStride = (dw - actualW) | 0

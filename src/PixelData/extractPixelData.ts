@@ -22,7 +22,7 @@ export function extractPixelData(
   const result = makePixelData(new ImageData(w, h))
 
   const buffer = extractPixelDataBuffer(source, x, y, w, h)
-  result.data32.set(buffer)
+  result.data.set(buffer)
 
   return result
 }

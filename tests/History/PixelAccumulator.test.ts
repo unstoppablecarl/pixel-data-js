@@ -1,4 +1,4 @@
-import { makePixelTile, PixelAccumulator, type PixelData, PixelEngineConfig, PixelTilePool } from '@/index'
+import { makePixelTile, PixelAccumulator, type PixelData, PixelEngineConfig, type PixelTile, TilePool } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeTestPixelData } from '../_helpers'
 
@@ -6,7 +6,7 @@ describe('PixelAccumulator', () => {
   let accumulator: PixelAccumulator
   let target: PixelData
   let config: PixelEngineConfig
-  let tilePool: PixelTilePool
+  let tilePool: TilePool<PixelTile>
 
   const TILE_SIZE = 4
   const IMAGE_WIDTH = 10
@@ -14,7 +14,7 @@ describe('PixelAccumulator', () => {
   beforeEach(() => {
     target = makeTestPixelData(10, 10)
     config = new PixelEngineConfig(TILE_SIZE, target)
-    tilePool = new PixelTilePool(config)
+    tilePool = new TilePool(config, makePixelTile)
     accumulator = new PixelAccumulator(config, tilePool)
 
     let imageData = target.imageData
@@ -31,7 +31,7 @@ describe('PixelAccumulator', () => {
     expect(accumulator.config).toBe(config)
     expect(accumulator.lookup).toEqual([])
     expect(accumulator.beforeTiles).toEqual([])
-    expect(accumulator.tilePool).toBe(tilePool)
+    expect(accumulator.pixelTilePool).toBe(tilePool)
   })
 
   describe('storeTileBeforeState', () => {
@@ -158,11 +158,11 @@ describe('PixelAccumulator', () => {
       accumulator.extractState(tile)
 
       // Tile pixel at (lx,ly) corresponds to image pixel (tx*TILE_SIZE+lx, ty*TILE_SIZE+ly)
-      let srcPixelValue = target.data32[4 * IMAGE_WIDTH + 4]
-      expect(tile.data32[0]).toBe(srcPixelValue) // Tile (0,0) -> Image (4,4)
+      let srcPixelValue = target.data[4 * IMAGE_WIDTH + 4]
+      expect(tile.data[0]).toBe(srcPixelValue) // Tile (0,0) -> Image (4,4)
 
-      let srcPixelValue2 = target.data32[7 * IMAGE_WIDTH + 7]
-      expect(tile.data32[3 * TILE_SIZE + 3]).toBe(srcPixelValue2) // Tile (3,3) -> Image (7,7)
+      let srcPixelValue2 = target.data[7 * IMAGE_WIDTH + 7]
+      expect(tile.data[3 * TILE_SIZE + 3]).toBe(srcPixelValue2) // Tile (3,3) -> Image (7,7)
     })
 
     it('should pad with 0 for tiles partially outside the right edge', () => {
@@ -176,11 +176,11 @@ describe('PixelAccumulator', () => {
       accumulator.extractState(tile)
 
       // First 2 columns should have data, last 2 should be 0
-      let srcPixelValue = target.data32[4 * IMAGE_WIDTH + 8]
-      expect(tile.data32[0]).toBe(srcPixelValue) // Tile (0,0) -> Image (8,4)
-      expect(tile.data32[1]).toBe(target.data32[4 * IMAGE_WIDTH + 9]) // Tile (0,1) -> Image (8,5)
-      expect(tile.data32[2]).toBe(0) // Padded
-      expect(tile.data32[3]).toBe(0) // Padded
+      let srcPixelValue = target.data[4 * IMAGE_WIDTH + 8]
+      expect(tile.data[0]).toBe(srcPixelValue) // Tile (0,0) -> Image (8,4)
+      expect(tile.data[1]).toBe(target.data[4 * IMAGE_WIDTH + 9]) // Tile (0,1) -> Image (8,5)
+      expect(tile.data[2]).toBe(0) // Padded
+      expect(tile.data[3]).toBe(0) // Padded
     })
 
     it('should pad with 0 for tiles partially outside the bottom edge', () => {
@@ -194,14 +194,14 @@ describe('PixelAccumulator', () => {
       accumulator.extractState(tile)
 
       // First 2 rows should have data
-      let row0Pixel = target.data32[8 * IMAGE_WIDTH + 4]
-      let row1Pixel = target.data32[9 * IMAGE_WIDTH + 4]
-      expect(tile.data32[0 * TILE_SIZE + 0]).toBe(row0Pixel)
-      expect(tile.data32[1 * TILE_SIZE + 0]).toBe(row1Pixel)
+      let row0Pixel = target.data[8 * IMAGE_WIDTH + 4]
+      let row1Pixel = target.data[9 * IMAGE_WIDTH + 4]
+      expect(tile.data[0 * TILE_SIZE + 0]).toBe(row0Pixel)
+      expect(tile.data[1 * TILE_SIZE + 0]).toBe(row1Pixel)
 
       // Rows 2 and 3 should be padded with 0
-      expect(tile.data32[2 * TILE_SIZE + 0]).toBe(0)
-      expect(tile.data32[3 * TILE_SIZE + 0]).toBe(0)
+      expect(tile.data[2 * TILE_SIZE + 0]).toBe(0)
+      expect(tile.data[3 * TILE_SIZE + 0]).toBe(0)
     })
 
     it('should pad with 0 for tiles partially outside the left edge', () => {
@@ -215,10 +215,10 @@ describe('PixelAccumulator', () => {
       accumulator.extractState(tile)
 
       // First 2 columns should be padded 0, next 2 columns should have real data
-      expect(tile.data32[0]).toBe(0)
-      expect(tile.data32[1]).toBe(0)
-      expect(tile.data32[2]).toBe(target.data32[0])
-      expect(tile.data32[3]).toBe(target.data32[1])
+      expect(tile.data[0]).toBe(0)
+      expect(tile.data[1]).toBe(0)
+      expect(tile.data[2]).toBe(target.data[0])
+      expect(tile.data[3]).toBe(target.data[1])
     })
 
     it('should pad with 0 for tiles partially outside the top edge', () => {
@@ -232,10 +232,10 @@ describe('PixelAccumulator', () => {
       accumulator.extractState(tile)
 
       // First 2 rows should be padded 0, next 2 rows should have real data
-      expect(tile.data32[0 * TILE_SIZE + 0]).toBe(0)
-      expect(tile.data32[1 * TILE_SIZE + 0]).toBe(0)
-      expect(tile.data32[2 * TILE_SIZE + 0]).toBe(target.data32[0])
-      expect(tile.data32[3 * TILE_SIZE + 0]).toBe(target.data32[1 * IMAGE_WIDTH + 0])
+      expect(tile.data[0 * TILE_SIZE + 0]).toBe(0)
+      expect(tile.data[1 * TILE_SIZE + 0]).toBe(0)
+      expect(tile.data[2 * TILE_SIZE + 0]).toBe(target.data[0])
+      expect(tile.data[3 * TILE_SIZE + 0]).toBe(target.data[1 * IMAGE_WIDTH + 0])
     })
 
     it('should zero out the tile if completely outside the canvas (left and right)', () => {
@@ -247,7 +247,7 @@ describe('PixelAccumulator', () => {
         config.tileArea,
       )
       accumulator.extractState(leftTile)
-      expect(leftTile.data32.every(v => v === 0)).toBe(true)
+      expect(leftTile.data.every(v => v === 0)).toBe(true)
 
       let rightTile = makePixelTile(
         0,
@@ -257,7 +257,7 @@ describe('PixelAccumulator', () => {
         config.tileArea,
       )
       accumulator.extractState(rightTile)
-      expect(rightTile.data32.every(v => v === 0)).toBe(true)
+      expect(rightTile.data.every(v => v === 0)).toBe(true)
     })
 
     it('should zero out the tile if completely outside the canvas (top and bottom)', () => {
@@ -269,7 +269,7 @@ describe('PixelAccumulator', () => {
         config.tileArea,
       )
       accumulator.extractState(topTile)
-      expect(topTile.data32.every(v => v === 0)).toBe(true)
+      expect(topTile.data.every(v => v === 0)).toBe(true)
 
       let bottomTile = makePixelTile(
         0,
@@ -279,7 +279,7 @@ describe('PixelAccumulator', () => {
         config.tileArea,
       )
       accumulator.extractState(bottomTile)
-      expect(bottomTile.data32.every(v => v === 0)).toBe(true)
+      expect(bottomTile.data.every(v => v === 0)).toBe(true)
     })
   })
 
@@ -289,11 +289,11 @@ describe('PixelAccumulator', () => {
       let finalize = accumulator.storePixelBeforeState(1, 1)
       finalize(true)
 
-      let originalValue = target.data32[1 * IMAGE_WIDTH + 1]
+      let originalValue = target.data[1 * IMAGE_WIDTH + 1]
 
       // 2. Modify the target data
       let newValue = 0xFFFFFFFF
-      target.data32[1 * IMAGE_WIDTH + 1] = newValue
+      target.data[1 * IMAGE_WIDTH + 1] = newValue
 
       // 3. Extract "after" state
       let patch = accumulator.extractPatch()
@@ -304,8 +304,8 @@ describe('PixelAccumulator', () => {
       let beforeTile = patch.beforeTiles[0]
       let localIndex = 1 * TILE_SIZE + 1
 
-      expect(beforeTile.data32[localIndex]).toBe(originalValue)
-      expect(afterTile.data32[localIndex]).toBe(newValue)
+      expect(beforeTile.data[localIndex]).toBe(originalValue)
+      expect(afterTile.data[localIndex]).toBe(newValue)
 
       // Should clear accumulator internals
       expect(accumulator.beforeTiles.length).toBe(0)
@@ -343,18 +343,18 @@ describe('PixelAccumulator', () => {
       let finalize = accumulator.storePixelBeforeState(1, 1)
       finalize(true)
 
-      let originalValue = target.data32[1 * IMAGE_WIDTH + 1]
+      let originalValue = target.data[1 * IMAGE_WIDTH + 1]
 
       // 2. Ruin the canvas
       let newValue = 0xFFFFFFFF
-      target.data32[1 * IMAGE_WIDTH + 1] = newValue
-      expect(target.data32[1 * IMAGE_WIDTH + 1]).toBe(newValue)
+      target.data[1 * IMAGE_WIDTH + 1] = newValue
+      expect(target.data[1 * IMAGE_WIDTH + 1]).toBe(newValue)
 
       // 3. Hard rollback (e.g. user pressed Escape)
       accumulator.rollbackAfterError()
 
       // 4. Verify physical canvas restoration
-      expect(target.data32[1 * IMAGE_WIDTH + 1]).toBe(originalValue)
+      expect(target.data[1 * IMAGE_WIDTH + 1]).toBe(originalValue)
 
       // 5. Verify cleanup
       expect(accumulator.beforeTiles.length).toBe(0)

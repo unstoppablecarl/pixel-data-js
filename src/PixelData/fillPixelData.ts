@@ -81,7 +81,7 @@ export function fillPixelData(
     h: actualH,
   } = clip
 
-  const dst32 = dst.data32
+  const dst32 = dst.data
   const dw = dst.w
   let hasChanged = false
 

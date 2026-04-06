@@ -15,15 +15,15 @@ describe('blendColorPixelDataBinaryMask', () => {
     const result1 = blendColorPixelDataBinaryMask(dst, RED, mask)
 
     expect(result1).toBe(true)
-    expect(dst.data32[0]).toBe(RED)
-    expect(dst.data32[1]).toBe(BLUE)
+    expect(dst.data[0]).toBe(RED)
+    expect(dst.data[1]).toBe(BLUE)
 
     const dst2 = makeTestPixelData(4, 1, BLUE)
     const result2 = blendColorPixelDataBinaryMask(dst2, RED, mask, { invertMask: true })
 
     expect(result2).toBe(true)
-    expect(dst2.data32[0]).toBe(BLUE)
-    expect(dst2.data32[1]).toBe(RED)
+    expect(dst2.data[0]).toBe(BLUE)
+    expect(dst2.data[1]).toBe(RED)
   })
 
   it('aligns mask using dx/dy displacement logic and custom pitch', () => {
@@ -36,7 +36,7 @@ describe('blendColorPixelDataBinaryMask', () => {
     })
 
     expect(result).toBe(true)
-    expect(dst.data32[55]).toBe(RED) // 5 * 10 + 5
+    expect(dst.data[55]).toBe(RED) // 5 * 10 + 5
   })
 
   it('verifies multi-row mask alignment across every pixel', () => {
@@ -52,7 +52,7 @@ describe('blendColorPixelDataBinaryMask', () => {
     for (let y = 0; y < 5; y++) {
       for (let x = 0; x < 5; x++) {
         const mIdx = y * 5 + x
-        expect(dst.data32[y * 5 + x]).toBe(mask.data[mIdx] === 1 ? RED : 0)
+        expect(dst.data[y * 5 + x]).toBe(mask.data[mIdx] === 1 ? RED : 0)
       }
     }
   })
@@ -66,7 +66,7 @@ describe('blendColorPixelDataBinaryMask', () => {
     })
 
     expect(result).toBe(true)
-    expect(dst.data32[0]).toBe(RED)
+    expect(dst.data[0]).toBe(RED)
   })
 
   it('returns false when no pixels are changed', () => {

@@ -8,11 +8,8 @@ import {
   makeAlphaMask,
   makeBinaryMask,
   makePixelData,
-  PaintBuffer,
   type PixelData,
   type PixelData32,
-  PixelEngineConfig,
-  PixelTilePool,
   type RGBA,
   unpackAlpha,
   unpackBlue,
@@ -150,7 +147,7 @@ export const makeTestPixelData = (
 ) => {
   const img = makePixelData(new ImageData(w, h))
   if (fill !== 0) {
-    img.data32.fill(fill)
+    img.data.fill(fill)
   }
   return img
 }
@@ -162,7 +159,7 @@ export const makeTestPixelDataLike = (
 ) => {
   const img = makePixelData(makeMockImageData(w, h))
   if (fill !== 0) {
-    img.data32.fill(fill)
+    img.data.fill(fill)
   }
   return img
 }
@@ -174,13 +171,13 @@ export function getPixel(
 ): Color32 {
   const index = y * src.w + x
 
-  return src.data32[index] as Color32
+  return src.data[index] as Color32
 }
 
 export function makeComplexTestPixelData(w: number, h: number): PixelData {
   const img = new ImageData(w, h)
   const pixelData = makePixelData(img)
-  const data = pixelData.data32
+  const data = pixelData.data
   for (let i = 0; i < data.length; i++) {
     const x = i % w
     const y = (i / w) | 0
@@ -276,7 +273,7 @@ export const expectPixelToMatchColor = (
   color: Color32,
 ) => {
 
-  const value = getPixelColorFromUInt32Array(target.data32, x, y, target.w)
+  const value = getPixelColorFromUInt32Array(target.data, x, y, target.w)
 
   expect(unpack(color)).toEqual(unpack(value))
 }
@@ -309,7 +306,7 @@ export function forEachPixel(
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width1; x++) {
-      callback(x, y, target.data32[y * width1 + x] as Color32)
+      callback(x, y, target.data[y * width1 + x] as Color32)
       index++
     }
   }
@@ -367,7 +364,7 @@ export function printAlphaMaskGrid(dst: AlphaMask, sep = ', '): void {
 export function printPixelDataGrid(dst: PixelData32, sep = ', '): void {
   const w = dst.w
   const h = dst.h
-  const data = dst.data32
+  const data = dst.data
 
   for (let y = 0; y < h; y++) {
     let rowString = ''
@@ -385,7 +382,7 @@ export function printPixelDataGrid(dst: PixelData32, sep = ', '): void {
 export function printPixelDataGridColor(dst: PixelData32): void {
   const w = dst.w
   const h = dst.h
-  const data = dst.data32
+  const data = dst.data
 
   for (let y = 0; y < h; y++) {
     let rowString = ''
@@ -403,7 +400,7 @@ export function printPixelDataGridColor(dst: PixelData32): void {
 export function printPixelDataTable(dst: PixelData32): void {
   const w = dst.w
   const h = dst.h
-  const data = dst.data32
+  const data = dst.data
   const grid = []
 
   for (let y = 0; y < h; y++) {
@@ -455,18 +452,4 @@ export function copyTestPixelData<T extends ImageDataLike = ImageData>(target: P
   }
 
   return makePixelData<T>(newImageData)
-}
-
-export function makeTestPaintBuffer(tileSize: number, w = 2, h = 2) {
-  const target = makeTestPixelData(tileSize * w, tileSize * h)
-  const config = new PixelEngineConfig(tileSize, target)
-  const tilePool = new PixelTilePool(config)
-  const paintBuffer = new PaintBuffer(config, tilePool)
-
-  return {
-    target,
-    config,
-    tilePool,
-    paintBuffer,
-  }
 }

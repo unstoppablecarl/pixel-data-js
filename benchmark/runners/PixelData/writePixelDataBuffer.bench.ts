@@ -58,7 +58,7 @@ export const writePixelDataBufferBenchmark = (
       },
       bench(d: PixelData, b: Uint32Array, r: any) {
         writePixelDataBufferDist(d, b, r)
-        return do_not_optimize(d.data32[0])
+        return do_not_optimize(d.data[0])
       },
     }
   })

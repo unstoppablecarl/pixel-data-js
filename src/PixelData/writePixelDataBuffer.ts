@@ -41,7 +41,7 @@ export function writePixelDataBuffer(
 
   const dstW = target.w
   const dstH = target.h
-  const dstData = target.data32
+  const dstData = target.data
 
   // treat the source buffer as a Source Image starting at 0,0 with size w,h
   const clip = resolveBlitClipping(
