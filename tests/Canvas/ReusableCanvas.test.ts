@@ -1,4 +1,4 @@
-import { makeReusableCanvas, makeReusableOffscreenCanvas, ERRORS } from '@/index'
+import { ERRORS, makeReusableCanvas, makeReusableOffscreenCanvas } from '@/index'
 import { createCanvas } from '@napi-rs/canvas'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 

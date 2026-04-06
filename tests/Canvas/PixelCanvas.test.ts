@@ -1,4 +1,4 @@
-import { makePixelCanvas, ERRORS } from '@/index'
+import { ERRORS, makePixelCanvas } from '@/index'
 import { createCanvas } from '@napi-rs/canvas'
 import { describe, expect, it, vi } from 'vitest'
 
