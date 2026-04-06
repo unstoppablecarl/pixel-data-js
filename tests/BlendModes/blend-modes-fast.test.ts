@@ -6,7 +6,7 @@ import {
   makeFastBlendModeRegistry,
 } from '@/index'
 import { describe, expect, it } from 'vitest'
-import { unpack } from '../_helpers'
+import { pack, unpack } from '../_helpers'
 
 const FAST_BLEND_MODES = makeBlendModeRegistry(BaseBlendMode, BASE_FAST_BLEND_MODE_FUNCTIONS, 'test')
 const FAST_BLEND_MODE_BY_NAME = FAST_BLEND_MODES.nameToBlend
@@ -23,9 +23,19 @@ describe('Color Fast Blending Functions', () => {
 
   describe('Common Alpha Branching Logic', () => {
     let indexes = [...FAST_BLEND_MODES.indexToBlend.keys()]
-    for (let i = 0; i < indexes.length; i++) {
 
-      if (i === BaseBlendMode.overwrite) continue
+    const exclude = [
+      BaseBlendMode.overwrite,
+      BaseBlendMode.sourceIn,
+      BaseBlendMode.sourceOut,
+      BaseBlendMode.destinationIn,
+      BaseBlendMode.destinationAtop,
+      BaseBlendMode.sourceAtop,
+      BaseBlendMode.xor,
+    ]
+
+    for (let i = 0; i < indexes.length; i++) {
+      if (exclude.includes(i as any)) continue
 
       const name = FAST_BLEND_MODES.indexToName[i as typeof FAST_BLEND_MODES.indexType]
       const blend = FAST_BLEND_MODES.indexToBlend[i as typeof FAST_BLEND_MODES.indexType]!
@@ -39,6 +49,50 @@ describe('Color Fast Blending Functions', () => {
         })
       })
     }
+  })
+
+  describe('Porter-Duff Fast Modes', () => {
+    // 50% Red (128) over 50% Blue (128)
+    const src = pack(255, 0, 0, 128)
+    const dst = pack(0, 0, 255, 128)
+
+    it('sourceIn: calculates truncated results for 50% overlap', () => {
+      const result = FAST_BLEND_MODE_BY_NAME.sourceIn(src, dst)
+      // Alpha: (128 * 128) >> 8 = 64
+      // Red: (255 * 128) >> 8 = 127
+      expect(unpack(result)).toEqual({
+        r: 127,
+        g: 0,
+        b: 0,
+        a: 64,
+      })
+    })
+
+    it('sourceOut: handles mid-range alpha with truncation', () => {
+      const result = FAST_BLEND_MODE_BY_NAME.sourceOut(src, dst)
+      // sa(128) * (255 - da(128)) = 128 * 127 = 16256
+      // 16256 >> 8 = 63
+      // sr(255) * 127 = 32385 >> 8 = 126
+      expect(unpack(result)).toEqual({
+        r: 126,
+        g: 0,
+        b: 0,
+        a: 63,
+      })
+    })
+
+    it('xor: demonstrates accumulated truncation error', () => {
+      const result = FAST_BLEND_MODE_BY_NAME.xor(src, dst)
+      // Alpha: (128 * 127 + 128 * 127) = 32512 >> 8 = 127
+      // Red: (255 * 127 + 0 * 127) = 32385 >> 8 = 126
+      // Blue: (0 * 127 + 255 * 127) = 32385 >> 8 = 126
+      expect(unpack(result)).toEqual({
+        r: 126,
+        g: 0,
+        b: 126,
+        a: 127,
+      })
+    })
   })
 
   describe('overwriteColor32', () => {

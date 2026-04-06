@@ -6,7 +6,7 @@ import {
   makePerfectBlendModeRegistry,
 } from '@/index'
 import { describe, expect, it } from 'vitest'
-import { unpack } from '../_helpers'
+import { pack, unpack } from '../_helpers'
 
 const PERFECT_BLEND_MODES = makeBlendModeRegistry(BaseBlendMode, BASE_PERFECT_BLEND_MODE_FUNCTIONS, 'test')
 const PERFECT_BLEND_MODE_BY_NAME = PERFECT_BLEND_MODES.nameToBlend
@@ -24,8 +24,16 @@ describe('Color Perfect Blending Functions', () => {
   describe('Common Alpha Branching Logic', () => {
     let indexes = [...PERFECT_BLEND_MODES.indexToBlend.keys()]
 
+    const exclude = [
+      BaseBlendMode.overwrite,
+      BaseBlendMode.sourceIn,
+      BaseBlendMode.sourceOut,
+      BaseBlendMode.destinationIn,
+      BaseBlendMode.destinationAtop,
+    ]
+
     for (let i = 0; i < indexes.length; i++) {
-      if (i === BaseBlendMode.overwrite) continue
+      if (exclude.includes(i as any)) continue
 
       const name = PERFECT_BLEND_MODES.indexToName[i as typeof PERFECT_BLEND_MODES.indexType]!
       const blend = PERFECT_BLEND_MODES.indexToBlend[i as typeof PERFECT_BLEND_MODES.indexType]!
@@ -39,6 +47,47 @@ describe('Color Perfect Blending Functions', () => {
         })
       })
     }
+  })
+
+  describe('Porter-Duff Perfect Modes', () => {
+    // 50% Red (128) over 50% Blue (128)
+    const src = pack(255, 0, 0, 128)
+    const dst = pack(0, 0, 255, 128)
+
+    it('sourceIn: calculates exact rounding for 50% overlap', () => {
+      const result = PERFECT_BLEND_MODE_BY_NAME.sourceIn(src, dst)
+      // (128 * 128 + 1 + (128 * 128 >> 8)) >> 8 = 64
+      expect(unpack(result)).toEqual({
+        r: 128,
+        g: 0,
+        b: 0,
+        a: 64,
+      })
+    })
+
+    it('sourceOut: handles mid-range alpha rounding', () => {
+      const result = PERFECT_BLEND_MODE_BY_NAME.sourceOut(src, dst)
+      // sa * (255 - da) => 128 * 127 = 16256
+      // (16256 + 1 + (16256 >> 8)) >> 8 = 64
+      expect(unpack(result)).toEqual({
+        r: 127,
+        g: 0,
+        b: 0,
+        a: 63,
+      })
+    })
+
+    it('xor: maintains precise alpha for overlapping semi-transparency', () => {
+      const result = PERFECT_BLEND_MODE_BY_NAME.xor(src, dst)
+      // (128 * 127 + 128 * 127) = 32512
+      // (32512 + 1 + (32512 >> 8)) >> 8 = 128
+      expect(unpack(result)).toEqual({
+        r: 127,
+        g: 0,
+        b: 127,
+        a: 127,
+      })
+    })
   })
 
   describe('overwriteColor32', () => {
