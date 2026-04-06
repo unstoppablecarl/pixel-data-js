@@ -133,12 +133,30 @@ export const pack = (
   b: number,
   a: number,
 ): Color32 => ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+
+export const packStr = (
+  r: number,
+  g: number,
+  b: number,
+  a: number,
+): string => {
+  return `Color32: rgba(${r}, ${g}, ${b}, ${a})`
+}
+
 export const unpack = (c: number) => ({
   r: c & 0xFF,
   g: (c >> 8) & 0xFF,
   b: (c >> 16) & 0xFF,
   a: (c >>> 24) & 0xFF,
 })
+
+export const unpackStr = (c: number): string => {
+  const r = c & 0xFF
+  const g = (c >>> 8) & 0xFF
+  const b = (c >>> 16) & 0xFF
+  const a = (c >>> 24) & 0xFF
+  return `Color32: rgba(${r}, ${g}, ${b}, ${a})`
+}
 
 export const makeTestPixelData = (
   w: number,
@@ -452,4 +470,13 @@ export function copyTestPixelData<T extends ImageDataLike = ImageData>(target: P
   }
 
   return makePixelData<T>(newImageData)
+}
+
+export function getColorListFromUint32Array<T = Color32>(target: Uint32Array) {
+  const result = new Set<T>()
+  for (let i = 0; i < target.length; i++) {
+
+    result.add(target[i] as T)
+  }
+  return [...result].sort()
 }
