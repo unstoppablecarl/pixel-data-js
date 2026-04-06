@@ -50,43 +50,62 @@ describe('Color Perfect Blending Functions', () => {
   })
 
   describe('Porter-Duff Perfect Modes', () => {
-    // 50% Red (128) over 50% Blue (128)
-    const src = pack(255, 0, 0, 128)
-    const dst = pack(0, 0, 255, 128)
+    const src = pack(255, 0, 0, 128)   // 50% Red
+    const dst = pack(0, 0, 255, 128)   // 50% Blue
+    const opaque = pack(0, 255, 0, 255) // 100% Green
 
-    it('sourceIn: calculates exact rounding for 50% overlap', () => {
-      const result = PERFECT_BLEND_MODE_BY_NAME.sourceIn(src, dst)
-      // (128 * 128 + 1 + (128 * 128 >> 8)) >> 8 = 64
-      expect(unpack(result)).toEqual({
-        r: 128,
+    it('sourceIn', () => {
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.sourceIn(src, transparent))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.sourceIn(src, opaque))).toEqual({ r: 255, g: 0, b: 0, a: 128 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.sourceIn(src, dst))).toEqual({ r: 128, g: 0, b: 0, a: 64 })
+    })
+
+    it('sourceOut', () => {
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.sourceOut(src, opaque))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.sourceOut(src, transparent))).toEqual({ r: 255, g: 0, b: 0, a: 128 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.sourceOut(src, dst))).toEqual({ r: 127, g: 0, b: 0, a: 63 })
+    })
+
+    it('sourceAtop', () => {
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.sourceAtop(src, transparent))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.sourceAtop(src, opaque))).toEqual({ r: 255, g: 127, b: 0, a: 255 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.sourceAtop(src, dst))).toEqual({ r: 128, g: 0, b: 127, a: 128 })
+    })
+
+    it('destinationOver', () => {
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationOver(src, transparent))).toEqual({ r: 255, g: 0, b: 0, a: 128 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationOver(src, opaque))).toEqual({ r: 0, g: 255, b: 0, a: 255 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationOver(src, dst))).toEqual({ r: 127, g: 0, b: 255, a: 191 })
+    })
+
+    it('destinationIn', () => {
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationIn(transparent, dst))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationIn(opaque, dst))).toEqual({ r: 0, g: 0, b: 255, a: 128 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationIn(src, dst))).toEqual({ r: 0, g: 0, b: 128, a: 64 })
+    })
+
+    it('destinationOut', () => {
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationOut(opaque, dst))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationOut(transparent, dst))).toEqual({ r: 0, g: 0, b: 255, a: 128 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationOut(src, dst))).toEqual({ r: 0, g: 0, b: 127, a: 63 })
+    })
+
+    it('destinationAtop', () => {
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationAtop(transparent, dst))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationAtop(opaque, dst))).toEqual({ r: 0, g: 127, b: 255, a: 255 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationAtop(src, dst))).toEqual({ r: 127, g: 0, b: 128, a: 128 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationAtop(opaqueRed, transparent))).toEqual({
+        r: 0,
         g: 0,
         b: 0,
-        a: 64,
+        a: 0,
       })
     })
 
-    it('sourceOut: handles mid-range alpha rounding', () => {
-      const result = PERFECT_BLEND_MODE_BY_NAME.sourceOut(src, dst)
-      // sa * (255 - da) => 128 * 127 = 16256
-      // (16256 + 1 + (16256 >> 8)) >> 8 = 64
-      expect(unpack(result)).toEqual({
-        r: 127,
-        g: 0,
-        b: 0,
-        a: 63,
-      })
-    })
-
-    it('xor: maintains precise alpha for overlapping semi-transparency', () => {
-      const result = PERFECT_BLEND_MODE_BY_NAME.xor(src, dst)
-      // (128 * 127 + 128 * 127) = 32512
-      // (32512 + 1 + (32512 >> 8)) >> 8 = 128
-      expect(unpack(result)).toEqual({
-        r: 127,
-        g: 0,
-        b: 127,
-        a: 127,
-      })
+    it('xor', () => {
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.xor(src, transparent))).toEqual({ r: 255, g: 0, b: 0, a: 128 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.xor(transparent, dst))).toEqual({ r: 0, g: 0, b: 255, a: 128 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.xor(src, dst))).toEqual({ r: 127, g: 0, b: 127, a: 127 })
     })
   })
 
@@ -136,6 +155,11 @@ describe('Color Perfect Blending Functions', () => {
   })
 
   describe('sourceOver', () => {
+    it('returns src if dst alpha is 0', () => {
+      const result = PERFECT_BLEND_MODE_BY_NAME.sourceOver(halfAlphaRed, transparent)
+      expect(unpack(result)).toEqual(unpack(halfAlphaRed))
+    })
+
     it('returns src if src alpha is 255', () => {
       const result = PERFECT_BLEND_MODE_BY_NAME.sourceOver(opaqueRed, opaqueBlue)
       expect(unpack(result)).toEqual({

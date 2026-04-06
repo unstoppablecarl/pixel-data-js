@@ -151,8 +151,9 @@ export const destinationOutPerfect: BlendColor32 = (src, dst) => {
 
 export const destinationAtopPerfect: BlendColor32 = (src, dst) => {
   const sa = (src >>> 24) & 0xFF
+  if (sa === 0) return 0 as Color32 // Rule: Final Alpha = Sa
   const da = (dst >>> 24) & 0xFF
-  if (sa === 0) return 0 as Color32
+  if (da === 0) return 0 as Color32
 
   const sr = src & 0xFF
   const sg = (src >>> 8) & 0xFF
