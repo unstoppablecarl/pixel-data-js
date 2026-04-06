@@ -1,4 +1,4 @@
-import { fileToImageData, UnsupportedFormatError, ERRORS } from '@/index'
+import { ERRORS, fileToImageData, UnsupportedFormatError } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
