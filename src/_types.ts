@@ -72,19 +72,6 @@ export interface AlphaMask extends BaseMask {
   readonly type: MaskType.ALPHA
 }
 
-interface BasePaintMask {
-  readonly centerOffsetX: number
-  readonly centerOffsetY: number
-}
-
-export interface PaintAlphaMask extends BasePaintMask, AlphaMask {
-}
-
-export interface PaintBinaryMask extends BasePaintMask, BinaryMask {
-}
-
-export type PaintMask = PaintAlphaMask | PaintBinaryMask
-
 /**
  * Configuration for pixel manipulation operations.
  * Designed to be used by spreading a Rect object ({x, y, w, h}) directly.

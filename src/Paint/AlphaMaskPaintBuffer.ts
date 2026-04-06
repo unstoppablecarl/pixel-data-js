@@ -1,4 +1,4 @@
-import { type Color32, type PaintAlphaMask, type PaintBinaryMask, type Rect } from '../_types'
+import { type Color32, type Rect } from '../_types'
 import { forEachLinePoint } from '../Algorithm/forEachLinePoint'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 import type { PixelAccumulator } from '../History/PixelAccumulator'
@@ -8,6 +8,7 @@ import { blendColorPixelDataAlphaMask } from '../PixelData/blendColorPixelDataAl
 import { trimRectBounds } from '../Rect/trimRectBounds'
 import type { AlphaMaskTile } from '../Tile/_tile-types'
 import type { TilePool } from '../Tile/TilePool'
+import type { PaintAlphaMask, PaintBinaryMask } from './_paint-types'
 import { eachTileInBounds } from './eachTileInBounds'
 
 export class AlphaMaskPaintBuffer {

@@ -97,6 +97,7 @@ export * from './MaskRect/merge2BinaryMaskRects'
 export * from './MaskRect/mergeBinaryMaskRects'
 export * from './MaskRect/subtractBinaryMaskRects'
 
+export * from './Paint/_paint-types'
 export * from './Paint/AlphaMaskPaintBuffer'
 export * from './Paint/AlphaMaskPaintBufferCanvasRenderer'
 export * from './Paint/BinaryMaskPaintBuffer'

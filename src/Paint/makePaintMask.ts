@@ -1,5 +1,6 @@
-import { type AlphaMask, type BinaryMask, MaskType, type PaintAlphaMask, type PaintBinaryMask } from '../_types'
+import { type AlphaMask, type BinaryMask, MaskType } from '../_types'
 import { _macro_halfAndFloor } from '../Internal/macros'
+import type { PaintAlphaMask, PaintBinaryMask } from './_paint-types'
 
 export function makePaintBinaryMask(
   mask: BinaryMask,

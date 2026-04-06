@@ -1,4 +1,4 @@
-import { type Color32, type PaintBinaryMask, type Rect } from '../_types'
+import { type Color32, type Rect } from '../_types'
 import { forEachLinePoint } from '../Algorithm/forEachLinePoint'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 import type { PixelAccumulator } from '../History/PixelAccumulator'
@@ -8,6 +8,7 @@ import { blendColorPixelDataBinaryMask } from '../PixelData/blendColorPixelDataB
 import { trimRectBounds } from '../Rect/trimRectBounds'
 import type { BinaryMaskTile } from '../Tile/_tile-types'
 import type { TilePool } from '../Tile/TilePool'
+import type { PaintBinaryMask } from './_paint-types'
 import { eachTileInBounds } from './eachTileInBounds'
 
 export class BinaryMaskPaintBuffer {

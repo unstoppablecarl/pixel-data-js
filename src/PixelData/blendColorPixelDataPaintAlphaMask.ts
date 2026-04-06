@@ -1,5 +1,6 @@
-import { type Color32, type PaintAlphaMask, type PixelData32 } from '../_types'
+import { type Color32, type PixelData32 } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
+import type { PaintAlphaMask } from '../Paint/_paint-types'
 import { blendColorPixelDataAlphaMask } from './blendColorPixelDataAlphaMask'
 
 const SCRATCH_OPTS = {

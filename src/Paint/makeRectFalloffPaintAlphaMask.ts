@@ -1,5 +1,6 @@
-import { MaskType, type PaintAlphaMask } from '../_types'
+import { MaskType } from '../_types'
 import { _macro_halfAndFloor } from '../Internal/macros'
+import type { PaintAlphaMask } from './_paint-types'
 
 export function makeRectFalloffPaintAlphaMask(
   width: number,

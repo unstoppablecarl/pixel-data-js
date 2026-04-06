@@ -1,5 +1,6 @@
-import type { Color32, PaintAlphaMask, PixelData32 } from '@/_types'
+import type { Color32, PixelData32 } from '@/_types'
 import { sourceOverPerfect } from '@/BlendModes/blend-modes-perfect'
+import type { PaintAlphaMask } from '@/Paint/_paint-types'
 import * as AlphaModule from '@/PixelData/blendColorPixelDataAlphaMask'
 import { blendColorPixelDataPaintAlphaMask } from '@/PixelData/blendColorPixelDataPaintAlphaMask'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

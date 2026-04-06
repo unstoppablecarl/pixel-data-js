@@ -1,6 +1,7 @@
-import type { Color32, PaintAlphaMask, PaintBinaryMask } from '@/_types'
+import type { Color32 } from '@/_types'
 import type { AlphaMaskTile, PixelAccumulator, PixelEngineConfig } from '@/index'
 import { AlphaMaskPaintBuffer, TilePool } from '@/index'
+import type { PaintAlphaMask, PaintBinaryMask } from '@/Paint/_paint-types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeTestAlphaMask, makeTestBinaryMask, makeTestPixelData } from '../_helpers'
 

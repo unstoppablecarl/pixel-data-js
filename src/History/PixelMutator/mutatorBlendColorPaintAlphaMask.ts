@@ -1,5 +1,6 @@
-import { type Color32, type PaintAlphaMask } from '../../_types'
+import { type Color32 } from '../../_types'
 import { sourceOverPerfect } from '../../BlendModes/blend-modes-perfect'
+import type { PaintAlphaMask } from '../../Paint/_paint-types'
 import { blendColorPixelDataAlphaMask } from '../../PixelData/blendColorPixelDataAlphaMask'
 import { type HistoryMutator, PixelWriter } from '../PixelWriter'
 

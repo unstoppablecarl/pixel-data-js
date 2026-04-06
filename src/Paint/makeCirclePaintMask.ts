@@ -1,4 +1,5 @@
-import { MaskType, type PaintAlphaMask, type PaintBinaryMask } from '../_types'
+import { MaskType } from '../_types'
+import type { PaintAlphaMask, PaintBinaryMask } from './_paint-types'
 
 export function makeCirclePaintAlphaMask(size: number, fallOff: (d: number) => number = (d) => d): PaintAlphaMask {
   const area = size * size
