@@ -22,3 +22,5 @@ export interface PixelCanvas {
   readonly ctx: CanvasRenderingContext2D,
   readonly resize: (w: number, h: number) => void
 }
+
+export type CanvasObjectFactory<T extends HTMLCanvasElement | OffscreenCanvas> = (w: number, h: number) => T
