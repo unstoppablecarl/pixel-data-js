@@ -129,8 +129,8 @@ describe('makeCanvasFrameRenderer', () => {
 
       it('drawPixelLayer ctx is OffscreenCanvasRenderingContext2D', () => {
         expectTypeOf(renderer).parameter(3).toEqualTypeOf<
-        DrawPixelLayer<OffscreenCanvas> | undefined
-        > ()
+          DrawPixelLayer<OffscreenCanvas> | undefined
+        >()
       })
 
       it('matches CanvasFrameRenderer default type alias', () => {
@@ -143,14 +143,14 @@ describe('makeCanvasFrameRenderer', () => {
 
       it('drawPixelLayer ctx is CanvasRenderingContext2D', () => {
         expectTypeOf(renderer).parameter(3).toEqualTypeOf<
-        DrawPixelLayer<HTMLCanvasElement> | undefined
-        > ()
+          DrawPixelLayer<HTMLCanvasElement> | undefined
+        >()
       })
 
       it('does not accept an OffscreenCanvas drawPixelLayer', () => {
         expectTypeOf(renderer).parameter(3).not.toEqualTypeOf<
-        DrawPixelLayer < OffscreenCanvas >
-        > ()
+          DrawPixelLayer<OffscreenCanvas>
+        >()
       })
 
       it('matches typed CanvasFrameRenderer alias', () => {

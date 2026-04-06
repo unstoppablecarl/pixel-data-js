@@ -5,7 +5,7 @@ export type CanvasFrameRenderer<T extends HTMLCanvasElement | OffscreenCanvas = 
   ReturnType<typeof makeCanvasFrameRenderer<T>>
 
 export function makeCanvasFrameRenderer<T extends HTMLCanvasElement | OffscreenCanvas = OffscreenCanvas>(
-  reusableCanvasFactory: () => ReusableCanvasFactory<T> = makeReusableOffscreenCanvas as unknown as () => ReusableCanvasFactory<T>
+  reusableCanvasFactory: () => ReusableCanvasFactory<T> = makeReusableOffscreenCanvas as unknown as () => ReusableCanvasFactory<T>,
 ) {
   const bufferCanvas = reusableCanvasFactory()
 
