@@ -32,8 +32,8 @@ export const mutatorBlendColorPaintRect = ((writer: PixelWriter<any>, deps: Deps
     ): boolean {
       const target = writer.config.target
 
-      const topLeftX = centerX + -_macro_paintRectCenterOffset(brushWidth)
-      const topLeftY = centerY + -_macro_paintRectCenterOffset(brushHeight)
+      const topLeftX = centerX + _macro_paintRectCenterOffset(brushWidth)
+      const topLeftY = centerY + _macro_paintRectCenterOffset(brushHeight)
 
       OPTS.x = topLeftX
       OPTS.y = topLeftY

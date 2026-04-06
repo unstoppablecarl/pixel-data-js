@@ -228,8 +228,8 @@ export class ColorPaintBuffer {
     const tileMask = config.tileMask
     const target = config.target
 
-    const centerOffsetX = -_macro_paintRectCenterOffset(brushWidth)
-    const centerOffsetY = -_macro_paintRectCenterOffset(brushHeight)
+    const centerOffsetX = _macro_paintRectCenterOffset(brushWidth)
+    const centerOffsetY = _macro_paintRectCenterOffset(brushHeight)
 
     let changed = false
 
