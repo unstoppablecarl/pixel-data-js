@@ -22,11 +22,9 @@ export function resamplePixelData(
 export function resamplePixelDataInPlace(
   pixelData: PixelData32,
   factor: number,
-): PixelData {
+): void {
 
   const resampled = resampleUint32Array(pixelData.data, pixelData.w, pixelData.h, factor, pixelData) as PixelData
 
   (resampled as any).imageData = uInt32ArrayToImageData(resampled.data, resampled.w, resampled.h)
-
-  return resampled
 }

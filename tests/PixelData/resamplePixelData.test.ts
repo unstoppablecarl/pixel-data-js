@@ -85,10 +85,8 @@ describe('resamplePixelDataInPlace', () => {
     const originalColor = source.data[0]
     const originalData = source.data
 
-    const result = resamplePixelDataInPlace(source, 2)
+    resamplePixelDataInPlace(source, 2)
 
-    // Verify it returns the exact same object reference
-    expect(result).toBe(source)
     expect(source.w).toBe(4)
     expect(source.h).toBe(4)
     // Verify the data buffer was overwritten by the underlying resample function
@@ -104,9 +102,8 @@ describe('resamplePixelDataInPlace', () => {
     const originalColor0 = source.data[0]
     const originalColor2 = source.data[2]
 
-    const result = resamplePixelDataInPlace(source, 0.5)
+    resamplePixelDataInPlace(source, 0.5)
 
-    expect(result).toBe(source)
     expect(source.w).toBe(2)
     expect(source.h).toBe(2)
     expect(source.data[0]).toBe(originalColor0)
