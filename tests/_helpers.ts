@@ -379,7 +379,7 @@ export function printAlphaMaskGrid(dst: AlphaMask, sep = ', '): void {
   }
 }
 
-export function printPixelDataGrid(dst: PixelData32, sep = ', '): void {
+export function printPixelDataGrid(dst: PixelData32, replace?: Map<number, string>, sep = ', '): void {
   const w = dst.w
   const h = dst.h
   const data = dst.data
@@ -389,7 +389,8 @@ export function printPixelDataGrid(dst: PixelData32, sep = ', '): void {
 
     for (let x = 0; x < w; x++) {
       const index = y * w + x
-      const pixel = data[index]
+      const pixel = replace?.get(data[index]) ?? data[index]
+
       rowString += ('' + pixel).padStart(8, ' ') + sep
     }
 
