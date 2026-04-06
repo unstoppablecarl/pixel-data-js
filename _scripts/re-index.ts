@@ -5,11 +5,10 @@ import { normalizePath, ROOT_DIR, standardSort } from './_support'
 
 const INDEX_FILE_NAME = 'index.ts'
 
-const EXCLUDE = [
-  'Internal/macros.ts',
-]
+const EXCLUDE: string[] = []
 
 const shouldIncludeFile: (absolutePath: string) => boolean = (p) => {
+  if (p.startsWith('Internal')) return false
   return !EXCLUDE.includes(p)
 
 }

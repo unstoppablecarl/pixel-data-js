@@ -3,12 +3,12 @@ import type { ImageDataLike } from '../_types'
 /**
  * converts {@link ImageData} to a faster Uint32Array
  */
-export function imageDataToUInt32Array(imageData: ImageDataLike): Uint32Array {
-  return _macro_imageDataToUInt32Array(imageData)
+export function imageDataToUint32Array(imageData: ImageDataLike): Uint32Array {
+  return _macro_imageDataToUint32Array(imageData)
 }
 
 // @__INLINE_MACRO__
-export function _macro_imageDataToUInt32Array(imageData: ImageDataLike): Uint32Array {
+export function _macro_imageDataToUint32Array(imageData: ImageDataLike): Uint32Array {
   return new Uint32Array(
     imageData.data.buffer,
     imageData.data.byteOffset,

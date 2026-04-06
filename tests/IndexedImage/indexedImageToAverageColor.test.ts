@@ -7,7 +7,7 @@ describe('indexedImageToAverageColor', () => {
     const indexedImage = {
       w: 0,
       h: 0,
-      data: new Int32Array([]),
+      data: new Uint32Array([]),
       palette: new Uint32Array([]),
       transparentPalletIndex: 0,
     } as IndexedImage
@@ -27,7 +27,7 @@ describe('indexedImageToAverageColor', () => {
     const indexedImage = {
       w: 3,
       h: 1,
-      data: new Int32Array([1, 1, 2]),
+      data: new Uint32Array([1, 1, 2]),
       palette: new Uint32Array([
         pack(0, 0, 0, 0),       // ID 0: Transparent
         pack(255, 0, 0, 255),   // ID 1: Red
@@ -54,7 +54,7 @@ describe('indexedImageToAverageColor', () => {
     const indexedImage = {
       w: 2,
       h: 1,
-      data: new Int32Array([0, 1]),
+      data: new Uint32Array([0, 1]),
       palette: new Uint32Array([
         pack(0, 0, 0, 0),
         pack(255, 0, 0, 255),
@@ -77,7 +77,7 @@ describe('indexedImageToAverageColor', () => {
     const indexedImage = {
       w: 2,
       h: 1,
-      data: new Int32Array([0, 1]),
+      data: new Uint32Array([0, 1]),
       palette: new Uint32Array([
         pack(0, 0, 0, 0),
         pack(255, 0, 0, 255),
@@ -137,7 +137,7 @@ describe('indexedImageToAverageColor', () => {
     const indexedImage = {
       w: 1,
       h: 1,
-      data: new Int32Array([1]),
+      data: new Uint32Array([1]),
       palette: new Uint32Array([
         pack(0, 0, 0, 0),
         pack(255, 255, 255, 255),
@@ -160,7 +160,7 @@ describe('indexedImageToAverageColor', () => {
     const indexedImage = {
       w: 1,
       h: 1,
-      data: new Int32Array([0]),
+      data: new Uint32Array([0]),
       palette: new Uint32Array([pack(0, 0, 0, 0)]),
       transparentPalletIndex: 0,
     } as IndexedImage

@@ -82,8 +82,7 @@ describe('IndexedImage', () => {
     const result = makeIndexedImageFromImageData(imageData)
 
     expect(result.data.length).toBe(100)
-    expect(result.data instanceof Int32Array).toBe(true)
-    // Fixed: Test was checking for Uint32Array, updated to match Int32Array palette
+    expect(result.data instanceof Uint32Array).toBe(true)
     expect(result.palette instanceof Uint32Array).toBe(true)
   })
 

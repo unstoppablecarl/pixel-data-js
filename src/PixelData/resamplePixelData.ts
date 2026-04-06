@@ -1,5 +1,5 @@
-import { makePixelData, type PixelData, type PixelData32 } from '../index'
-import { resample32 } from '../Internal/resample32'
+import { resampleUint32Array } from '../Algorithm/resampleUint32Array'
+import { type MutablePixelData32, type PixelData, type PixelData32, uInt32ArrayToImageData } from '../index'
 
 /**
  * Resamples PixelData by a specific factor using nearest neighbor.
@@ -9,11 +9,12 @@ export function resamplePixelData(
   pixelData: PixelData32,
   factor: number,
 ): PixelData {
-  const { data, width, height } = resample32(pixelData.data, pixelData.w, pixelData.h, factor)
 
-  return makePixelData(new ImageData(
-    new Uint8ClampedArray(data.buffer) as ImageDataArray,
-    width,
-    height,
-  ))
+  const output = {} as MutablePixelData32
+
+  const resampled = resampleUint32Array(pixelData.data, pixelData.w, pixelData.h, factor, output) as PixelData
+
+  (resampled as any).imageData = uInt32ArrayToImageData(resampled.data, resampled.w, resampled.h)
+
+  return resampled
 }

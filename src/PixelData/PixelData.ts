@@ -1,9 +1,9 @@
 import type { ImageDataLike, PixelData } from '../_types'
-import { _macro_imageDataToUInt32Array } from '../ImageData/imageDataToUInt32Array'
+import { _macro_imageDataToUint32Array } from '../ImageData/imageDataToUint32Array'
 
 export function makePixelData<T extends ImageDataLike = ImageData>(imageData: T): PixelData<T> {
   return {
-    data: _macro_imageDataToUInt32Array(imageData),
+    data: _macro_imageDataToUint32Array(imageData),
     imageData,
     w: imageData.width,
     h: imageData.height,
@@ -11,7 +11,7 @@ export function makePixelData<T extends ImageDataLike = ImageData>(imageData: T)
 }
 
 export function setPixelData(target: PixelData, imageData: ImageData) {
-  ;(target as any).data = _macro_imageDataToUInt32Array(imageData)
+  ;(target as any).data = _macro_imageDataToUint32Array(imageData)
   ;(target as any).imageData = imageData
   ;(target as any).w = imageData.width
   ;(target as any).h = imageData.height

@@ -2,8 +2,8 @@
  * Resamples an IndexedImage by a specific factor using nearest neighbor
  * Factor > 1 upscales, Factor < 1 downscales.
  */
-import { type IndexedImage, makeIndexedImage } from '../index'
-import { resample32 } from '../Internal/resample32'
+import { resampleUint32Array } from '../Algorithm/resampleUint32Array'
+import { type IndexedImage } from '../index'
 
 /**
  * Resamples an IndexedImage by a specific factor using nearest neighbor
@@ -14,18 +14,10 @@ export function resampleIndexedImage(
   factor: number,
 ): IndexedImage {
 
-  const { data, width, height } = resample32(
-    source.data,
-    source.w,
-    source.h,
-    factor,
-  )
+  const output = {
+    palette: source.palette,
+    transparentPalletIndex: source.transparentPalletIndex,
+  } as IndexedImage
 
-  return makeIndexedImage(
-    width,
-    height,
-    data,
-    source.palette,
-    source.transparentPalletIndex,
-  )
+  return resampleUint32Array(source.data, source.w, source.h, factor, output) as IndexedImage
 }

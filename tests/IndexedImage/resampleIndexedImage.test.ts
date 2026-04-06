@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 describe('resampleIndexedImage', () => {
   const createTestIndexed = (w: number, h: number): IndexedImage => {
-    const data = new Int32Array(w * h)
+    const data = new Uint32Array(w * h)
     for (let i = 0; i < data.length; i++) {
       data[i] = i
     }

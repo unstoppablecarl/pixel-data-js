@@ -223,6 +223,12 @@ export interface PixelData32 {
   readonly h: number
 }
 
+export interface MutablePixelData32 {
+  data: Uint32Array
+  w: number
+  h: number
+}
+
 export interface PixelData<T extends ImageDataLike = ImageData> extends PixelData32 {
   readonly imageData: T
 }
@@ -239,7 +245,7 @@ export interface IndexedImage {
   /** The height of the image in pixels. */
   readonly h: number
   /** Flat array of palette indices. Index = x + (y * width). */
-  readonly data: Int32Array
+  readonly data: Uint32Array
   /** The palette of unique 32-bit colors (ABGR/RGBA packed) found in the image. */
   readonly palette: Uint32Array
   /** The specific index in the palette reserved for fully transparent pixels. */

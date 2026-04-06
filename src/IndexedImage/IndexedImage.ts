@@ -3,7 +3,7 @@ import type { Color32, IndexedImage } from '../_types'
 export function makeIndexedImage(
   width: number,
   height: number,
-  data: Int32Array,
+  data: Uint32Array,
   palette: Uint32Array,
   transparentPalletIndex: number,
 ): IndexedImage {
@@ -23,7 +23,7 @@ export function makeIndexedImageFromImageDataRaw(
 ): IndexedImage {
   const buffer = data.buffer
   const rawData = new Uint32Array(buffer)
-  const indexedData = new Int32Array(rawData.length)
+  const indexedData = new Uint32Array(rawData.length)
   const colorMap = new Map<number, number>()
   const transparentColor = 0
   const transparentPalletIndex = 0

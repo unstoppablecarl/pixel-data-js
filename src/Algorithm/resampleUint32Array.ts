@@ -1,26 +1,15 @@
-const resample32Scratch = {
-  data: null as null | Int32Array,
-  width: 0,
-  height: 0,
-}
+import type { MutablePixelData32, PixelData32 } from '../_types'
 
-/**
- *  @internal
- */
-type Resample32Result = { data: Int32Array; width: number; height: number }
-
-/**
- *  @internal
- */
-export function resample32(
-  srcData32: Uint32Array | Int32Array,
+export function resampleUint32Array<T extends PixelData32, M extends MutablePixelData32>(
+  srcData32: Uint32Array,
   srcW: number,
   srcH: number,
   factor: number,
-): Resample32Result {
+  out?: M,
+): T {
   const dstW = Math.max(1, (srcW * factor) | 0)
   const dstH = Math.max(1, (srcH * factor) | 0)
-  const dstData = new Int32Array(dstW * dstH)
+  const dstData = new Uint32Array(dstW * dstH)
 
   // Use the reciprocal to map back precisely
   const scaleX = srcW / dstW
@@ -38,9 +27,10 @@ export function resample32(
     }
   }
 
-  resample32Scratch.data = dstData
-  resample32Scratch.width = dstW
-  resample32Scratch.height = dstH
+  out = out ?? {} as M
+  out.data = dstData
+  out.w = dstW
+  out.h = dstH
 
-  return resample32Scratch as Resample32Result
+  return out as unknown as T
 }
