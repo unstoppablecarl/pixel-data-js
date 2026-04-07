@@ -1,12 +1,12 @@
-import { getCircleBinaryMaskOutline } from '@/Mask/getCircleBinaryMaskOutline'
+import { makeCircleBinaryMaskOutline } from '@/Mask/BinaryMask/makeCircleBinaryMaskOutline'
 import { makeCirclePaintBinaryMask } from '@/Paint/makeCirclePaintMask'
 import { blendColorPixelDataBinaryMask } from '@/PixelData/blendColorPixelDataBinaryMask'
 import { blendPixelData } from '@/PixelData/blendPixelData'
 import { resamplePixelDataInPlace } from '@/PixelData/resamplePixelData'
 import { describe, expect, it } from 'vitest'
-import { makeTestPixelData, pack, printPixelDataGrid } from '../_helpers'
+import { makeTestPixelData, pack } from '../../_helpers'
 
-describe('drawCircleBinaryMaskOutline and drawCirclePaintBinaryMaskOutline', () => {
+describe('makeCircleBinaryMaskOutline and makeCirclePaintBinaryMask', () => {
   const redTint = pack(255, 0, 0, 120)
   const cyan = pack(0, 255, 255, 120)
   const C = cyan
@@ -119,7 +119,7 @@ describe('drawCircleBinaryMaskOutline and drawCirclePaintBinaryMaskOutline', () 
 
     it('drawCircleBinaryMaskOutline', () => {
       const mask = makeCirclePaintBinaryMask(size)
-      const outlineMask = getCircleBinaryMaskOutline(mask, scale)
+      const outlineMask = makeCircleBinaryMaskOutline(mask, scale)
 
       const centerOffsetX = mask.centerOffsetX
       const centerOffsetY = mask.centerOffsetY
@@ -143,10 +143,10 @@ describe('drawCircleBinaryMaskOutline and drawCirclePaintBinaryMaskOutline', () 
         y: oy * scale,
       })
 
-      printPixelDataGrid(result, new Map([
-        [cyan, 'C'],
-        [redTint, 'r'],
-      ]))
+      // printPixelDataGrid(result, new Map([
+      //   [cyan, 'C'],
+      //   [redTint, 'r'],
+      // ]))
       expect(result).toMatchPixelGrid(expectedResult)
     })
   })
