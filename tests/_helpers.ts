@@ -1,8 +1,10 @@
+import { createCanvas } from '@napi-rs/canvas'
 import { expect } from 'vitest'
 import {
   type AlphaMask,
   type BinaryMask,
   type BinaryMaskRect,
+  type CanvasObjectFactory,
   type Color32,
   type ImageDataLike,
   makeAlphaMask,
@@ -480,4 +482,21 @@ export function getColorListFromUint32Array<T = Color32>(target: Uint32Array) {
     result.add(target[i] as T)
   }
   return [...result].sort()
+}
+
+export const testCanvasFactory: CanvasObjectFactory<HTMLCanvasElement> = (w: number, h: number) => {
+  const canvas = createCanvas(1, 1)
+  canvas.width = w
+  canvas.height = h
+  return canvas as unknown as HTMLCanvasElement
+}
+
+export function canvasToTestPixelData(canvas: HTMLCanvasElement | OffscreenCanvas) {
+  const ctx = canvas.getContext('2d') as unknown as CanvasRenderingContext2D
+  return canvasCtxToTestPixelData(ctx)
+}
+
+export function canvasCtxToTestPixelData(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D) {
+  const result = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height)
+  return makePixelData(result)
 }
