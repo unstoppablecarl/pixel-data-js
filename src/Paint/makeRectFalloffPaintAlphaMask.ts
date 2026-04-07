@@ -1,6 +1,6 @@
 import { MaskType } from '../_types'
 import { _macro_halfAndFloor } from '../Internal/macros'
-import type { PaintAlphaMask } from './_paint-types'
+import { type PaintAlphaMask, PaintMaskOutline } from './_paint-types'
 
 export function makeRectFalloffPaintAlphaMask(
   width: number,
@@ -39,6 +39,7 @@ export function makeRectFalloffPaintAlphaMask(
 
   return {
     type: MaskType.ALPHA,
+    outlineType: PaintMaskOutline.RECT,
     data: data,
     w: width,
     h: height,

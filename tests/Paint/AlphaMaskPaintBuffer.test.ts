@@ -1,5 +1,5 @@
 import type { Color32 } from '@/_types'
-import type { AlphaMaskTile, PixelAccumulator, PixelEngineConfig } from '@/index'
+import { type AlphaMaskTile, PaintMaskOutline, type PixelAccumulator, type PixelEngineConfig } from '@/index'
 import { AlphaMaskPaintBuffer, TilePool } from '@/index'
 import type { PaintAlphaMask, PaintBinaryMask } from '@/Paint/_paint-types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -117,6 +117,7 @@ describe('AlphaMaskPaintBuffer', () => {
 
       const mockBrush: PaintAlphaMask = {
         ...makeTestAlphaMask(16, 16),
+        outlineType: PaintMaskOutline.MASKED,
         centerOffsetX: 0,
         centerOffsetY: 0,
       }
@@ -130,6 +131,7 @@ describe('AlphaMaskPaintBuffer', () => {
     it('should correctly map brush alpha to the tile data', () => {
       const mockBrush: PaintAlphaMask = {
         ...makeTestAlphaMask(16, 16, [128, 255]),
+        outlineType: PaintMaskOutline.MASKED,
         centerOffsetX: 0,
         centerOffsetY: 0,
       }
@@ -148,6 +150,7 @@ describe('AlphaMaskPaintBuffer', () => {
 
       const mockBrush: PaintAlphaMask = {
         ...makeTestAlphaMask(16, 16, [0, 200]),
+        outlineType: PaintMaskOutline.MASKED,
         centerOffsetX: 0,
         centerOffsetY: 0,
       }
@@ -169,6 +172,7 @@ describe('AlphaMaskPaintBuffer', () => {
 
       const mockBrush: PaintBinaryMask = {
         ...makeTestBinaryMask(16, 16),
+        outlineType: PaintMaskOutline.MASKED,
         centerOffsetX: 0,
         centerOffsetY: 0,
       }
@@ -182,6 +186,7 @@ describe('AlphaMaskPaintBuffer', () => {
     it('should map binary 1s to the provided alpha value', () => {
       const mockBrush: PaintBinaryMask = {
         ...makeTestBinaryMask(16, 16, [1, 0]),
+        outlineType: PaintMaskOutline.MASKED,
         centerOffsetX: 0,
         centerOffsetY: 0,
       }
@@ -197,6 +202,7 @@ describe('AlphaMaskPaintBuffer', () => {
     it('should return false instantly if provided alpha is 0', () => {
       const mockBrush: PaintBinaryMask = {
         ...makeTestBinaryMask(16, 16),
+        outlineType: PaintMaskOutline.MASKED,
         centerOffsetX: 0,
         centerOffsetY: 0,
       }

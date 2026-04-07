@@ -1,6 +1,12 @@
 import type { Color32 } from '@/_types'
-import type { BinaryMaskTile, PixelAccumulator, PixelEngineConfig } from '@/index'
-import { BinaryMaskPaintBuffer, TilePool } from '@/index'
+import {
+  BinaryMaskPaintBuffer,
+  type BinaryMaskTile,
+  PaintMaskOutline,
+  type PixelAccumulator,
+  type PixelEngineConfig,
+  TilePool,
+} from '@/index'
 import type { PaintBinaryMask } from '@/Paint/_paint-types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeTestBinaryMask, makeTestPixelData } from '../_helpers'
@@ -111,6 +117,7 @@ describe('BinaryMaskPaintBuffer', () => {
 
       const mockBrush: PaintBinaryMask = {
         ...makeTestBinaryMask(16, 16),
+        outlineType: PaintMaskOutline.MASKED,
         centerOffsetX: 0,
         centerOffsetY: 0,
       }
@@ -124,6 +131,7 @@ describe('BinaryMaskPaintBuffer', () => {
     it('should map binary 1s from the brush to the tile data', () => {
       const mockBrush: PaintBinaryMask = {
         ...makeTestBinaryMask(16, 16, [1, 0]), // 'On' then 'Off'
+        outlineType: PaintMaskOutline.MASKED,
         centerOffsetX: 0,
         centerOffsetY: 0,
       }
@@ -142,6 +150,7 @@ describe('BinaryMaskPaintBuffer', () => {
 
       const mockBrush: PaintBinaryMask = {
         ...makeTestBinaryMask(16, 16, [1, 1]),
+        outlineType: PaintMaskOutline.MASKED,
         centerOffsetX: 0,
         centerOffsetY: 0,
       }

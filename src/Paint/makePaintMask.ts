@@ -1,12 +1,13 @@
 import { type AlphaMask, type BinaryMask, MaskType } from '../_types'
 import { _macro_halfAndFloor } from '../Internal/macros'
-import type { PaintAlphaMask, PaintBinaryMask } from './_paint-types'
+import { type PaintAlphaMask, type PaintBinaryMask, PaintMaskOutline } from './_paint-types'
 
 export function makePaintBinaryMask(
   mask: BinaryMask,
 ): PaintBinaryMask {
   return {
     type: MaskType.BINARY,
+    outlineType: PaintMaskOutline.MASKED,
     data: mask.data,
     w: mask.w,
     h: mask.h,
@@ -20,6 +21,7 @@ export function makePaintAlphaMask(
 ): PaintAlphaMask {
   return {
     type: MaskType.ALPHA,
+    outlineType: PaintMaskOutline.MASKED,
     data: mask.data,
     w: mask.w,
     h: mask.h,

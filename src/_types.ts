@@ -251,3 +251,8 @@ export interface IndexedImage {
   /** The specific index in the palette reserved for fully transparent pixels. */
   readonly transparentPalletIndex: number
 }
+
+export type OutlineRendererSettings = {
+  scale?: number,
+  cssColor?: string,
+}
