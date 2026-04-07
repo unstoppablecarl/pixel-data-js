@@ -119,7 +119,7 @@ describe('makeCircleBinaryMaskOutline and makeCirclePaintBinaryMask', () => {
 
     it('drawCircleBinaryMaskOutline', () => {
       const mask = makeCirclePaintBinaryMask(size)
-      const outlineMask = makeCircleBinaryMaskOutline(mask, scale)
+      const outlineMask = makeCircleBinaryMaskOutline(size, scale)
 
       const centerOffsetX = mask.centerOffsetX
       const centerOffsetY = mask.centerOffsetY
