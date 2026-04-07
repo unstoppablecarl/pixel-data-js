@@ -2,7 +2,7 @@ import { MaskType } from '../_types'
 import { _macro_paintCircleCenterOffset } from '../Internal/macros'
 import { type PaintAlphaMask, type PaintBinaryMask, PaintMaskOutline } from './_paint-types'
 
-export function makeCirclePaintAlphaMask(size: number, fallOff: (d: number) => number = (d) => d): PaintAlphaMask {
+export function makeCirclePaintAlphaMask(size: number, fallOff: (d: number) => number = (d) => d): PaintAlphaMask<PaintMaskOutline.CIRCLE> {
   const area = size * size
   const data = new Uint8Array(area)
   const radius = size / 2
@@ -43,7 +43,7 @@ export function makeCirclePaintAlphaMask(size: number, fallOff: (d: number) => n
   }
 }
 
-export function makeCirclePaintBinaryMask(size: number): PaintBinaryMask {
+export function makeCirclePaintBinaryMask(size: number): PaintBinaryMask<PaintMaskOutline.CIRCLE> {
   const area = size * size
   const data = new Uint8Array(area)
   const radius = size / 2

@@ -1,31 +1,29 @@
 import type { AlphaMask, BinaryMask } from '../_types'
 
-export enum PaintMaskShape {
+export enum PaintMaskOutline {
+  MASKED,
   CIRCLE,
-  RECT
+  RECT,
 }
 
-interface BasePaintMask {
+interface BasePaintMask<T extends PaintMaskOutline = PaintMaskOutline> {
+  readonly outlineType: T
   readonly centerOffsetX: number
   readonly centerOffsetY: number
 }
 
-export interface PaintAlphaMask extends BasePaintMask, AlphaMask {
+export interface PaintAlphaMask<T extends PaintMaskOutline = PaintMaskOutline> extends BasePaintMask<T>, AlphaMask {
 }
 
-export interface PaintBinaryMask extends BasePaintMask, BinaryMask {
+export interface PaintBinaryMask<T extends PaintMaskOutline = PaintMaskOutline> extends BasePaintMask<T>, BinaryMask {
 }
 
-export type PaintMask = PaintAlphaMask | PaintBinaryMask
+export type PaintMask = PaintAlphaMask<any> | PaintBinaryMask<any>
 
-export type PaintCursorSettings = {
-  scale: number,
-  cssColor: string,
-} & ({
-  shape: PaintMaskShape.CIRCLE,
-  size: number,
-} | {
-  shape: PaintMaskShape.RECT,
-  w: number,
-  h: number,
-})
+export type PaintCursor = {
+  outlineType: PaintMaskOutline
+  centerOffsetX: number
+  centerOffsetY: number
+  w: number
+  h: number
+}
