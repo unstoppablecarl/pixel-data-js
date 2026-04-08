@@ -1,4 +1,4 @@
-import { type AlphaMask, makeBinaryMaskFromAlphaMask, MaskType } from '@/index'
+import { type AlphaMask, makeBinaryMaskFromAlphaMask, MaskType, type MutableBinaryMask } from '@/index'
 import { describe, expect, it } from 'vitest'
 
 describe('makeBinaryMaskFromAlphaMask', () => {
@@ -35,7 +35,6 @@ describe('makeBinaryMaskFromAlphaMask', () => {
 
   it('handles a threshold of 0 by converting everything to 1', () => {
     const w = 2
-
     const h = 1
 
     const alphaData = new Uint8Array([0, 10])
@@ -57,7 +56,6 @@ describe('makeBinaryMaskFromAlphaMask', () => {
 
   it('handles a threshold of 255 by only converting exact matches', () => {
     const w = 2
-
     const h = 1
 
     const alphaData = new Uint8Array([254, 255])
@@ -79,7 +77,6 @@ describe('makeBinaryMaskFromAlphaMask', () => {
 
   it('correctly maps the array length based on width and height', () => {
     const w = 3
-
     const h = 3
 
     const alphaData = new Uint8Array(9)
@@ -101,5 +98,36 @@ describe('makeBinaryMaskFromAlphaMask', () => {
 
     // Check the last element to ensure full iteration
     expect(result.data[8]).toBe(1)
+  })
+
+  it('uses out arg', () => {
+    const w = 3
+    const h = 3
+
+    const alphaData = new Uint8Array(9)
+
+    alphaData.fill(200)
+
+    const mask: AlphaMask = {
+      type: MaskType.ALPHA,
+      w,
+      h,
+      data: alphaData,
+    }
+
+    const threshold = 100
+
+    const out = {
+      type: MaskType.ALPHA,
+    } as unknown as MutableBinaryMask
+
+    const result = makeBinaryMaskFromAlphaMask(mask, threshold, out)
+
+    expect(result.data.length).toBe(9)
+
+    // Check the last element to ensure full iteration
+    expect(result.data[8]).toBe(1)
+
+    expect(result).toBe(out)
   })
 })

@@ -35,6 +35,19 @@ export interface AlphaMask extends BaseMask {
   readonly type: MaskType.ALPHA
 }
 
+export interface MutableMask<T extends MaskType> {
+  readonly type: T
+  data: Uint8Array
+  w: number
+  h: number
+}
+
+export interface MutableAlphaMask extends MutableMask<MaskType.ALPHA> {
+}
+
+export interface MutableBinaryMask extends MutableMask<MaskType.BINARY> {
+}
+
 export type MaskRect<T extends MaskType> = Rect & {
   type: T
   data: Uint8Array

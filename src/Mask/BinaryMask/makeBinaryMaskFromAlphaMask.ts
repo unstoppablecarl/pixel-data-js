@@ -1,6 +1,6 @@
-import { type AlphaMask, type BinaryMask, MaskType } from '../_mask-types'
+import { type AlphaMask, type BinaryMask, MaskType, type MutableBinaryMask } from '../_mask-types'
 
-export function makeBinaryMaskFromAlphaMask(mask: AlphaMask, threshold: number, out?: BinaryMask): BinaryMask {
+export function makeBinaryMaskFromAlphaMask(mask: AlphaMask, threshold: number, out?: MutableBinaryMask): BinaryMask {
   const w = mask.w
   const h = mask.h
   const alphaData = mask.data
@@ -14,10 +14,10 @@ export function makeBinaryMaskFromAlphaMask(mask: AlphaMask, threshold: number, 
     }
   }
 
-  return {
-    type: MaskType.BINARY,
-    w,
-    h,
-    data: binaryData,
-  }
+  out = out ?? { type: MaskType.BINARY } as MutableBinaryMask
+  out.data = binaryData
+  out.w = w
+  out.h = h
+
+  return out
 }
