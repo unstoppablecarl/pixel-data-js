@@ -1,4 +1,3 @@
-
 import type { AlphaMask, BinaryMask } from '../Mask/_mask-types'
 
 export enum PaintMaskOutline {

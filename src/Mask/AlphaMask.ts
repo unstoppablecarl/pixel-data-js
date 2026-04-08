@@ -1,4 +1,3 @@
-
 import { type AlphaMask, MaskType } from './_mask-types'
 
 /**

@@ -1,4 +1,3 @@
-
 import { type BinaryMask, MaskType } from '../_mask-types'
 
 export function makeCircleBinaryMaskOutline(size: number, scale: number): BinaryMask {

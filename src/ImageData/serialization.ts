@@ -1,4 +1,3 @@
-
 import type { Base64EncodedUInt8Array, ImageDataLike, SerializedImageData } from './_ImageData-types'
 
 export function base64EncodeArrayBuffer(buffer: ArrayBufferLike): Base64EncodedUInt8Array {

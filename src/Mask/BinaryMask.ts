@@ -1,4 +1,3 @@
-
 import { type BinaryMask, MaskType } from './_mask-types'
 
 /**

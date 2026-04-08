@@ -547,7 +547,7 @@ describe('ColorPaintBuffer', () => {
       expect(paintBuffer.clear).toHaveBeenCalledTimes(1)
     })
 
-    it('zzzzzz should reuse the exact same shared options object across multiple tiles to avoid GC pressure', () => {
+    it('should reuse the exact same shared options object across multiple tiles to avoid GC pressure', () => {
       const { paintBuffer, writer, blendPixelDataFn } = mockColorPaintBuffer()
       const blendFn = vi.fn()
 

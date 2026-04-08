@@ -1,4 +1,3 @@
-
 import { MaskType, type NullableBinaryMaskRect } from '../Mask/_mask-types'
 import { getRectsBounds } from '../Rect/getRectsBounds'
 

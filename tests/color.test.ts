@@ -158,7 +158,7 @@ describe('Color32 Bitwise Utilities', () => {
     it('should handle very small alpha values', () => {
       // Alpha: 1 (1/255 ≈ 0.0039...)
       const color = 0x01000000 as Color32
-      expect(color32ToCssRGBA(color)).toBe(`rgba(0,0,0,0.004)`)
+      expect(color32ToCssRGBA(color)).toBe(`rgba(0, 0, 0, 0.004)`)
     })
   })
 

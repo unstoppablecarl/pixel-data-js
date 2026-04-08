@@ -1,13 +1,5 @@
 import type { BlendColor32, Color32 } from '../_types'
 import { BaseBlendMode, overwriteBase } from './blend-modes'
-import {
-  destinationAtopPerfect,
-  destinationInPerfect, destinationOutPerfect,
-  destinationOverPerfect,
-  sourceAtopPerfect,
-  sourceInPerfect,
-  sourceOutPerfect, xorPerfect,
-} from './blend-modes-perfect'
 import { makeBlendModeRegistry } from './BlendModeRegistry'
 
 export const overwriteFast = overwriteBase

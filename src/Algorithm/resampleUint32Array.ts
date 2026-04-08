@@ -1,4 +1,3 @@
-
 import type { MutablePixelData32, PixelData32 } from '../PixelData/_pixelData-types'
 
 export function resampleUint32Array<T extends PixelData32, M extends MutablePixelData32>(

@@ -96,7 +96,7 @@ describe('Color Fast Blending Functions', () => {
       expect(unpack(FAST_BLEND_MODE_BY_NAME.destinationIn(src, empty))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
       expect(unpack(FAST_BLEND_MODE_BY_NAME.destinationIn(opaque, dst))).toEqual({ r: 0, g: 0, b: 255, a: 128 })
       expect(unpack(FAST_BLEND_MODE_BY_NAME.destinationIn(src, dst))).toEqual({ r: 0, g: 0, b: 127, a: 64 })
-      expect(unpack(FAST_BLEND_MODE_BY_NAME.destinationIn(pack(255,0,0,0), dst))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.destinationIn(pack(255, 0, 0, 0), dst))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
     })
 
     it('destinationOut', () => {

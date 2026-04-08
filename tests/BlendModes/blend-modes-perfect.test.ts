@@ -73,7 +73,12 @@ describe('Color Perfect Blending Functions', () => {
     })
 
     it('destinationOver', () => {
-      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationOver(src, transparent))).toEqual({ r: 255, g: 0, b: 0, a: 128 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationOver(src, transparent))).toEqual({
+        r: 255,
+        g: 0,
+        b: 0,
+        a: 128,
+      })
       expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationOver(src, opaque))).toEqual({ r: 0, g: 255, b: 0, a: 255 })
       expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationOver(src, dst))).toEqual({ r: 127, g: 0, b: 255, a: 191 })
     })
@@ -86,7 +91,12 @@ describe('Color Perfect Blending Functions', () => {
 
     it('destinationOut', () => {
       expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationOut(opaque, dst))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
-      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationOut(transparent, dst))).toEqual({ r: 0, g: 0, b: 255, a: 128 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationOut(transparent, dst))).toEqual({
+        r: 0,
+        g: 0,
+        b: 255,
+        a: 128,
+      })
       expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationOut(src, dst))).toEqual({ r: 0, g: 0, b: 127, a: 63 })
     })
 

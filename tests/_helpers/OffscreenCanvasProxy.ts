@@ -1,6 +1,5 @@
 import { createCanvas } from '@napi-rs/canvas'
 import { vi } from 'vitest'
-import { OffscreenCanvasMock } from './OffscreenCanvasMock'
 
 class OffscreenCanvasProxy {
   constructor(
