@@ -1,8 +1,8 @@
 import {
-  BinaryMaskPaintBuffer,
-  blendColorPixelDataBinaryMask,
+  blendPixelData,
   type Color32,
-  commitMaskPaintBuffer,
+  ColorPaintBuffer,
+  commitColorPaintBuffer,
   MaskType,
   type PixelAccumulator,
   type PixelEngineConfig,
@@ -11,7 +11,7 @@ import {
 import { describe, expect, it, vi } from 'vitest'
 import { makeTestPixelData } from '../../_helpers'
 
-describe('MaskPaintBufferCommit', () => {
+describe('commitColorPaintBuffer', () => {
 
   it('commit', () => {
     const config = {
@@ -53,28 +53,28 @@ describe('MaskPaintBufferCommit', () => {
     const buffer = {
       clear: vi.fn(),
       lookup: [tile1, undefined, tile2],
-    } as unknown as BinaryMaskPaintBuffer
+    } as unknown as ColorPaintBuffer
     const color = 0xff0000ff as Color32
     const alpha = 128
     const mockBlendFn = vi.fn()
 
-    const blendColorPixelDataBinaryMaskFn = vi.fn().mockReturnValue(true) as unknown as typeof blendColorPixelDataBinaryMask
+    const blendPixelDataFn = vi.fn().mockReturnValue(true) as unknown as typeof blendPixelData
 
-    commitMaskPaintBuffer(accumulator, buffer, color, alpha, mockBlendFn, blendColorPixelDataBinaryMaskFn)
+    commitColorPaintBuffer(accumulator, buffer, alpha, mockBlendFn, blendPixelDataFn)
 
     expect(accumulator.storeTileBeforeState).toHaveBeenCalledTimes(2)
     expect(accumulator.storeTileBeforeState).toHaveBeenCalledWith(tile1.id, tile1.tx, tile1.ty)
     expect(accumulator.storeTileBeforeState).toHaveBeenCalledWith(tile2.id, tile2.tx, tile2.ty)
 
-    expect(blendColorPixelDataBinaryMaskFn).toHaveBeenCalledTimes(2)
-    expect(blendColorPixelDataBinaryMaskFn).toHaveBeenCalledWith(config.target, color, tile1, expect.objectContaining({
+    expect(blendPixelDataFn).toHaveBeenCalledTimes(2)
+    expect(blendPixelDataFn).toHaveBeenCalledWith(config.target, tile1, expect.objectContaining({
       alpha,
       blendFn: mockBlendFn,
       w: tile1.w,
       h: tile1.h,
     }))
 
-    expect(blendColorPixelDataBinaryMaskFn).toHaveBeenCalledWith(config.target, color, tile2, expect.objectContaining({
+    expect(blendPixelDataFn).toHaveBeenCalledWith(config.target, tile2, expect.objectContaining({
       alpha,
       blendFn: mockBlendFn,
       w: tile2.w,
