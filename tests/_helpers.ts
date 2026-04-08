@@ -163,12 +163,16 @@ export const unpackStr = (c: number): string => {
 export const makeTestPixelData = (
   w: number,
   h: number,
-  fill: number = 0,
+  value?: number | number[],
 ) => {
   const img = makePixelData(new ImageData(w, h))
-  if (fill !== 0) {
-    img.data.fill(fill)
+  if (typeof value === 'number') {
+    img.data.fill(value)
   }
+  if (Array.isArray(value)) {
+    img.data.set(value)
+  }
+
   return img
 }
 
@@ -484,7 +488,7 @@ export function getColorListFromUint32Array<T = Color32>(target: Uint32Array) {
   return [...result].sort()
 }
 
-export const testCanvasFactory: CanvasObjectFactory<HTMLCanvasElement> = (w: number, h: number) => {
+export const testCanvasFactory: CanvasObjectFactory<HTMLCanvasElement | OffscreenCanvas> = (w: number, h: number) => {
   const canvas = createCanvas(1, 1)
   canvas.width = w
   canvas.height = h

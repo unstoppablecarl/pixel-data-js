@@ -16,6 +16,7 @@ export * from './BlendModes/toBlendModeIndexAndName'
 export * from './Canvas/_canvas-types'
 export * from './Canvas/canvas-blend-modes'
 export * from './Canvas/CanvasFrameRenderer'
+export * from './Canvas/CanvasPixelDataRenderer'
 export * from './Canvas/PixelCanvas'
 export * from './Canvas/ReusableCanvas'
 
