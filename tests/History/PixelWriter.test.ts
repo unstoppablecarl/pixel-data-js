@@ -224,5 +224,19 @@ describe('PixelWriter', () => {
         undefined,
       )
     })
+
+    it('should create History Manager by default', () => {
+
+      const target = {} as any
+
+      const writer = new PixelWriter(target, () => {
+        return {}
+      }, {
+        maxHistorySteps: 99,
+      })
+
+      expect(writer.historyManager.maxSteps).toEqual(99)
+
+    })
   })
 })

@@ -113,7 +113,12 @@ export * from './Paint/ColorPaintBuffer'
 export * from './Paint/ColorPaintBufferCanvasRenderer'
 
 export * from './Paint/Commit/AlphaMaskPaintBufferCommitter'
+export * from './Paint/Commit/AlphaMaskPaintBufferManager'
 export * from './Paint/Commit/BinaryMaskPaintBufferCommitter'
+export * from './Paint/Commit/BinaryMaskPaintBufferManager'
+export * from './Paint/Commit/ColorPaintBufferCommitter'
+export * from './Paint/Commit/ColorPaintBufferManager'
+export * from './Paint/Commit/commitColorPaintBuffer'
 export * from './Paint/Commit/commitMaskPaintBuffer'
 
 export * from './Paint/eachTileInBounds'
