@@ -1,22 +1,15 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as BinaryMaskPaintBufferModule from '@/Paint/BinaryMaskPaintBuffer'
 import * as CommitterModule from '@/Paint/Commit/BinaryMaskPaintBufferCommitter'
 import { makeBinaryMaskPaintBufferManager } from '@/Paint/Commit/BinaryMaskPaintBufferManager'
 import { makeBinaryMaskTile } from '@/Tile/MaskTile'
 import * as TilePoolModule from '@/Tile/TilePool'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('makeBinaryMaskPaintBufferManager', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  afterEach(() => {
-    vi.restoreAllMocks()
-  })
-
   it('instantiates dependencies and returns the bound api', () => {
     const config = {
       test: 'config',
+      tileSize: 8,
     } as any
 
     const accumulator = {
@@ -34,34 +27,32 @@ describe('makeBinaryMaskPaintBufferManager', () => {
     const mockBufferInstance = {
       paintBinaryMask: vi.fn(),
       paintRect: vi.fn(),
+      config,
+      clear: vi.fn()
     }
 
     const poolSpy = vi.spyOn(TilePoolModule, 'TilePool').mockImplementation(() => mockPoolInstance as any)
-
     const bufferSpy = vi.spyOn(BinaryMaskPaintBufferModule, 'BinaryMaskPaintBuffer').mockImplementation(() => mockBufferInstance as any)
-
     const committerSpy = vi.spyOn(CommitterModule, 'makeBinaryMaskPaintBufferCommitter').mockReturnValue(mockCommitFn)
 
-    const manager = makeBinaryMaskPaintBufferManager(writer)
+    const context = {}
+    const canvas = {
+      getContext: vi.fn().mockReturnValue(context),
+    }
+    const canvasFactory = vi.fn().mockReturnValue(canvas)
 
-    expect(poolSpy).toHaveBeenCalledTimes(1)
+    const manager = makeBinaryMaskPaintBufferManager(writer, canvasFactory)
 
-    expect(poolSpy).toHaveBeenCalledWith(config, makeBinaryMaskTile)
-
-    expect(bufferSpy).toHaveBeenCalledTimes(1)
-
-    expect(bufferSpy).toHaveBeenCalledWith(config, mockPoolInstance)
-
-    expect(committerSpy).toHaveBeenCalledTimes(1)
-
-    expect(committerSpy).toHaveBeenCalledWith(accumulator, mockBufferInstance)
+    expect(poolSpy).toHaveBeenCalledExactlyOnceWith(config, makeBinaryMaskTile)
+    expect(bufferSpy).toHaveBeenCalledExactlyOnceWith(config, mockPoolInstance)
+    expect(committerSpy).toHaveBeenCalledExactlyOnceWith(accumulator, mockBufferInstance)
 
     expect(manager.commit).toBe(mockCommitFn)
 
+    expect(typeof manager.clear).toBe('function')
+    expect(typeof manager.draw).toBe('function')
     expect(typeof manager.paintRect).toBe('function')
-
     expect(typeof manager.paintBinaryMask).toBe('function')
-
     expect(typeof manager.paintBinaryMask).toBe('function')
   })
 })
