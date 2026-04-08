@@ -26,7 +26,7 @@ export function makeAlphaMaskPaintBufferCanvasRenderer(
   const view32 = bridge.data
 
   return function drawPaintBuffer(
-    targetCtx: CanvasRenderingContext2D,
+    targetCtx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
     color: Color32,
     alpha = 255,
     compOperation: GlobalCompositeOperation = 'source-over',

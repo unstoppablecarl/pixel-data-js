@@ -20,7 +20,7 @@ export function makeColorPaintBufferCanvasRenderer(
   ctx.imageSmoothingEnabled = false
 
   return function drawPaintBuffer(
-    targetCtx: CanvasRenderingContext2D,
+    targetCtx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
     alpha = 255,
     compOperation: GlobalCompositeOperation = 'source-over',
   ): void {
