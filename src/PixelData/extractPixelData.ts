@@ -1,4 +1,5 @@
-import type { PixelData, PixelData32, Rect } from '../_types'
+import type { Rect } from '../Rect/_rect-types'
+import type { PixelData, PixelData32 } from './_pixelData-types'
 import { extractPixelDataBuffer } from './extractPixelDataBuffer'
 import { makePixelData } from './PixelData'
 

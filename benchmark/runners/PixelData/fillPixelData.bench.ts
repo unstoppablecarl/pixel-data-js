@@ -1,4 +1,5 @@
-import type { Color32, PixelData } from '@/_types'
+import type { Color32 } from '@/_types'
+import type { PixelData } from '@/PixelData/_pixelData-types'
 import { command } from 'cmd-ts'
 import { bench, do_not_optimize } from 'mitata-ts'
 import { fillPixelData as fillPixelDataDist } from '../../../dist/index.prod'

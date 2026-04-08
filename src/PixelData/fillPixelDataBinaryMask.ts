@@ -1,6 +1,7 @@
-import type { Color32, PixelData32 } from '../_types'
+import type { Color32 } from '../_types'
 import type { BinaryMask } from '../Mask/_mask-types'
 import { makeClippedRect, resolveRectClipping } from '../Rect/resolveClipping'
+import type { PixelData32 } from './_pixelData-types'
 
 const SCRATCH_RECT = makeClippedRect()
 

@@ -1,8 +1,9 @@
 import {
   type ApplyMaskToPixelDataOptions,
-  type PixelData32,
+
 } from '../_types'
 import { type AlphaMask, type BinaryMask, type Mask, MaskType } from '../Mask/_mask-types'
+import type { PixelData32 } from './_pixelData-types'
 import { applyAlphaMaskToPixelData } from './applyAlphaMaskToPixelData'
 import { applyBinaryMaskToPixelData } from './applyBinaryMaskToPixelData'
 

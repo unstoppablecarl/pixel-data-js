@@ -1,4 +1,5 @@
-import type { PixelBlendOptions, PixelData32 } from '../../_types'
+import type { PixelBlendOptions } from '../../_types'
+import type { PixelData32 } from '../../PixelData/_pixelData-types'
 import { blendPixelData } from '../../PixelData/blendPixelData'
 import { type HistoryMutator, PixelWriter } from '../PixelWriter'
 

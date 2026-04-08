@@ -1,4 +1,4 @@
-import type { PixelData32 } from '@/_types'
+import type { PixelData32 } from '@/PixelData/_pixelData-types'
 import sharp from 'sharp'
 
 export async function uint32ArrayToPngBuffer(

@@ -1,4 +1,4 @@
-import type { Rect } from '../_types'
+import type { Rect } from './_rect-types'
 
 export function getRectsBounds<T extends Rect>(rects: T[]): T {
   if (rects.length === 1) return { ...rects[0] }

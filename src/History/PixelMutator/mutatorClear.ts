@@ -1,5 +1,6 @@
-import type { Color32, Rect } from '../../_types'
+import type { Color32 } from '../../_types'
 import { fillPixelData } from '../../PixelData/fillPixelData'
+import type { Rect } from '../../Rect/_rect-types'
 import { type HistoryMutator, PixelWriter } from '../PixelWriter'
 
 const defaults = { fillPixelData }

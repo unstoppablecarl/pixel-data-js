@@ -1,5 +1,5 @@
-import type { PixelData } from '../_types'
 import type { ColorPaintBuffer } from '../Paint/ColorPaintBuffer'
+import type { PixelData } from './_pixelData-types'
 import { writePixelDataBuffer } from './writePixelDataBuffer'
 
 /**

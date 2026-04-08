@@ -1,6 +1,6 @@
-import type { Rect } from '../_types'
 import type { NullableMaskRect } from '../Mask/_mask-types'
 import { extractMaskBuffer } from '../Mask/extractMaskBuffer'
+import type { Rect } from './_rect-types'
 
 /**
  * Intersects a target rectangle with a boundary, trimming dimensions and masks in-place.

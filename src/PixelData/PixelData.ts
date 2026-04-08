@@ -1,6 +1,6 @@
-import type { PixelData } from '../_types'
 import type { ImageDataLike } from '../ImageData/_ImageData-types'
 import { _macro_imageDataToUint32Array } from '../ImageData/imageDataToUint32Array'
+import type { PixelData } from './_pixelData-types'
 
 export function makePixelData<T extends ImageDataLike = ImageData>(imageData: T): PixelData<T> {
   return {

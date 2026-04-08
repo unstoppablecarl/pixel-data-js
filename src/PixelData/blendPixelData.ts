@@ -1,5 +1,6 @@
-import { type Color32, type PixelBlendOptions, type PixelData32 } from '../_types'
+import { type Color32, type PixelBlendOptions } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
+import type { PixelData32 } from './_pixelData-types'
 
 /**
  * Blits source PixelData into a destination PixelData using 32-bit integer bitwise blending.

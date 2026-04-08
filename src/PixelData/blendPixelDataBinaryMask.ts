@@ -1,6 +1,7 @@
-import type { Color32, PixelBlendMaskOptions, PixelData32 } from '../_types'
+import type { Color32, PixelBlendMaskOptions } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 import type { BinaryMask } from '../Mask/_mask-types'
+import type { PixelData32 } from './_pixelData-types'
 
 export function blendPixelDataBinaryMask(
   target: PixelData32,

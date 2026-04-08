@@ -1,4 +1,4 @@
-import type { Rect } from '../_types'
+import type { Rect } from '../Rect/_rect-types'
 
 /**
  * Defines how mask values should be interpreted during a draw operation.
@@ -39,8 +39,11 @@ export type MaskRect<T extends MaskType> = Rect & {
   type: T
   data: Uint8Array
 }
+
 export type BinaryMaskRect = MaskRect<MaskType.BINARY>
+
 export type AlphaMaskRect = MaskRect<MaskType.ALPHA>
+
 export type NullableBinaryMaskRect = Rect & ({
   type: MaskType.BINARY
   data: Uint8Array

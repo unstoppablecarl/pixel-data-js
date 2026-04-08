@@ -1,5 +1,5 @@
-import type { PixelData } from '../_types'
 import type { ImageDataLike } from '../ImageData/_ImageData-types'
+import type { PixelData } from './_pixelData-types'
 import { makePixelData } from './PixelData'
 
 export function copyPixelData<T extends ImageDataLike = ImageData>(target: PixelData<T>): PixelData {

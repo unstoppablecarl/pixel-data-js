@@ -1,4 +1,4 @@
-import type { IndexedImage } from '../_types'
+import type { IndexedImage } from './_indexedImage-types'
 
 /**
  * Converts an IndexedImage back into standard ImageData.

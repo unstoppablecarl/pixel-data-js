@@ -1,5 +1,6 @@
-import type { BlendColor32, PixelData32 } from '../_types'
+import type { BlendColor32 } from '../_types'
 import type { ColorPaintBuffer } from '../Paint/ColorPaintBuffer'
+import type { PixelData32 } from './_pixelData-types'
 import { blendPixelData } from './blendPixelData'
 
 const SCRATCH_OPTS = {

@@ -1,4 +1,3 @@
-import type { ImageDataLike } from './ImageData/_ImageData-types'
 import type { BinaryMask } from './Mask/_mask-types'
 
 /** ALL values are 0-255 (including alpha which in CSS is 0-1) */
@@ -16,14 +15,6 @@ export type Color32 = number & { readonly __brandColor32: unique symbol }
 export type BlendColor32 = {
   (src: Color32, dst: Color32): Color32,
   isOverwrite?: true
-}
-
-/** Rectangle definition */
-export type Rect = {
-  x: number
-  y: number
-  w: number
-  h: number
 }
 
 /**
@@ -71,7 +62,6 @@ export interface MaskOffset {
 }
 
 export interface InvertMask {
-
   /**
    * If true the inverse of the mask will be applied
    * @default false
@@ -140,42 +130,4 @@ export interface ColorBlendOptions extends PixelRect, Alpha {
 }
 
 export interface ColorBlendMaskOptions extends ColorBlendOptions, MaskOffset, InvertMask {
-}
-
-export interface ColorBlendPaintMaskOptions extends Omit<ColorBlendOptions, 'w' | 'h'> {
-}
-
-export interface PixelData32 {
-  readonly data: Uint32Array
-  readonly w: number
-  readonly h: number
-}
-
-export interface MutablePixelData32 {
-  data: Uint32Array
-  w: number
-  h: number
-}
-
-export interface PixelData<T extends ImageDataLike = ImageData> extends PixelData32 {
-  readonly imageData: T
-}
-
-/**
- * Represents an image using a palette-based indexing system.
- * Instead of storing 4 bytes (RGBA) per pixel, this class stores a single index
- * into a color palette. This format is optimized for memory efficiency and
- * high-speed pattern matching or recoloring operations.
- */
-export interface IndexedImage {
-  /** The width of the image in pixels. */
-  readonly w: number
-  /** The height of the image in pixels. */
-  readonly h: number
-  /** Flat array of palette indices. Index = x + (y * width). */
-  readonly data: Uint32Array
-  /** The palette of unique 32-bit colors (ABGR/RGBA packed) found in the image. */
-  readonly palette: Uint32Array
-  /** The specific index in the palette reserved for fully transparent pixels. */
-  readonly transparentPalletIndex: number
 }

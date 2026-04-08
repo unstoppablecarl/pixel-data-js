@@ -1,5 +1,5 @@
-import type { PixelData } from '../_types'
 import type { AlphaMask, BinaryMask } from '../Mask/_mask-types'
+import type { PixelData } from '../PixelData/_pixelData-types'
 
 export const enum TileType {
   PIXEL,

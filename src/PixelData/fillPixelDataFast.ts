@@ -1,5 +1,7 @@
-import type { Color32, PixelData32, Rect } from '../_types'
+import type { Color32 } from '../_types'
+import type { Rect } from '../Rect/_rect-types'
 import { makeClippedRect, resolveRectClipping } from '../Rect/resolveClipping'
+import type { PixelData32 } from './_pixelData-types'
 
 const SCRATCH_RECT = makeClippedRect()
 

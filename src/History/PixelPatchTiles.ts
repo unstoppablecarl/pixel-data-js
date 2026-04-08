@@ -1,4 +1,4 @@
-import type { PixelData32 } from '../_types'
+import type { PixelData32 } from '../PixelData/_pixelData-types'
 import type { PixelTile } from '../Tile/_tile-types'
 
 export type PixelPatchTiles = {

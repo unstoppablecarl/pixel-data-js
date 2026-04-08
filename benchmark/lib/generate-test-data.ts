@@ -1,8 +1,8 @@
-import type { PixelData } from '@/_types'
 import type { ImageDataLike } from '@/ImageData/_ImageData-types'
 import type { AlphaMask, BinaryMask } from '@/Mask/_mask-types'
 import { makeAlphaMask } from '@/Mask/AlphaMask'
 import { makeBinaryMask } from '@/Mask/BinaryMask'
+import type { PixelData } from '@/PixelData/_pixelData-types'
 import { makePixelData } from '@/PixelData/PixelData'
 
 export function makeMulberry32(initialSeed = 0) {

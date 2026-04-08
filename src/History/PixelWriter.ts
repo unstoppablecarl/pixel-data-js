@@ -1,5 +1,5 @@
-import type { PixelData } from '../_types'
 import { resizeImageData } from '../ImageData/resizeImageData'
+import type { PixelData } from '../PixelData/_pixelData-types'
 import { setPixelData } from '../PixelData/PixelData'
 import type { PixelTile } from '../Tile/_tile-types'
 import { makePixelTile } from '../Tile/PixelTile'

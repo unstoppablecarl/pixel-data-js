@@ -1,5 +1,5 @@
-import type { Rect } from '../_types'
 import type { PixelEngineConfig } from '../History/PixelEngineConfig'
+import type { Rect } from '../Rect/_rect-types'
 import type { Tile } from '../Tile/_tile-types'
 import type { TilePool } from '../Tile/TilePool'
 

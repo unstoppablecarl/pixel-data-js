@@ -1,5 +1,5 @@
-import type { PixelData } from '@/_types'
 import { toBlendModeIndexAndName } from '@/BlendModes/toBlendModeIndexAndName'
+import type { PixelData } from '@/PixelData/_pixelData-types'
 import { command } from 'cmd-ts'
 import { bench, do_not_optimize, group } from 'mitata-ts'
 import { blendPixelData as blendPixelDataDist } from '../../../dist/index.prod'

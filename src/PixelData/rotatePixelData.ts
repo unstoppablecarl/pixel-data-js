@@ -1,4 +1,4 @@
-import type { PixelData } from '../_types'
+import type { PixelData } from './_pixelData-types'
 import { setPixelData } from './PixelData'
 
 /**

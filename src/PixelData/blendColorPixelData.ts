@@ -1,5 +1,6 @@
-import { type Color32, type ColorBlendOptions, type PixelData32 } from '../_types'
+import { type Color32, type ColorBlendOptions } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
+import type { PixelData32 } from './_pixelData-types'
 
 /**
  * Blends a solid color into a target pixel buffer.

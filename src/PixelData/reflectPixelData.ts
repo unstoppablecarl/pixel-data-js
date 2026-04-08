@@ -1,4 +1,4 @@
-import type { PixelData32 } from '../_types'
+import type { PixelData32 } from './_pixelData-types'
 
 export function reflectPixelDataHorizontal(pixelData: PixelData32): void {
   const width = pixelData.w

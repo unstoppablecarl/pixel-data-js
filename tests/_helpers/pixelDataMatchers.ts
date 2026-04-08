@@ -1,4 +1,5 @@
-import type { Color32, PixelData, PixelData32 } from '@/_types'
+import type { Color32 } from '@/_types'
+import type { PixelData, PixelData32 } from '@/PixelData/_pixelData-types'
 import { getColorListFromUint32Array, printPixelDataGridColor, unpackStr } from '../_helpers'
 
 export function toOnlyContainColors(this: any, received: Uint32Array | PixelData, expected: Color32[], message?: string) {

@@ -1,5 +1,6 @@
-import { type PixelData32, type PixelMutateOptions } from '../_types'
+import { type PixelMutateOptions } from '../_types'
 import { makeClippedRect, resolveRectClipping } from '../Rect/resolveClipping'
+import type { PixelData32 } from './_pixelData-types'
 
 const SCRATCH_RECT = makeClippedRect()
 
