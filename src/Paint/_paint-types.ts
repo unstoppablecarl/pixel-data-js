@@ -20,10 +20,3 @@ export interface PaintBinaryMask<T extends PaintMaskOutline = PaintMaskOutline> 
 
 export type PaintMask = PaintAlphaMask<any> | PaintBinaryMask<any>
 
-export type PaintCursor = {
-  outlineType: PaintMaskOutline
-  centerOffsetX: number
-  centerOffsetY: number
-  w: number
-  h: number
-}
