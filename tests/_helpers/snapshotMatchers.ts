@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'path'
 import sanitize from 'sanitize-filename'
 import { expect } from 'vitest'
-import { PixelData } from '../../src'
+import { type PixelData } from '../../src'
 import { pixelDataToPngBuffer } from './pngBuffer'
 
 const __filename = fileURLToPath(import.meta.url)

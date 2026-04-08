@@ -1,4 +1,4 @@
-import { type BinaryMask, MaskType } from '../_types'
+import { type BinaryMask, MaskType } from './_mask-types'
 
 /**
  * Creates a Binary Mask

@@ -1,5 +1,5 @@
-import { PixelTile } from '../PixelTile/PixelTile'
-import type { PixelTilePool } from '../PixelTile/PixelTilePool'
+import type { PixelTile } from '../Tile/_tile-types'
+import type { TilePool } from '../Tile/TilePool'
 import type { PixelEngineConfig } from './PixelEngineConfig'
 import { applyPatchTiles, type PixelPatchTiles } from './PixelPatchTiles'
 
@@ -11,15 +11,15 @@ export class PixelAccumulator {
 
   constructor(
     readonly config: PixelEngineConfig,
-    readonly tilePool: PixelTilePool,
+    readonly pixelTilePool: TilePool<PixelTile>,
   ) {
     this.lookup = []
     this.beforeTiles = []
   }
 
   recyclePatch(patch: PixelPatchTiles) {
-    this.tilePool.releaseTiles(patch.beforeTiles)
-    this.tilePool.releaseTiles(patch.afterTiles)
+    this.pixelTilePool.releaseTiles(patch.beforeTiles)
+    this.pixelTilePool.releaseTiles(patch.afterTiles)
   }
 
   /**
@@ -37,7 +37,7 @@ export class PixelAccumulator {
     let added = false
 
     if (!tile) {
-      tile = this.tilePool.getTile(id, tx, ty)
+      tile = this.pixelTilePool.getTile(id, tx, ty)
 
       this.extractState(tile)
       this.lookup[id] = tile
@@ -49,7 +49,7 @@ export class PixelAccumulator {
       if (!didChange && added) {
         this.beforeTiles.pop()
         this.lookup[id] = undefined
-        this.tilePool.releaseTile(tile!)
+        this.pixelTilePool.releaseTile(tile!)
       }
       return didChange
     }
@@ -83,7 +83,7 @@ export class PixelAccumulator {
         let tile = this.lookup[id]
 
         if (!tile) {
-          tile = this.tilePool.getTile(id, tx, ty)
+          tile = this.pixelTilePool.getTile(id, tx, ty)
 
           this.extractState(tile)
           this.lookup[id] = tile
@@ -101,7 +101,7 @@ export class PixelAccumulator {
 
           if (t) {
             this.lookup[t.id] = undefined
-            this.tilePool.releaseTile(t)
+            this.pixelTilePool.releaseTile(t)
           }
         }
 
@@ -116,7 +116,7 @@ export class PixelAccumulator {
     let added = false
 
     if (!tile) {
-      tile = this.tilePool.getTile(id, tx, ty)
+      tile = this.pixelTilePool.getTile(id, tx, ty)
 
       this.extractState(tile)
       this.lookup[id] = tile
@@ -128,7 +128,7 @@ export class PixelAccumulator {
       if (!didChange && added) {
         this.beforeTiles.pop()
         this.lookup[id] = undefined
-        this.tilePool.releaseTile(tile!)
+        this.pixelTilePool.releaseTile(tile!)
       }
       return didChange
     }
@@ -137,12 +137,12 @@ export class PixelAccumulator {
   extractState(tile: PixelTile) {
     const target = this.config.target
     const TILE_SIZE = this.config.tileSize
-    const dst = tile.data32
-    const src = target.data32
+    const dst = tile.data
+    const src = target.data
     const startX = tile.tx * TILE_SIZE
     const startY = tile.ty * TILE_SIZE
-    const targetWidth = target.width
-    const targetHeight = target.height
+    const targetWidth = target.w
+    const targetHeight = target.h
 
     // If the tile is completely outside the canvas, zero it out.
     if (startX >= targetWidth || startX + TILE_SIZE <= 0 || startY >= targetHeight || startY + TILE_SIZE <= 0) {
@@ -190,7 +190,7 @@ export class PixelAccumulator {
       let beforeTile = this.beforeTiles[i]
 
       if (beforeTile) {
-        let afterTile = this.tilePool.getTile(beforeTile.id, beforeTile.tx, beforeTile.ty)
+        let afterTile = this.pixelTilePool.getTile(beforeTile.id, beforeTile.tx, beforeTile.ty)
 
         this.extractState(afterTile)
         afterTiles.push(afterTile)
@@ -219,7 +219,7 @@ export class PixelAccumulator {
 
       if (tile) {
         this.lookup[tile.id] = undefined
-        this.tilePool.releaseTile(tile)
+        this.pixelTilePool.releaseTile(tile)
       }
     }
 

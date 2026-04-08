@@ -1,4 +1,5 @@
-import { type AlphaMask, type ApplyMaskToPixelDataOptions } from '../../_types'
+import { type ApplyMaskToPixelDataOptions } from '../../_types'
+import type { AlphaMask } from '../../Mask/_mask-types'
 import { applyAlphaMaskToPixelData } from '../../PixelData/applyAlphaMaskToPixelData'
 import { type HistoryMutator, PixelWriter } from '../PixelWriter'
 
@@ -21,8 +22,8 @@ export const mutatorApplyAlphaMask = ((writer: PixelWriter<any>, deps: Deps = de
       const target = writer.config.target
       const x = opts?.x ?? 0
       const y = opts?.y ?? 0
-      const w = opts?.w ?? target.width
-      const h = opts?.h ?? target.height
+      const w = opts?.w ?? target.w
+      const h = opts?.h ?? target.h
 
       const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
       return didChange(applyAlphaMaskToPixelData(target, mask, opts))

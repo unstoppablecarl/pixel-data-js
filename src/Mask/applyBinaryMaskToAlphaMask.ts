@@ -1,4 +1,5 @@
-import type { AlphaMask, ApplyMaskToPixelDataOptions, BinaryMask } from '../_types'
+import type { ApplyMaskToPixelDataOptions } from '../_types'
+import type { AlphaMask, BinaryMask } from './_mask-types'
 
 export function applyBinaryMaskToAlphaMask(
   alphaMaskDst: AlphaMask,

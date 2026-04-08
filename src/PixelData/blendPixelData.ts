@@ -1,5 +1,6 @@
-import { type Color32, type IPixelData32, type PixelBlendOptions } from '../_types'
+import { type Color32, type PixelBlendOptions } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
+import type { PixelData32 } from './_pixelData-types'
 
 /**
  * Blits source PixelData into a destination PixelData using 32-bit integer bitwise blending.
@@ -16,16 +17,16 @@ import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
  * });
  */
 export function blendPixelData(
-  target: IPixelData32,
-  src: IPixelData32,
+  target: PixelData32,
+  src: PixelData32,
   opts?: PixelBlendOptions,
 ): boolean {
   const targetX = opts?.x ?? 0
   const targetY = opts?.y ?? 0
   const sourceX = opts?.sx ?? 0
   const sourceY = opts?.sy ?? 0
-  const width = opts?.w ?? src.width
-  const height = opts?.h ?? src.height
+  const width = opts?.w ?? src.w
+  const height = opts?.h ?? src.h
   const globalAlpha = opts?.alpha ?? 255
   const blendFn = opts?.blendFn ?? sourceOverPerfect
 
@@ -48,8 +49,8 @@ export function blendPixelData(
     h += sy
     sy = 0
   }
-  w = Math.min(w, src.width - sx)
-  h = Math.min(h, src.height - sy)
+  w = Math.min(w, src.w - sx)
+  h = Math.min(h, src.h - sy)
   if (x < 0) {
     sx -= x
     w += x
@@ -61,14 +62,14 @@ export function blendPixelData(
     y = 0
   }
 
-  const actualW = Math.min(w, target.width - x)
-  const actualH = Math.min(h, target.height - y)
+  const actualW = Math.min(w, target.w - x)
+  const actualH = Math.min(h, target.h - y)
   if (actualW <= 0 || actualH <= 0) return false
 
-  const dst32 = target.data32
-  const src32 = src.data32
-  const dw = target.width
-  const sw = src.width
+  const dst32 = target.data
+  const src32 = src.data
+  const dw = target.w
+  const sw = src.w
 
   let dIdx = (y * dw + x) | 0
   let sIdx = (sy * sw + sx) | 0

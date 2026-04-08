@@ -4,13 +4,13 @@ import { describe, expect, it } from 'vitest'
 
 describe('resampleIndexedImage', () => {
   const createTestIndexed = (w: number, h: number): IndexedImage => {
-    const data = new Int32Array(w * h)
+    const data = new Uint32Array(w * h)
     for (let i = 0; i < data.length; i++) {
       data[i] = i
     }
     return {
-      width: w,
-      height: h,
+      w: w,
+      h: h,
       data,
       palette: new Uint32Array([0xFF0000FF, 0x00FF00FF]),
       transparentPalletIndex: 0,
@@ -21,7 +21,7 @@ describe('resampleIndexedImage', () => {
     const source = createTestIndexed(2, 2)
     const result = resampleIndexedImage(source, 2)
 
-    expect(result.width).toBe(4)
+    expect(result.w).toBe(4)
     expect(result.data[0]).toBe(source.data[0])
     expect(result.data[1]).toBe(source.data[0])
     expect(result.data[4]).toBe(source.data[0])
@@ -39,8 +39,8 @@ describe('resampleIndexedImage', () => {
     const source = createTestIndexed(10, 10)
     const result = resampleIndexedImage(source, 0.1)
 
-    expect(result.width).toBe(1)
-    expect(result.height).toBe(1)
+    expect(result.w).toBe(1)
+    expect(result.h).toBe(1)
     expect(result.data[0]).toBe(source.data[0])
   })
 
@@ -52,11 +52,11 @@ describe('resampleIndexedImage', () => {
     const result = resampleIndexedImage(source, factor)
 
     // If the logic is correct, width should be 4
-    expect(result.width).toBe(4)
+    expect(result.w).toBe(4)
 
     // Verify the start of the second row.
     // If drift occurs, the index would be offset by a fraction.
-    const secondRowStart = result.width // index 4
+    const secondRowStart = result.w // index 4
     expect(result.data[secondRowStart]).toBeDefined()
 
     // In a 4.5 wide float-based loop, the second row might

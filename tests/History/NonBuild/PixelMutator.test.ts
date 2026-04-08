@@ -1,4 +1,11 @@
-import { makeFullPixelMutator, PixelAccumulator, PixelEngineConfig, PixelTilePool, PixelWriter } from '@/index'
+import {
+  makeFullPixelMutator,
+  makePixelTile,
+  PixelAccumulator,
+  PixelEngineConfig,
+  PixelWriter,
+  TilePool,
+} from '@/index'
 import glob from 'fast-glob'
 import { describe, expect, it } from 'vitest'
 import { makeTestPixelData } from '../../_helpers'
@@ -21,7 +28,7 @@ describe('PixelMutator Sync', () => {
   it('sync with PixelMutators dir', async () => {
     const target = makeTestPixelData(5, 5)
     const config = new PixelEngineConfig(8, target)
-    const tilePool = new PixelTilePool(config)
+    const tilePool = new TilePool(config, makePixelTile)
     const accumulator = new PixelAccumulator(config, tilePool)
 
     const mutatorsByName = await getMutatorsByName()

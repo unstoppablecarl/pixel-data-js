@@ -1,4 +1,4 @@
-import { type Rect } from '../_types'
+import type { Rect } from './_rect-types'
 
 export function trimRectBounds(
   x: number,

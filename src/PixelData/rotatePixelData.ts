@@ -1,4 +1,5 @@
-import { PixelData } from './PixelData'
+import type { PixelData } from './_pixelData-types'
+import { setPixelData } from './PixelData'
 
 /**
  * Rotates pixel data 90 degrees clockwise.
@@ -6,9 +7,9 @@ import { PixelData } from './PixelData'
  * If rectangular, it replaces the internal ImageData with a new rotated version.
  */
 export function rotatePixelData(pixelData: PixelData): void {
-  const width = pixelData.width
-  const height = pixelData.height
-  const data = pixelData.data32
+  const width = pixelData.w
+  const height = pixelData.h
+  const data = pixelData.data
 
   if (width === height) {
     rotateSquareInPlace(pixelData)
@@ -38,12 +39,12 @@ export function rotatePixelData(pixelData: PixelData): void {
     newHeight,
   )
 
-  pixelData.set(newImageData)
+  setPixelData(pixelData, newImageData)
 }
 
 function rotateSquareInPlace(pixelData: PixelData): void {
-  const n = pixelData.width
-  const data = pixelData.data32
+  const n = pixelData.w
+  const data = pixelData.data
 
   for (let i = 0; i < n / 2; i++) {
     for (let j = i; j < n - i - 1; j++) {

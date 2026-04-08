@@ -1,3 +1,5 @@
+import type { BinaryMask } from './Mask/_mask-types'
+
 /** ALL values are 0-255 (including alpha which in CSS is 0-1) */
 export type RGBA = { r: number, g: number, b: number, a: number }
 
@@ -14,84 +16,6 @@ export type BlendColor32 = {
   (src: Color32, dst: Color32): Color32,
   isOverwrite?: true
 }
-
-export type ImageDataLike = {
-  width: number
-  height: number
-  data: Uint8ClampedArray<ArrayBufferLike>
-}
-
-export type ImageDataLikeConstructor<T extends ImageDataLike = ImageDataLike> = {
-  new(
-    data: Uint8ClampedArray,
-    width: number,
-    height: number,
-  ): T
-}
-
-export type SerializedImageData = {
-  width: number
-  height: number
-  data: string
-}
-
-export type Base64EncodedUInt8Array = string & { readonly __brandBase64UInt8Array: unique symbol }
-
-/** Rectangle definition */
-export type Rect = {
-  x: number
-  y: number
-  w: number
-  h: number
-}
-
-/**
- * Defines how mask values should be interpreted during a draw operation.
- */
-export enum MaskType {
-  /**
-   * Values are treated as alpha weights.
-   * 0 is skipped, values > 0 are processed.
-   */
-  ALPHA,
-  /**
-   *  Values are treated as on/off.
-   * 0 is fully transparent (skipped), any other value is fully opaque.
-   */
-  BINARY
-}
-
-export interface BaseMask {
-  readonly type: MaskType
-  readonly data: Uint8Array
-  readonly w: number
-  readonly h: number
-}
-
-export type Mask = BinaryMask | AlphaMask
-
-/** Strictly 0 or 1 */
-export interface BinaryMask extends BaseMask {
-  readonly type: MaskType.BINARY
-}
-
-/** Strictly 0-255 */
-export interface AlphaMask extends BaseMask {
-  readonly type: MaskType.ALPHA
-}
-
-interface BasePaintMask {
-  readonly centerOffsetX: number
-  readonly centerOffsetY: number
-}
-
-export interface PaintAlphaMask extends BasePaintMask, AlphaMask {
-}
-
-export interface PaintBinaryMask extends BasePaintMask, BinaryMask {
-}
-
-export type PaintMask = PaintAlphaMask | PaintBinaryMask
 
 /**
  * Configuration for pixel manipulation operations.
@@ -138,7 +62,6 @@ export interface MaskOffset {
 }
 
 export interface InvertMask {
-
   /**
    * If true the inverse of the mask will be applied
    * @default false
@@ -158,7 +81,6 @@ export interface ApplyMaskToPixelDataOptions extends PixelRect, Alpha, MaskOffse
 }
 
 export interface MergeAlphaMasksOptions extends PixelRect, Alpha, MaskOffset, InvertMask {
-
 }
 
 export interface PixelMutateOptions extends PixelRect, MaskOffset, InvertMask {
@@ -208,42 +130,4 @@ export interface ColorBlendOptions extends PixelRect, Alpha {
 }
 
 export interface ColorBlendMaskOptions extends ColorBlendOptions, MaskOffset, InvertMask {
-}
-
-export interface ColorBlendPaintMaskOptions extends Omit<ColorBlendOptions, 'w' | 'h'> {
-}
-
-export type MaskRect<T extends MaskType> = Rect & {
-  type: T
-  data: Uint8Array
-}
-
-export type BinaryMaskRect = MaskRect<MaskType.BINARY>
-
-export type AlphaMaskRect = MaskRect<MaskType.ALPHA>
-
-export type NullableBinaryMaskRect = Rect & ({
-  type: MaskType.BINARY
-  data: Uint8Array
-} | {
-  type?: null
-  data?: null
-})
-
-export type NullableMaskRect = Rect & ({
-  type: MaskType
-  data: Uint8Array
-} | {
-  type?: null
-  data?: null
-})
-
-export interface IPixelData32 {
-  readonly data32: Uint32Array
-  readonly width: number
-  readonly height: number
-}
-
-export interface IPixelData<T extends ImageDataLike = ImageData> extends IPixelData32 {
-  readonly imageData: T
 }

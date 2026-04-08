@@ -1,5 +1,5 @@
+import type { PixelData32 } from '@/PixelData/_pixelData-types'
 import sharp from 'sharp'
-import { PixelData } from '../../src'
 
 export async function uint32ArrayToPngBuffer(
   data: Uint32Array,
@@ -19,6 +19,6 @@ export async function uint32ArrayToPngBuffer(
   return await image.png({ compressionLevel: 9 }).toBuffer()
 }
 
-export async function pixelDataToPngBuffer(target: PixelData) {
-  return uint32ArrayToPngBuffer(target.data32, target.width, target.height)
+export async function pixelDataToPngBuffer(target: PixelData32) {
+  return uint32ArrayToPngBuffer(target.data, target.w, target.h)
 }

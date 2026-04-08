@@ -1,4 +1,4 @@
-import { PixelData, pixelDataToAlphaMask } from '@/index'
+import { makePixelData, pixelDataToAlphaMask } from '@/index'
 import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
 
@@ -18,7 +18,7 @@ describe('pixelDataToAlphaMask (Channel Extraction)', () => {
 
     const imageData = createImageData(data, 1, 1) as ImageData
 
-    return new PixelData(imageData)
+    return makePixelData(imageData)
   }
 
   it('extracts full opacity as 255', () => {
@@ -49,7 +49,7 @@ describe('pixelDataToAlphaMask (Channel Extraction)', () => {
     ])
 
     const imageData = createImageData(data, 2, 1) as ImageData
-    const pixels = new PixelData(imageData)
+    const pixels = makePixelData(imageData)
 
     const mask = pixelDataToAlphaMask(pixels)
 

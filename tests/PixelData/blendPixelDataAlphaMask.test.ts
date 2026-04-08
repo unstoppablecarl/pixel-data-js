@@ -1,4 +1,4 @@
-import { blendPixelDataAlphaMask, type Color32, PixelData, sourceOverFast, unpackAlpha, unpackColor } from '@/index'
+import { blendPixelDataAlphaMask, type Color32, makePixelData, sourceOverFast, unpackAlpha, unpackColor } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
 import {
   createTestImageData,
@@ -21,21 +21,21 @@ describe('blendPixelDataAlphaMask', () => {
     it('skips all work for invalid globalAlpha or out-of-bounds targets', () => {
       const dst = makeTestPixelData(1, 1, BLUE)
       const src = makeTestPixelData(1, 1, RED)
-      const mask = makeTestAlphaMask(dst.width, dst.height, 255)
+      const mask = makeTestAlphaMask(dst.w, dst.h, 255)
 
       const r1 = blendPixelDataAlphaMask(dst, src, mask, { alpha: 0 })
       const r2 = blendPixelDataAlphaMask(dst, src, mask, { x: 10, y: 10 })
 
       expect(r1).toBe(false)
       expect(r2).toBe(false)
-      expect(dst.data32[0]).toBe(BLUE)
+      expect(dst.data[0]).toBe(BLUE)
     })
 
     it('bypasses blendFn for transparent source pixels', () => {
       const dst = makeTestPixelData(1, 1, BLUE)
       const src = makeTestPixelData(1, 1, TRANSPARENT)
       const mockBlend = vi.fn(sourceOverFast)
-      const mask = makeTestAlphaMask(dst.width, dst.height, 255)
+      const mask = makeTestAlphaMask(dst.w, dst.h, 255)
 
       const result = blendPixelDataAlphaMask(dst, src, mask, {
         blendFn: mockBlend,
@@ -54,13 +54,13 @@ describe('blendPixelDataAlphaMask', () => {
 
       const r1 = blendPixelDataAlphaMask(dst, src, mask, {})
       expect(r1).toBe(true)
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[1]).toBe(BLUE)
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[1]).toBe(BLUE)
 
       const r2 = blendPixelDataAlphaMask(dst, src, mask, { invertMask: true })
       expect(r2).toBe(true)
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[1]).toBe(RED) // ← note: original expect was wrong — now both RED after invert
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[1]).toBe(RED) // ← note: original expect was wrong — now both RED after invert
     })
 
     it('scales AlphaMask and handles bit-perfect pass-through', () => {
@@ -73,7 +73,7 @@ describe('blendPixelDataAlphaMask', () => {
       })
 
       expect(result).toBe(true)
-      const d32 = dst.data32
+      const d32 = dst.data
       expect(d32[0]).toBe(BLUE)
       expect((d32[1] >>> 24) & 0xff).toBe(128)
       expect(d32[2]).toBe(WHITE)
@@ -95,7 +95,7 @@ describe('blendPixelDataAlphaMask', () => {
         my: 2,
       })
       expect(result).toBe(true)
-      expect(unpack(dst.data32[55])).toEqual(unpack(RED))
+      expect(unpack(dst.data[55])).toEqual(unpack(RED))
     })
 
     it('covers the weight === 0 branch inside the mask block', () => {
@@ -112,7 +112,7 @@ describe('blendPixelDataAlphaMask', () => {
 
       expect(result).toBe(false)
       expect(mockBlend).not.toHaveBeenCalled()
-      expect(dst.data32[0]).toBe(BLUE)
+      expect(dst.data[0]).toBe(BLUE)
     })
   })
 
@@ -120,7 +120,7 @@ describe('blendPixelDataAlphaMask', () => {
     it('handles negative x, y offsets', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
       const src = makeTestPixelData(2, 2, RED)
-      const mask = makeTestAlphaMask(dst.width, dst.height, 255)
+      const mask = makeTestAlphaMask(dst.w, dst.h, 255)
 
       const result = blendPixelDataAlphaMask(dst, src, mask, {
         x: -1,
@@ -130,14 +130,14 @@ describe('blendPixelDataAlphaMask', () => {
       })
 
       expect(result).toBe(true)
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[3]).toBe(BLUE)
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[3]).toBe(BLUE)
     })
 
     it('covers clipping height from the top (y < 0)', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
       const src = makeTestPixelData(2, 2, RED)
-      const mask = makeTestAlphaMask(dst.width, dst.height, 255)
+      const mask = makeTestAlphaMask(dst.w, dst.h, 255)
 
       const result = blendPixelDataAlphaMask(dst, src, mask, {
         x: 0,
@@ -147,14 +147,14 @@ describe('blendPixelDataAlphaMask', () => {
       })
 
       expect(result).toBe(true)
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[2]).toBe(BLUE)
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[2]).toBe(BLUE)
     })
 
     it('covers clipping from the right/bottom edge', () => {
       const dst = makeTestPixelData(2, 2, BLUE)
       const src = makeTestPixelData(5, 5, RED)
-      const mask = makeTestAlphaMask(dst.width, dst.height, 255)
+      const mask = makeTestAlphaMask(dst.w, dst.h, 255)
 
       const result = blendPixelDataAlphaMask(dst, src, mask, {
         x: 1,
@@ -164,8 +164,8 @@ describe('blendPixelDataAlphaMask', () => {
       })
 
       expect(result).toBe(true)
-      expect(dst.data32[3]).toBe(RED)
-      expect(dst.data32[0]).toBe(BLUE)
+      expect(dst.data[3]).toBe(RED)
+      expect(dst.data[0]).toBe(BLUE)
     })
 
     it('handles complex cross-clipping (negative x, sx, y, sy)', () => {
@@ -181,8 +181,8 @@ describe('blendPixelDataAlphaMask', () => {
       })
 
       expect(result).toBe(true)
-      expect(unpack(dst.data32[0])).toEqual(unpack(RED))
-      expect(dst.data32[3]).toBe(BLUE)
+      expect(unpack(dst.data[0])).toEqual(unpack(RED))
+      expect(dst.data[3]).toBe(BLUE)
     })
   })
 
@@ -222,7 +222,7 @@ describe('blendPixelDataAlphaMask', () => {
 
     it('accurately maps every pixel in a complex clipped blit', () => {
       const dst = makeTestPixelData(DW, DH, BLUE)
-      const src = new PixelData(createTestImageData(SW, SH))
+      const src = makePixelData(createTestImageData(SW, SH))
 
       const targetX = 2
       const targetY = 2
@@ -254,7 +254,7 @@ describe('blendPixelDataAlphaMask', () => {
 
             expectPixelToMatch(dst.imageData, dx, dy, expectedSrcX, expectedSrcY)
           } else {
-            expect(dst.data32[dy * DW + dx]).toBe(BLUE)
+            expect(dst.data[dy * DW + dx]).toBe(BLUE)
           }
         }
       }
@@ -262,7 +262,7 @@ describe('blendPixelDataAlphaMask', () => {
 
     it('verifies multi-row mask alignment across every pixel', () => {
       const dst = makeTestPixelData(5, 5, 0)
-      const src = new PixelData(createTestImageData(5, 5))
+      const src = makePixelData(createTestImageData(5, 5))
 
       const mask = makeTestAlphaMask(5, 5)
 
@@ -293,7 +293,7 @@ describe('blendPixelDataAlphaMask', () => {
       const dst = makeTestPixelData(5, 5, BLUE)
       const src = makeTestPixelData(2, 2, RED)
 
-      const mask = makeTestAlphaMask(dst.width, dst.height, 255)
+      const mask = makeTestAlphaMask(dst.w, dst.h, 255)
 
       const result = blendPixelDataAlphaMask(dst, src, mask, {
         x: 0,
@@ -304,15 +304,15 @@ describe('blendPixelDataAlphaMask', () => {
       })
 
       expect(result).toBe(true)
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[1]).toBe(RED)
-      expect(dst.data32[2]).toBe(BLUE)
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[1]).toBe(RED)
+      expect(dst.data[2]).toBe(BLUE)
     })
 
     it('respects my and mx offsets even when clipping occurs', () => {
       const dst = makeTestPixelData(1, 1, BLUE)
       const src = makeTestPixelData(2, 2)
-      src.data32[3] = RED
+      src.data[3] = RED
       const mask = makeTestAlphaMask(2, 2, [0, 0, 0, 255])
 
       const result = blendPixelDataAlphaMask(dst, src, mask, {
@@ -324,7 +324,7 @@ describe('blendPixelDataAlphaMask', () => {
       })
 
       expect(result).toBe(true)
-      expect(dst.data32[0]).toBe(RED)
+      expect(dst.data[0]).toBe(RED)
     })
 
     it('accurately inverts AlphaMask values', () => {
@@ -338,7 +338,7 @@ describe('blendPixelDataAlphaMask', () => {
       })
 
       expect(result).toBe(false)
-      expect(dst.data32[0]).toBe(BLUE)
+      expect(dst.data[0]).toBe(BLUE)
     })
 
     it('hits the (effectiveM === 255) branch for raw color data', () => {
@@ -354,7 +354,7 @@ describe('blendPixelDataAlphaMask', () => {
       })
 
       expect(result).toBe(true)
-      expect((dst.data32[0] >>> 24) & 0xff).toBe(119)
+      expect((dst.data[0] >>> 24) & 0xff).toBe(119)
     })
 
     it('covers the inverse identity branch where globalAlpha is 255', () => {
@@ -368,7 +368,7 @@ describe('blendPixelDataAlphaMask', () => {
       })
 
       expect(result).toBe(true)
-      const resultAlpha = unpackAlpha(dst.data32[0] as Color32)
+      const resultAlpha = unpackAlpha(dst.data[0] as Color32)
       expect(resultAlpha).toBe(120)
     })
   })

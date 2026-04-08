@@ -1,4 +1,6 @@
-import { type AlphaMask, type ApplyMaskToPixelDataOptions, type Color32, type IPixelData32 } from '../_types'
+import { type ApplyMaskToPixelDataOptions } from '../_types'
+import type { AlphaMask } from '../Mask/_mask-types'
+import type { PixelData32 } from './_pixelData-types'
 
 /**
  * Directly applies a mask to a region of PixelData,
@@ -6,14 +8,14 @@ import { type AlphaMask, type ApplyMaskToPixelDataOptions, type Color32, type IP
  * @returns true if any pixels were actually modified.
  */
 export function applyAlphaMaskToPixelData(
-  target: IPixelData32,
+  target: PixelData32,
   mask: AlphaMask,
   opts?: ApplyMaskToPixelDataOptions,
 ): boolean {
   const targetX = opts?.x ?? 0
   const targetY = opts?.y ?? 0
-  const width = opts?.w ?? target.width
-  const height = opts?.h ?? target.height
+  const width = opts?.w ?? target.w
+  const height = opts?.h ?? target.h
   const globalAlpha = opts?.alpha ?? 255
   const mx = opts?.mx ?? 0
   const my = opts?.my ?? 0
@@ -37,8 +39,8 @@ export function applyAlphaMaskToPixelData(
     y = 0
   }
 
-  w = Math.min(w, target.width - x)
-  h = Math.min(h, target.height - y)
+  w = Math.min(w, target.w - x)
+  h = Math.min(h, target.h - y)
 
   if (w <= 0) return false
   if (h <= 0) return false
@@ -70,8 +72,8 @@ export function applyAlphaMaskToPixelData(
   const xShift = sX0 - startX
   const yShift = sY0 - startY
 
-  const dst32 = target.data32
-  const dw = target.width
+  const dst32 = target.data
+  const dw = target.w
   const dStride = dw - finalW
   const mStride = mPitch - finalW
   const maskData = mask.data
@@ -80,51 +82,86 @@ export function applyAlphaMaskToPixelData(
   let mIdx = sY0 * mPitch + sX0
 
   let didChange = false
-  for (let iy = 0; iy < h; iy++) {
-    for (let ix = 0; ix < w; ix++) {
-      const mVal = maskData[mIdx]
-      // Unified logic branch inside the hot path
-      const effectiveM = invertMask ? 255 - mVal : mVal
+  if (invertMask) {
+    for (let iy = 0; iy < finalH; iy++) {
+      for (let ix = 0; ix < finalW; ix++) {
+        const effectiveM = 255 - maskData[mIdx]
 
-      let weight = 0
+        if (effectiveM === 0) {
+          const current = dst32[dIdx]
+          const next = (current & 0x00ffffff) >>> 0
 
-      if (effectiveM === 0) {
-        weight = 0
-      } else if (effectiveM === 255) {
-        weight = globalAlpha
-      } else if (globalAlpha === 255) {
-        weight = effectiveM
-      } else {
-        weight = (effectiveM * globalAlpha + 128) >> 8
-      }
-
-      if (weight === 0) {
-        // Clear alpha channel
-        dst32[dIdx] = (dst32[dIdx] & 0x00ffffff) >>> 0
-        didChange = true
-      } else if (weight !== 255) {
-        // Merge alpha channel
-        const d = dst32[dIdx]
-        const da = d >>> 24
-
-        if (da !== 0) {
-          const finalAlpha = da === 255 ? weight : (da * weight + 128) >> 8
-
-          const current = dst32[dIdx] as Color32
-          const next = ((d & 0x00ffffff) | (finalAlpha << 24)) >>> 0
           if (current !== next) {
             dst32[dIdx] = next
             didChange = true
           }
+        } else {
+          const t1 = effectiveM * globalAlpha + 128
+          const weight = (t1 + (t1 >> 8)) >> 8
+
+          if (weight < 255) {
+            const current = dst32[dIdx]
+            const da = current >>> 24
+
+            if (da !== 0) {
+              const t2 = da * weight + 128
+              const finalAlpha = (t2 + (t2 >> 8)) >> 8
+              const next = ((current & 0x00ffffff) | (finalAlpha << 24)) >>> 0
+
+              if (current !== next) {
+                dst32[dIdx] = next
+                didChange = true
+              }
+            }
+          }
         }
+
+        dIdx++
+        mIdx++
       }
-
-      dIdx++
-      mIdx++
+      dIdx += dStride
+      mIdx += mStride
     }
+  } else {
+    for (let iy = 0; iy < finalH; iy++) {
+      for (let ix = 0; ix < finalW; ix++) {
+        const effectiveM = maskData[mIdx]
 
-    dIdx += dStride
-    mIdx += mStride
+        if (effectiveM === 0) {
+          const current = dst32[dIdx]
+          const next = (current & 0x00ffffff) >>> 0
+
+          if (current !== next) {
+            dst32[dIdx] = next
+            didChange = true
+          }
+        } else {
+          const t1 = effectiveM * globalAlpha + 128
+          const weight = (t1 + (t1 >> 8)) >> 8
+
+          if (weight < 255) {
+            const current = dst32[dIdx]
+            const da = current >>> 24
+
+            if (da !== 0) {
+              const t2 = da * weight + 128
+              const finalAlpha = (t2 + (t2 >> 8)) >> 8
+              const next = ((current & 0x00ffffff) | (finalAlpha << 24)) >>> 0
+
+              if (current !== next) {
+                dst32[dIdx] = next
+                didChange = true
+              }
+            }
+          }
+        }
+
+        dIdx++
+        mIdx++
+      }
+      dIdx += dStride
+      mIdx += mStride
+    }
   }
   return didChange
 }

@@ -1,21 +1,22 @@
-import { type IPixelData32, type Rect } from '../_types'
-import { makeClippedBlit, resolveBlitClipping } from '../Internal/resolveClipping'
+import type { Rect } from '../Rect/_rect-types'
+import { makeClippedBlit, resolveBlitClipping } from '../Rect/resolveClipping'
+import type { PixelData32 } from './_pixelData-types'
 
 const SCRATCH_BLIT = makeClippedBlit()
 
 /**
- * Copies a pixel buffer into a specific region of a {@link IPixelData32} object.
+ * Copies a pixel buffer into a specific region of a {@link PixelData32} object.
  *
  * This function performs a direct memory copy from a {@link Uint32Array}
  * into the target buffer.
  */
 export function writePixelDataBuffer(
-  target: IPixelData32,
+  target: PixelData32,
   data: Uint32Array,
   rect: Rect,
 ): void
 export function writePixelDataBuffer(
-  target: IPixelData32,
+  target: PixelData32,
   data: Uint32Array,
   x: number,
   y: number,
@@ -23,7 +24,7 @@ export function writePixelDataBuffer(
   h: number,
 ): void
 export function writePixelDataBuffer(
-  target: IPixelData32,
+  target: PixelData32,
   data: Uint32Array,
   _x: Rect | number,
   _y?: number,
@@ -39,9 +40,9 @@ export function writePixelDataBuffer(
       h: _h!,
     }
 
-  const dstW = target.width
-  const dstH = target.height
-  const dstData = target.data32
+  const dstW = target.w
+  const dstH = target.h
+  const dstData = target.data
 
   // treat the source buffer as a Source Image starting at 0,0 with size w,h
   const clip = resolveBlitClipping(

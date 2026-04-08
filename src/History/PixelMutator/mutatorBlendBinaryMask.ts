@@ -1,4 +1,6 @@
-import type { BinaryMask, IPixelData32, PixelBlendMaskOptions } from '../../_types'
+import type { PixelBlendMaskOptions } from '../../_types'
+import type { BinaryMask } from '../../Mask/_mask-types'
+import type { PixelData32 } from '../../PixelData/_pixelData-types'
 import { blendPixelDataBinaryMask } from '../../PixelData/blendPixelDataBinaryMask'
 import { type HistoryMutator, PixelWriter } from '../PixelWriter'
 
@@ -15,14 +17,14 @@ export const mutatorBlendBinaryMask = ((writer: PixelWriter<any>, deps: Partial<
 
   return {
     blendBinaryMask(
-      src: IPixelData32,
+      src: PixelData32,
       mask: BinaryMask,
       opts?: PixelBlendMaskOptions,
     ): boolean {
       const x = opts?.x ?? 0
       const y = opts?.y ?? 0
-      const w = opts?.w ?? src.width
-      const h = opts?.h ?? src.height
+      const w = opts?.w ?? src.w
+      const h = opts?.h ?? src.h
 
       const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
 

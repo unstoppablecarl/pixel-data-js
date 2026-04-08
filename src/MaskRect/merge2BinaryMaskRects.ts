@@ -1,4 +1,4 @@
-import { MaskType, type NullableBinaryMaskRect } from '../_types'
+import { MaskType, type NullableBinaryMaskRect } from '../Mask/_mask-types'
 import { getRectsBounds } from '../Rect/getRectsBounds'
 
 export function merge2BinaryMaskRects(
@@ -34,7 +34,7 @@ export function merge2BinaryMaskRects(
     }
   }
 
- const maskData =  new Uint8Array(bounds.w * bounds.h)
+  const maskData = new Uint8Array(bounds.w * bounds.h)
 
   // --- Write A's contribution ---
   const aOffY = a.y - bounds.y

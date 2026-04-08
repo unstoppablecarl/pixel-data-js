@@ -1,13 +1,5 @@
-import { CANVAS_CTX_FAILED } from '../../support/error-strings'
-
-export type CanvasContext<T> = T extends HTMLCanvasElement
-  ? CanvasRenderingContext2D
-  : OffscreenCanvasRenderingContext2D
-
-export type ReusableCanvas<T extends HTMLCanvasElement | OffscreenCanvas> = {
-  readonly canvas: T
-  readonly ctx: CanvasContext<T>
-}
+import { CANVAS_CTX_FAILED } from '../Internal/_errors'
+import type { CanvasContext, CanvasObjectFactory, ReusableCanvas, ReusableCanvasFactory } from './_canvas-types'
 
 /**
  * Creates a reusable HTMLCanvasElement and context that are not part of the DOM.
@@ -37,8 +29,8 @@ export function makeReusableOffscreenCanvas() {
 }
 
 function makeReusableCanvasMeta<T extends HTMLCanvasElement | OffscreenCanvas>(
-  factory: (w: number, h: number) => T,
-) {
+  factory: CanvasObjectFactory<T>,
+): ReusableCanvasFactory<T> {
   let canvas: T | null = null
   let ctx: CanvasContext<T> | null = null
 

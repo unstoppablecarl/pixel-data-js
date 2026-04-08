@@ -17,7 +17,7 @@ describe('fillPixelData', () => {
       })
 
       expect(result).toBe(false)
-      expect(dst.data32[0]).toBe(BLUE)
+      expect(dst.data[0]).toBe(BLUE)
     })
   })
 
@@ -33,8 +33,8 @@ describe('fillPixelData', () => {
       })
 
       expect(result).toBe(true)
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[3]).toBe(BLUE)
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[3]).toBe(BLUE)
     })
 
     it('clips w/h when fill exceeds destination bounds', () => {
@@ -48,8 +48,8 @@ describe('fillPixelData', () => {
       })
 
       expect(result).toBe(true)
-      expect(dst.data32[3]).toBe(RED)
-      expect(dst.data32[0]).toBe(BLUE)
+      expect(dst.data[3]).toBe(RED)
+      expect(dst.data[0]).toBe(BLUE)
     })
 
     it('covers clipping width from the left (x < 0)', () => {
@@ -63,9 +63,9 @@ describe('fillPixelData', () => {
       })
 
       expect(result).toBe(true)
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[2]).toBe(RED)
-      expect(dst.data32[1]).toBe(BLUE)
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[2]).toBe(RED)
+      expect(dst.data[1]).toBe(BLUE)
     })
 
     it('covers clipping height from the top (y < 0)', () => {
@@ -79,9 +79,9 @@ describe('fillPixelData', () => {
       })
 
       expect(result).toBe(true)
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[1]).toBe(RED)
-      expect(dst.data32[2]).toBe(BLUE)
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[1]).toBe(RED)
+      expect(dst.data[2]).toBe(BLUE)
     })
   })
 
@@ -111,9 +111,9 @@ describe('fillPixelData', () => {
 
           const idx = dy * DW + dx
           if (isInside) {
-            expect(dst.data32[idx]).toBe(RED)
+            expect(dst.data[idx]).toBe(RED)
           } else {
-            expect(dst.data32[idx]).toBe(BLUE)
+            expect(dst.data[idx]).toBe(BLUE)
           }
         }
       }
@@ -130,9 +130,9 @@ describe('fillPixelData', () => {
       })
 
       expect(result).toBe(true)
-      expect(dst.data32[4]).toBe(RED)
-      expect(dst.data32[5]).toBe(RED)
-      expect(dst.data32[6]).toBe(BLUE)
+      expect(dst.data[4]).toBe(RED)
+      expect(dst.data[5]).toBe(RED)
+      expect(dst.data[6]).toBe(BLUE)
     })
 
     it('performs a total fill optimization correctly', () => {
@@ -146,7 +146,7 @@ describe('fillPixelData', () => {
       })
 
       expect(result).toBe(true)
-      const allRed = Array.from(dst.data32).every((val) => val === RED)
+      const allRed = Array.from(dst.data).every((val) => val === RED)
       expect(allRed).toBe(true)
     })
   })

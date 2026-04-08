@@ -1,4 +1,5 @@
-import type { BinaryMask, MergeAlphaMasksOptions } from '../_types'
+import type { MergeAlphaMasksOptions } from '../_types'
+import type { BinaryMask } from './_mask-types'
 
 export function mergeBinaryMasks(
   dst: BinaryMask,

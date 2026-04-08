@@ -1,7 +1,7 @@
-import { type ImageDataLike, PixelData } from '@/index'
+import { type ImageDataLike, makePixelData } from '@/index'
 import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
-import { copyPixelData } from '../_helpers'
+import { copyTestPixelData } from '../_helpers'
 
 describe('PixelData', () => {
   it('should initialize width, height, and data32 view', () => {
@@ -11,11 +11,11 @@ describe('PixelData', () => {
     const buffer = new Uint8ClampedArray(16)
     const imageData = createImageData(buffer, width, height) as ImageData
 
-    const pixelData = new PixelData(imageData)
+    const pixelData = makePixelData(imageData)
 
-    expect(pixelData.width).toBe(width)
-    expect(pixelData.height).toBe(height)
-    expect(pixelData.data32.length).toBe(4)
+    expect(pixelData.w).toBe(width)
+    expect(pixelData.h).toBe(height)
+    expect(pixelData.data.length).toBe(4)
   })
 
   it('should correctly map Uint8 colors to a single Uint32 value', () => {
@@ -27,11 +27,11 @@ describe('PixelData', () => {
     buffer[3] = 255
     const imageData = createImageData(buffer, 1, 1) as ImageData
 
-    const pixelData = new PixelData(imageData)
+    const pixelData = makePixelData(imageData)
 
     // On little-endian systems, 0xFF0000FF is Red
     // 0x (Alpha)(Blue)(Green)(Red) -> 0xFF 00 00 FF
-    expect(pixelData.data32[0]).toBe(0xFF0000FF)
+    expect(pixelData.data[0]).toBe(0xFF0000FF)
   })
 
   it('should create a deep copy with the copy() method', () => {
@@ -39,15 +39,15 @@ describe('PixelData', () => {
     buffer.fill(255)
     const imageData = createImageData(buffer, 1, 1) as ImageData
 
-    const original = new PixelData(imageData)
-    const clone = copyPixelData(original)
+    const original = makePixelData(imageData)
+    const clone = copyTestPixelData(original)
 
     // Modify the original
-    original.data32[0] = 0x00000000
+    original.data[0] = 0x00000000
 
-    expect(clone.data32[0]).toBe(0xFFFFFFFF)
-    expect(clone.width).toBe(original.width)
-    expect(clone.height).toBe(original.height)
+    expect(clone.data[0]).toBe(0xFFFFFFFF)
+    expect(clone.w).toBe(original.w)
+    expect(clone.h).toBe(original.h)
     expect(clone).not.toBe(original)
   })
 
@@ -69,11 +69,11 @@ describe('PixelData', () => {
       }
     }
 
-    const pixelData = new PixelData<MockImageData>(new MockImageData(new Uint8ClampedArray(4), 1, 1))
-    const copied = copyPixelData(pixelData)
+    const pixelData = makePixelData<MockImageData>(new MockImageData(new Uint8ClampedArray(4), 1, 1))
+    const copied = copyTestPixelData(pixelData)
 
-    expect(copied.width).toBe(1)
-    expect(copied.height).toBe(1)
+    expect(copied.w).toBe(1)
+    expect(copied.h).toBe(1)
     expect(copied.imageData).toBeInstanceOf(MockImageData)
   })
 })

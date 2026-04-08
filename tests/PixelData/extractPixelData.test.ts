@@ -1,4 +1,4 @@
-import { extractPixelData, PixelData, type Rect } from '@/index'
+import { extractPixelData, makePixelData, type Rect } from '@/index'
 import { ImageData as NapiImageData } from '@napi-rs/canvas'
 import { describe, expect, it } from 'vitest'
 
@@ -6,10 +6,10 @@ describe('extractPixelData', () => {
   const createTestPixelData = (w: number, h: number) => {
     const buffer = new Uint8ClampedArray(w * h * 4)
     const imageData = new NapiImageData(buffer, w, h) as unknown as ImageData
-    const pd = new PixelData(imageData)
+    const pd = makePixelData(imageData)
 
-    for (let i = 0; i < pd.data32.length; i++) {
-      pd.data32[i] = i + 1
+    for (let i = 0; i < pd.data.length; i++) {
+      pd.data[i] = i + 1
     }
 
     return pd
@@ -17,12 +17,16 @@ describe('extractPixelData', () => {
 
   it('should return a new PixelData instance with correct dimensions', () => {
     const source = createTestPixelData(10, 10)
-    const result = extractPixelData(source, 0, 0, 5, 5)
+    const w = 5
+    const h = 6
+    const result = extractPixelData(source, 0, 0, w, h)
 
-    expect(result).toBeInstanceOf(PixelData)
-    expect(result.width).toBe(5)
-    expect(result.height).toBe(5)
-    expect(result.data32.length).toBe(25)
+    expect(result.w).toBe(w)
+    expect(result.h).toBe(h)
+    expect(result.imageData.width).toBe(w)
+    expect(result.imageData.height).toBe(h)
+
+    expect(result.data.length).toBe(w * h)
   })
 
   it('should extract correct pixel values using individual arguments', () => {
@@ -30,8 +34,8 @@ describe('extractPixelData', () => {
     // [[1, 2], [3, 4]] -> Extract second column [2, 4]
     const result = extractPixelData(source, 1, 0, 1, 2)
 
-    expect(result.data32[0]).toBe(2)
-    expect(result.data32[1]).toBe(4)
+    expect(result.data[0]).toBe(2)
+    expect(result.data[1]).toBe(4)
   })
 
   it('should extract correct pixel values using a Rect object', () => {
@@ -45,18 +49,18 @@ describe('extractPixelData', () => {
 
     const result = extractPixelData(source, rect)
 
-    expect(result.width).toBe(2)
+    expect(result.w).toBe(2)
     // Row 2, Col 2 in 4x4 is index 10 (value 11)
-    expect(result.data32[0]).toBe(11)
+    expect(result.data[0]).toBe(11)
   })
 
   it('should handle out-of-bounds regions by returning a cleared PixelData', () => {
     const source = createTestPixelData(2, 2)
     const result = extractPixelData(source, 10, 10, 2, 2)
 
-    expect(result.width).toBe(2)
-    expect(result.height).toBe(2)
-    expect(result.data32.every((v) => v === 0)).toBe(true)
+    expect(result.w).toBe(2)
+    expect(result.h).toBe(2)
+    expect(result.data.every((v) => v === 0)).toBe(true)
   })
 
   it('should ensure the returned PixelData has a valid ImageData reference', () => {
@@ -66,6 +70,6 @@ describe('extractPixelData', () => {
     // This is critical for your production "no ImageDataLike" rule
     expect(result.imageData).toBeDefined()
     expect(result.imageData.width).toBe(1)
-    expect(result.data32.buffer).toBe(result.imageData.data.buffer)
+    expect(result.data.buffer).toBe(result.imageData.data.buffer)
   })
 })

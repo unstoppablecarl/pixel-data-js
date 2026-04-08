@@ -1,4 +1,4 @@
-import type { ImageDataLike } from '../_types'
+import type { ImageDataLike } from './_ImageData-types'
 
 export function copyImageData({ data, width, height }: ImageDataLike): ImageData {
   return new ImageData(data.slice(), width, height)

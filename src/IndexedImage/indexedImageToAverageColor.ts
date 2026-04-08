@@ -1,6 +1,6 @@
 import type { Color32 } from '../_types'
 import { packColor } from '../color'
-import type { IndexedImage } from './IndexedImage'
+import type { IndexedImage } from './_indexedImage-types'
 
 /**
  * Calculates the area-weighted average color of an IndexedImage.

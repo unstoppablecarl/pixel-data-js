@@ -4,6 +4,203 @@ import { makeBlendModeRegistry } from './BlendModeRegistry'
 
 export const overwritePerfect = overwriteBase
 
+export const sourceInPerfect: BlendColor32 = (src, dst) => {
+  const da = (dst >>> 24) & 0xFF
+  if (da === 0) return 0 as Color32
+  if (da === 255) return src
+
+  const sa = (src >>> 24) & 0xFF
+  const sr = src & 0xFF
+  const sg = (src >>> 8) & 0xFF
+  const sb = (src >>> 16) & 0xFF
+
+  // Result: [Sa * Da, Sc * Da]
+  const tR = sr * da
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = sg * da
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = sb * da
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = sa * da
+  const a = (tA + 1 + (tA >> 8)) >> 8
+
+  return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+}
+
+export const sourceOutPerfect: BlendColor32 = (src, dst) => {
+  const da = (dst >>> 24) & 0xFF
+  if (da === 255) return 0 as Color32
+  if (da === 0) return src
+
+  const sa = (src >>> 24) & 0xFF
+  const sr = src & 0xFF
+  const sg = (src >>> 8) & 0xFF
+  const sb = (src >>> 16) & 0xFF
+
+  const invDa = 255 - da
+  // Result: [Sa * (1 - Da), Sc * (1 - Da)]
+  const tR = sr * invDa
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = sg * invDa
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = sb * invDa
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = sa * invDa
+  const a = (tA + 1 + (tA >> 8)) >> 8
+
+  return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+}
+
+export const sourceAtopPerfect: BlendColor32 = (src, dst) => {
+  const sa = (src >>> 24) & 0xFF
+  const da = (dst >>> 24) & 0xFF
+  if (da === 0) return 0 as Color32
+
+  const sr = src & 0xFF
+  const sg = (src >>> 8) & 0xFF
+  const sb = (src >>> 16) & 0xFF
+  const dr = dst & 0xFF
+  const dg = (dst >>> 8) & 0xFF
+  const db = (dst >>> 16) & 0xFF
+
+  const invSa = 255 - sa
+  // Result: [Da, Sc * Da + Dc * (1 - Sa)]
+  const tR = sr * da + dr * invSa
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = sg * da + dg * invSa
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = sb * da + db * invSa
+  const b = (tB + 1 + (tB >> 8)) >> 8
+
+  return ((da << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+}
+
+export const destinationOverPerfect: BlendColor32 = (src, dst) => {
+  const da = (dst >>> 24) & 0xFF
+  if (da === 255) return dst
+  if (da === 0) return src
+
+  const sa = (src >>> 24) & 0xFF
+  const sr = src & 0xFF
+  const sg = (src >>> 8) & 0xFF
+  const sb = (src >>> 16) & 0xFF
+  const dr = dst & 0xFF
+  const dg = (dst >>> 8) & 0xFF
+  const db = (dst >>> 16) & 0xFF
+
+  const invDa = 255 - da
+  // Result: [Da + Sa * (1 - Da), Dc + Sc * (1 - Da)]
+  const tR = dr * 255 + sr * invDa
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = dg * 255 + sg * invDa
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = db * 255 + sb * invDa
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = da * 255 + sa * invDa
+  const a = (tA + 1 + (tA >> 8)) >> 8
+
+  return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+}
+
+export const destinationInPerfect: BlendColor32 = (src, dst) => {
+  const sa = (src >>> 24) & 0xFF
+  if (sa === 0) return 0 as Color32
+  if (sa === 255) return dst
+
+  const da = (dst >>> 24) & 0xFF
+  const dr = dst & 0xFF
+  const dg = (dst >>> 8) & 0xFF
+  const db = (dst >>> 16) & 0xFF
+
+  // Result: [Da * Sa, Dc * Sa]
+  const tR = dr * sa
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = dg * sa
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = db * sa
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = da * sa
+  const a = (tA + 1 + (tA >> 8)) >> 8
+
+  return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+}
+
+export const destinationOutPerfect: BlendColor32 = (src, dst) => {
+  const sa = (src >>> 24) & 0xFF
+  if (sa === 255) return 0 as Color32
+  if (sa === 0) return dst
+
+  const da = (dst >>> 24) & 0xFF
+  const dr = dst & 0xFF
+  const dg = (dst >>> 8) & 0xFF
+  const db = (dst >>> 16) & 0xFF
+
+  const invSa = 255 - sa
+  // Result: [Da * (1 - Sa), Dc * (1 - Sa)]
+  const tR = dr * invSa
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = dg * invSa
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = db * invSa
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = da * invSa
+  const a = (tA + 1 + (tA >> 8)) >> 8
+
+  return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+}
+
+export const destinationAtopPerfect: BlendColor32 = (src, dst) => {
+  const sa = (src >>> 24) & 0xFF
+  if (sa === 0) return 0 as Color32 // Rule: Final Alpha = Sa
+  const da = (dst >>> 24) & 0xFF
+  if (da === 0) return 0 as Color32
+
+  const sr = src & 0xFF
+  const sg = (src >>> 8) & 0xFF
+  const sb = (src >>> 16) & 0xFF
+  const dr = dst & 0xFF
+  const dg = (dst >>> 8) & 0xFF
+  const db = (dst >>> 16) & 0xFF
+
+  const invDa = 255 - da
+  // Result: [Sa, Dc * Sa + Sc * (1 - Da)]
+  const tR = dr * sa + sr * invDa
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = dg * sa + sg * invDa
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = db * sa + sb * invDa
+  const b = (tB + 1 + (tB >> 8)) >> 8
+
+  return ((sa << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+}
+
+export const xorPerfect: BlendColor32 = (src, dst) => {
+  const sa = (src >>> 24) & 0xFF
+  const da = (dst >>> 24) & 0xFF
+
+  const sr = src & 0xFF
+  const sg = (src >>> 8) & 0xFF
+  const sb = (src >>> 16) & 0xFF
+  const dr = dst & 0xFF
+  const dg = (dst >>> 8) & 0xFF
+  const db = (dst >>> 16) & 0xFF
+
+  const invDa = 255 - da
+  const invSa = 255 - sa
+
+  // Result: [Sa * (1 - Da) + Da * (1 - Sa), Sc * (1 - Da) + Dc * (1 - Sa)]
+  const tR = sr * invDa + dr * invSa
+  const r = (tR + 1 + (tR >> 8)) >> 8
+  const tG = sg * invDa + dg * invSa
+  const g = (tG + 1 + (tG >> 8)) >> 8
+  const tB = sb * invDa + db * invSa
+  const b = (tB + 1 + (tB >> 8)) >> 8
+  const tA = sa * invDa + da * invSa
+  const a = (tA + 1 + (tA >> 8)) >> 8
+
+  return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+}
+
 export const sourceOverPerfect: BlendColor32 = (src, dst) => {
   const sa = (src >>> 24) & 0xFF
   if (sa === 255) return src
@@ -748,6 +945,16 @@ export const dividePerfect: BlendColor32 = (src, dst) => {
 
 export const BASE_PERFECT_BLEND_MODE_FUNCTIONS: Record<number, BlendColor32> = {
   [BaseBlendMode.overwrite]: overwritePerfect,
+
+  [BaseBlendMode.sourceIn]: sourceInPerfect,
+  [BaseBlendMode.sourceOut]: sourceOutPerfect,
+  [BaseBlendMode.sourceAtop]: sourceAtopPerfect,
+  [BaseBlendMode.destinationOver]: destinationOverPerfect,
+  [BaseBlendMode.destinationIn]: destinationInPerfect,
+  [BaseBlendMode.destinationOut]: destinationOutPerfect,
+  [BaseBlendMode.destinationAtop]: destinationAtopPerfect,
+  [BaseBlendMode.xor]: xorPerfect,
+
   [BaseBlendMode.sourceOver]: sourceOverPerfect,
   [BaseBlendMode.darken]: darkenPerfect,
   [BaseBlendMode.multiply]: multiplyPerfect,

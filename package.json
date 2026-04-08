@@ -1,7 +1,7 @@
 {
   "name": "pixel-data-js",
   "type": "module",
-  "version": "0.27.0",
+  "version": "0.28.0",
   "packageManager": "pnpm@10.33.0",
   "description": "JS Pixel and ImageData operations",
   "author": {
@@ -17,7 +17,9 @@
     "color",
     "blend modes",
     "color blend",
-    "canvas"
+    "canvas",
+    "draw",
+    "paint"
   ],
   "main": "./dist/index.prod.cjs",
   "module": "./dist/index.prod.js",
@@ -45,18 +47,17 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest --coverage --project unit",
-    "re-index": "tsx _scripts/re-index.ts",
-    "check": "npm run check-circ && npm run re-index && npm run sort && npm run typecheck",
     "test:build": "pnpm build && vitest run --project dist",
-    "check-circ": "tsx _scripts/check-circular.ts",
     "test:mutation": "stryker run",
-    "docs": "npx typedoc",
-    "typecheck": "tsc --noEmit",
-    "check-exports": "tsx _scripts/check-exports.ts",
+    "re-index": "tsx _scripts/re-index.ts",
+    "check-circ": "tsx _scripts/check-circular.ts",
     "sort": "tsx _scripts/apply-sorting.ts",
+    "check": "pnpm run check-circ && pnpm run re-index && pnpm run sort && pnpm run typecheck && pnpm typedoc",
+    "typecheck": "tsc --noEmit",
     "bench": "tsx ./benchmark/run.ts",
     "bench:all": "tsx ./benchmark/run-all.ts",
-    "bench:compare": "tsx ./benchmark/compare.ts"
+    "bench:compare": "tsx ./benchmark/compare.ts",
+    "docs": "pnpm typedoc"
   },
   "devDependencies": {
     "@clack/prompts": "^1.1.0",
@@ -67,7 +68,6 @@
     "@stryker-mutator/vitest-runner": "^9.5.1",
     "@types/cli-progress": "^3.11.6",
     "@types/node": "^25.2.3",
-    "@vitest/browser": "3.2.4",
     "@vitest/coverage-v8": "3.2.4",
     "cli-progress": "^3.12.0",
     "cmd-ts": "^0.15.0",
@@ -88,7 +88,7 @@
     "typedoc-plugin-mdn-links": "^5.1.1",
     "typedoc-rhineai-theme": "^1.2.0",
     "typescript": "^5.9.3",
-    "unplugin-inline": "^1.14.0",
+    "unplugin-inline": "^1.15.0",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "3.2.4"
   },

@@ -1,5 +1,7 @@
-import type { Color32, IPixelData32, PaintBinaryMask } from '@/_types'
+import type { Color32 } from '@/_types'
 import { sourceOverPerfect } from '@/BlendModes/blend-modes-perfect'
+import type { PaintBinaryMask } from '@/Paint/_paint-types'
+import type { PixelData32 } from '@/PixelData/_pixelData-types'
 import * as BinaryModule from '@/PixelData/blendColorPixelDataBinaryMask'
 import { blendColorPixelDataPaintBinaryMask } from '@/PixelData/blendColorPixelDataPaintBinaryMask'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -15,7 +17,7 @@ describe('blendColorPixelDataPaintBinaryMask', () => {
 
   it('should calculate correct target position using centerOffset', () => {
     const blendColorPixelDataBinaryMask = BinaryModule.blendColorPixelDataBinaryMask
-    const mockDst: IPixelData32 = {} as IPixelData32
+    const mockDst: PixelData32 = {} as PixelData32
     const mockColor: Color32 = 0xFF0000FF as Color32
     const mockMask: PaintBinaryMask = {
       centerOffsetX: 10,
@@ -56,7 +58,7 @@ describe('blendColorPixelDataPaintBinaryMask', () => {
   it('should use default values when alpha and blendFn are not provided', () => {
     const blendColorPixelDataBinaryMask = BinaryModule.blendColorPixelDataBinaryMask
 
-    const mockDst: IPixelData32 = {} as IPixelData32
+    const mockDst: PixelData32 = {} as PixelData32
     const mockColor: Color32 = 0x00FF00FF as Color32
     const mockMask: PaintBinaryMask = {
       centerOffsetX: 5,
@@ -83,7 +85,7 @@ describe('blendColorPixelDataPaintBinaryMask', () => {
   it('should override blendFn when provided', () => {
     const blendColorPixelDataBinaryMask = BinaryModule.blendColorPixelDataBinaryMask
 
-    const mockDst: IPixelData32 = {} as IPixelData32
+    const mockDst: PixelData32 = {} as PixelData32
     const mockColor: Color32 = 0x0000FFFF as Color32
     const mockMask: PaintBinaryMask = { centerOffsetX: 0, centerOffsetY: 0 } as PaintBinaryMask
     const customBlendFn = vi.fn();
@@ -113,7 +115,7 @@ describe('blendColorPixelDataPaintBinaryMask', () => {
   it('should reuse the same SCRATCH_OPTS object', () => {
     const blendColorPixelDataBinaryMask = BinaryModule.blendColorPixelDataBinaryMask
 
-    const mockDst: IPixelData32 = {} as IPixelData32
+    const mockDst: PixelData32 = {} as PixelData32
     const mockMask: PaintBinaryMask = { centerOffsetX: 0, centerOffsetY: 0 } as PaintBinaryMask;
 
     (blendColorPixelDataBinaryMask as any).mockReturnValue(true)

@@ -32,7 +32,7 @@ describe('mutatorClear', () => {
 
     mutator.clear()
 
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, target.width, target.height)
-    expect(spyDeps.fillPixelData).toHaveBeenCalledWith(target, 0, 0, 0, target.width, target.height)
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, target.w, target.h)
+    expect(spyDeps.fillPixelData).toHaveBeenCalledWith(target, 0, 0, 0, target.w, target.h)
   })
 })

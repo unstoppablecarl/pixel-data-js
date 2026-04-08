@@ -1,5 +1,5 @@
 import type { Color32 } from '@/_types'
-import { PixelData } from '@/PixelData/PixelData'
+import type { PixelData } from '@/PixelData/_pixelData-types'
 import { command } from 'cmd-ts'
 import { bench, do_not_optimize } from 'mitata-ts'
 import { fillPixelData as fillPixelDataDist } from '../../../dist/index.prod'
@@ -52,7 +52,7 @@ export const fillPixelDataBenchmark = (opts: FnOptions) => {
       },
       bench(d: PixelData, c: any, r: any) {
         fillPixelDataDist(d, c, r)
-        return do_not_optimize(d.data32[0])
+        return do_not_optimize(d.data[0])
       },
     }
   })

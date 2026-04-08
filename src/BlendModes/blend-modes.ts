@@ -24,6 +24,15 @@ export const BaseBlendMode = {
   exclusion: 20,
   subtract: 21,
   divide: 22,
+
+  sourceIn: 23,
+  sourceOut: 24,
+  sourceAtop: 25,
+  destinationOver: 26,
+  destinationIn: 27,
+  destinationOut: 28,
+  destinationAtop: 29,
+  xor: 30,
 } as const
 
 export interface RequiredBlendModes {

@@ -1,6 +1,6 @@
-import { fileToImageData, UnsupportedFormatError } from '@/index'
+import { ERRORS, fileToImageData, UnsupportedFormatError } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { OFFSCREEN_CANVAS_CTX_FAILED } from '../../support/error-strings'
+
 import {
   OffscreenCanvasMock,
   offscreenCanvasMockContext,
@@ -84,7 +84,7 @@ describe('fileToImageData', () => {
 
     getContextSpy.mockReturnValue(null)
 
-    await expect(fileToImageData(file)).rejects.toThrow(OFFSCREEN_CANVAS_CTX_FAILED)
+    await expect(fileToImageData(file)).rejects.toThrow(ERRORS.OFFSCREEN_CANVAS_CTX_FAILED)
 
     // Ensures cleanup happened despite the throw
     expect(mockBitmap.close).toHaveBeenCalled()

@@ -1,10 +1,12 @@
-import type { Color32, IPixelData32, Rect } from '../_types'
-import { makeClippedRect, resolveRectClipping } from '../Internal/resolveClipping'
+import type { Color32 } from '../_types'
+import type { Rect } from '../Rect/_rect-types'
+import { makeClippedRect, resolveRectClipping } from '../Rect/resolveClipping'
+import type { PixelData32 } from './_pixelData-types'
 
 const SCRATCH_RECT = makeClippedRect()
 
 /**
- * Fills a region or the {@link IPixelData32} buffer with a solid color.
+ * Fills a region or the {@link PixelData32} buffer with a solid color.
  * This function is faster than {@link fillPixelData} but does not
  * return a boolean value indicating changes were made.
  *
@@ -14,7 +16,7 @@ const SCRATCH_RECT = makeClippedRect()
  * buffer is filled.
  */
 export function fillPixelDataFast(
-  target: IPixelData32,
+  target: PixelData32,
   color: Color32,
   rect?: Partial<Rect>,
 ): void
@@ -27,7 +29,7 @@ export function fillPixelDataFast(
  * @param h - Height of the fill area.
  */
 export function fillPixelDataFast(
-  dst: IPixelData32,
+  dst: PixelData32,
   color: Color32,
   x: number,
   y: number,
@@ -35,7 +37,7 @@ export function fillPixelDataFast(
   h: number,
 ): void
 export function fillPixelDataFast(
-  dst: IPixelData32,
+  dst: PixelData32,
   color: Color32,
   _x?: Partial<Rect> | number,
   _y?: number,
@@ -50,8 +52,8 @@ export function fillPixelDataFast(
   if (typeof _x === 'object') {
     x = _x.x ?? 0
     y = _x.y ?? 0
-    w = _x.w ?? dst.width
-    h = _x.h ?? dst.height
+    w = _x.w ?? dst.w
+    h = _x.h ?? dst.h
   } else if (typeof _x === 'number') {
     x = _x
     y = _y!
@@ -60,11 +62,11 @@ export function fillPixelDataFast(
   } else {
     x = 0
     y = 0
-    w = dst.width
-    h = dst.height
+    w = dst.w
+    h = dst.h
   }
 
-  const clip = resolveRectClipping(x, y, w, h, dst.width, dst.height, SCRATCH_RECT)
+  const clip = resolveRectClipping(x, y, w, h, dst.w, dst.h, SCRATCH_RECT)
 
   if (!clip.inBounds) return
 
@@ -76,11 +78,11 @@ export function fillPixelDataFast(
     h: actualH,
   } = clip
 
-  const dst32 = dst.data32
-  const dw = dst.width
+  const dst32 = dst.data
+  const dw = dst.w
 
   // Optimization: If filling the entire buffer, use the native .fill()
-  if (actualW === dw && actualH === dst.height && finalX === 0 && finalY === 0) {
+  if (actualW === dw && actualH === dst.h && finalX === 0 && finalY === 0) {
     dst32.fill(color)
     return
   }

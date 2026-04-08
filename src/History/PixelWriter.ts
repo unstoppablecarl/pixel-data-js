@@ -1,9 +1,9 @@
-import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
 import { resizeImageData } from '../ImageData/resizeImageData'
-import { PaintBuffer } from '../Paint/PaintBuffer'
-import { blendPixelData } from '../PixelData/blendPixelData'
-import type { PixelData } from '../PixelData/PixelData'
-import { PixelTilePool } from '../PixelTile/PixelTilePool'
+import type { PixelData } from '../PixelData/_pixelData-types'
+import { setPixelData } from '../PixelData/PixelData'
+import type { PixelTile } from '../Tile/_tile-types'
+import { makePixelTile } from '../Tile/PixelTile'
+import { TilePool } from '../Tile/TilePool'
 import { type HistoryActionFactory, makeHistoryAction } from './HistoryAction'
 import { HistoryManager } from './HistoryManager'
 import { PixelAccumulator } from './PixelAccumulator'
@@ -14,7 +14,7 @@ export interface PixelWriterOptions {
   tileSize?: number
   historyManager?: HistoryManager
   historyActionFactory?: HistoryActionFactory
-  pixelTilePool?: PixelTilePool,
+  pixelTilePool?: TilePool<PixelTile>,
   accumulator?: PixelAccumulator
 }
 
@@ -44,18 +44,8 @@ export class PixelWriter<M> {
   readonly accumulator: PixelAccumulator
   readonly historyActionFactory: HistoryActionFactory
   readonly config: PixelEngineConfig
-  readonly pixelTilePool: PixelTilePool
-  readonly paintBuffer: PaintBuffer
+  readonly pixelTilePool: TilePool<PixelTile>
   readonly mutator: M
-
-  private blendPixelDataOpts = {
-    alpha: 255,
-    blendFn: sourceOverPerfect,
-    x: 0,
-    y: 0,
-    w: 0,
-    h: 0,
-  }
 
   private _inProgress = false
 
@@ -66,10 +56,9 @@ export class PixelWriter<M> {
     this.config = new PixelEngineConfig(tileSize, target)
     this.historyManager = options?.historyManager ?? new HistoryManager(maxHistorySteps)
     this.historyActionFactory = options?.historyActionFactory ?? makeHistoryAction
-    this.pixelTilePool = options?.pixelTilePool ?? new PixelTilePool(this.config)
+    this.pixelTilePool = options?.pixelTilePool ?? new TilePool(this.config, makePixelTile)
     this.accumulator = options?.accumulator ?? new PixelAccumulator(this.config, this.pixelTilePool)
     this.mutator = mutatorFactory(this)
-    this.paintBuffer = new PaintBuffer(this.config, this.pixelTilePool)
   }
 
   /**
@@ -139,62 +128,22 @@ export class PixelWriter<M> {
     const beforeImageData = target.imageData
     const afterImageData = resizeImageDataFn(beforeImageData, newWidth, newHeight, offsetX, offsetY)
 
-    target.set(afterImageData)
+    setPixelData(target, afterImageData)
 
     this.historyManager.commit({
       undo: () => {
-        target.set(beforeImageData)
+        setPixelData(target, beforeImageData)
         afterUndo?.(beforeImageData)
         after?.(beforeImageData)
       },
       redo: () => {
-        target.set(afterImageData)
+        setPixelData(target, afterImageData)
         afterRedo?.(afterImageData)
         after?.(afterImageData)
       },
     })
   }
-
-  commitPaintBuffer(
-    alpha = 255,
-    blendFn = sourceOverPerfect,
-    blendPixelDataFn = blendPixelData,
-  ) {
-    const paintBuffer = this.paintBuffer
-    const tileShift = paintBuffer.config.tileShift
-    const lookup = paintBuffer.lookup
-
-    const opts = this.blendPixelDataOpts
-
-    opts.alpha = alpha
-    opts.blendFn = blendFn
-
-    for (let i = 0; i < lookup.length; i++) {
-      const tile = lookup[i]
-
-      if (tile) {
-        const didChange = this.accumulator.storeTileBeforeState(tile.id, tile.tx, tile.ty)
-
-        const dx = tile.tx << tileShift
-        const dy = tile.ty << tileShift
-
-        opts.x = dx
-        opts.y = dy
-        opts.w = tile.width
-        opts.h = tile.height
-
-        didChange(
-          blendPixelDataFn(
-            this.config.target,
-            tile,
-            opts,
-          ),
-        )
-      }
-    }
-
-    paintBuffer.clear()
-  }
 }
 
 export type HistoryMutator<T extends {}, D extends {}> = (writer: PixelWriter<any>, deps?: Partial<D>) => T
+

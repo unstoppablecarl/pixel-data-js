@@ -16,7 +16,7 @@ describe('fillPixelDataFast', () => {
         y: 10,
       })
 
-      expect(dst.data32[0]).toBe(BLUE)
+      expect(dst.data[0]).toBe(BLUE)
     })
   })
 
@@ -33,8 +33,8 @@ describe('fillPixelDataFast', () => {
         h: 2,
       })
 
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[3]).toBe(BLUE)
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[3]).toBe(BLUE)
     })
 
     it('clips w/h when fill exceeds destination bounds', () => {
@@ -47,8 +47,8 @@ describe('fillPixelDataFast', () => {
         h: 10,
       })
 
-      expect(dst.data32[3]).toBe(RED)
-      expect(dst.data32[0]).toBe(BLUE)
+      expect(dst.data[3]).toBe(RED)
+      expect(dst.data[0]).toBe(BLUE)
     })
 
     it('covers clipping width from the left (x < 0)', () => {
@@ -62,10 +62,10 @@ describe('fillPixelDataFast', () => {
       })
 
       // dst[0,0] and dst[0,1] (left column) should be RED
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[2]).toBe(RED)
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[2]).toBe(RED)
       // Right column remains BLUE
-      expect(dst.data32[1]).toBe(BLUE)
+      expect(dst.data[1]).toBe(BLUE)
     })
 
     it('covers clipping height from the top (y < 0)', () => {
@@ -79,10 +79,10 @@ describe('fillPixelDataFast', () => {
       })
 
       // dst[0,0] and dst[1,0] (top row) should be RED
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[1]).toBe(RED)
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[1]).toBe(RED)
       // Bottom row remains BLUE
-      expect(dst.data32[2]).toBe(BLUE)
+      expect(dst.data[2]).toBe(BLUE)
     })
   })
 
@@ -111,9 +111,9 @@ describe('fillPixelDataFast', () => {
 
           const idx = dy * DW + dx
           if (isInside) {
-            expect(dst.data32[idx]).toBe(RED)
+            expect(dst.data[idx]).toBe(RED)
           } else {
-            expect(dst.data32[idx]).toBe(BLUE)
+            expect(dst.data[idx]).toBe(BLUE)
           }
         }
       }
@@ -130,12 +130,12 @@ describe('fillPixelDataFast', () => {
       })
 
       // Row 1: (1,1) and (2,1) should be RED
-      expect(dst.data32[4]).toBe(RED)
-      expect(dst.data32[5]).toBe(RED)
+      expect(dst.data[4]).toBe(RED)
+      expect(dst.data[5]).toBe(RED)
 
       // Row 2: (0,2) should still be BLUE.
       // This confirms we didn't fill past the row end.
-      expect(dst.data32[6]).toBe(BLUE)
+      expect(dst.data[6]).toBe(BLUE)
     })
 
     it('performs a total fill optimization correctly', () => {
@@ -148,7 +148,7 @@ describe('fillPixelDataFast', () => {
         h: 5,
       })
 
-      const allRed = Array.from(dst.data32).every((val) => val === RED)
+      const allRed = Array.from(dst.data).every((val) => val === RED)
       expect(allRed).toBe(true)
     })
   })

@@ -1,5 +1,5 @@
-import type { Rect } from '../_types'
-import { makeClippedBlit, resolveBlitClipping } from '../Internal/resolveClipping'
+import type { Rect } from '../Rect/_rect-types'
+import { makeClippedBlit, resolveBlitClipping } from '../Rect/resolveClipping'
 
 const SCRATCH_BLIT = makeClippedBlit()
 

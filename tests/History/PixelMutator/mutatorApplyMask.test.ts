@@ -13,7 +13,7 @@ describe('mutatorApplyMask', () => {
 
   beforeEach(() => {
     vi.resetAllMocks()
-    target.data32.fill(1)
+    target.data.fill(1)
   })
 
   it('should call accumulator for Binary', () => {
@@ -64,8 +64,8 @@ describe('mutatorApplyMask', () => {
     expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(
       0,
       0,
-      target.width,
-      target.height,
+      target.w,
+      target.h,
     )
 
     expect(spyDeps.applyBinaryMaskToPixelData).toHaveBeenCalledWith(
@@ -126,8 +126,8 @@ describe('mutatorApplyMask', () => {
     expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(
       0,
       0,
-      target.width,
-      target.height,
+      target.w,
+      target.h,
     )
 
     expect(spyDeps.applyAlphaMaskToPixelData).toHaveBeenCalledWith(

@@ -6,7 +6,7 @@ import {
   makePerfectBlendModeRegistry,
 } from '@/index'
 import { describe, expect, it } from 'vitest'
-import { unpack } from '../_helpers'
+import { pack, unpack } from '../_helpers'
 
 const PERFECT_BLEND_MODES = makeBlendModeRegistry(BaseBlendMode, BASE_PERFECT_BLEND_MODE_FUNCTIONS, 'test')
 const PERFECT_BLEND_MODE_BY_NAME = PERFECT_BLEND_MODES.nameToBlend
@@ -24,8 +24,16 @@ describe('Color Perfect Blending Functions', () => {
   describe('Common Alpha Branching Logic', () => {
     let indexes = [...PERFECT_BLEND_MODES.indexToBlend.keys()]
 
+    const exclude = [
+      BaseBlendMode.overwrite,
+      BaseBlendMode.sourceIn,
+      BaseBlendMode.sourceOut,
+      BaseBlendMode.destinationIn,
+      BaseBlendMode.destinationAtop,
+    ]
+
     for (let i = 0; i < indexes.length; i++) {
-      if (i === BaseBlendMode.overwrite) continue
+      if (exclude.includes(i as any)) continue
 
       const name = PERFECT_BLEND_MODES.indexToName[i as typeof PERFECT_BLEND_MODES.indexType]!
       const blend = PERFECT_BLEND_MODES.indexToBlend[i as typeof PERFECT_BLEND_MODES.indexType]!
@@ -39,6 +47,76 @@ describe('Color Perfect Blending Functions', () => {
         })
       })
     }
+  })
+
+  describe('Porter-Duff Perfect Modes', () => {
+    const src = pack(255, 0, 0, 128)   // 50% Red
+    const dst = pack(0, 0, 255, 128)   // 50% Blue
+    const opaque = pack(0, 255, 0, 255) // 100% Green
+
+    it('sourceIn', () => {
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.sourceIn(src, transparent))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.sourceIn(src, opaque))).toEqual({ r: 255, g: 0, b: 0, a: 128 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.sourceIn(src, dst))).toEqual({ r: 128, g: 0, b: 0, a: 64 })
+    })
+
+    it('sourceOut', () => {
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.sourceOut(src, opaque))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.sourceOut(src, transparent))).toEqual({ r: 255, g: 0, b: 0, a: 128 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.sourceOut(src, dst))).toEqual({ r: 127, g: 0, b: 0, a: 63 })
+    })
+
+    it('sourceAtop', () => {
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.sourceAtop(src, transparent))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.sourceAtop(src, opaque))).toEqual({ r: 255, g: 127, b: 0, a: 255 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.sourceAtop(src, dst))).toEqual({ r: 128, g: 0, b: 127, a: 128 })
+    })
+
+    it('destinationOver', () => {
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationOver(src, transparent))).toEqual({
+        r: 255,
+        g: 0,
+        b: 0,
+        a: 128,
+      })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationOver(src, opaque))).toEqual({ r: 0, g: 255, b: 0, a: 255 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationOver(src, dst))).toEqual({ r: 127, g: 0, b: 255, a: 191 })
+    })
+
+    it('destinationIn', () => {
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationIn(transparent, dst))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationIn(opaque, dst))).toEqual({ r: 0, g: 0, b: 255, a: 128 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationIn(src, dst))).toEqual({ r: 0, g: 0, b: 128, a: 64 })
+    })
+
+    it('destinationOut', () => {
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationOut(opaque, dst))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationOut(transparent, dst))).toEqual({
+        r: 0,
+        g: 0,
+        b: 255,
+        a: 128,
+      })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationOut(src, dst))).toEqual({ r: 0, g: 0, b: 127, a: 63 })
+    })
+
+    it('destinationAtop', () => {
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationAtop(transparent, dst))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationAtop(opaque, dst))).toEqual({ r: 0, g: 127, b: 255, a: 255 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationAtop(src, dst))).toEqual({ r: 127, g: 0, b: 128, a: 128 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.destinationAtop(opaqueRed, transparent))).toEqual({
+        r: 0,
+        g: 0,
+        b: 0,
+        a: 0,
+      })
+    })
+
+    it('xor', () => {
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.xor(src, transparent))).toEqual({ r: 255, g: 0, b: 0, a: 128 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.xor(transparent, dst))).toEqual({ r: 0, g: 0, b: 255, a: 128 })
+      expect(unpack(PERFECT_BLEND_MODE_BY_NAME.xor(src, dst))).toEqual({ r: 127, g: 0, b: 127, a: 127 })
+    })
   })
 
   describe('overwriteColor32', () => {
@@ -87,6 +165,11 @@ describe('Color Perfect Blending Functions', () => {
   })
 
   describe('sourceOver', () => {
+    it('returns src if dst alpha is 0', () => {
+      const result = PERFECT_BLEND_MODE_BY_NAME.sourceOver(halfAlphaRed, transparent)
+      expect(unpack(result)).toEqual(unpack(halfAlphaRed))
+    })
+
     it('returns src if src alpha is 255', () => {
       const result = PERFECT_BLEND_MODE_BY_NAME.sourceOver(opaqueRed, opaqueBlue)
       expect(unpack(result)).toEqual({

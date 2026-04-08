@@ -1,21 +1,21 @@
-import type { IPixelData32 } from '../_types'
-import { PixelTile } from '../PixelTile/PixelTile'
+import type { PixelData32 } from '../PixelData/_pixelData-types'
+import type { PixelTile } from '../Tile/_tile-types'
 
 export type PixelPatchTiles = {
   beforeTiles: PixelTile[]
   afterTiles: PixelTile[]
 }
 
-export function applyPatchTiles(target: IPixelData32, tiles: PixelTile[], tileSize: number) {
+export function applyPatchTiles(target: PixelData32, tiles: PixelTile[], tileSize: number) {
   for (let i = 0; i < tiles.length; i++) {
     const tile = tiles[i]
 
     if (!tile) continue
 
-    const dst = target.data32
-    const src = tile.data32
-    const dstWidth = target.width
-    const dstHeight = target.height
+    const dst = target.data
+    const src = tile.data
+    const dstWidth = target.w
+    const dstHeight = target.h
     const startX = tile.tx * tileSize
     const startY = tile.ty * tileSize
 

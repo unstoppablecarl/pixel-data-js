@@ -42,13 +42,15 @@ ctx.putImageData(imageData, 0, 0)
 ```
 
 ## PixelData
-The [PixelData](src/PixelData/PixelData.ts) class wraps an `ImageData` object for this purpose.
+The [PixelData](src/PixelData/PixelData.ts) interface wraps an `ImageData` object for this purpose.
 
 
 ### Color Integers
 
 You can define colors using the `0xAABBGGRR` (Little-Endian) to make a `Color32` object.
-
+```ts
+const red = 0xFF0000FF as Color32
+```
 
 ## Building
 
@@ -61,6 +63,14 @@ You can define colors using the `0xAABBGGRR` (Little-Endian) to make a `Color32`
 `$ pnpm run test`
 
 `$ pnpm run test:mutation`
+
+## Benchmarking
+
+`$ pnpm run bench`
+
+`$ pnpm run bench:all`
+
+`$ pnpm run bench:compare`
 
 ## Releases Automation
 

@@ -6,7 +6,7 @@ import {
   makeFastBlendModeRegistry,
 } from '@/index'
 import { describe, expect, it } from 'vitest'
-import { unpack } from '../_helpers'
+import { pack, unpack } from '../_helpers'
 
 const FAST_BLEND_MODES = makeBlendModeRegistry(BaseBlendMode, BASE_FAST_BLEND_MODE_FUNCTIONS, 'test')
 const FAST_BLEND_MODE_BY_NAME = FAST_BLEND_MODES.nameToBlend
@@ -23,9 +23,19 @@ describe('Color Fast Blending Functions', () => {
 
   describe('Common Alpha Branching Logic', () => {
     let indexes = [...FAST_BLEND_MODES.indexToBlend.keys()]
-    for (let i = 0; i < indexes.length; i++) {
 
-      if (i === BaseBlendMode.overwrite) continue
+    const exclude = [
+      BaseBlendMode.overwrite,
+      BaseBlendMode.sourceIn,
+      BaseBlendMode.sourceOut,
+      BaseBlendMode.destinationIn,
+      BaseBlendMode.destinationAtop,
+      BaseBlendMode.sourceAtop,
+      BaseBlendMode.xor,
+    ]
+
+    for (let i = 0; i < indexes.length; i++) {
+      if (exclude.includes(i as any)) continue
 
       const name = FAST_BLEND_MODES.indexToName[i as typeof FAST_BLEND_MODES.indexType]
       const blend = FAST_BLEND_MODES.indexToBlend[i as typeof FAST_BLEND_MODES.indexType]!
@@ -39,6 +49,86 @@ describe('Color Fast Blending Functions', () => {
         })
       })
     }
+  })
+
+  describe('Porter-Duff Fast Modes', () => {
+    const src = pack(255, 0, 0, 128)    // 50% Red
+    const dst = pack(0, 0, 255, 128)    // 50% Blue
+    const opaque = pack(0, 255, 0, 255)  // 100% Green
+    const empty = pack(0, 0, 0, 0)      // Transparent
+
+    it('sourceIn', () => {
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.sourceIn(src, empty))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.sourceIn(src, opaque))).toEqual({ r: 255, g: 0, b: 0, a: 128 })
+      // sa(128) * da(128) = 16384 >> 8 = 64
+      // sr(255) * da(128) = 32640 >> 8 = 127
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.sourceIn(src, dst))).toEqual({ r: 127, g: 0, b: 0, a: 64 })
+    })
+
+    it('sourceOut', () => {
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.sourceOut(src, opaque))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.sourceOut(src, empty))).toEqual({ r: 255, g: 0, b: 0, a: 128 })
+      // sa(128) * invDa(127) = 16256 >> 8 = 63
+      // sr(255) * invDa(127) = 32385 >> 8 = 126
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.sourceOut(src, dst))).toEqual({ r: 126, g: 0, b: 0, a: 63 })
+    })
+
+    it('sourceAtop', () => {
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.sourceAtop(src, empty))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
+      // Red (128) atop Green (255) -> 32385 >> 8 = 126 Green remains
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.sourceAtop(src, opaque))).toEqual({ r: 254, g: 126, b: 0, a: 255 })
+      // a: da(128)
+      // r: sr(255) * da(128) = 127
+      // b: dr(255) * invSa(127) = 126
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.sourceAtop(src, dst))).toEqual({ r: 127, g: 0, b: 126, a: 128 })
+    })
+
+    it('destinationOver', () => {
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.destinationOver(src, empty))).toEqual({ r: 255, g: 0, b: 0, a: 128 })
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.destinationOver(src, opaque))).toEqual({ r: 0, g: 255, b: 0, a: 255 })
+      // a: 128 + (128 * 127 >> 8) = 128 + 63 = 191
+      // r: 255 * 127 >> 8 = 126
+      // b: 255 (early return or 255 * 255 >> 8 is 254, but dst is opaque part)
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.destinationOver(src, dst))).toEqual({ r: 126, g: 0, b: 254, a: 191 })
+    })
+
+    it('destinationIn', () => {
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.destinationIn(src, empty))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.destinationIn(opaque, dst))).toEqual({ r: 0, g: 0, b: 255, a: 128 })
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.destinationIn(src, dst))).toEqual({ r: 0, g: 0, b: 127, a: 64 })
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.destinationIn(pack(255, 0, 0, 0), dst))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
+    })
+
+    it('destinationOut', () => {
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.destinationOut(opaque, dst))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.destinationOut(empty, dst))).toEqual({ r: 0, g: 0, b: 255, a: 128 })
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.destinationOut(src, dst))).toEqual({ r: 0, g: 0, b: 126, a: 63 })
+    })
+
+    it('destinationAtop', () => {
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.destinationAtop(empty, dst))).toEqual({ r: 0, g: 0, b: 0, a: 0 })
+      // Blue (128) atop Green (255) -> Green shows 126, Blue 255, Alpha 255
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.destinationAtop(opaque, dst))).toEqual({ r: 0, g: 126, b: 254, a: 255 })
+      // a: sa(128)
+      // b: db(255) * sa(128) >> 8 = 127
+      // r: sr(255) * invDa(127) >> 8 = 126
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.destinationAtop(src, dst))).toEqual({ r: 126, g: 0, b: 127, a: 128 })
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.destinationAtop(opaqueRed, transparent))).toEqual({
+        r: 0,
+        g: 0,
+        b: 0,
+        a: 0,
+      })
+    })
+
+    it('xor', () => {
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.xor(src, empty))).toEqual({ r: 254, g: 0, b: 0, a: 127 })
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.xor(empty, dst))).toEqual({ r: 0, g: 0, b: 254, a: 127 })
+      // a: (128*127 + 128*127) >> 8 = 127
+      // r: 255 * 127 >> 8 = 126
+      // b: 255 * 127 >> 8 = 126
+      expect(unpack(FAST_BLEND_MODE_BY_NAME.xor(src, dst))).toEqual({ r: 126, g: 0, b: 126, a: 127 })
+    })
   })
 
   describe('overwriteColor32', () => {

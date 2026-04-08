@@ -1,4 +1,4 @@
-import { MaskType, type NullableBinaryMaskRect } from '../_types'
+import { MaskType, type NullableBinaryMaskRect } from '../Mask/_mask-types'
 
 export function subtractBinaryMaskRects(
   current: NullableBinaryMaskRect[],

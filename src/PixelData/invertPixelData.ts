@@ -1,10 +1,11 @@
-import { type IPixelData32, type PixelMutateOptions } from '../_types'
-import { makeClippedRect, resolveRectClipping } from '../Internal/resolveClipping'
+import { type PixelMutateOptions } from '../_types'
+import { makeClippedRect, resolveRectClipping } from '../Rect/resolveClipping'
+import type { PixelData32 } from './_pixelData-types'
 
 const SCRATCH_RECT = makeClippedRect()
 
 export function invertPixelData(
-  target: IPixelData32,
+  target: PixelData32,
   opts?: PixelMutateOptions,
 ): boolean {
   const mask = opts?.mask
@@ -12,11 +13,11 @@ export function invertPixelData(
   const targetY = opts?.y ?? 0
   const mx = opts?.mx ?? 0
   const my = opts?.my ?? 0
-  const width = opts?.w ?? target.width
-  const height = opts?.h ?? target.height
+  const width = opts?.w ?? target.w
+  const height = opts?.h ?? target.h
   const invertMask = opts?.invertMask ?? false
 
-  const clip = resolveRectClipping(targetX, targetY, width, height, target.width, target.height, SCRATCH_RECT)
+  const clip = resolveRectClipping(targetX, targetY, width, height, target.w, target.h, SCRATCH_RECT)
 
   if (!clip.inBounds) return false
 
@@ -27,8 +28,8 @@ export function invertPixelData(
     h: actualH,
   } = clip
 
-  const dst32 = target.data32
-  const dw = target.width
+  const dst32 = target.data
+  const dw = target.w
   const mPitch = mask?.w ?? width
 
   const dx = x - targetX

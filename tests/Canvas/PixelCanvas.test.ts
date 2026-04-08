@@ -1,7 +1,6 @@
-import { makePixelCanvas } from '@/index'
+import { ERRORS, makePixelCanvas } from '@/index'
 import { createCanvas } from '@napi-rs/canvas'
 import { describe, expect, it, vi } from 'vitest'
-import { CANVAS_CTX_FAILED } from '../../support/error-strings'
 
 describe('makePixelCanvas', () => {
 
@@ -40,7 +39,7 @@ describe('makePixelCanvas', () => {
     // Force getContext to return null
     vi.spyOn(canvas, 'getContext').mockReturnValue(null)
 
-    expect(() => makePixelCanvas(canvas)).toThrow(CANVAS_CTX_FAILED)
+    expect(() => makePixelCanvas(canvas)).toThrow(ERRORS.CANVAS_CTX_FAILED)
   })
 
   it('maintains the same canvas and context instances in the returned object', () => {

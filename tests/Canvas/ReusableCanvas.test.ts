@@ -1,7 +1,6 @@
-import { makeReusableCanvas, makeReusableOffscreenCanvas } from '@/index'
+import { ERRORS, makeReusableCanvas, makeReusableOffscreenCanvas } from '@/index'
 import { createCanvas } from '@napi-rs/canvas'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { CANVAS_CTX_FAILED } from '../../support/error-strings'
 
 describe('makeReusableCanvas', () => {
   beforeEach(() => {
@@ -55,7 +54,7 @@ describe('makeReusableCanvas', () => {
       return document.createElement(tagName)
     })
 
-    expect(() => get(10, 10)).toThrow(CANVAS_CTX_FAILED)
+    expect(() => get(10, 10)).toThrow(ERRORS.CANVAS_CTX_FAILED)
   })
 
   it('correctly resets closure state', () => {
@@ -140,7 +139,7 @@ describe('makeReusableOffscreenCanvas', () => {
 
     const get = makeReusableOffscreenCanvas()
 
-    expect(() => get(100, 100)).toThrowError(CANVAS_CTX_FAILED)
+    expect(() => get(100, 100)).toThrowError(ERRORS.CANVAS_CTX_FAILED)
   })
 
   it('resizes the existing canvas and reapplies smoothing lock if dimensions change', () => {

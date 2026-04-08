@@ -1,4 +1,5 @@
-import { type Mask, type Rect } from '../_types'
+import type { Rect } from '../Rect/_rect-types'
+import type { Mask } from './_mask-types'
 
 /**
  * Extracts a rectangular region from a 1D {@link Uint8Array} mask.

@@ -1,10 +1,12 @@
-import type { Color32, IPixelData32, Rect } from '../_types'
-import { makeClippedRect, resolveRectClipping } from '../Internal/resolveClipping'
+import type { Color32 } from '../_types'
+import type { Rect } from '../Rect/_rect-types'
+import { makeClippedRect, resolveRectClipping } from '../Rect/resolveClipping'
+import type { PixelData32 } from './_pixelData-types'
 
 const SCRATCH_RECT = makeClippedRect()
 
 /**
- * Fills a region or the {@link IPixelData32} buffer with a solid color.
+ * Fills a region or the {@link PixelData32} buffer with a solid color.
  *
  * @param dst - The target to modify.
  * @param color - The color to apply.
@@ -12,7 +14,7 @@ const SCRATCH_RECT = makeClippedRect()
  * @returns true if any pixels were actually modified.
  */
 export function fillPixelData(
-  dst: IPixelData32,
+  dst: PixelData32,
   color: Color32,
   rect?: Partial<Rect>,
 ): boolean
@@ -25,7 +27,7 @@ export function fillPixelData(
  * @param h - Height of the fill area.
  */
 export function fillPixelData(
-  dst: IPixelData32,
+  dst: PixelData32,
   color: Color32,
   x: number,
   y: number,
@@ -33,7 +35,7 @@ export function fillPixelData(
   h: number,
 ): boolean
 export function fillPixelData(
-  dst: IPixelData32,
+  dst: PixelData32,
   color: Color32,
   _x?: Partial<Rect> | number,
   _y?: number,
@@ -48,8 +50,8 @@ export function fillPixelData(
   if (typeof _x === 'object') {
     x = _x.x ?? 0
     y = _x.y ?? 0
-    w = _x.w ?? dst.width
-    h = _x.h ?? dst.height
+    w = _x.w ?? dst.w
+    h = _x.h ?? dst.h
   } else if (typeof _x === 'number') {
     x = _x
     y = _y!
@@ -58,8 +60,8 @@ export function fillPixelData(
   } else {
     x = 0
     y = 0
-    w = dst.width
-    h = dst.height
+    w = dst.w
+    h = dst.h
   }
 
   const clip = resolveRectClipping(
@@ -67,8 +69,8 @@ export function fillPixelData(
     y,
     w,
     h,
-    dst.width,
-    dst.height,
+    dst.w,
+    dst.h,
     SCRATCH_RECT,
   )
 
@@ -81,8 +83,8 @@ export function fillPixelData(
     h: actualH,
   } = clip
 
-  const dst32 = dst.data32
-  const dw = dst.width
+  const dst32 = dst.data
+  const dw = dst.w
   let hasChanged = false
 
   for (let iy = 0; iy < actualH; iy++) {

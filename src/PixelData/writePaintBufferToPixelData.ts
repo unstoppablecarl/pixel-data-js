@@ -1,13 +1,13 @@
-import type { IPixelData } from '../_types'
-import type { PaintBuffer } from '../Paint/PaintBuffer'
+import type { ColorPaintBuffer } from '../Paint/ColorPaintBuffer'
+import type { PixelData } from './_pixelData-types'
 import { writePixelDataBuffer } from './writePixelDataBuffer'
 
 /**
  * @param writePixelDataBufferFn - @hidden
  */
 export function writePaintBufferToPixelData(
-  target: IPixelData,
-  paintBuffer: PaintBuffer,
+  target: PixelData,
+  paintBuffer: ColorPaintBuffer,
   writePixelDataBufferFn = writePixelDataBuffer,
 ) {
   const tileShift = paintBuffer.config.tileShift
@@ -20,7 +20,7 @@ export function writePaintBufferToPixelData(
       const dx = tile.tx << tileShift
       const dy = tile.ty << tileShift
 
-      writePixelDataBufferFn(target, tile.data32, dx, dy, tile.width, tile.height)
+      writePixelDataBufferFn(target, tile.data, dx, dy, tile.w, tile.h)
     }
   }
 }

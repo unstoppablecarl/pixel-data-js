@@ -1,6 +1,6 @@
 import type { BlendColor32, Color32 } from '../../_types'
 import { sourceOverPerfect } from '../../BlendModes/blend-modes-perfect'
-import { _macro_paintRectCenterOffset } from '../../Internal/helpers'
+import { _macro_paintRectCenterOffset } from '../../Internal/macros'
 import { blendColorPixelData } from '../../PixelData/blendColorPixelData'
 import { type HistoryMutator, PixelWriter } from '../PixelWriter'
 
@@ -32,8 +32,8 @@ export const mutatorBlendColorPaintRect = ((writer: PixelWriter<any>, deps: Deps
     ): boolean {
       const target = writer.config.target
 
-      const topLeftX = centerX + -_macro_paintRectCenterOffset(brushWidth)
-      const topLeftY = centerY + -_macro_paintRectCenterOffset(brushHeight)
+      const topLeftX = centerX + _macro_paintRectCenterOffset(brushWidth)
+      const topLeftY = centerY + _macro_paintRectCenterOffset(brushHeight)
 
       OPTS.x = topLeftX
       OPTS.y = topLeftY

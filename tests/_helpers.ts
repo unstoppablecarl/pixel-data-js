@@ -1,18 +1,17 @@
+import { createCanvas } from '@napi-rs/canvas'
 import { expect } from 'vitest'
 import {
   type AlphaMask,
   type BinaryMask,
   type BinaryMaskRect,
+  type CanvasObjectFactory,
   type Color32,
   type ImageDataLike,
-  type ImageDataLikeConstructor,
-  type IPixelData32,
   makeAlphaMask,
   makeBinaryMask,
-  PaintBuffer,
-  PixelData,
-  PixelEngineConfig,
-  PixelTilePool,
+  makePixelData,
+  type PixelData,
+  type PixelData32,
   type RGBA,
   unpackAlpha,
   unpackBlue,
@@ -53,24 +52,28 @@ export const expectPixelToMatch = (
   expectedY: number,
   overrideStep = 10,
 ) => {
-  const i = (y * img.width + x) * 4
 
   let step: number
+  let h: number
   let d: Uint8ClampedArray
   if ('imageData' in img) {
     d = img.imageData.data
-    step = img.width
+    step = img.w
+    h = img.h
   } else {
     d = img.data
     step = img.width
+    h = img.height
   }
+
+  const i = (y * step + x) * 4
 
   step = overrideStep ?? step
 
   if (d[i] === undefined) {
     throw new Error(
       `Out of Bounds: Accessing index ${i} (x:${x}, y:${y}) in buffer of length ${d.length}.
-       Expected Width: ${img.width}, Expected Height: ${img.height}`,
+       Expected Width: ${step}, Expected Height: ${h}`,
     )
   }
 
@@ -132,6 +135,16 @@ export const pack = (
   b: number,
   a: number,
 ): Color32 => ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+
+export const packStr = (
+  r: number,
+  g: number,
+  b: number,
+  a: number,
+): string => {
+  return `Color32: rgba(${r}, ${g}, ${b}, ${a})`
+}
+
 export const unpack = (c: number) => ({
   r: c & 0xFF,
   g: (c >> 8) & 0xFF,
@@ -139,15 +152,27 @@ export const unpack = (c: number) => ({
   a: (c >>> 24) & 0xFF,
 })
 
+export const unpackStr = (c: number): string => {
+  const r = c & 0xFF
+  const g = (c >>> 8) & 0xFF
+  const b = (c >>> 16) & 0xFF
+  const a = (c >>> 24) & 0xFF
+  return `Color32: rgba(${r}, ${g}, ${b}, ${a})`
+}
+
 export const makeTestPixelData = (
   w: number,
   h: number,
-  fill: number = 0,
+  value?: number | number[],
 ) => {
-  const img = new PixelData(new ImageData(w, h))
-  if (fill !== 0) {
-    img.data32.fill(fill)
+  const img = makePixelData(new ImageData(w, h))
+  if (typeof value === 'number') {
+    img.data.fill(value)
   }
+  if (Array.isArray(value)) {
+    img.data.set(value)
+  }
+
   return img
 }
 
@@ -156,9 +181,9 @@ export const makeTestPixelDataLike = (
   h: number,
   fill: number = 0,
 ) => {
-  const img = new PixelData(makeMockImageData(w, h))
+  const img = makePixelData(makeMockImageData(w, h))
   if (fill !== 0) {
-    img.data32.fill(fill)
+    img.data.fill(fill)
   }
   return img
 }
@@ -168,15 +193,15 @@ export function getPixel(
   x: number,
   y: number,
 ): Color32 {
-  const index = y * src.width + x
+  const index = y * src.w + x
 
-  return src.data32[index] as Color32
+  return src.data[index] as Color32
 }
 
 export function makeComplexTestPixelData(w: number, h: number): PixelData {
   const img = new ImageData(w, h)
-  const pixelData = new PixelData(img)
-  const data = pixelData.data32
+  const pixelData = makePixelData(img)
+  const data = pixelData.data
   for (let i = 0; i < data.length; i++) {
     const x = i % w
     const y = (i / w) | 0
@@ -272,7 +297,7 @@ export const expectPixelToMatchColor = (
   color: Color32,
 ) => {
 
-  const value = getPixelColorFromUInt32Array(target.data32, x, y, target.width)
+  const value = getPixelColorFromUInt32Array(target.data, x, y, target.w)
 
   expect(unpack(color)).toEqual(unpack(value))
 }
@@ -300,12 +325,12 @@ export function forEachPixel(
 ): void {
 
   let index = 0
-  const height = target.height
-  const width1 = target.width
+  const height = target.h
+  const width1 = target.w
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width1; x++) {
-      callback(x, y, target.data32[y * width1 + x] as Color32)
+      callback(x, y, target.data[y * width1 + x] as Color32)
       index++
     }
   }
@@ -360,17 +385,18 @@ export function printAlphaMaskGrid(dst: AlphaMask, sep = ', '): void {
   }
 }
 
-export function printPixelDataGrid(dst: IPixelData32, sep = ', '): void {
-  const w = dst.width
-  const h = dst.height
-  const data = dst.data32
+export function printPixelDataGrid(dst: PixelData32, replace?: Map<number, string>, sep = ', '): void {
+  const w = dst.w
+  const h = dst.h
+  const data = dst.data
 
   for (let y = 0; y < h; y++) {
     let rowString = ''
 
     for (let x = 0; x < w; x++) {
       const index = y * w + x
-      const pixel = data[index]
+      const pixel = replace?.get(data[index]) ?? data[index]
+
       rowString += ('' + pixel).padStart(8, ' ') + sep
     }
 
@@ -378,10 +404,10 @@ export function printPixelDataGrid(dst: IPixelData32, sep = ', '): void {
   }
 }
 
-export function printPixelDataGridColor(dst: IPixelData32): void {
-  const w = dst.width
-  const h = dst.height
-  const data = dst.data32
+export function printPixelDataGridColor(dst: PixelData32): void {
+  const w = dst.w
+  const h = dst.h
+  const data = dst.data
 
   for (let y = 0; y < h; y++) {
     let rowString = ''
@@ -396,10 +422,10 @@ export function printPixelDataGridColor(dst: IPixelData32): void {
   }
 }
 
-export function printPixelDataTable(dst: IPixelData32): void {
-  const w = dst.width
-  const h = dst.height
-  const data = dst.data32
+export function printPixelDataTable(dst: PixelData32): void {
+  const w = dst.w
+  const h = dst.h
+  const data = dst.data
   const grid = []
 
   for (let y = 0; y < h; y++) {
@@ -420,7 +446,15 @@ export function printPixelDataTable(dst: IPixelData32): void {
   console.table(grid)
 }
 
-export function copyPixelData<T extends ImageDataLike = ImageData>(target: PixelData<T>): PixelData<T> {
+export type ImageDataLikeConstructor<T extends ImageDataLike = ImageDataLike> = {
+  new(
+    data: Uint8ClampedArray,
+    width: number,
+    height: number,
+  ): T
+}
+
+export function copyTestPixelData<T extends ImageDataLike = ImageData>(target: PixelData<T>): PixelData<T> {
   const data = target.imageData.data
   const buffer = new Uint8ClampedArray(data)
   const Ctor = target.imageData.constructor
@@ -431,30 +465,42 @@ export function copyPixelData<T extends ImageDataLike = ImageData>(target: Pixel
     const ImageConstructor = Ctor as ImageDataLikeConstructor<T>
     newImageData = new ImageConstructor(
       buffer,
-      target.width,
-      target.height,
+      target.w,
+      target.h,
     )
   } else {
     newImageData = {
-      width: target.width,
-      height: target.height,
+      width: target.w,
+      height: target.h,
       data: buffer,
     } as unknown as T
   }
 
-  return new PixelData<T>(newImageData)
+  return makePixelData<T>(newImageData)
 }
 
-export function makeTestPaintBuffer(tileSize: number, w = 2, h = 2) {
-  const target = makeTestPixelData(tileSize * w, tileSize * h)
-  const config = new PixelEngineConfig(tileSize, target)
-  const tilePool = new PixelTilePool(config)
-  const paintBuffer = new PaintBuffer(config, tilePool)
+export function getColorListFromUint32Array<T = Color32>(target: Uint32Array) {
+  const result = new Set<T>()
+  for (let i = 0; i < target.length; i++) {
 
-  return {
-    target,
-    config,
-    tilePool,
-    paintBuffer,
+    result.add(target[i] as T)
   }
+  return [...result].sort()
+}
+
+export const testCanvasFactory: CanvasObjectFactory<HTMLCanvasElement | OffscreenCanvas> = (w: number, h: number) => {
+  const canvas = createCanvas(1, 1)
+  canvas.width = w
+  canvas.height = h
+  return canvas as unknown as HTMLCanvasElement
+}
+
+export function canvasToTestPixelData(canvas: HTMLCanvasElement | OffscreenCanvas) {
+  const ctx = canvas.getContext('2d') as unknown as CanvasRenderingContext2D
+  return canvasCtxToTestPixelData(ctx)
+}
+
+export function canvasCtxToTestPixelData(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D) {
+  const result = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height)
+  return makePixelData(result)
 }

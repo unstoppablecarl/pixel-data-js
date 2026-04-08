@@ -1,8 +1,9 @@
-import type { BlendColor32, Color32, IPixelData32 } from '../_types'
+import type { BlendColor32, Color32 } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
+import type { PixelData32 } from './_pixelData-types'
 
 export function blendPixel(
-  target: IPixelData32,
+  target: PixelData32,
   x: number,
   y: number,
   color: Color32,
@@ -11,8 +12,8 @@ export function blendPixel(
 ): boolean {
   if (alpha === 0) return false
 
-  let width = target.width
-  let height = target.height
+  let width = target.w
+  let height = target.h
 
   if (x < 0 || x >= width || y < 0 || y >= height) return false
 
@@ -22,7 +23,7 @@ export function blendPixel(
   // Early exit for transparent source unless we are in an overwrite mode
   if (srcAlpha === 0 && !isOverwrite) return false
 
-  let dst32 = target.data32
+  let dst32 = target.data
   let index = y * width + x
   let finalColor = color
 

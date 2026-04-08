@@ -33,7 +33,7 @@ describe('mutatorApplyAlphaMask', () => {
   it('should call accumulator with defaults', () => {
     const mask = makeTestAlphaMask(2, 2, 1)
     mutator.applyAlphaMask(mask)
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, target.width, target.height)
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, target.w, target.h)
     expect(spyDeps.applyAlphaMaskToPixelData).toHaveBeenCalledWith(target, mask, undefined)
   })
 })

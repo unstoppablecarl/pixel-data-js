@@ -14,7 +14,7 @@ describe('writePixelDataBuffer', () => {
 
     // Draw at (-2, -2).
     // This means patch(2,2) should land at dst(0,0)
-    writePixelDataBuffer(dst, patch.data32, -2, -2, patchW, patchH)
+    writePixelDataBuffer(dst, patch.data, -2, -2, patchW, patchH)
 
     const dstPixel = getPixel(dst, 0, 0)
     const srcPixel = getPixel(patch, 2, 2)
@@ -36,7 +36,7 @@ describe('writePixelDataBuffer', () => {
 
     // Draw at (8, 8).
     // Only a 2x2 area from the patch (0,0 to 1,1) fits.
-    writePixelDataBuffer(dst, patch.data32, 8, 8, patchW, patchH)
+    writePixelDataBuffer(dst, patch.data, 8, 8, patchW, patchH)
 
     // Dst(8,8) matches Patch(0,0)
     expect(getPixel(dst, 8, 8)).toBe(getPixel(patch, 0, 0))
@@ -88,7 +88,7 @@ describe('writePixelDataBuffer', () => {
     // Completely off to the top
     writePixelDataBuffer(dst, data, 0, -10, 2, 2)
 
-    const sum = dst.data32.reduce((
+    const sum = dst.data.reduce((
       a,
       b,
     ) => a + b, 0)

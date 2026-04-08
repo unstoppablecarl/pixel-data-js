@@ -1,16 +1,11 @@
-import {
-  type AlphaMask,
-  type ApplyMaskToPixelDataOptions,
-  type BinaryMask,
-  type IPixelData32,
-  type Mask,
-  MaskType,
-} from '../_types'
+import { type ApplyMaskToPixelDataOptions } from '../_types'
+import { type AlphaMask, type BinaryMask, type Mask, MaskType } from '../Mask/_mask-types'
+import type { PixelData32 } from './_pixelData-types'
 import { applyAlphaMaskToPixelData } from './applyAlphaMaskToPixelData'
 import { applyBinaryMaskToPixelData } from './applyBinaryMaskToPixelData'
 
 export function applyMaskToPixelData(
-  dst: IPixelData32,
+  dst: PixelData32,
   mask: Mask,
   opts?: ApplyMaskToPixelDataOptions,
 ): boolean {

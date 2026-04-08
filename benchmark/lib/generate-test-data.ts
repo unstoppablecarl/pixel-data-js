@@ -1,7 +1,9 @@
-import type { AlphaMask, BinaryMask, ImageDataLike } from '@/_types'
+import type { ImageDataLike } from '@/ImageData/_ImageData-types'
+import type { AlphaMask, BinaryMask } from '@/Mask/_mask-types'
 import { makeAlphaMask } from '@/Mask/AlphaMask'
 import { makeBinaryMask } from '@/Mask/BinaryMask'
-import { PixelData } from '@/PixelData/PixelData'
+import type { PixelData } from '@/PixelData/_pixelData-types'
+import { makePixelData } from '@/PixelData/PixelData'
 
 export function makeMulberry32(initialSeed = 0) {
   let seed = initialSeed
@@ -50,8 +52,8 @@ function makeImageData(
 export function makeRndPixelData(w: number, h: number, seed = 1): PixelData {
   const rand = makeMulberry32(seed)
   const img = makeImageData(w, h)
-  const pixelData = new PixelData(img)
-  const data = pixelData.data32
+  const pixelData = makePixelData(img)
+  const data = pixelData.data
 
   for (let i = 0; i < data.length; i++) {
     data[i] = (rand() * 0x100000000) >>> 0
@@ -107,7 +109,7 @@ export const makeRndRealisticPixelData = (
 
   const imageData = uInt32ArrayToImageData(buffer, width, height)
 
-  return new PixelData(imageData)
+  return makePixelData(imageData)
 }
 
 export const makeRndColor = (rand: () => number) => (rand() * 0xFFFFFFFF) >>> 0

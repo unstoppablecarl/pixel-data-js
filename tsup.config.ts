@@ -1,71 +1,73 @@
 import glob from 'fast-glob'
 import fs from 'fs/promises'
 import path from 'path'
+import { SourceMapConsumer } from 'source-map'
 import { defineConfig } from 'tsup'
 import { esbuildPlugin } from 'unplugin-inline'
-import { SourceMapConsumer } from 'source-map';
 
-const macroFunctionPrefix = '_macro_'
+const macroFunctionPrefixes = ['_macro_', '_inline_']
 
 const defaultConfig = {
   sourcemap: true,
   clean: true,
   format: ['cjs', 'esm'],
   async onSuccess() {
-    const distPath = path.resolve('dist');
+    const distPath = path.resolve('dist')
 
     const globOptions = {
       cwd: distPath,
-      absolute: true
-    };
+      absolute: true,
+    }
 
-    const files = await glob(['**/*.js', '**/*.mjs', '**/*.cjs'], globOptions);
+    const files = await glob(['**/*.js', '**/*.mjs', '**/*.cjs'], globOptions)
 
     for (const file of files) {
-      const content = await fs.readFile(file, 'utf-8');
-      const lines = content.split('\n');
+      const content = await fs.readFile(file, 'utf-8')
+      const lines = content.split('\n')
 
       for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
+        const line = lines[i]
+        for (let j = 0; j < macroFunctionPrefixes.length; j++) {
+          const prefix = macroFunctionPrefixes[j]
+          if (line.includes(prefix)) {
+            const lineNumber = i + 1
+            const columnNumber = line.indexOf(prefix)
+            const mapPath = `${file}.map`
 
-        if (line.includes(macroFunctionPrefix)) {
-          const lineNumber = i + 1;
-          const columnNumber = line.indexOf(macroFunctionPrefix);
-          const mapPath = `${file}.map`;
+            let sourceMsg = `📍 Location: ${file}:${lineNumber}`
 
-          let sourceMsg = `📍 Location: ${file}:${lineNumber}`;
+            try {
+              const mapContent = await fs.readFile(mapPath, 'utf-8')
+              const rawSourceMap = JSON.parse(mapContent)
+              const consumer = await new SourceMapConsumer(rawSourceMap)
 
-          try {
-            const mapContent = await fs.readFile(mapPath, 'utf-8');
-            const rawSourceMap = JSON.parse(mapContent);
-            const consumer = await new SourceMapConsumer(rawSourceMap);
+              const pos = consumer.originalPositionFor({
+                line: lineNumber,
+                column: columnNumber,
+              })
 
-            const pos = consumer.originalPositionFor({
-              line: lineNumber,
-              column: columnNumber
-            });
+              if (pos.source && pos.line) {
+                const dir = path.dirname(file)
+                const originalPath = path.resolve(dir, pos.source)
 
-            if (pos.source && pos.line) {
-              const dir = path.dirname(file);
-              const originalPath = path.resolve(dir, pos.source);
+                sourceMsg = `📍 Source Location: ${originalPath}:${pos.line}`
+              }
 
-              sourceMsg = `📍 Source Location: ${originalPath}:${pos.line}`;
+              consumer.destroy()
+            } catch (err) {
+              console.log(`⚠️ Warning: Could not parse sourcemap for ${file}`)
             }
 
-            consumer.destroy();
-          } catch (err) {
-            console.log(`⚠️ Warning: Could not parse sourcemap for ${file}`);
+            console.error(`\n❌ Build Error: function not inlined:  (macroFunctionPrefix: "${prefix}") found!`)
+            console.error(sourceMsg)
+            process.exit(1)
           }
-
-          console.error(`\n❌ Build Error: macro function not inlined:  (macroFunctionPrefix: "${macroFunctionPrefix}") found!`);
-          console.error(sourceMsg);
-          process.exit(1);
         }
       }
     }
 
-    console.log('\n✅ Build check passed: No macro functions found.');
-  }
+    console.log('\n✅ Build check passed: No macro functions found.')
+  },
 }
 
 // const DEV = {

@@ -1,4 +1,6 @@
-import { type Color32, type ColorBlendMaskOptions, type IPixelData32, type Mask, MaskType } from '@/_types'
+import { type Color32, type ColorBlendMaskOptions } from '@/_types'
+import { type Mask, MaskType } from '@/Mask/_mask-types'
+import type { PixelData32 } from '@/PixelData/_pixelData-types'
 import * as AlphaModule from '@/PixelData/blendColorPixelDataAlphaMask'
 import * as BinaryModule from '@/PixelData/blendColorPixelDataBinaryMask'
 import { blendColorPixelDataMask } from '@/PixelData/blendColorPixelDataMask'
@@ -18,7 +20,7 @@ describe('blendColorPixelDataMask', () => {
     const blendColorPixelDataBinaryMask = BinaryModule.blendColorPixelDataBinaryMask
     const blendColorPixelDataAlphaMask = AlphaModule.blendColorPixelDataAlphaMask
 
-    const mockDst: IPixelData32 = {} as IPixelData32
+    const mockDst: PixelData32 = {} as PixelData32
     const mockColor: Color32 = 0xFF0000FF as Color32
     const mockMask: Mask = { type: MaskType.BINARY } as Mask
     const mockOpts: ColorBlendMaskOptions = {} as ColorBlendMaskOptions
@@ -43,7 +45,7 @@ describe('blendColorPixelDataMask', () => {
     const blendColorPixelDataBinaryMask = BinaryModule.blendColorPixelDataBinaryMask
     const blendColorPixelDataAlphaMask = AlphaModule.blendColorPixelDataAlphaMask
 
-    const mockDst: IPixelData32 = {} as IPixelData32
+    const mockDst: PixelData32 = {} as PixelData32
     const mockColor: Color32 = 0x00FF00FF as Color32
     const mockMask: Mask = { type: MaskType.ALPHA } as Mask
     const mockOpts: ColorBlendMaskOptions = {} as ColorBlendMaskOptions
@@ -67,7 +69,7 @@ describe('blendColorPixelDataMask', () => {
   it('should pass undefined options correctly', () => {
     const blendColorPixelDataBinaryMask = BinaryModule.blendColorPixelDataBinaryMask
 
-    const mockDst: IPixelData32 = {} as IPixelData32
+    const mockDst: PixelData32 = {} as PixelData32
     const mockColor: Color32 = 0xFFFFFFFF as Color32
     const mockMask: Mask = { type: MaskType.BINARY } as Mask
 

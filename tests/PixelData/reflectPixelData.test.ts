@@ -1,4 +1,4 @@
-import { PixelData, reflectPixelDataHorizontal, reflectPixelDataVertical } from '@/index'
+import { makePixelData, reflectPixelDataHorizontal, reflectPixelDataVertical } from '@/index'
 import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
 
@@ -8,8 +8,8 @@ describe('Reflection Functions', () => {
       const buffer = new Uint8ClampedArray(4 * 4)
       const imageData = createImageData(buffer, 2, 2) as ImageData
 
-      const pixelData = new PixelData(imageData)
-      const data = pixelData.data32
+      const pixelData = makePixelData(imageData)
+      const data = pixelData.data
 
       // Initial: [1, 2]
       //          [3, 4]
@@ -34,8 +34,8 @@ describe('Reflection Functions', () => {
       const buffer = new Uint8ClampedArray(4 * 4)
       const imageData = createImageData(buffer, 2, 2) as ImageData
 
-      const pixelData = new PixelData(imageData)
-      const data = pixelData.data32
+      const pixelData = makePixelData(imageData)
+      const data = pixelData.data
 
       // Initial: [1, 2]
       //          [3, 4]
@@ -59,12 +59,12 @@ describe('Reflection Functions', () => {
     const buffer = new Uint8ClampedArray(4 * 4)
     const imageData = createImageData(buffer, 2, 2) as ImageData
 
-    const pixelData = new PixelData(imageData)
-    pixelData.data32[0] = 100
+    const pixelData = makePixelData(imageData)
+    pixelData.data[0] = 100
 
     reflectPixelDataHorizontal(pixelData)
     reflectPixelDataHorizontal(pixelData)
 
-    expect(pixelData.data32[0]).toBe(100)
+    expect(pixelData.data[0]).toBe(100)
   })
 })

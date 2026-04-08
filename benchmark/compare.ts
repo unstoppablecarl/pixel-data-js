@@ -14,12 +14,12 @@ runSelf(import.meta.url, () => command({
   args: {
     base: positional({
       displayName: 'base',
-      description: `folder name in ${BENCH_RESULTS_DIR}`,
+      description: `group (folder name in ${BENCH_RESULTS_DIR})`,
       type: string,
     }),
     target: positional({
       displayName: 'target',
-      description: `folder name in ${BENCH_RESULTS_DIR}`,
+      description: `group (folder name in ${BENCH_RESULTS_DIR})`,
       type: string,
     }),
     filter: option({

@@ -1,10 +1,5 @@
-import { CANVAS_CTX_FAILED } from '../../support/error-strings'
-
-export type PixelCanvas = {
-  readonly canvas: HTMLCanvasElement,
-  readonly ctx: CanvasRenderingContext2D,
-  readonly resize: (w: number, h: number) => void
-}
+import { CANVAS_CTX_FAILED } from '../Internal/_errors'
+import type { PixelCanvas } from './_canvas-types'
 
 /**
  * Ensures the canvas ctx is always set to imageSmoothingEnabled = false.

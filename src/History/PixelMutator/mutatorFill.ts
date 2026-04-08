@@ -1,5 +1,6 @@
-import type { Color32, Rect } from '../../_types'
+import type { Color32 } from '../../_types'
 import { fillPixelData } from '../../PixelData/fillPixelData'
+import type { Rect } from '../../Rect/_rect-types'
 import { type HistoryMutator, PixelWriter } from '../PixelWriter'
 
 const defaults = { fillPixelData }
@@ -18,8 +19,8 @@ export const mutatorFill = ((writer: PixelWriter<any>, deps: Deps = defaults) =>
       color: Color32,
       x = 0,
       y = 0,
-      w = writer.config.target.width,
-      h = writer.config.target.height,
+      w = writer.config.target.w,
+      h = writer.config.target.h,
     ) {
       const target = writer.config.target
 
@@ -48,7 +49,7 @@ export const mutatorFillRect = ((writer: PixelWriter<any>, deps: Deps = defaults
 
       const didChange = writer.accumulator.storeRegionBeforeState(rect.x, rect.y, rect.w, rect.h)
       return didChange(
-        fillPixelData(target, color, rect.x, rect.y, rect.w, rect.h)
+        fillPixelData(target, color, rect.x, rect.y, rect.w, rect.h),
       )
     },
   }

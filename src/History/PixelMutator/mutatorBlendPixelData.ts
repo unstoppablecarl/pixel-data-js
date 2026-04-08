@@ -1,4 +1,5 @@
-import type { IPixelData32, PixelBlendOptions } from '../../_types'
+import type { PixelBlendOptions } from '../../_types'
+import type { PixelData32 } from '../../PixelData/_pixelData-types'
 import { blendPixelData } from '../../PixelData/blendPixelData'
 import { type HistoryMutator, PixelWriter } from '../PixelWriter'
 
@@ -15,13 +16,13 @@ export const mutatorBlendPixelData = ((writer: PixelWriter<any>, deps: Partial<D
 
   return {
     blendPixelData(
-      src: IPixelData32,
+      src: PixelData32,
       opts?: PixelBlendOptions,
     ): boolean {
       const x = opts?.x ?? 0
       const y = opts?.y ?? 0
-      const w = opts?.w ?? src.width
-      const h = opts?.h ?? src.height
+      const w = opts?.w ?? src.w
+      const h = opts?.h ?? src.h
 
       const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
 

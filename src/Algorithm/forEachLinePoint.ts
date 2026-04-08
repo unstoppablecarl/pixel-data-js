@@ -9,17 +9,17 @@ export function forEachLinePoint(
   y1: number,
   callback: (x: number, y: number) => void,
 ): void {
+
+  if (x0 === x1 && y0 === y1) {
+    callback(x0, y0)
+    return
+  }
+
   const dx = x1 - x0
   const dy = y1 - y0
 
   // Determine the number of steps based on the longest axis
   const steps = Math.max(Math.abs(dx), Math.abs(dy))
-
-  // Handle the zero-length line (Single Stamp Case)
-  if (steps === 0) {
-    callback(x0, y0)
-    return
-  }
 
   const xInc = dx / steps
   const yInc = dy / steps

@@ -1,4 +1,4 @@
-import { makePaintAlphaMask, makePaintBinaryMask, MaskType } from '@/index'
+import { makePaintAlphaMask, makePaintBinaryMask, MaskType, PaintMaskOutline } from '@/index'
 import { describe, expect, it } from 'vitest'
 import { makeTestAlphaMask, makeTestBinaryMask } from '../_helpers'
 
@@ -10,6 +10,7 @@ describe('paintMask factories', () => {
 
     expect(result).toEqual({
       type: MaskType.BINARY,
+      outlineType: PaintMaskOutline.MASKED,
       data: mask.data,
       w: 3,
       h: 3,
@@ -26,6 +27,7 @@ describe('paintMask factories', () => {
 
     expect(result).toEqual({
       type: MaskType.ALPHA,
+      outlineType: PaintMaskOutline.MASKED,
       data: data,
       w: 4,
       h: 4,

@@ -4,6 +4,165 @@ import { makeBlendModeRegistry } from './BlendModeRegistry'
 
 export const overwriteFast = overwriteBase
 
+export const sourceInFast: BlendColor32 = (src, dst) => {
+  const da = (dst >>> 24) & 0xFF
+  if (da === 0) return 0 as Color32
+  if (da === 255) return src
+
+  const sa = (src >>> 24) & 0xFF
+  const sr = src & 0xFF
+  const sg = (src >>> 8) & 0xFF
+  const sb = (src >>> 16) & 0xFF
+
+  const r = (sr * da) >> 8
+  const g = (sg * da) >> 8
+  const b = (sb * da) >> 8
+  const a = (sa * da) >> 8
+
+  return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+}
+
+export const sourceOutFast: BlendColor32 = (src, dst) => {
+  const da = (dst >>> 24) & 0xFF
+  if (da === 255) return 0 as Color32
+  if (da === 0) return src
+
+  const sa = (src >>> 24) & 0xFF
+  const sr = src & 0xFF
+  const sg = (src >>> 8) & 0xFF
+  const sb = (src >>> 16) & 0xFF
+
+  const invDa = 255 - da
+  const r = (sr * invDa) >> 8
+  const g = (sg * invDa) >> 8
+  const b = (sb * invDa) >> 8
+  const a = (sa * invDa) >> 8
+
+  return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+}
+
+export const sourceAtopFast: BlendColor32 = (src, dst) => {
+  const sa = (src >>> 24) & 0xFF
+  const da = (dst >>> 24) & 0xFF
+  if (da === 0) return 0 as Color32
+
+  const sr = src & 0xFF
+  const sg = (src >>> 8) & 0xFF
+  const sb = (src >>> 16) & 0xFF
+  const dr = dst & 0xFF
+  const dg = (dst >>> 8) & 0xFF
+  const db = (dst >>> 16) & 0xFF
+
+  const invSa = 255 - sa
+  const r = (sr * da + dr * invSa) >> 8
+  const g = (sg * da + dg * invSa) >> 8
+  const b = (sb * da + db * invSa) >> 8
+
+  return ((da << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+}
+
+export const destinationOverFast: BlendColor32 = (src, dst) => {
+  const da = (dst >>> 24) & 0xFF
+  if (da === 255) return dst
+  if (da === 0) return src
+
+  const sa = (src >>> 24) & 0xFF
+  const sr = src & 0xFF
+  const sg = (src >>> 8) & 0xFF
+  const sb = (src >>> 16) & 0xFF
+  const dr = dst & 0xFF
+  const dg = (dst >>> 8) & 0xFF
+  const db = (dst >>> 16) & 0xFF
+
+  const invDa = 255 - da
+  const r = (dr * 255 + sr * invDa) >> 8
+  const g = (dg * 255 + sg * invDa) >> 8
+  const b = (db * 255 + sb * invDa) >> 8
+  const a = (da * 255 + sa * invDa) >> 8
+
+  return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+}
+
+export const destinationInFast: BlendColor32 = (src, dst) => {
+  const sa = (src >>> 24) & 0xFF
+  if (sa === 0) return 0 as Color32
+  if (sa === 255) return dst
+
+  const da = (dst >>> 24) & 0xFF
+  const dr = dst & 0xFF
+  const dg = (dst >>> 8) & 0xFF
+  const db = (dst >>> 16) & 0xFF
+
+  const r = (dr * sa) >> 8
+  const g = (dg * sa) >> 8
+  const b = (db * sa) >> 8
+  const a = (da * sa) >> 8
+
+  return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+}
+
+export const destinationOutFast: BlendColor32 = (src, dst) => {
+  const sa = (src >>> 24) & 0xFF
+  if (sa === 255) return 0 as Color32
+  if (sa === 0) return dst
+
+  const da = (dst >>> 24) & 0xFF
+  const dr = dst & 0xFF
+  const dg = (dst >>> 8) & 0xFF
+  const db = (dst >>> 16) & 0xFF
+
+  const invSa = 255 - sa
+  const r = (dr * invSa) >> 8
+  const g = (dg * invSa) >> 8
+  const b = (db * invSa) >> 8
+  const a = (da * invSa) >> 8
+
+  return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+}
+
+export const destinationAtopFast: BlendColor32 = (src, dst) => {
+  const sa = (src >>> 24) & 0xFF
+  if (sa === 0) return 0 as Color32 // Rule: Final Alpha = Sa
+  const da = (dst >>> 24) & 0xFF
+  if (da === 0) return 0 as Color32
+
+  const sr = src & 0xFF
+  const sg = (src >>> 8) & 0xFF
+  const sb = (src >>> 16) & 0xFF
+  const dr = dst & 0xFF
+  const dg = (dst >>> 8) & 0xFF
+  const db = (dst >>> 16) & 0xFF
+
+  const invDa = 255 - da
+  const r = (dr * sa + sr * invDa) >> 8
+  const g = (dg * sa + sg * invDa) >> 8
+  const b = (db * sa + sb * invDa) >> 8
+
+  return ((sa << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+}
+
+export const xorFast: BlendColor32 = (src, dst) => {
+  const sa = (src >>> 24) & 0xFF
+  const da = (dst >>> 24) & 0xFF
+
+  const sr = src & 0xFF
+  const sg = (src >>> 8) & 0xFF
+  const sb = (src >>> 16) & 0xFF
+  const dr = dst & 0xFF
+  const dg = (dst >>> 8) & 0xFF
+  const db = (dst >>> 16) & 0xFF
+
+  const invDa = 255 - da
+  const invSa = 255 - sa
+
+  const r = (sr * invDa + dr * invSa) >> 8
+  const g = (sg * invDa + dg * invSa) >> 8
+  const b = (sb * invDa + db * invSa) >> 8
+  const a = (sa * invDa + da * invSa) >> 8
+
+  return ((a << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
+}
+
 export const sourceOverFast: BlendColor32 = (src, dst) => {
   const sa = (src >>> 24) & 0xFF
   if (sa === 255) return src
@@ -577,6 +736,16 @@ export const divideFast: BlendColor32 = (src, dst) => {
 
 export const BASE_FAST_BLEND_MODE_FUNCTIONS: Record<number, BlendColor32> = {
   [BaseBlendMode.overwrite]: overwriteFast,
+
+  [BaseBlendMode.sourceIn]: sourceInFast,
+  [BaseBlendMode.sourceOut]: sourceOutFast,
+  [BaseBlendMode.sourceAtop]: sourceAtopFast,
+  [BaseBlendMode.destinationOver]: destinationOverFast,
+  [BaseBlendMode.destinationIn]: destinationInFast,
+  [BaseBlendMode.destinationOut]: destinationOutFast,
+  [BaseBlendMode.destinationAtop]: destinationAtopFast,
+  [BaseBlendMode.xor]: xorFast,
+
   [BaseBlendMode.sourceOver]: sourceOverFast,
   [BaseBlendMode.darken]: darkenFast,
   [BaseBlendMode.multiply]: multiplyFast,

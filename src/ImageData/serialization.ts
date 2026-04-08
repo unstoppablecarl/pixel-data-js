@@ -1,4 +1,4 @@
-import type { Base64EncodedUInt8Array, ImageDataLike, SerializedImageData } from '../_types'
+import type { Base64EncodedUInt8Array, ImageDataLike, SerializedImageData } from './_ImageData-types'
 
 export function base64EncodeArrayBuffer(buffer: ArrayBufferLike): Base64EncodedUInt8Array {
   const uint8 = new Uint8Array(buffer)

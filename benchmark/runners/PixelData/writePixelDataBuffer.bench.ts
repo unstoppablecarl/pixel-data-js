@@ -1,4 +1,4 @@
-import { PixelData } from '@/PixelData/PixelData'
+import type { PixelData } from '@/PixelData/_pixelData-types'
 import { command } from 'cmd-ts'
 import { bench, do_not_optimize } from 'mitata-ts'
 import { writePixelDataBuffer as writePixelDataBufferDist } from '../../../dist/index.prod'
@@ -58,7 +58,7 @@ export const writePixelDataBufferBenchmark = (
       },
       bench(d: PixelData, b: Uint32Array, r: any) {
         writePixelDataBufferDist(d, b, r)
-        return do_not_optimize(d.data32[0])
+        return do_not_optimize(d.data[0])
       },
     }
   })

@@ -1,5 +1,5 @@
 import { toBlendModeIndexAndName } from '@/BlendModes/toBlendModeIndexAndName'
-import { PixelData } from '@/PixelData/PixelData'
+import type { PixelData } from '@/PixelData/_pixelData-types'
 import { command } from 'cmd-ts'
 import { bench, do_not_optimize, group } from 'mitata-ts'
 import { blendPixelData as blendPixelDataDist } from '../../../dist/index.prod'
@@ -59,7 +59,7 @@ export const blendPixelDataBenchmark = (
     h: [rand.int(height), rand.int(height)],
   }
   group(`blendPixelData: ${width}x${height}`, () => {
-    bench(`${type}: ${blendName}: minimal`, function* (state: any) {
+    bench(`${type}: ${blendName}: minimal`, function* (_state: any) {
       const blendOpts = {
         blendFn,
       }
@@ -76,7 +76,7 @@ export const blendPixelDataBenchmark = (
         },
         bench(d: PixelData, s: PixelData, o: any) {
           blendPixelDataDist(d, s, o)
-          return do_not_optimize(d.data32[0])
+          return do_not_optimize(d.data[0])
         },
       }
     })
@@ -101,7 +101,7 @@ export const blendPixelDataBenchmark = (
         },
         bench(d: PixelData, s: PixelData, o: any) {
           blendPixelDataDist(d, s, o)
-          return do_not_optimize(d.data32[0])
+          return do_not_optimize(d.data[0])
         },
       }
     })
@@ -137,7 +137,7 @@ export const blendPixelDataBenchmark = (
         },
         bench(d: PixelData, s: PixelData, o: any) {
           blendPixelDataDist(d, s, o)
-          return do_not_optimize(d.data32[0])
+          return do_not_optimize(d.data[0])
         },
       }
     })

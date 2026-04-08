@@ -1,4 +1,4 @@
-import { type Mask } from '../_types'
+import type { Mask } from './_mask-types'
 
 /**
  * Creates a new copy of a mask.

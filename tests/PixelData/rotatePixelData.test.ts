@@ -1,4 +1,4 @@
-import { PixelData, rotatePixelData } from '@/index'
+import { makePixelData, rotatePixelData } from '@/index'
 import { createImageData } from '@napi-rs/canvas/node-canvas'
 import { describe, expect, it } from 'vitest'
 
@@ -6,8 +6,8 @@ describe('rotatePixelData', () => {
   it('should rotate a square 2x2 image in-place', () => {
     const imageData = createImageData(2, 2) as ImageData
 
-    const pixelData = new PixelData(imageData)
-    const data = pixelData.data32
+    const pixelData = makePixelData(imageData)
+    const data = pixelData.data
 
     // Initial: [1, 2]
     //          [3, 4]
@@ -24,15 +24,15 @@ describe('rotatePixelData', () => {
     expect(data[1]).toBe(1)
     expect(data[2]).toBe(4)
     expect(data[3]).toBe(2)
-    expect(pixelData.width).toBe(2)
-    expect(pixelData.height).toBe(2)
+    expect(pixelData.w).toBe(2)
+    expect(pixelData.h).toBe(2)
   })
 
   it('should rotate a rectangular 3x2 image and update dimensions', () => {
     const imageData = createImageData(3, 2) as ImageData
 
-    const pixelData = new PixelData(imageData)
-    const data = pixelData.data32
+    const pixelData = makePixelData(imageData)
+    const data = pixelData.data
 
     // Initial (3w x 2h):
     // [1, 2, 3]
@@ -50,31 +50,31 @@ describe('rotatePixelData', () => {
     // [4, 1]
     // [5, 2]
     // [6, 3]
-    expect(pixelData.width).toBe(2)
-    expect(pixelData.height).toBe(3)
-    expect(pixelData.data32[0]).toBe(4)
-    expect(pixelData.data32[1]).toBe(1)
-    expect(pixelData.data32[2]).toBe(5)
-    expect(pixelData.data32[3]).toBe(2)
-    expect(pixelData.data32[4]).toBe(6)
-    expect(pixelData.data32[5]).toBe(3)
+    expect(pixelData.w).toBe(2)
+    expect(pixelData.h).toBe(3)
+    expect(pixelData.data[0]).toBe(4)
+    expect(pixelData.data[1]).toBe(1)
+    expect(pixelData.data[2]).toBe(5)
+    expect(pixelData.data[3]).toBe(2)
+    expect(pixelData.data[4]).toBe(6)
+    expect(pixelData.data[5]).toBe(3)
   })
 
   it('should preserve all pixels after a full 360-degree rotation', () => {
     const imageData = createImageData(2, 2) as ImageData
 
-    const pixelData = new PixelData(imageData)
-    pixelData.data32[0] = 10
-    pixelData.data32[1] = 20
-    pixelData.data32[2] = 30
-    pixelData.data32[3] = 40
+    const pixelData = makePixelData(imageData)
+    pixelData.data[0] = 10
+    pixelData.data[1] = 20
+    pixelData.data[2] = 30
+    pixelData.data[3] = 40
 
     rotatePixelData(pixelData)
     rotatePixelData(pixelData)
     rotatePixelData(pixelData)
     rotatePixelData(pixelData)
 
-    expect(pixelData.data32[0]).toBe(10)
-    expect(pixelData.data32[3]).toBe(40)
+    expect(pixelData.data[0]).toBe(10)
+    expect(pixelData.data[3]).toBe(40)
   })
 })

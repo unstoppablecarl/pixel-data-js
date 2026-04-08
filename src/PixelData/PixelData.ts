@@ -1,23 +1,19 @@
-import type { ImageDataLike, IPixelData } from '../_types'
-import { imageDataToUInt32Array } from '../ImageData/imageDataToUInt32Array'
+import type { ImageDataLike } from '../ImageData/_ImageData-types'
+import { _macro_imageDataToUint32Array } from '../ImageData/imageDataToUint32Array'
+import type { PixelData } from './_pixelData-types'
 
-export class PixelData<T extends ImageDataLike = ImageData> implements IPixelData<T> {
-  readonly data32: Uint32Array
-  readonly imageData: T
-  readonly width: number
-  readonly height: number
-
-  constructor(imageData: T) {
-    this.data32 = imageDataToUInt32Array(imageData)
-    this.imageData = imageData
-    this.width = imageData.width
-    this.height = imageData.height
+export function makePixelData<T extends ImageDataLike = ImageData>(imageData: T): PixelData<T> {
+  return {
+    data: _macro_imageDataToUint32Array(imageData),
+    imageData,
+    w: imageData.width,
+    h: imageData.height,
   }
+}
 
-  set(imageData: T): void {
-    ;(this as any).imageData = imageData
-    ;(this as any).data32 = imageDataToUInt32Array(imageData)
-    ;(this as any).width = imageData.width
-    ;(this as any).height = imageData.height
-  }
+export function setPixelData(target: PixelData, imageData: ImageData) {
+  ;(target as any).data = _macro_imageDataToUint32Array(imageData)
+  ;(target as any).imageData = imageData
+  ;(target as any).w = imageData.width
+  ;(target as any).h = imageData.height
 }

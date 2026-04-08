@@ -1,5 +1,6 @@
-import type { IPixelData32, Rect } from '../_types'
-import { makeClippedBlit, resolveBlitClipping } from '../Internal/resolveClipping'
+import type { Rect } from '../Rect/_rect-types'
+import { makeClippedBlit, resolveBlitClipping } from '../Rect/resolveClipping'
+import type { PixelData32 } from './_pixelData-types'
 
 const SCRATCH_BLIT = makeClippedBlit()
 
@@ -7,10 +8,10 @@ const SCRATCH_BLIT = makeClippedBlit()
  * Extracts a rectangular region of pixels from PixelData.
  * Returns a new Uint32Array containing the extracted pixels.
  */
-export function extractPixelDataBuffer(source: IPixelData32, rect: Rect): Uint32Array
-export function extractPixelDataBuffer(source: IPixelData32, x: number, y: number, w: number, h: number): Uint32Array
+export function extractPixelDataBuffer(source: PixelData32, rect: Rect): Uint32Array
+export function extractPixelDataBuffer(source: PixelData32, x: number, y: number, w: number, h: number): Uint32Array
 export function extractPixelDataBuffer(
-  source: IPixelData32,
+  source: PixelData32,
   _x: Rect | number,
   _y?: number,
   _w?: number,
@@ -20,9 +21,9 @@ export function extractPixelDataBuffer(
     ? _x
     : { x: _x, y: _y!, w: _w!, h: _h! }
 
-  const srcW = source.width
-  const srcH = source.height
-  const srcData = source.data32
+  const srcW = source.w
+  const srcH = source.h
+  const srcData = source.data
 
   // Safety check for empty or invalid dimensions
   if (w <= 0 || h <= 0) {

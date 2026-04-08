@@ -22,7 +22,7 @@ describe('fillPixelDataBinaryMask', () => {
       )
 
       expect(result).toBe(false)
-      expect(dst.data32[0]).toBe(BLUE)
+      expect(dst.data[0]).toBe(BLUE)
     })
   })
 
@@ -41,8 +41,8 @@ describe('fillPixelDataBinaryMask', () => {
       )
 
       expect(result).toBe(true)
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[3]).toBe(BLUE)
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[3]).toBe(BLUE)
     })
 
     it('clips bounds when mask exceeds destination bounds', () => {
@@ -59,8 +59,8 @@ describe('fillPixelDataBinaryMask', () => {
       )
 
       expect(result).toBe(true)
-      expect(dst.data32[3]).toBe(RED)
-      expect(dst.data32[0]).toBe(BLUE)
+      expect(dst.data[3]).toBe(RED)
+      expect(dst.data[0]).toBe(BLUE)
     })
 
     it('covers clipping width from the left (x < 0)', () => {
@@ -77,9 +77,9 @@ describe('fillPixelDataBinaryMask', () => {
       )
 
       expect(result).toBe(true)
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[2]).toBe(RED)
-      expect(dst.data32[1]).toBe(BLUE)
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[2]).toBe(RED)
+      expect(dst.data[1]).toBe(BLUE)
     })
 
     it('covers clipping height from the top (y < 0)', () => {
@@ -96,9 +96,9 @@ describe('fillPixelDataBinaryMask', () => {
       )
 
       expect(result).toBe(true)
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[1]).toBe(RED)
-      expect(dst.data32[2]).toBe(BLUE)
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[1]).toBe(RED)
+      expect(dst.data[2]).toBe(BLUE)
     })
   })
 
@@ -130,9 +130,9 @@ describe('fillPixelDataBinaryMask', () => {
           const idx = dy * DW + dx
 
           if (isInside) {
-            expect(dst.data32[idx]).toBe(RED)
+            expect(dst.data[idx]).toBe(RED)
           } else {
-            expect(dst.data32[idx]).toBe(BLUE)
+            expect(dst.data[idx]).toBe(BLUE)
           }
         }
       }
@@ -152,9 +152,9 @@ describe('fillPixelDataBinaryMask', () => {
       )
 
       expect(result).toBe(true)
-      expect(dst.data32[4]).toBe(RED)
-      expect(dst.data32[5]).toBe(RED)
-      expect(dst.data32[6]).toBe(BLUE)
+      expect(dst.data[4]).toBe(RED)
+      expect(dst.data[5]).toBe(RED)
+      expect(dst.data[6]).toBe(BLUE)
     })
 
     it('performs a total fill correctly', () => {
@@ -171,7 +171,7 @@ describe('fillPixelDataBinaryMask', () => {
       )
 
       expect(result).toBe(true)
-      const allRed = Array.from(dst.data32).every((val) => val === RED)
+      const allRed = Array.from(dst.data).every((val) => val === RED)
       expect(allRed).toBe(true)
     })
   })
@@ -215,7 +215,7 @@ describe('fillPixelDataBinaryMask', () => {
 
       const C = COLOR
       expect(result).toBe(true)
-      expect(Array.from(dst.data32)).toEqual([
+      expect(Array.from(dst.data)).toEqual([
         0, 0, 0, 0, 0,
         0, C, C, C, 0,
         0, C, 0, C, 0,
@@ -244,7 +244,7 @@ describe('fillPixelDataBinaryMask', () => {
 
       const C = COLOR
       expect(result).toBe(true)
-      expect(Array.from(dst.data32)).toEqual([
+      expect(Array.from(dst.data)).toEqual([
         0, C, 0, 0, 0,
         C, 0, 0, 0, 0,
         0, 0, 0, 0, 0,

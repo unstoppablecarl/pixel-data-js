@@ -1,4 +1,4 @@
-import { blendPixelData, type Color32, PixelData, sourceOverFast, unpackColor } from '@/index'
+import { blendPixelData, type Color32, makePixelData, sourceOverFast, unpackColor } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
 import { createTestImageData, expectPixelToMatch, makeTestPixelData, pack } from '../_helpers'
 
@@ -23,7 +23,7 @@ describe('blendPixelData', () => {
 
       expect(result1).toBe(false)
       expect(result2).toBe(false)
-      expect(dst.data32[0]).toBe(BLUE)
+      expect(dst.data[0]).toBe(BLUE)
     })
 
     it('bypasses blendFn for transparent source pixels', () => {
@@ -51,8 +51,8 @@ describe('blendPixelData', () => {
       })
 
       expect(result).toBe(true)
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[3]).toBe(BLUE)
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[3]).toBe(BLUE)
     })
 
     it('covers clipping height from the top (y < 0)', () => {
@@ -67,8 +67,8 @@ describe('blendPixelData', () => {
       })
 
       expect(result).toBe(true)
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[2]).toBe(BLUE)
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[2]).toBe(BLUE)
     })
 
     it('covers clipping from the right/bottom edge', () => {
@@ -83,8 +83,8 @@ describe('blendPixelData', () => {
       })
 
       expect(result).toBe(true)
-      expect(dst.data32[3]).toBe(RED)
-      expect(dst.data32[0]).toBe(BLUE)
+      expect(dst.data[3]).toBe(RED)
+      expect(dst.data[0]).toBe(BLUE)
     })
 
     it('handles complex cross-clipping (negative x, sx, y, sy)', () => {
@@ -99,8 +99,8 @@ describe('blendPixelData', () => {
       })
 
       expect(result).toBe(true)
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[3]).toBe(BLUE)
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[3]).toBe(BLUE)
     })
   })
 
@@ -140,7 +140,7 @@ describe('blendPixelData', () => {
 
     it('accurately maps every pixel in a complex clipped blit', () => {
       const dst = makeTestPixelData(DW, DH, BLUE)
-      const src = new PixelData(createTestImageData(SW, SH))
+      const src = makePixelData(createTestImageData(SW, SH))
 
       const targetX = 2
       const targetY = 2
@@ -174,7 +174,7 @@ describe('blendPixelData', () => {
 
             expectPixelToMatch(dst.imageData, dx, dy, expectedSrcX, expectedSrcY)
           } else {
-            expect(dst.data32[dy * DW + dx]).toBe(BLUE)
+            expect(dst.data[dy * DW + dx]).toBe(BLUE)
           }
         }
       }
@@ -195,9 +195,9 @@ describe('blendPixelData', () => {
       })
 
       expect(result).toBe(true)
-      expect(dst.data32[0]).toBe(RED)
-      expect(dst.data32[1]).toBe(RED)
-      expect(dst.data32[2]).toBe(BLUE)
+      expect(dst.data[0]).toBe(RED)
+      expect(dst.data[1]).toBe(RED)
+      expect(dst.data[2]).toBe(BLUE)
     })
   })
 })

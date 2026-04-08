@@ -1,9 +1,11 @@
-import { type AlphaMask, type Color32, type IPixelData32, type PixelBlendMaskOptions } from '../_types'
+import { type Color32, type PixelBlendMaskOptions } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
+import type { AlphaMask } from '../Mask/_mask-types'
+import type { PixelData32 } from './_pixelData-types'
 
 export function blendPixelDataAlphaMask(
-  target: IPixelData32,
-  src: IPixelData32,
+  target: PixelData32,
+  src: PixelData32,
   alphaMask: AlphaMask,
   opts?: PixelBlendMaskOptions,
 ): boolean {
@@ -11,8 +13,8 @@ export function blendPixelDataAlphaMask(
   const targetY = opts?.y ?? 0
   const sourceX = opts?.sx ?? 0
   const sourceY = opts?.sy ?? 0
-  const width = opts?.w ?? src.width
-  const height = opts?.h ?? src.height
+  const width = opts?.w ?? src.w
+  const height = opts?.h ?? src.h
   const globalAlpha = opts?.alpha ?? 255
   const blendFn = opts?.blendFn ?? sourceOverPerfect
   const mx = opts?.mx ?? 0
@@ -39,8 +41,8 @@ export function blendPixelDataAlphaMask(
     h += sy
     sy = 0
   }
-  w = Math.min(w, src.width - sx)
-  h = Math.min(h, src.height - sy)
+  w = Math.min(w, src.w - sx)
+  h = Math.min(h, src.h - sy)
   if (x < 0) {
     sx -= x
     w += x
@@ -52,13 +54,13 @@ export function blendPixelDataAlphaMask(
     y = 0
   }
 
-  const actualW = Math.min(w, target.width - x)
-  const actualH = Math.min(h, target.height - y)
+  const actualW = Math.min(w, target.w - x)
+  const actualH = Math.min(h, target.h - y)
   if (actualW <= 0 || actualH <= 0) return false
 
   // 2. Index Setup
-  const dw = target.width
-  const sw = src.width
+  const dw = target.w
+  const sw = src.w
   const mPitch = alphaMask.w
   const maskData = alphaMask.data
 
@@ -67,8 +69,8 @@ export function blendPixelDataAlphaMask(
   const dx = (x - targetX) | 0
   const dy = (y - targetY) | 0
 
-  const dst32 = target.data32
-  const src32 = src.data32
+  const dst32 = target.data
+  const src32 = src.data
 
   let dIdx = (y * dw + x) | 0
   let sIdx = (sy * sw + sx) | 0

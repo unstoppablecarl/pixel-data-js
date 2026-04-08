@@ -31,7 +31,7 @@ describe('mutatorInvert', () => {
   it('should call accumulator with defaults', () => {
     mutator.invert()
 
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, target.width, target.height)
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, target.w, target.h)
     expect(spyDeps.invertPixelData).toHaveBeenCalledWith(target, undefined)
   })
 })

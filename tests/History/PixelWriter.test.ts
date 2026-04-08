@@ -1,4 +1,4 @@
-import { HistoryManager, PaintBuffer, PixelAccumulator, PixelData, PixelWriter, sourceOverPerfect } from '@/index'
+import { HistoryManager, makePixelData, PixelAccumulator, type PixelData, PixelWriter } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('PixelWriter', () => {
@@ -16,8 +16,8 @@ describe('PixelWriter', () => {
       setPixel: (x: number, y: number, color: number) => {
         w.accumulator.storePixelBeforeState(x, y)
         const target = w.config.target
-        const idx = y * target.width + x
-        target.data32[idx] = color
+        const idx = y * target.w + x
+        target.data[idx] = color
       },
       doNothing: () => {
         // No-op
@@ -27,7 +27,7 @@ describe('PixelWriter', () => {
 
   beforeEach(() => {
     const imageData = new ImageData(100, 100)
-    pixelData = new PixelData(imageData)
+    pixelData = makePixelData(imageData)
     historyManager = new HistoryManager(50)
     writer = new PixelWriter(pixelData, createMutator, {
       historyManager: historyManager,
@@ -67,7 +67,7 @@ describe('PixelWriter', () => {
       })
 
       expect(commitSpy).toHaveBeenCalledTimes(1)
-      expect(pixelData.data32[10 * 100 + 10]).toBe(0xFF0000FF)
+      expect(pixelData.data[10 * 100 + 10]).toBe(0xFF0000FF)
     })
 
     it('should NOT commit a history action if no pixels are modified', () => {
@@ -86,12 +86,12 @@ describe('PixelWriter', () => {
       })
 
       historyManager.undo()
-      expect(pixelData.data32[0]).toBe(0)
-      expect(pixelData.data32[50 * 100 + 50]).toBe(0)
+      expect(pixelData.data[0]).toBe(0)
+      expect(pixelData.data[50 * 100 + 50]).toBe(0)
 
       historyManager.redo()
-      expect(pixelData.data32[0]).toBe(0xFF0000FF)
-      expect(pixelData.data32[50 * 100 + 50]).toBe(0x00FF00FF)
+      expect(pixelData.data[0]).toBe(0xFF0000FF)
+      expect(pixelData.data[50 * 100 + 50]).toBe(0x00FF00FF)
     })
 
     it('should rollback after exception', () => {
@@ -116,8 +116,8 @@ describe('PixelWriter', () => {
 
       writer.resize(200, 200, 0, 0, undefined, undefined, undefined, mockResize)
 
-      expect(pixelData.width).toBe(200)
-      expect(pixelData.height).toBe(200)
+      expect(pixelData.w).toBe(200)
+      expect(pixelData.h).toBe(200)
       expect(commitSpy).toHaveBeenCalledTimes(1)
     })
 
@@ -127,13 +127,13 @@ describe('PixelWriter', () => {
       })
 
       writer.resize(10, 10, 0, 0, undefined, undefined, undefined, mockResize)
-      expect(pixelData.width).toBe(10)
+      expect(pixelData.w).toBe(10)
 
       historyManager.undo()
-      expect(pixelData.width).toBe(100)
+      expect(pixelData.w).toBe(100)
 
       historyManager.redo()
-      expect(pixelData.width).toBe(10)
+      expect(pixelData.w).toBe(10)
     })
 
     it('should execute callbacks during undo/redo', () => {
@@ -223,132 +223,6 @@ describe('PixelWriter', () => {
         undefined,
         undefined,
       )
-    })
-  })
-
-  it('getPaintBuffer', () => {
-    const imageData = new ImageData(16, 16)
-    const target = new PixelData(imageData)
-    const writer = new PixelWriter(target, () => ({}))
-
-    const buffer = writer.paintBuffer
-
-    expect(buffer).toBeInstanceOf(PaintBuffer)
-    expect(buffer.config).toBe(writer.config)
-    expect(buffer.tilePool).toBe(writer.pixelTilePool)
-  })
-
-  describe('commitPaintBuffer', () => {
-    let imageData: ImageData
-    let target: PixelData
-    let writer: PixelWriter<any>
-    let mockDidChange: any
-    let mockBlendPixelData: any
-    let customBlendFn: any
-
-    beforeEach(() => {
-      imageData = new ImageData(32, 32)
-      target = new PixelData(imageData)
-
-      const options = {
-        tileSize: 8,
-      }
-
-      writer = new PixelWriter(target, () => ({}), options)
-
-      mockDidChange = vi.fn()
-      vi.spyOn(writer.accumulator, 'storeTileBeforeState').mockReturnValue(mockDidChange)
-      vi.spyOn(writer.paintBuffer, 'clear')
-
-      mockBlendPixelData = vi.fn()
-      customBlendFn = vi.fn()
-    })
-
-    it('should immediately clear the buffer and do nothing if lookup is empty', () => {
-      writer.commitPaintBuffer(255, sourceOverPerfect, mockBlendPixelData)
-
-      expect(writer.accumulator.storeTileBeforeState).not.toHaveBeenCalled()
-      expect(mockBlendPixelData).not.toHaveBeenCalled()
-      expect(writer.paintBuffer.clear).toHaveBeenCalledTimes(1)
-    })
-
-    it('should skip undefined tiles in a sparse lookup array', () => {
-      const tile = {
-        id: 5,
-        tx: 1,
-        ty: 1,
-        width: 8,
-        height: 8,
-      }
-
-      writer.paintBuffer.lookup[0] = undefined
-      writer.paintBuffer.lookup[1] = tile as any
-
-      writer.commitPaintBuffer(255, sourceOverPerfect, mockBlendPixelData)
-
-      expect(writer.accumulator.storeTileBeforeState).toHaveBeenCalledTimes(1)
-      expect(mockBlendPixelData).toHaveBeenCalledTimes(1)
-    })
-
-    it('should calculate accurate coordinates using tileShift and propagate the didChange result', () => {
-      const tile = {
-        id: 10,
-        tx: 2,
-        ty: 3,
-        width: 8,
-        height: 8,
-      }
-
-      const mockBlendResult = true
-
-      writer.paintBuffer.lookup[10] = tile as any
-      mockBlendPixelData.mockReturnValue(mockBlendResult)
-
-      writer.commitPaintBuffer(128, customBlendFn, mockBlendPixelData)
-
-      expect(writer.accumulator.storeTileBeforeState).toHaveBeenCalledWith(10, 2, 3)
-
-      const expectedOpts = {
-        alpha: 128,
-        blendFn: customBlendFn,
-        x: 16,
-        y: 24,
-        w: 8,
-        h: 8,
-      }
-
-      expect(mockBlendPixelData).toHaveBeenCalledWith(target, tile, expectedOpts)
-      expect(mockDidChange).toHaveBeenCalledWith(mockBlendResult)
-      expect(writer.paintBuffer.clear).toHaveBeenCalledTimes(1)
-    })
-
-    it('should reuse the exact same shared options object across multiple tiles to avoid GC pressure', () => {
-      const tile1 = {
-        id: 1,
-        tx: 1,
-        ty: 0,
-        width: 8,
-        height: 8,
-      }
-
-      const tile2 = {
-        id: 2,
-        tx: 2,
-        ty: 0,
-        width: 8,
-        height: 8,
-      }
-
-      writer.paintBuffer.lookup[1] = tile1 as any
-      writer.paintBuffer.lookup[2] = tile2 as any
-
-      writer.commitPaintBuffer(255, sourceOverPerfect, mockBlendPixelData)
-
-      const call1Opts = mockBlendPixelData.mock.calls[0][2]
-      const call2Opts = mockBlendPixelData.mock.calls[1][2]
-
-      // Strict referential equality ensures we aren't creating new objects in the loop
-      expect(call1Opts).toBe(call2Opts)
     })
   })
 })

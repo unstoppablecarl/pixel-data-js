@@ -1,19 +1,30 @@
-import { type IPixelData32, PixelData } from '../index'
-import { resample32 } from '../Internal/resample32'
+import { resampleUint32Array } from '../Algorithm/resampleUint32Array'
+import { type MutablePixelData32, type PixelData, type PixelData32, uInt32ArrayToImageData } from '../index'
 
 /**
  * Resamples PixelData by a specific factor using nearest neighbor.
  * Factor > 1 upscales, Factor < 1 downscales.
  */
 export function resamplePixelData(
-  pixelData: IPixelData32,
+  pixelData: PixelData32,
   factor: number,
 ): PixelData {
-  const { data, width, height } = resample32(pixelData.data32, pixelData.width, pixelData.height, factor)
 
-  return new PixelData(new ImageData(
-    new Uint8ClampedArray(data.buffer) as ImageDataArray,
-    width,
-    height,
-  ))
+  const output = {} as MutablePixelData32
+
+  const resampled = resampleUint32Array(pixelData.data, pixelData.w, pixelData.h, factor, output) as PixelData
+
+  (resampled as any).imageData = uInt32ArrayToImageData(resampled.data, resampled.w, resampled.h)
+
+  return resampled
+}
+
+export function resamplePixelDataInPlace(
+  pixelData: PixelData32,
+  factor: number,
+): void {
+
+  const resampled = resampleUint32Array(pixelData.data, pixelData.w, pixelData.h, factor, pixelData) as PixelData
+
+  (resampled as any).imageData = uInt32ArrayToImageData(resampled.data, resampled.w, resampled.h)
 }

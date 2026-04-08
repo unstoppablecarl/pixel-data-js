@@ -1,7 +1,7 @@
 import { type Color32, fillPixelDataBinaryMask, mutatorFillBinaryMask } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeTestBinaryMask } from '../../_helpers'
-import { mockAccumulatorMutator, mockMutator } from './_helpers'
+import { mockMutator } from './_helpers'
 
 describe('mutatorFillBinaryMask', () => {
   const {
@@ -21,7 +21,7 @@ describe('mutatorFillBinaryMask', () => {
     const y = 15
     const mask = makeTestBinaryMask(2, 3, 1)
 
-   mutator.fillBinaryMask(color, mask, x, y)
+    mutator.fillBinaryMask(color, mask, x, y)
 
     expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(x, y, mask.w, mask.h)
     expect(spyDeps.fillPixelDataBinaryMask).toHaveBeenCalledWith(target, color, mask, x, y)
@@ -37,7 +37,7 @@ describe('mutatorFillBinaryMask', () => {
       mutator,
       accumulator,
       target,
-    } = mockAccumulatorMutator(mutatorFillBinaryMask, { fillPixelDataBinaryMask: fillPixelDataBinaryMaskSpy })
+    } = mockMutator(mutatorFillBinaryMask, { fillPixelDataBinaryMask: fillPixelDataBinaryMaskSpy })
 
     mutator.fillBinaryMask(color, mask)
 

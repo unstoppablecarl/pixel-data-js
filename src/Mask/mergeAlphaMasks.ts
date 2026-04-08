@@ -1,4 +1,5 @@
-import { type AlphaMask, type MergeAlphaMasksOptions } from '../_types'
+import type { MergeAlphaMasksOptions } from '../_types'
+import type { AlphaMask } from './_mask-types'
 
 /**
  * Merges 2 alpha masks values are 0-255
@@ -58,7 +59,8 @@ export function mergeAlphaMasks(
       } else if (globalAlpha === 255) {
         weight = effectiveM
       } else {
-        weight = (effectiveM * globalAlpha + 128) >> 8
+        const t = effectiveM * globalAlpha + 128
+        weight = (t + (t >> 8)) >> 8
       }
 
       if (weight !== 255) {
@@ -70,7 +72,8 @@ export function mergeAlphaMasks(
           if (da === 255) {
             dstData[dIdx] = weight
           } else if (da !== 0) {
-            dstData[dIdx] = (da * weight + 128) >> 8
+            const t = da * weight + 128
+            dstData[dIdx] = (t + (t >> 8)) >> 8
           }
         }
       }

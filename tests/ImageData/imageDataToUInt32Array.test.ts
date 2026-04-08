@@ -1,4 +1,4 @@
-import { imageDataToUInt32Array } from '@/index'
+import { imageDataToUint32Array } from '@/index'
 import { describe, expect, it } from 'vitest'
 
 describe('imageDataToUInt32Array', () => {
@@ -15,7 +15,7 @@ describe('imageDataToUInt32Array', () => {
       height: 1,
     }
 
-    const data32 = imageDataToUInt32Array(imageData)
+    const data32 = imageDataToUint32Array(imageData)
 
     // Verify length (8 bytes >> 2 = 2 pixels)
     expect(data32.length).toBe(2)
@@ -36,7 +36,7 @@ describe('imageDataToUInt32Array', () => {
       height: 1,
     }
 
-    const data32 = imageDataToUInt32Array(imageData)
+    const data32 = imageDataToUint32Array(imageData)
 
     // Modify the 32-bit view
     data32[0] = 0xFFFFFFFF
@@ -61,7 +61,7 @@ describe('imageDataToUInt32Array', () => {
       height: 1,
     }
 
-    const data32 = imageDataToUInt32Array(imageData)
+    const data32 = imageDataToUint32Array(imageData)
 
     expect(data32.length).toBe(2)
     expect(data32.byteOffset).toBe(4)

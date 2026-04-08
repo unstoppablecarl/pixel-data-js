@@ -1,10 +1,12 @@
-import { type Color32, type IPixelData32, MaskType, type PaintMask } from '@/_types'
+import { type Color32 } from '@/_types'
 import { sourceOverPerfect } from '@/BlendModes/blend-modes-perfect'
+import { MaskType } from '@/Mask/_mask-types'
+import type { PaintMask } from '@/Paint/_paint-types'
+import type { PixelData32 } from '@/PixelData/_pixelData-types'
 import * as AlphaModule from '@/PixelData/blendColorPixelDataAlphaMask'
 import * as BinaryModule from '@/PixelData/blendColorPixelDataBinaryMask'
 import { blendColorPixelDataPaintMask } from '@/PixelData/blendColorPixelDataPaintMask'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-
 
 describe('blendColorPixelDataPaintMask', () => {
   beforeEach(() => {
@@ -19,7 +21,7 @@ describe('blendColorPixelDataPaintMask', () => {
   it('should call blendColorPixelDataBinaryMask when mask.type is BINARY', () => {
     const blendColorPixelDataBinaryMask = BinaryModule.blendColorPixelDataBinaryMask
 
-    const mockDst: IPixelData32 = {} as IPixelData32
+    const mockDst: PixelData32 = {} as PixelData32
     const mockColor: Color32 = 0xFF0000FF as Color32
     const mockMask: PaintMask = {
       type: MaskType.BINARY,
@@ -63,7 +65,7 @@ describe('blendColorPixelDataPaintMask', () => {
     const blendColorPixelDataBinaryMask = BinaryModule.blendColorPixelDataBinaryMask
     const blendColorPixelDataAlphaMask = AlphaModule.blendColorPixelDataAlphaMask
 
-    const mockDst: IPixelData32 = {} as IPixelData32
+    const mockDst: PixelData32 = {} as PixelData32
     const mockColor: Color32 = 0x00FF00FF as Color32
     const mockMask: PaintMask = {
       type: MaskType.ALPHA,           // or any non-BINARY type
@@ -95,7 +97,7 @@ describe('blendColorPixelDataPaintMask', () => {
   it('should use default alpha and blendFn when not provided', () => {
     const blendColorPixelDataBinaryMask = BinaryModule.blendColorPixelDataBinaryMask
 
-    const mockDst: IPixelData32 = {} as IPixelData32
+    const mockDst: PixelData32 = {} as PixelData32
     const mockMask: PaintMask = {
       type: MaskType.BINARY,
       centerOffsetX: 0,
@@ -123,7 +125,7 @@ describe('blendColorPixelDataPaintMask', () => {
   it('should correctly override alpha and blendFn when provided', () => {
     const blendColorPixelDataAlphaMask = AlphaModule.blendColorPixelDataAlphaMask
 
-    const mockDst: IPixelData32 = {} as IPixelData32
+    const mockDst: PixelData32 = {} as PixelData32
     const mockMask: PaintMask = {
       type: MaskType.ALPHA,
       centerOffsetX: 0,
@@ -159,7 +161,7 @@ describe('blendColorPixelDataPaintMask', () => {
     const blendColorPixelDataBinaryMask = BinaryModule.blendColorPixelDataBinaryMask
     const blendColorPixelDataAlphaMask = AlphaModule.blendColorPixelDataAlphaMask
 
-    const mockDst: IPixelData32 = {} as IPixelData32
+    const mockDst: PixelData32 = {} as PixelData32
     const mockBinaryMask: PaintMask = { type: MaskType.BINARY, centerOffsetX: 0, centerOffsetY: 0 } as PaintMask
     const mockAlphaMask: PaintMask = { type: MaskType.ALPHA, centerOffsetX: 0, centerOffsetY: 0 } as PaintMask;
 
