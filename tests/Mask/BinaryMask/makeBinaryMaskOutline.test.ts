@@ -1,5 +1,4 @@
-import { makeBinaryMaskOutline } from '@/Mask/BinaryMask/makeBinaryMaskOutline'
-import { blendColorPixelDataBinaryMask } from '@/PixelData/blendColorPixelDataBinaryMask'
+import { blendColorPixelDataBinaryMask, makeBinaryMaskOutline } from '@/index'
 import { describe, expect, it } from 'vitest'
 import { makeTestBinaryMask, makeTestPixelData, pack } from '../../_helpers'
 

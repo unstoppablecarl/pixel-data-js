@@ -1,8 +1,10 @@
-import { makeCircleBinaryMaskOutline } from '@/Mask/BinaryMask/makeCircleBinaryMaskOutline'
-import { makeCirclePaintBinaryMask } from '@/Paint/makeCirclePaintMask'
-import { blendColorPixelDataBinaryMask } from '@/PixelData/blendColorPixelDataBinaryMask'
-import { blendPixelData } from '@/PixelData/blendPixelData'
-import { resamplePixelDataInPlace } from '@/PixelData/resamplePixelData'
+import {
+  blendColorPixelDataBinaryMask,
+  blendPixelData,
+  makeCircleBinaryMaskOutline,
+  makeCirclePaintBinaryMask,
+  resamplePixelDataInPlace,
+} from '@/index'
 import { describe, expect, it } from 'vitest'
 import { makeTestPixelData, pack } from '../../_helpers'
 

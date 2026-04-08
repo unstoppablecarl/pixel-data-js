@@ -16,7 +16,7 @@ import {
 } from '@/index'
 import { createCanvas } from '@napi-rs/canvas'
 import { describe, expect, it, vi } from 'vitest'
-import { makeTestBinaryMask, makeTestPixelData, pack, printPixelDataGrid, testCanvasFactory } from '../_helpers'
+import { makeTestBinaryMask, makeTestPixelData, pack, testCanvasFactory } from '../_helpers'
 import { OffscreenCanvasMock, useOffscreenCanvasMock } from '../_helpers/OffscreenCanvasMock'
 
 describe('PaintCursorRenderer', () => {
@@ -431,10 +431,10 @@ describe('PaintCursorRenderer', () => {
       h: h * scale,
     })
 
-    printPixelDataGrid(result, new Map([
-      [cyan, 'C'],
-      [redTint, 'r'],
-    ]))
+    // printPixelDataGrid(result, new Map([
+    //   [cyan, 'C'],
+    //   [redTint, 'r'],
+    // ]))
 
     expect(result).toMatchPixelGrid([
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

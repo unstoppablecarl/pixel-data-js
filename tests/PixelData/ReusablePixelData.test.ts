@@ -1,4 +1,4 @@
-import { makeReusablePixelData } from '@/PixelData/ReusablePixelData'
+import { makeReusablePixelData } from '@/index'
 import { describe, expect, it } from 'vitest'
 
 describe('makeReusablePixelData', () => {

@@ -1,5 +1,4 @@
-import { type AlphaMask, MaskType } from '@/Mask/_mask-types'
-import { makeBinaryMaskFromAlphaMask } from '@/Mask/BinaryMask/makeBinaryMaskFromAlphaMask'
+import { type AlphaMask, makeBinaryMaskFromAlphaMask, MaskType } from '@/index'
 import { describe, expect, it } from 'vitest'
 
 describe('makeBinaryMaskFromAlphaMask', () => {

@@ -86,6 +86,7 @@ export * from './Mask/AlphaMask'
 export * from './Mask/applyBinaryMaskToAlphaMask'
 export * from './Mask/BinaryMask'
 
+export * from './Mask/BinaryMask/makeBinaryMaskFromAlphaMask'
 export * from './Mask/BinaryMask/makeBinaryMaskOutline'
 export * from './Mask/BinaryMask/makeCircleBinaryMaskOutline'
 export * from './Mask/BinaryMask/makeRectBinaryMaskOutline'
