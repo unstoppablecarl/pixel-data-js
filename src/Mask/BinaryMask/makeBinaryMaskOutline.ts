@@ -1,4 +1,5 @@
-import { type BinaryMask, MaskType } from '../../_types'
+
+import { type BinaryMask, MaskType } from '../_mask-types'
 
 export function makeBinaryMaskOutline(
   mask: BinaryMask,

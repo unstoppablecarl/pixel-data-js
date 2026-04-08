@@ -1,4 +1,5 @@
-import { type AlphaMask, type MergeAlphaMasksOptions } from '../_types'
+import type { MergeAlphaMasksOptions } from '../_types'
+import type { AlphaMask } from './_mask-types'
 
 /**
  * Merges 2 alpha masks values are 0-255

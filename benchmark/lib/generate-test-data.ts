@@ -1,4 +1,6 @@
-import type { AlphaMask, BinaryMask, ImageDataLike, PixelData } from '@/_types'
+import type { PixelData } from '@/_types'
+import type { ImageDataLike } from '@/ImageData/_ImageData-types'
+import type { AlphaMask, BinaryMask } from '@/Mask/_mask-types'
 import { makeAlphaMask } from '@/Mask/AlphaMask'
 import { makeBinaryMask } from '@/Mask/BinaryMask'
 import { makePixelData } from '@/PixelData/PixelData'

@@ -1,4 +1,5 @@
-import type { AlphaMask, PixelData32 } from '../_types'
+import type { PixelData32 } from '../_types'
+import type { AlphaMask } from '../Mask/_mask-types'
 import { makeAlphaMask } from '../Mask/AlphaMask'
 
 /**

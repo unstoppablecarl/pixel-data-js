@@ -1,4 +1,4 @@
-import { MaskType } from '../_types'
+import { MaskType } from '../Mask/_mask-types'
 import { type AlphaMaskTile, type BinaryMaskTile, type TileFactory, TileType } from './_tile-types'
 
 export const makeAlphaMaskTile: TileFactory<AlphaMaskTile> = (

@@ -1,4 +1,5 @@
-import { type ApplyMaskToPixelDataOptions, type Mask, MaskType } from '../../_types'
+import { type ApplyMaskToPixelDataOptions } from '../../_types'
+import { type Mask, MaskType } from '../../Mask/_mask-types'
 import { applyAlphaMaskToPixelData } from '../../PixelData/applyAlphaMaskToPixelData'
 import { applyBinaryMaskToPixelData } from '../../PixelData/applyBinaryMaskToPixelData'
 import { type HistoryMutator, PixelWriter } from '../PixelWriter'

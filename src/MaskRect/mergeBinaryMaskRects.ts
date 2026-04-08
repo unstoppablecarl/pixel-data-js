@@ -1,4 +1,4 @@
-import type { NullableBinaryMaskRect } from '../_types'
+import type { NullableBinaryMaskRect } from '../Mask/_mask-types'
 import { merge2BinaryMaskRects } from './merge2BinaryMaskRects'
 
 export function mergeBinaryMaskRects(current: NullableBinaryMaskRect[], adding: NullableBinaryMaskRect[]): NullableBinaryMaskRect[] {

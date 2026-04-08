@@ -1,4 +1,5 @@
-import type { BinaryMask, PixelBlendMaskOptions, PixelData32 } from '../../_types'
+import type { PixelBlendMaskOptions, PixelData32 } from '../../_types'
+import type { BinaryMask } from '../../Mask/_mask-types'
 import { blendPixelDataBinaryMask } from '../../PixelData/blendPixelDataBinaryMask'
 import { type HistoryMutator, PixelWriter } from '../PixelWriter'
 

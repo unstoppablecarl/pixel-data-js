@@ -1,4 +1,4 @@
-import type { ImageDataLike } from '../_types'
+import type { ImageDataLike } from './_ImageData-types'
 
 export function makeImageDataLike(width: number, height: number, data?: Buffer): ImageDataLike {
   const size = width * height * 4

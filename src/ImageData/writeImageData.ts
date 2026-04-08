@@ -1,4 +1,4 @@
-import { MaskType } from '../_types'
+import { MaskType } from '../Mask/_mask-types'
 import { makeClippedBlit, resolveBlitClipping } from '../Rect/resolveClipping'
 
 const SCRATCH_BLIT = makeClippedBlit()

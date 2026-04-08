@@ -1,4 +1,5 @@
-import { MaskType, type NullableBinaryMaskRect } from '../_types'
+
+import { MaskType, type NullableBinaryMaskRect } from '../Mask/_mask-types'
 import { getRectsBounds } from '../Rect/getRectsBounds'
 
 export function merge2BinaryMaskRects(

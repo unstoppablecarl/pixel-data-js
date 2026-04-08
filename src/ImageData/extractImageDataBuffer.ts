@@ -1,5 +1,6 @@
-import type { ImageDataLike, Rect } from '../_types'
+import type { Rect } from '../_types'
 import { makeClippedBlit, resolveBlitClipping } from '../Rect/resolveClipping'
+import type { ImageDataLike } from './_ImageData-types'
 
 const SCRATCH_BLIT = makeClippedBlit()
 

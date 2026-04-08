@@ -1,6 +1,7 @@
-import { type BinaryMaskRect, type Color32, MaskType, type PixelData, type Rect } from '../_types'
+import { type Color32, type PixelData, type Rect } from '../_types'
 import { colorDistance } from '../color'
 import { extractImageDataBuffer } from '../ImageData/extractImageDataBuffer'
+import { type BinaryMaskRect, MaskType } from '../Mask/_mask-types'
 import { trimMaskRectBounds } from '../Rect/trimMaskRectBounds'
 
 export type FloodFillResult = BinaryMaskRect & {

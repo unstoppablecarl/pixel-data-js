@@ -1,4 +1,4 @@
-import type { ImageDataLike } from '../_types'
+import type { ImageDataLike } from './_ImageData-types'
 
 export function uInt32ArrayToImageData(
   data: Uint32Array,

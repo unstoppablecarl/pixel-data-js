@@ -1,4 +1,5 @@
-import { type AlphaMask, MaskType } from '../_types'
+
+import { type AlphaMask, MaskType } from './_mask-types'
 
 /**
  * Creates an Alpha Mask

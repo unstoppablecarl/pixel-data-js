@@ -1,4 +1,5 @@
-import { type AlphaMask, type ApplyMaskToPixelDataOptions, type PixelData32 } from '../_types'
+import { type ApplyMaskToPixelDataOptions, type PixelData32 } from '../_types'
+import type { AlphaMask } from '../Mask/_mask-types'
 
 /**
  * Directly applies a mask to a region of PixelData,

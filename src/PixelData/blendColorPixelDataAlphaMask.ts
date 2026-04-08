@@ -1,5 +1,6 @@
-import type { AlphaMask, Color32, ColorBlendMaskOptions, PixelData32 } from '../_types'
+import type { Color32, ColorBlendMaskOptions, PixelData32 } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
+import type { AlphaMask } from '../Mask/_mask-types'
 
 /**
  * Blends a solid color into a target pixel buffer using an alpha mask.

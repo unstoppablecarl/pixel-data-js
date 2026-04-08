@@ -1,11 +1,8 @@
 import {
-  type AlphaMask,
   type ApplyMaskToPixelDataOptions,
-  type BinaryMask,
-  type Mask,
-  MaskType,
   type PixelData32,
 } from '@/_types'
+import { type AlphaMask, type BinaryMask, type Mask, MaskType } from '@/Mask/_mask-types'
 import * as AlphaModule from '@/PixelData/blendPixelDataAlphaMask'
 import * as BinaryModule from '@/PixelData/blendPixelDataBinaryMask'
 import { blendPixelDataMask } from '@/PixelData/blendPixelDataMask'

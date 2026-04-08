@@ -1,4 +1,4 @@
-import type { ImageDataLike } from '../_types'
+import type { ImageDataLike } from './_ImageData-types'
 
 /**
  * Non destructively resizes the {@link ImageData} buffer to new dimensions, optionally

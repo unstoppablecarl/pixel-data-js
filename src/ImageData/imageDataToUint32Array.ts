@@ -1,4 +1,4 @@
-import type { ImageDataLike } from '../_types'
+import type { ImageDataLike } from './_ImageData-types'
 
 /**
  * converts {@link ImageData} to a faster Uint32Array

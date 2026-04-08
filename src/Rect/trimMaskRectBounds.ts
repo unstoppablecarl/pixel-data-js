@@ -1,4 +1,5 @@
-import type { NullableMaskRect, Rect } from '../_types'
+import type { Rect } from '../_types'
+import type { NullableMaskRect } from '../Mask/_mask-types'
 import { extractMaskBuffer } from '../Mask/extractMaskBuffer'
 
 /**

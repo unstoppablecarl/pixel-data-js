@@ -1,5 +1,5 @@
-import { MaskType } from '../_types'
 import { _macro_paintCircleCenterOffset } from '../Internal/macros'
+import { MaskType } from '../Mask/_mask-types'
 import { type PaintAlphaMask, type PaintBinaryMask, PaintMaskOutline } from './_paint-types'
 
 export function makeCirclePaintAlphaMask(size: number, fallOff: (d: number) => number = (d) => d): PaintAlphaMask {
