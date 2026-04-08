@@ -1,14 +1,14 @@
 import { sourceOverPerfect } from '@/BlendModes/blend-modes-perfect'
-import { makeAlphaMaskPaintBufferCommitter } from '@/Paint/Commit/AlphaMaskPaintBufferCommitter'
-import * as Commit from '@/Paint/Commit/commitMaskPaintBuffer'
-import * as AlphaModule from '@/PixelData/blendColorPixelDataAlphaMask'
+import { makeColorPaintBufferCommitter } from '@/Paint/Commit/ColorPaintBufferCommitter'
+import * as Commit from '@/Paint/Commit/commitColorPaintBuffer'
+import * as BlendModule from '@/PixelData/blendPixelData'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { pack } from '../../../_helpers'
 
-describe('makeAlphaMaskPaintBufferCommitter', () => {
+describe('makeColorPaintBufferCommitter', () => {
   beforeEach(() => {
-    vi.spyOn(AlphaModule, 'blendColorPixelDataAlphaMask')
-    vi.spyOn(Commit, 'commitMaskPaintBuffer')
+    vi.spyOn(BlendModule, 'blendPixelData')
+    vi.spyOn(Commit, 'commitColorPaintBuffer')
   })
 
   afterEach(() => {
@@ -27,20 +27,19 @@ describe('makeAlphaMaskPaintBufferCommitter', () => {
       config: {},
     } as any
 
-    const commit = makeAlphaMaskPaintBufferCommitter(
+    const commit = makeColorPaintBufferCommitter(
       mockAccumulator,
       mockBuffer,
     )
 
-    commit(color)
+    commit()
 
-    expect(Commit.commitMaskPaintBuffer).toHaveBeenCalledExactlyOnceWith(
+    expect(Commit.commitColorPaintBuffer).toHaveBeenCalledExactlyOnceWith(
       mockAccumulator,
       mockBuffer,
-      color,
       255,
       sourceOverPerfect,
-      AlphaModule.blendColorPixelDataAlphaMask,
+      BlendModule.blendPixelData,
     )
 
     expect(mockBuffer.clear).toHaveBeenCalledOnce()
@@ -59,20 +58,19 @@ describe('makeAlphaMaskPaintBufferCommitter', () => {
     const customAlpha = 128
     const customBlendFn = vi.fn()
 
-    const commit = makeAlphaMaskPaintBufferCommitter(
+    const commit = makeColorPaintBufferCommitter(
       mockAccumulator,
       mockBuffer,
     )
 
-    commit(color, customAlpha, customBlendFn)
+    commit(customAlpha, customBlendFn)
 
-    expect(Commit.commitMaskPaintBuffer).toHaveBeenCalledExactlyOnceWith(
+    expect(Commit.commitColorPaintBuffer).toHaveBeenCalledExactlyOnceWith(
       mockAccumulator,
       mockBuffer,
-      color,
       customAlpha,
       customBlendFn,
-      AlphaModule.blendColorPixelDataAlphaMask,
+      BlendModule.blendPixelData,
     )
   })
 })
