@@ -1,4 +1,6 @@
 import type { Color32 } from '../../_types'
+import type { CanvasObjectFactory } from '../../Canvas/_canvas-types'
+import { DEFAULT_CANVAS_FACTORY } from '../../Internal/_constants'
 import { CANVAS_CTX_FAILED } from '../../Internal/_errors'
 import { makePixelData } from '../../PixelData/PixelData'
 import type { BinaryMaskPaintBuffer } from '../BinaryMaskPaintBuffer'
@@ -7,7 +9,7 @@ export type BinaryMaskPaintBufferCanvasRenderer = ReturnType<typeof makeBinaryMa
 
 export function makeBinaryMaskPaintBufferCanvasRenderer(
   paintBuffer: BinaryMaskPaintBuffer,
-  offscreenCanvasClass = OffscreenCanvas,
+  canvasFactory: CanvasObjectFactory<any> = DEFAULT_CANVAS_FACTORY,
 ) {
   const config = paintBuffer.config
   const tileSize = config.tileSize
@@ -15,11 +17,9 @@ export function makeBinaryMaskPaintBufferCanvasRenderer(
   const tileArea = config.tileArea
   const lookup = paintBuffer.lookup
 
-  const canvas = new offscreenCanvasClass(tileSize, tileSize)
+  const canvas = canvasFactory(tileSize, tileSize)
   const ctx = canvas.getContext('2d')
-
   if (!ctx) throw new Error(CANVAS_CTX_FAILED)
-
   ctx.imageSmoothingEnabled = false
 
   const bridge = makePixelData(new ImageData(tileSize, tileSize))

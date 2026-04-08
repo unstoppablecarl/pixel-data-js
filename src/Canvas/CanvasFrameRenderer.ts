@@ -7,7 +7,7 @@ export type CanvasFrameRenderer<T extends HTMLCanvasElement | OffscreenCanvas = 
 export function makeCanvasFrameRenderer<T extends HTMLCanvasElement | OffscreenCanvas = OffscreenCanvas>(
   reusableCanvasFactory: () => ReusableCanvasFactory<T> = makeReusableOffscreenCanvas as unknown as () => ReusableCanvasFactory<T>,
 ) {
-  const bufferCanvas = reusableCanvasFactory()
+  const getBuffer = reusableCanvasFactory()
 
   return function renderCanvasFrame(
     pixelCanvas: PixelCanvas,
@@ -23,7 +23,7 @@ export function makeCanvasFrameRenderer<T extends HTMLCanvasElement | OffscreenC
     const h = canvas.height
 
     // 1. Clear pixel buffer
-    const buffer = bufferCanvas(w, h)
+    const buffer = getBuffer(w, h)
 
     // 2. Draw pixel data into pixel buffer
     const img = getImageData()

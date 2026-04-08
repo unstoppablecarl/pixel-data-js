@@ -11,16 +11,13 @@ describe('ColorPaintBufferCanvasRenderer', () => {
       lookup: [],
     }
 
-    class BadOffscreenCanvas {
-      constructor(_w: number, _h: number) {
-      }
-
+    const badFactory = () => ({
       getContext() {
         return null
-      }
-    }
+      },
+    })
 
-    expect(() => makeColorPaintBufferCanvasRenderer(mockBuffer as any, BadOffscreenCanvas as any)).toThrowError(ERRORS.CANVAS_CTX_FAILED)
+    expect(() => makeColorPaintBufferCanvasRenderer(mockBuffer as any, badFactory as any)).toThrowError(ERRORS.CANVAS_CTX_FAILED)
   })
 
   it('initializes the offscreen canvas with correct dimensions and disables smoothing', () => {
@@ -37,19 +34,13 @@ describe('ColorPaintBufferCanvasRenderer', () => {
     }
 
     const getContextSpy = vi.fn(() => mockCtx)
-    const constructorSpy = vi.fn()
+    const mockCanvasFactory = vi.fn().mockReturnValue({
+      getContext: getContextSpy,
+    })
 
-    class MockCanvas {
-      constructor(w: number, h: number) {
-        constructorSpy(w, h)
-      }
+    makeColorPaintBufferCanvasRenderer(mockBuffer as any, mockCanvasFactory as any)
 
-      getContext = getContextSpy
-    }
-
-    makeColorPaintBufferCanvasRenderer(mockBuffer as any, MockCanvas as any)
-
-    expect(constructorSpy).toHaveBeenCalledWith(256, 256)
+    expect(mockCanvasFactory).toHaveBeenCalledWith(256, 256)
     expect(getContextSpy).toHaveBeenCalledWith('2d')
     expect(mockCtx.imageSmoothingEnabled).toBe(false)
   })
@@ -92,13 +83,9 @@ describe('ColorPaintBufferCanvasRenderer', () => {
       getContext: vi.fn(() => internalCtx),
     }
 
-    class MockCanvas {
-      constructor() {
-        return internalCanvasInstance
-      }
-    }
+    const canvasFactory = () => internalCanvasInstance
 
-    const drawPaintBuffer = makeColorPaintBufferCanvasRenderer(mockBuffer as any, MockCanvas as any)
+    const drawPaintBuffer = makeColorPaintBufferCanvasRenderer(mockBuffer as any, canvasFactory as any)
 
     const targetCtx = {
       drawImage: vi.fn(),
@@ -113,5 +100,25 @@ describe('ColorPaintBufferCanvasRenderer', () => {
     expect(targetCtx.drawImage).toHaveBeenNthCalledWith(2, internalCanvasInstance, 768, 0)
 
     expect(targetCtx.drawImage).toHaveBeenCalledTimes(2)
+  })
+
+  it('should handle custom canvas factory', () => {
+    const ctx = vi.fn()
+    const canvas = {
+      getContext: vi.fn().mockReturnValue(ctx),
+    }
+    const customFactory = vi.fn().mockReturnValue(canvas)
+
+    const mockBuffer = {
+      config: {
+        tileSize: 256,
+        tileShift: 8,
+      },
+      lookup: [],
+    }
+    makeColorPaintBufferCanvasRenderer(mockBuffer as any, customFactory as any)
+
+    expect(customFactory).toHaveBeenCalledOnce()
+    expect(canvas.getContext).toHaveBeenCalledExactlyOnceWith('2d')
   })
 })

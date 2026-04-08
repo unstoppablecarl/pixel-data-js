@@ -1,7 +1,7 @@
 import { type Color32 } from '../../_types'
-import type { CanvasContext, CanvasObjectFactory } from '../../Canvas/_canvas-types'
+import type { ReusableCanvasFactory } from '../../Canvas/_canvas-types'
+import { makeReusableOffscreenCanvas } from '../../Canvas/ReusableCanvas'
 import { packColor } from '../../color'
-import { CANVAS_CTX_FAILED } from '../../Internal/_errors'
 import { _macro_paintRectCenterOffset } from '../../Internal/macros'
 import { type BinaryMask, MaskType } from '../../Mask/_mask-types'
 import { makeBinaryMaskFromAlphaMask } from '../../Mask/BinaryMask/makeBinaryMaskFromAlphaMask'
@@ -15,13 +15,12 @@ import { type PaintMask, PaintMaskOutline } from '../_paint-types'
 
 export type PaintCursorRenderer = ReturnType<typeof makePaintCursorRenderer>
 
-export function makePaintCursorRenderer<T extends HTMLCanvasElement | OffscreenCanvas>(
-  factory: CanvasObjectFactory<T> = (w, h) => new OffscreenCanvas(w, h) as T,
+export function makePaintCursorRenderer<T extends HTMLCanvasElement | OffscreenCanvas = OffscreenCanvas>(
+  reusableCanvasFactory?: () => ReusableCanvasFactory<T>,
 ) {
-  const canvas = factory(1, 1)
-  const ctx = canvas.getContext('2d')! as CanvasContext<T>
-  if (!ctx) throw new Error(CANVAS_CTX_FAILED)
-  ctx.imageSmoothingEnabled = false
+  const factory = (reusableCanvasFactory ?? makeReusableOffscreenCanvas) as unknown as () => ReusableCanvasFactory<T>
+  const updateBuffer = factory()
+  const { canvas, ctx } = updateBuffer(1, 1)
 
   const getPixelData = makeReusablePixelData()
 
@@ -45,8 +44,10 @@ export function makePaintCursorRenderer<T extends HTMLCanvasElement | OffscreenC
     _scale = scale ?? _scale
     _color = color ?? _color
 
-    canvas.width = currentMask.w * _scale + 2 * _scale
-    canvas.height = currentMask.h * _scale + 2 * _scale
+    updateBuffer(
+      currentMask.w * _scale + 2 * _scale,
+      currentMask.h * _scale + 2 * _scale,
+    )
 
     if (currentMask.type === MaskType.BINARY) {
       if (currentMask.outlineType === PaintMaskOutline.CIRCLE) {
