@@ -1,7 +1,7 @@
 import type { Color32 } from '@/_types'
 import { ERRORS, makeBinaryMaskPaintBufferCanvasRenderer } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { offscreenCanvasMockContext, useOffscreenCanvasMock } from '../_helpers/OffscreenCanvasMock'
+import { offscreenCanvasMockContext, useOffscreenCanvasMock } from '../../_helpers/OffscreenCanvasMock'
 
 describe('BinaryMaskPaintBufferCanvasRenderer', () => {
   const tileSize = 4

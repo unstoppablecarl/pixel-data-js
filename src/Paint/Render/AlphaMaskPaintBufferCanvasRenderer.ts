@@ -1,12 +1,12 @@
-import type { Color32 } from '../_types'
-import { CANVAS_CTX_FAILED } from '../Internal/_errors'
-import { makePixelData } from '../PixelData/PixelData'
-import type { BinaryMaskPaintBuffer } from './BinaryMaskPaintBuffer'
+import type { Color32 } from '../../_types'
+import { CANVAS_CTX_FAILED } from '../../Internal/_errors'
+import { makePixelData } from '../../PixelData/PixelData'
+import type { AlphaMaskPaintBuffer } from '../AlphaMaskPaintBuffer'
 
-export type BinaryMaskPaintBufferCanvasRenderer = ReturnType<typeof makeBinaryMaskPaintBufferCanvasRenderer>
+export type AlphaMaskPaintBufferCanvasRenderer = ReturnType<typeof makeAlphaMaskPaintBufferCanvasRenderer>
 
-export function makeBinaryMaskPaintBufferCanvasRenderer(
-  paintBuffer: BinaryMaskPaintBuffer,
+export function makeAlphaMaskPaintBufferCanvasRenderer(
+  paintBuffer: AlphaMaskPaintBuffer,
   offscreenCanvasClass = OffscreenCanvas,
 ) {
   const config = paintBuffer.config
@@ -34,6 +34,8 @@ export function makeBinaryMaskPaintBufferCanvasRenderer(
     if (alpha === 0) return
 
     const baseSrcAlpha = (color >>> 24)
+    const colorRGB = color & 0x00ffffff
+
     if (baseSrcAlpha === 0) return
 
     targetCtx.globalAlpha = alpha / 255
@@ -47,9 +49,18 @@ export function makeBinaryMaskPaintBufferCanvasRenderer(
         view32.fill(0)
 
         for (let p = 0; p < tileArea; p++) {
+          const maskA = data8[p]
+          if (maskA === 0) continue
+
           // If mask is solid, the final pixel is just the unmodified color
-          if (data8[p] === 1) {
+          if (maskA === 255) {
             view32[p] = color
+          } else {
+            // Otherwise, blend the color's inherent alpha with the mask's alpha
+            const t = baseSrcAlpha * maskA + 128
+            const finalA = (t + (t >> 8)) >> 8
+
+            view32[p] = ((colorRGB | (finalA << 24)) >>> 0) as Color32
           }
         }
 

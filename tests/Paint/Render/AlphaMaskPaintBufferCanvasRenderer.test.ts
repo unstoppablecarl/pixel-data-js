@@ -1,7 +1,7 @@
 import type { Color32 } from '@/_types'
 import { AlphaMaskPaintBuffer, ERRORS, makeAlphaMaskPaintBufferCanvasRenderer } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { offscreenCanvasMockContext, useOffscreenCanvasMock } from '../_helpers/OffscreenCanvasMock'
+import { offscreenCanvasMockContext, useOffscreenCanvasMock } from '../../_helpers/OffscreenCanvasMock'
 
 describe('AlphaMaskPaintBufferCanvasRenderer', () => {
   const tileSize = 8

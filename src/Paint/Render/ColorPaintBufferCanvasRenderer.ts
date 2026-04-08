@@ -1,5 +1,5 @@
-import { CANVAS_CTX_FAILED } from '../Internal/_errors'
-import type { ColorPaintBuffer } from './ColorPaintBuffer'
+import { CANVAS_CTX_FAILED } from '../../Internal/_errors'
+import type { ColorPaintBuffer } from '../ColorPaintBuffer'
 
 export type ColorPaintBufferCanvasRenderer = ReturnType<typeof makeColorPaintBufferCanvasRenderer>
 

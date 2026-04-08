@@ -16,8 +16,8 @@ import {
 } from '@/index'
 import { createCanvas } from '@napi-rs/canvas'
 import { describe, expect, it, vi } from 'vitest'
-import { makeTestBinaryMask, makeTestPixelData, pack, testCanvasFactory } from '../_helpers'
-import { OffscreenCanvasMock, useOffscreenCanvasMock } from '../_helpers/OffscreenCanvasMock'
+import { makeTestBinaryMask, makeTestPixelData, pack, testCanvasFactory } from '../../_helpers'
+import { OffscreenCanvasMock, useOffscreenCanvasMock } from '../../_helpers/OffscreenCanvasMock'
 
 describe('PaintCursorRenderer', () => {
   const redTint = pack(255, 0, 0, 120)
