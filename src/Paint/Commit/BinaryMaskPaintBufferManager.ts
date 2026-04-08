@@ -1,5 +1,4 @@
-import { PixelAccumulator } from '../../History/PixelAccumulator'
-import { PixelEngineConfig } from '../../History/PixelEngineConfig'
+import type { PixelWriter } from '../../History/PixelWriter'
 import { makeBinaryMaskTile } from '../../Tile/MaskTile'
 import { TilePool } from '../../Tile/TilePool'
 import { BinaryMaskPaintBuffer } from '../BinaryMaskPaintBuffer'
@@ -9,10 +8,9 @@ export type BinaryMaskPaintBufferManager = Pick<BinaryMaskPaintBuffer, 'paintBin
   commit: ReturnType<typeof makeBinaryMaskPaintBufferCommitter>
 }
 
-export function makeBinaryMaskPaintBufferManager(writer: {
-  readonly accumulator: PixelAccumulator
-  readonly config: PixelEngineConfig
-}): BinaryMaskPaintBufferManager {
+export function makeBinaryMaskPaintBufferManager(
+  writer: Pick<PixelWriter<any>, 'accumulator' | 'config'>,
+): BinaryMaskPaintBufferManager {
   const pool = new TilePool(writer.config, makeBinaryMaskTile)
   const buffer = new BinaryMaskPaintBuffer(writer.config, pool)
 

@@ -1,5 +1,4 @@
-import { PixelAccumulator } from '../../History/PixelAccumulator'
-import { PixelEngineConfig } from '../../History/PixelEngineConfig'
+import type { PixelWriter } from '../../History/PixelWriter'
 import { makePixelTile } from '../../Tile/PixelTile'
 import { TilePool } from '../../Tile/TilePool'
 import { ColorPaintBuffer } from '../ColorPaintBuffer'
@@ -11,10 +10,9 @@ export type ColorPaintBufferManager =
   commit: ReturnType<typeof makeColorPaintBufferCommitter>
 }
 
-export function makeColorPaintBufferManager(writer: {
-  readonly accumulator: PixelAccumulator
-  readonly config: PixelEngineConfig
-}): ColorPaintBufferManager {
+export function makeColorPaintBufferManager(
+  writer: Pick<PixelWriter<any>, 'accumulator' | 'config'>,
+): ColorPaintBufferManager {
   const pool = new TilePool(writer.config, makePixelTile)
   const buffer = new ColorPaintBuffer(writer.config, pool)
 

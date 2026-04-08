@@ -1,5 +1,4 @@
-import { PixelAccumulator } from '../../History/PixelAccumulator'
-import { PixelEngineConfig } from '../../History/PixelEngineConfig'
+import type { PixelWriter } from '../../History/PixelWriter'
 import { makeAlphaMaskTile } from '../../Tile/MaskTile'
 import { TilePool } from '../../Tile/TilePool'
 import { AlphaMaskPaintBuffer } from '../AlphaMaskPaintBuffer'
@@ -11,10 +10,9 @@ export type AlphaMaskPaintBufferManager =
   commit: ReturnType<typeof makeAlphaMaskPaintBufferCommitter>
 }
 
-export function makeAlphaMaskPaintBufferManager(writer: {
-  readonly accumulator: PixelAccumulator
-  readonly config: PixelEngineConfig
-}): AlphaMaskPaintBufferManager {
+export function makeAlphaMaskPaintBufferManager(
+  writer: Pick<PixelWriter<any>, 'accumulator' | 'config'>,
+): AlphaMaskPaintBufferManager {
   const pool = new TilePool(writer.config, makeAlphaMaskTile)
   const buffer = new AlphaMaskPaintBuffer(writer.config, pool)
 
