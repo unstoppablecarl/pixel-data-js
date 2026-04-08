@@ -111,6 +111,11 @@ export * from './Paint/BinaryMaskPaintBuffer'
 export * from './Paint/BinaryMaskPaintBufferCanvasRenderer'
 export * from './Paint/ColorPaintBuffer'
 export * from './Paint/ColorPaintBufferCanvasRenderer'
+
+export * from './Paint/Commit/AlphaMaskPaintBufferCommitter'
+export * from './Paint/Commit/BinaryMaskPaintBufferCommitter'
+export * from './Paint/Commit/commitMaskPaintBuffer'
+
 export * from './Paint/eachTileInBounds'
 export * from './Paint/makeCirclePaintMask'
 export * from './Paint/makePaintMask'

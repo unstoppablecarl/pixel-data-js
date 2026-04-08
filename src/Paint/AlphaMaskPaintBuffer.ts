@@ -1,10 +1,6 @@
-import { type Color32 } from '../_types'
 import { forEachLinePoint } from '../Algorithm/forEachLinePoint'
-import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
-import type { PixelAccumulator } from '../History/PixelAccumulator'
 import type { PixelEngineConfig } from '../History/PixelEngineConfig'
 import { _macro_paintRectCenterOffset } from '../Internal/macros'
-import { blendColorPixelDataAlphaMask } from '../PixelData/blendColorPixelDataAlphaMask'
 import type { Rect } from '../Rect/_rect-types'
 import { trimRectBounds } from '../Rect/trimRectBounds'
 import type { AlphaMaskTile } from '../Tile/_tile-types'
@@ -16,7 +12,6 @@ export class AlphaMaskPaintBuffer {
   readonly lookup: (AlphaMaskTile | undefined)[]
   private readonly scratchBounds: Rect = { x: 0, y: 0, w: 0, h: 0 }
 
-  private blendColorPixelDataAlphaMaskFn = blendColorPixelDataAlphaMask
   private forEachLinePointFn = forEachLinePoint
   private trimRectBoundsFn = trimRectBounds
   private eachTileInBoundsFn = eachTileInBounds
@@ -280,57 +275,6 @@ export class AlphaMaskPaintBuffer {
     )
 
     return changed
-  }
-
-  private opts = {
-    alpha: 255,
-    blendFn: sourceOverPerfect,
-    x: 0,
-    y: 0,
-    w: 0,
-    h: 0,
-  }
-
-  commit(
-    accumulator: PixelAccumulator,
-    color: Color32,
-    alpha = 255,
-    blendFn = sourceOverPerfect,
-  ) {
-    const blendColorPixelDataAlphaMaskFn = this.blendColorPixelDataAlphaMaskFn
-    const tileShift = this.config.tileShift
-    const lookup = this.lookup
-    const opts = this.opts
-
-    opts.alpha = alpha
-    opts.blendFn = blendFn
-
-    for (let i = 0; i < lookup.length; i++) {
-      const tile = lookup[i]
-
-      if (tile) {
-        const didChange = accumulator.storeTileBeforeState(tile.id, tile.tx, tile.ty)
-
-        const dx = tile.tx << tileShift
-        const dy = tile.ty << tileShift
-
-        opts.x = dx
-        opts.y = dy
-        opts.w = tile.w
-        opts.h = tile.h
-
-        didChange(
-          blendColorPixelDataAlphaMaskFn(
-            this.config.target,
-            color,
-            tile,
-            opts,
-          ),
-        )
-      }
-    }
-
-    this.clear()
   }
 
   clear(): void {
