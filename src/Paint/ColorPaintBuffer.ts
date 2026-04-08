@@ -1,10 +1,7 @@
 import type { Color32 } from '../_types'
 import { forEachLinePoint } from '../Algorithm/forEachLinePoint'
-import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
-import type { PixelAccumulator } from '../History/PixelAccumulator'
 import type { PixelEngineConfig } from '../History/PixelEngineConfig'
 import { _macro_paintRectCenterOffset } from '../Internal/macros'
-import { blendPixelData } from '../PixelData/blendPixelData'
 import type { Rect } from '../Rect/_rect-types'
 import { trimRectBounds } from '../Rect/trimRectBounds'
 import type { PixelTile } from '../Tile/_tile-types'
@@ -19,7 +16,6 @@ export class ColorPaintBuffer {
   constructor(
     readonly config: PixelEngineConfig,
     readonly tilePool: TilePool<PixelTile>,
-    private blendPixelDataFn = blendPixelData,
   ) {
     this.lookup = []
   }
@@ -283,55 +279,6 @@ export class ColorPaintBuffer {
     )
 
     return changed
-  }
-
-  private opts = {
-    alpha: 255,
-    blendFn: sourceOverPerfect,
-    x: 0,
-    y: 0,
-    w: 0,
-    h: 0,
-  }
-
-  commit(
-    accumulator: PixelAccumulator,
-    alpha = 255,
-    blendFn = sourceOverPerfect,
-  ) {
-    const tileShift = this.config.tileShift
-    const lookup = this.lookup
-    const opts = this.opts
-
-    const blendPixelDataFn = this.blendPixelDataFn
-    opts.alpha = alpha
-    opts.blendFn = blendFn
-
-    for (let i = 0; i < lookup.length; i++) {
-      const tile = lookup[i]
-
-      if (tile) {
-        const didChange = accumulator.storeTileBeforeState(tile.id, tile.tx, tile.ty)
-
-        const dx = tile.tx << tileShift
-        const dy = tile.ty << tileShift
-
-        opts.x = dx
-        opts.y = dy
-        opts.w = tile.w
-        opts.h = tile.h
-
-        didChange(
-          blendPixelDataFn(
-            this.config.target,
-            tile,
-            opts,
-          ),
-        )
-      }
-    }
-
-    this.clear()
   }
 
   clear(): void {
