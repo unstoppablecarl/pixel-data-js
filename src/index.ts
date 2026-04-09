@@ -27,6 +27,7 @@ export * from './Clipboard/writeImgBlobToClipboard'
 export * from './color'
 
 export * from './Control/BatchedQueue'
+export * from './Control/RenderQueue'
 
 export * from './History/HistoryAction'
 export * from './History/HistoryManager'
