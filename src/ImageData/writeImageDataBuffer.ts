@@ -57,8 +57,7 @@ export function writeImageDataBuffer(
     h = _h!
   }
 
-  if (w <= 0) return
-  if (h <= 0) return
+  if (w <= 0 || h <= 0) return
 
   const dstW = target.width
   const dstH = target.height
@@ -87,8 +86,7 @@ export function writeImageDataBuffer(
   copyW = Math.min(copyW, dstW - dstX)
   copyH = Math.min(copyH, dstH - dstY)
 
-  if (copyW <= 0) return
-  if (copyH <= 0) return
+  if (copyW <= 0 || copyH <= 0) return
 
   // Fast-path: Both arrays must be 4-byte aligned to use Uint32Array safely
   const isDstAligned = dst.byteOffset % 4 === 0

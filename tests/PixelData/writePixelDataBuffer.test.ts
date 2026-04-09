@@ -118,4 +118,14 @@ describe('writePixelDataBuffer', () => {
     const fn = () => writePixelDataBuffer(dst, tinyData, 0, 0, 10, 10)
     expect(fn).not.toThrow()
   })
+
+  it('returns null for invalid size', () => {
+    const dst = makeTestPixelData(10, 10)
+    const white = pack(255, 255, 255, 255)
+    const tinyData = new Uint32Array(1).fill(white)
+
+    writePixelDataBuffer(dst, tinyData, 0, 0, 0, 10)
+
+    expect(dst.data.some(v => v === white)).toEqual(false)
+  })
 })

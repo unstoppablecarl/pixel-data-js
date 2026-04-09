@@ -83,8 +83,7 @@ export function fillPixelData(
   fillW = Math.min(fillW, dstW - dstX)
   fillH = Math.min(fillH, dstH - dstY)
 
-  if (fillW <= 0) return false
-  if (fillH <= 0) return false
+  if (fillW <= 0 || fillH <= 0) return false
 
   const dst32 = dst.data
   let hasChanged = false

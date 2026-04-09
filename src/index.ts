@@ -166,6 +166,7 @@ export * from './PixelData/ReusablePixelData'
 export * from './PixelData/rotatePixelData'
 export * from './PixelData/uInt32ArrayToPixelData'
 export * from './PixelData/writePaintBufferToPixelData'
+export * from './PixelData/writePixelData'
 export * from './PixelData/writePixelDataBuffer'
 
 export * from './Rect/_rect-types'

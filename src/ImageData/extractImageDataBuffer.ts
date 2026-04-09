@@ -40,8 +40,7 @@ export function extractImageDataBuffer(
   const { x, y, w, h } = typeof _x === 'object'
     ? _x
     : { x: _x, y: _y!, w: _w!, h: _h! }
-  if (w <= 0) return new Uint8ClampedArray(0)
-  if (h <= 0) return new Uint8ClampedArray(0)
+  if (w <= 0 || h <= 0) return new Uint8ClampedArray(0)
 
   const srcW = imageData.width
   const srcH = imageData.height
@@ -72,8 +71,7 @@ export function extractImageDataBuffer(
   copyW = Math.min(copyW, srcW - srcX)
   copyH = Math.min(copyH, srcH - srcY)
 
-  if (copyW <= 0) return out
-  if (copyH <= 0) return out
+  if (copyW <= 0 || copyH <= 0) return out
 
   // 2. Perform high-speed block copy
   // Attempt to use a 32-bit view if the buffer is memory-aligned.

@@ -85,8 +85,7 @@ export function fillPixelDataFast(
   fillW = Math.min(fillW, dstW - dstX)
   fillH = Math.min(fillH, dstH - dstY)
 
-  if (fillW <= 0) return
-  if (fillH <= 0) return
+  if (fillW <= 0 || fillH <= 0) return
 
   const dst32 = dst.data
   const dw = dst.w
