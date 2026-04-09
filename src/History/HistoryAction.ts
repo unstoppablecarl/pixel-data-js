@@ -14,9 +14,8 @@ export function makeHistoryAction(
   config: PixelEngineConfig,
   accumulator: PixelAccumulator,
   patch: PixelPatchTiles,
-  after?: () => void,
-  afterUndo?: () => void,
-  afterRedo?: () => void,
+  afterUndo?: (patch: PixelPatchTiles) => void,
+  afterRedo?: (patch: PixelPatchTiles) => void,
   applyPatchTilesFn = applyPatchTiles,
 ): HistoryAction {
 
@@ -26,13 +25,11 @@ export function makeHistoryAction(
   return {
     undo: () => {
       applyPatchTilesFn(target, patch.beforeTiles, tileSize)
-      afterUndo?.()
-      after?.()
+      afterUndo?.(patch)
     },
     redo: () => {
       applyPatchTilesFn(target, patch.afterTiles, tileSize)
-      afterRedo?.()
-      after?.()
+      afterRedo?.(patch)
     },
     dispose: () => accumulator.recyclePatch(patch),
   }
