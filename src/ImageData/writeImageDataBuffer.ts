@@ -43,43 +43,84 @@ export function writeImageDataBuffer(
   _w?: number,
   _h?: number,
 ): void {
-  const { x, y, w, h } = typeof _x === 'object'
-    ? _x
-    : { x: _x, y: _y!, w: _w!, h: _h! }
+  let x: number
+  let y: number
+  let w: number
+  let h: number
 
-  const { width: dstW, height: dstH, data: dst } = target
+  if (typeof _x === 'object') {
+    x = _x.x
+    y = _x.y
+    w = _x.w
+    h = _x.h
+  } else {
+    x = _x
+    y = _y!
+    w = _w!
+    h = _h!
+  }
 
-  const clip = resolveBlitClipping(
-    x,
-    y,
-    0,
-    0,
-    w,
-    h,
-    dstW,
-    dstH,
-    w,
-    h,
-    SCRATCH_BLIT,
-  )
+  if (w <= 0) return
+  if (h <= 0) return
 
-  if (!clip.inBounds) return
+  const dstW = target.width
+  const dstH = target.height
+  const dst = target.data
 
-  const {
-    x: dstX,
-    y: dstY,
-    sx: srcX,
-    sy: srcY,
-    w: copyW,
-    h: copyH,
-  } = clip
+  // Inline clipping logic for destination boundaries
+  let dstX = x
+  let dstY = y
+  let srcX = 0
+  let srcY = 0
+  let copyW = w
+  let copyH = h
 
-  const rowLen = copyW * 4
+  if (dstX < 0) {
+    srcX = -dstX
+    copyW += dstX
+    dstX = 0
+  }
 
-  for (let row = 0; row < copyH; row++) {
-    const dstStart = ((dstY + row) * dstW + dstX) * 4
-    const srcStart = ((srcY + row) * w + srcX) * 4
+  if (dstY < 0) {
+    srcY = -dstY
+    copyH += dstY
+    dstY = 0
+  }
 
-    dst.set(data.subarray(srcStart, srcStart + rowLen), dstStart)
+  copyW = Math.min(copyW, dstW - dstX)
+  copyH = Math.min(copyH, dstH - dstY)
+
+  if (copyW <= 0) return
+  if (copyH <= 0) return
+
+  // Fast-path: Both arrays must be 4-byte aligned to use Uint32Array safely
+  const isDstAligned = dst.byteOffset % 4 === 0
+  const isSrcAligned = data.byteOffset % 4 === 0
+
+  if (isDstAligned && isSrcAligned) {
+    const dstLen32 = dst.byteLength / 4
+    const dst32 = new Uint32Array(dst.buffer, dst.byteOffset, dstLen32)
+
+    const srcLen32 = data.byteLength / 4
+    const src32 = new Uint32Array(data.buffer, data.byteOffset, srcLen32)
+
+    for (let row = 0; row < copyH; row++) {
+      const dstStart = (dstY + row) * dstW + dstX
+      const srcStart = (srcY + row) * w + srcX
+      const chunk = src32.subarray(srcStart, srcStart + copyW)
+
+      dst32.set(chunk, dstStart)
+    }
+  } else {
+    // Fallback for unaligned data arrays
+    const rowLen = copyW * 4
+
+    for (let row = 0; row < copyH; row++) {
+      const dstStart = ((dstY + row) * dstW + dstX) * 4
+      const srcStart = ((srcY + row) * w + srcX) * 4
+      const chunk = data.subarray(srcStart, srcStart + rowLen)
+
+      dst.set(chunk, dstStart)
+    }
   }
 }
