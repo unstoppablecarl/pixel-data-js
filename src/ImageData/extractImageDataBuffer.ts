@@ -1,5 +1,5 @@
 import type { Rect } from '../Rect/_rect-types'
-import { makeClippedBlit, resolveBlitClipping } from '../Rect/resolveClipping'
+import { makeClippedBlit } from '../Rect/resolveClipping'
 import type { ImageDataLike } from './_ImageData-types'
 
 const SCRATCH_BLIT = makeClippedBlit()
@@ -43,37 +43,69 @@ export function extractImageDataBuffer(
   const { x, y, w, h } = typeof _x === 'object'
     ? _x
     : { x: _x, y: _y!, w: _w!, h: _h! }
+  if (w <= 0) return new Uint8ClampedArray(0)
+  if (h <= 0) return new Uint8ClampedArray(0)
 
-  const { width: srcW, height: srcH, data: src } = imageData
-  // Safety check for invalid dimensions
-  if (w <= 0 || h <= 0) return new Uint8ClampedArray(0)
-  const out = new Uint8ClampedArray(w * h * 4)
+  const srcW = imageData.width
+  const srcH = imageData.height
+  const src = imageData.data
 
-  const clip = resolveBlitClipping(
-    0,
-    0,
-    x,
-    y,
-    w,
-    h,
-    w,
-    h,
-    srcW,
-    srcH,
-    SCRATCH_BLIT,
-  )
+  const outLen = w * h * 4
+  const out = new Uint8ClampedArray(outLen)
 
-  if (!clip.inBounds) return out
+  let srcX = x
+  let srcY = y
+  let dstX = 0
+  let dstY = 0
+  let copyW = w
+  let copyH = h
 
-  const { x: dstX, y: dstY, sx: srcX, sy: srcY, w: copyW, h: copyH } = clip
-  const rowLen = copyW * 4
+  if (srcX < 0) {
+    dstX = -srcX
+    copyW += srcX
+    srcX = 0
+  }
 
-  for (let row = 0; row < copyH; row++) {
-    const srcStart = ((srcY + row) * srcW + srcX) * 4
-    const dstStart = ((dstY + row) * w + dstX) * 4
+  if (srcY < 0) {
+    dstY = -srcY
+    copyH += srcY
+    srcY = 0
+  }
 
-    // Perform the high-speed bulk copy
-    out.set(src.subarray(srcStart, srcStart + rowLen), dstStart)
+  copyW = Math.min(copyW, srcW - srcX)
+  copyH = Math.min(copyH, srcH - srcY)
+
+  if (copyW <= 0) return out
+  if (copyH <= 0) return out
+
+  // 2. Perform high-speed block copy
+  // Attempt to use a 32-bit view if the buffer is memory-aligned.
+  // This reduces loop iterations and arithmetic by 4x.
+  const isAligned = src.byteOffset % 4 === 0
+
+  if (isAligned) {
+    const srcLen32 = src.byteLength / 4
+    const src32 = new Uint32Array(src.buffer, src.byteOffset, srcLen32)
+    const out32 = new Uint32Array(out.buffer)
+
+    for (let row = 0; row < copyH; row++) {
+      const srcStart = (srcY + row) * srcW + srcX
+      const dstStart = (dstY + row) * w + dstX
+      const chunk = src32.subarray(srcStart, srcStart + copyW)
+
+      out32.set(chunk, dstStart)
+    }
+  } else {
+    // Fallback for unaligned data
+    const rowLen = copyW * 4
+
+    for (let row = 0; row < copyH; row++) {
+      const srcStart = ((srcY + row) * srcW + srcX) * 4
+      const dstStart = ((dstY + row) * w + dstX) * 4
+      const chunk = src.subarray(srcStart, srcStart + rowLen)
+
+      out.set(chunk, dstStart)
+    }
   }
 
   return out
