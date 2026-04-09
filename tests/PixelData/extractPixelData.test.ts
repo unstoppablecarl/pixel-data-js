@@ -67,7 +67,6 @@ describe('extractPixelData', () => {
     const source = createTestPixelData(1, 1)
     const result = extractPixelData(source, 0, 0, 1, 1)
 
-    // This is critical for your production "no ImageDataLike" rule
     expect(result.imageData).toBeDefined()
     expect(result.imageData.width).toBe(1)
     expect(result.data.buffer).toBe(result.imageData.data.buffer)
