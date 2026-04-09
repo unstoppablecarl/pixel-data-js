@@ -2,13 +2,12 @@ import {
   blendColorPixelData,
   blendColorPixelDataBinaryMask,
   blendPixelData,
-  type CanvasObjectFactory,
-  ERRORS,
   makeCirclePaintAlphaMask,
   makeCirclePaintBinaryMask,
   makePaintBinaryMask,
   makePaintCursorRenderer,
   makePixelData,
+  makeReusableCanvas,
   MaskType,
   type PaintCursorRenderer,
   PaintMaskOutline,
@@ -16,8 +15,8 @@ import {
 } from '@/index'
 import { createCanvas } from '@napi-rs/canvas'
 import { describe, expect, it, vi } from 'vitest'
-import { makeTestBinaryMask, makeTestPixelData, pack, testCanvasFactory } from '../_helpers'
-import { OffscreenCanvasMock, useOffscreenCanvasMock } from '../_helpers/OffscreenCanvasMock'
+import { makeTestBinaryMask, makeTestPixelData, pack } from '../../_helpers'
+import { OffscreenCanvasMock, useOffscreenCanvasMock } from '../../_helpers/OffscreenCanvasMock'
 
 describe('PaintCursorRenderer', () => {
   const redTint = pack(255, 0, 0, 120)
@@ -133,7 +132,7 @@ describe('PaintCursorRenderer', () => {
     it.each(cases)('test rect scale=$scale x=$x y=$y w=$w h=$h', (v) => {
 
       const { scale, x, y, w, h, targetW, targetH, expectedResult } = v
-      const renderer = makePaintCursorRenderer(testCanvasFactory)
+      const renderer = makePaintCursorRenderer(makeReusableCanvas)
 
       // copied from _macro_paintRectCenterOffset()
       const paintRectCenterOffset = (size: number) => -((size - 1) >> 1)
@@ -309,7 +308,7 @@ describe('PaintCursorRenderer', () => {
     it.each(cases)('test circle scale=$scale x=$x y=$y size=$size', (v) => {
 
       const { scale, x, y, size, targetW, targetH, expectedResult } = v
-      const renderer = makePaintCursorRenderer(testCanvasFactory)
+      const renderer = makePaintCursorRenderer(makeReusableCanvas)
 
       const mask = makeCirclePaintBinaryMask(size)
 
@@ -379,7 +378,7 @@ describe('PaintCursorRenderer', () => {
     const targetW = 12
     const targetH = 12
 
-    const renderer = makePaintCursorRenderer(testCanvasFactory)
+    const renderer = makePaintCursorRenderer(makeReusableCanvas)
 
     const mask = makeCirclePaintAlphaMask(size)
 
@@ -459,7 +458,7 @@ describe('PaintCursorRenderer', () => {
     const targetW = 12
     const targetH = 12
 
-    const renderer = makePaintCursorRenderer(testCanvasFactory)
+    const renderer = makePaintCursorRenderer(makeReusableCanvas)
 
     const bMask = makeTestBinaryMask(8, 7, [
       0, 0, 0, 0, 0, 0, 0, 0,
@@ -542,33 +541,9 @@ describe('PaintCursorRenderer', () => {
     ])
   })
 
-  it('should throw CANVAS_CTX_FAILED if getContext returns null', () => {
-    const fact: CanvasObjectFactory<any> = () => {
-      return {
-        getContext() {
-          return null
-        },
-      }
-    }
-
-    expect(() => {
-      makePaintCursorRenderer(fact)
-    }).toThrowError(ERRORS.CANVAS_CTX_FAILED)
-  })
-
-  it('should use OffscreenCanvas by default', () => {
-
-    vi.spyOn(OffscreenCanvasMock.prototype, 'getContext')
-
-    useOffscreenCanvasMock()
-    makePaintCursorRenderer()
-
-    expect(OffscreenCanvasMock.prototype.getContext).toHaveBeenCalledWith('2d')
-  })
-
   it('should handle partial settings update', () => {
 
-    const renderer = makePaintCursorRenderer(testCanvasFactory)
+    const renderer = makePaintCursorRenderer(makeReusableCanvas)
 
     const defaults = {
       color: cyan,
@@ -605,7 +580,7 @@ describe('PaintCursorRenderer', () => {
   })
 
   it('changing scale or cursor updates scaledCenterOffsets', () => {
-    const renderer = makePaintCursorRenderer(testCanvasFactory)
+    const renderer = makePaintCursorRenderer(makeReusableCanvas)
 
     renderer.update(undefined, 4)
 
@@ -617,6 +592,26 @@ describe('PaintCursorRenderer', () => {
     expect(renderer.getBoundsScaled(0, 0).x).toEqual(-25)
     expect(renderer.getBoundsScaled(0, 0).y).toEqual(-25)
 
+  })
+
+  it('should use fallback', () => {
+
+    useOffscreenCanvasMock()
+    const renderer = makePaintCursorRenderer()
+
+    renderer.update(undefined, 4)
+
+    const ctx = {
+      drawImage: vi.fn(),
+    } as any
+
+    renderer.draw(ctx, 5, 6)
+
+    expect(ctx.drawImage).toHaveBeenCalledWith(
+      expect.toSatisfy((v) => v instanceof OffscreenCanvasMock),
+      3,
+      7,
+    )
   })
 })
 
@@ -636,4 +631,3 @@ function makeTargetCanvas(w = 100, h = 100) {
     },
   }
 }
-

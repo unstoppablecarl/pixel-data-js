@@ -1,28 +1,26 @@
-import { CANVAS_CTX_FAILED } from '../Internal/_errors'
-import type { ColorPaintBuffer } from './ColorPaintBuffer'
+import type { CanvasObjectFactory } from '../../Canvas/_canvas-types'
+import { DEFAULT_CANVAS_FACTORY } from '../../Internal/_constants'
+import { CANVAS_CTX_FAILED } from '../../Internal/_errors'
+import type { ColorPaintBuffer } from '../ColorPaintBuffer'
 
 export type ColorPaintBufferCanvasRenderer = ReturnType<typeof makeColorPaintBufferCanvasRenderer>
 
-/**
- *
- * @param paintBuffer
- * @param offscreenCanvasClass - @internal
- */
 export function makeColorPaintBufferCanvasRenderer(
   paintBuffer: ColorPaintBuffer,
-  offscreenCanvasClass = OffscreenCanvas,
+  canvasFactory: CanvasObjectFactory<any> = DEFAULT_CANVAS_FACTORY,
 ) {
   const config = paintBuffer.config
   const tileSize = config.tileSize
   const tileShift = config.tileShift
   const lookup = paintBuffer.lookup
-  const canvas = new offscreenCanvasClass(tileSize, tileSize)
+
+  const canvas = canvasFactory(tileSize, tileSize)
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error(CANVAS_CTX_FAILED)
   ctx.imageSmoothingEnabled = false
 
   return function drawPaintBuffer(
-    targetCtx: CanvasRenderingContext2D,
+    targetCtx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
     alpha = 255,
     compOperation: GlobalCompositeOperation = 'source-over',
   ): void {

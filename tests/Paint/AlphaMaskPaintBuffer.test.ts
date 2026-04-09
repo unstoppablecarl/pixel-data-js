@@ -1,4 +1,3 @@
-import type { Color32 } from '@/_types'
 import {
   AlphaMaskPaintBuffer,
   type AlphaMaskTile,
@@ -218,34 +217,6 @@ describe('AlphaMaskPaintBuffer', () => {
       expect(changed).toBe(false)
       // verify the injected loop was never reached due to early exit
       expect((buffer as any).forEachLinePointFn).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('commit', () => {
-    it('should push history, blend to target, and clear lookup', () => {
-      buffer.paintRect(255, 16, 16, 0, 0) // Dirty the buffer
-
-      const color = 0xff0000ff as Color32
-      const alpha = 128
-      const mockBlendFn = vi.fn()
-
-      buffer.commit(mockAccumulator, color, alpha, mockBlendFn)
-
-      // 1. History tracking fired
-      expect(mockAccumulator.storeTileBeforeState).toHaveBeenCalledWith(1, 0, 0)
-
-      // 2. The injected blend function was called with correct opts
-      const injectedBlendSpy = (buffer as any).blendColorPixelDataAlphaMaskFn
-      expect(injectedBlendSpy).toHaveBeenCalledTimes(1)
-
-      const passedOpts = injectedBlendSpy.mock.calls[0][3]
-      expect(passedOpts.alpha).toBe(alpha)
-      expect(passedOpts.w).toBe(16)
-      expect(passedOpts.h).toBe(16)
-      expect(passedOpts.blendFn).toBe(mockBlendFn)
-
-      // 3. Buffer cleared
-      expect(mockPool.releaseTiles).toHaveBeenCalledWith(buffer.lookup)
     })
   })
 

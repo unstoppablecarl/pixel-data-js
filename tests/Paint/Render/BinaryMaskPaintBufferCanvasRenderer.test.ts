@@ -1,7 +1,7 @@
 import type { Color32 } from '@/_types'
 import { ERRORS, makeBinaryMaskPaintBufferCanvasRenderer } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { offscreenCanvasMockContext, useOffscreenCanvasMock } from '../_helpers/OffscreenCanvasMock'
+import { offscreenCanvasMockContext, useOffscreenCanvasMock } from '../../_helpers/OffscreenCanvasMock'
 
 describe('BinaryMaskPaintBufferCanvasRenderer', () => {
   const tileSize = 4
@@ -36,14 +36,16 @@ describe('BinaryMaskPaintBufferCanvasRenderer', () => {
 
   describe('Factory Initialization', () => {
     it('should throw CANVAS_CTX_FAILED if getContext returns null', () => {
-      const BadCanvasClass = class {
-        getContext() {
-          return null
+      const BadCanvasFactory = () => {
+        return {
+          getContext() {
+            return null
+          },
         }
       }
 
       expect(() => {
-        makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer, BadCanvasClass as any)
+        makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer, BadCanvasFactory as any)
       }).toThrowError(ERRORS.CANVAS_CTX_FAILED)
     })
 
@@ -52,6 +54,18 @@ describe('BinaryMaskPaintBufferCanvasRenderer', () => {
       makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer)
 
       expect((offscreenCanvasMockContext as any).imageSmoothingEnabled).toBe(false)
+    })
+
+    it('should handle custom canvas factory', () => {
+      const ctx = vi.fn()
+      const canvas = {
+        getContext: vi.fn().mockReturnValue(ctx),
+      }
+      const customFactory = vi.fn().mockReturnValue(canvas)
+      makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer, customFactory as any)
+
+      expect(customFactory).toHaveBeenCalledOnce()
+      expect(canvas.getContext).toHaveBeenCalledExactlyOnceWith('2d')
     })
   })
 
