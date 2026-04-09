@@ -1,7 +1,4 @@
 import type { Rect } from '../Rect/_rect-types'
-import { makeClippedBlit, resolveBlitClipping } from '../Rect/resolveClipping'
-
-const SCRATCH_BLIT = makeClippedBlit()
 
 /**
  * Copies a pixel buffer into a specific region of an {@link ImageData} object.

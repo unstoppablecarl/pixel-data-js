@@ -1,49 +1,66 @@
 import { type PixelMutateOptions } from '../_types'
-import { makeClippedRect, resolveRectClipping } from '../Rect/resolveClipping'
 import type { PixelData32 } from './_pixelData-types'
 
-const SCRATCH_RECT = makeClippedRect()
-
+/**
+ * Inverts the RGB color data of the target PixelData, optionally controlled by a mask.
+ * @param target - The target to modify.
+ * @param opts - Options defining the area, mask, and offsets.
+ * @returns true if the operation was performed within bounds.
+ */
 export function invertPixelData(
   target: PixelData32,
   opts?: PixelMutateOptions,
 ): boolean {
+  const targetW = target.w
+  const targetH = target.h
+
   const mask = opts?.mask
+  const invertMask = opts?.invertMask ?? false
+
   const targetX = opts?.x ?? 0
   const targetY = opts?.y ?? 0
   const mx = opts?.mx ?? 0
   const my = opts?.my ?? 0
-  const width = opts?.w ?? target.w
-  const height = opts?.h ?? target.h
-  const invertMask = opts?.invertMask ?? false
+  const w = opts?.w ?? targetW
+  const h = opts?.h ?? targetH
 
-  const clip = resolveRectClipping(targetX, targetY, width, height, target.w, target.h, SCRATCH_RECT)
+  // Inline clipping logic
+  let x = targetX
+  let y = targetY
+  let actualW = w
+  let actualH = h
 
-  if (!clip.inBounds) return false
+  if (x < 0) {
+    actualW += x
+    x = 0
+  }
 
-  const {
-    x,
-    y,
-    w: actualW,
-    h: actualH,
-  } = clip
+  if (y < 0) {
+    actualH += y
+    y = 0
+  }
+
+  actualW = Math.min(actualW, targetW - x)
+  actualH = Math.min(actualH, targetH - y)
+
+  if (actualW <= 0 || actualH <= 0) return false
 
   const dst32 = target.data
-  const dw = target.w
-  const mPitch = mask?.w ?? width
+  const dw = targetW
 
+  // Calculate relative movement for the mask coordinate
   const dx = x - targetX
   const dy = y - targetY
 
   let dIdx = y * dw + x
-  let mIdx = (my + dy) * mPitch + (mx + dx)
-
   const dStride = dw - actualW
-  const mStride = mPitch - actualW
 
-  // Optimization: Split loops to avoid checking `if (mask)` for every pixel.
   if (mask) {
     const maskData = mask.data
+    const mPitch = mask.w
+    let mIdx = (my + dy) * mPitch + (mx + dx)
+    const mStride = mPitch - actualW
+
     for (let iy = 0; iy < actualH; iy++) {
       for (let ix = 0; ix < actualW; ix++) {
         const mVal = maskData[mIdx]
@@ -52,7 +69,7 @@ export function invertPixelData(
           : mVal === 1
 
         if (isHit) {
-          // XOR with 0x00FFFFFF flips RGB bits and ignores Alpha (the top 8 bits)
+          // XOR with 0x00FFFFFF flips RGB bits and ignores Alpha
           dst32[dIdx] = dst32[dIdx] ^ 0x00FFFFFF
         }
         dIdx++

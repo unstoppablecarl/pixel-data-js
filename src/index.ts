@@ -58,6 +58,7 @@ export * from './History/PixelWriter'
 
 export * from './ImageData/_ImageData-types'
 export * from './ImageData/copyImageData'
+export * from './ImageData/extractImageData'
 export * from './ImageData/extractImageDataBuffer'
 export * from './ImageData/ImageDataLike'
 export * from './ImageData/imageDataToAlphaMaskBuffer'
@@ -168,7 +169,6 @@ export * from './PixelData/writePixelDataBuffer'
 
 export * from './Rect/_rect-types'
 export * from './Rect/getRectsBounds'
-export * from './Rect/resolveClipping'
 export * from './Rect/trimMaskRectBounds'
 export * from './Rect/trimRectBounds'
 

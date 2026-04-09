@@ -1,17 +1,16 @@
 import type { Color32 } from '../_types'
 import type { BinaryMask } from '../Mask/_mask-types'
-import { makeClippedRect, resolveRectClipping } from '../Rect/resolveClipping'
 import type { PixelData32 } from './_pixelData-types'
 
-const SCRATCH_RECT = makeClippedRect()
-
 /**
- * Fills a region of the {@link PixelData32} buffer with a solid color using a mask.
+ * Fills the target PixelData with a color based on a binary mask.
+ *
  * @param target - The target to modify.
  * @param color - The color to apply.
- * @param mask - The mask defining the area to fill.
- * @param x - Starting horizontal coordinate for the mask placement.
- * @param y - Starting vertical coordinate for the mask placement.
+ * @param mask - The binary mask determining where to fill.
+ * @param x - Horizontal offset to place the mask.
+ * @param y - Vertical offset to place the mask.
+ * @returns true if any pixels were actually modified.
  */
 export function fillPixelDataBinaryMask(
   target: PixelData32,
@@ -20,55 +19,61 @@ export function fillPixelDataBinaryMask(
   x = 0,
   y = 0,
 ): boolean {
-
+  const targetW = target.w
+  const targetH = target.h
   const maskW = mask.w
   const maskH = mask.h
 
-  const clip = resolveRectClipping(
-    x,
-    y,
-    maskW,
-    maskH,
-    target.w,
-    target.h,
-    SCRATCH_RECT,
-  )
+  // Inline clipping logic
+  let dstX = x
+  let dstY = y
+  let actualW = maskW
+  let actualH = maskH
 
-  if (!clip.inBounds) return false
+  if (dstX < 0) {
+    actualW += dstX
+    dstX = 0
+  }
 
-  const {
-    x: finalX,
-    y: finalY,
-    w: actualW,
-    h: actualH,
-  } = clip
+  if (dstY < 0) {
+    actualH += dstY
+    dstY = 0
+  }
+
+  actualW = Math.min(actualW, targetW - dstX)
+  actualH = Math.min(actualH, targetH - dstY)
+
+  if (actualW <= 0 || actualH <= 0) return false
 
   const maskData = mask.data
   const dst32 = target.data
-  const dw = target.w
+
+  // Calculate offsets for the mask based on clipping
+  const mx = dstX - x
+  const my = dstY - y
 
   let hasChanged = false
 
+  // Stride-based loop for performance
+  let dIdx = dstY * targetW + dstX
+  let mIdx = my * maskW + mx
+
+  const dStride = targetW - actualW
+  const mStride = maskW - actualW
+
   for (let iy = 0; iy < actualH; iy++) {
-    const currentY = finalY + iy
-    const maskY = currentY - y
-    const maskOffset = maskY * maskW
-
-    const dstRowOffset = currentY * dw
-
     for (let ix = 0; ix < actualW; ix++) {
-      const currentX = finalX + ix
-      const maskX = currentX - x
-      const maskIndex = maskOffset + maskX
-
-      if (maskData[maskIndex]) {
-        const current = dst32[dstRowOffset + currentX]
-        if (current !== color) {
-          dst32[dstRowOffset + currentX] = color
+      if (maskData[mIdx]) {
+        if (dst32[dIdx] !== color) {
+          dst32[dIdx] = color
           hasChanged = true
         }
       }
+      dIdx++
+      mIdx++
     }
+    dIdx += dStride
+    mIdx += mStride
   }
 
   return hasChanged

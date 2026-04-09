@@ -1,9 +1,6 @@
 import type { Color32 } from '../_types'
 import type { Rect } from '../Rect/_rect-types'
-import { makeClippedRect, resolveRectClipping } from '../Rect/resolveClipping'
 import type { PixelData32 } from './_pixelData-types'
-
-const SCRATCH_RECT = makeClippedRect()
 
 /**
  * Fills a region or the {@link PixelData32} buffer with a solid color.
@@ -42,6 +39,9 @@ export function fillPixelData(
   _w?: number,
   _h?: number,
 ): boolean {
+  const dstW = dst.w
+  const dstH = dst.h
+
   let x: number
   let y: number
   let w: number
@@ -50,8 +50,8 @@ export function fillPixelData(
   if (typeof _x === 'object') {
     x = _x.x ?? 0
     y = _x.y ?? 0
-    w = _x.w ?? dst.w
-    h = _x.h ?? dst.h
+    w = _x.w ?? dstW
+    h = _x.h ?? dstH
   } else if (typeof _x === 'number') {
     x = _x
     y = _y!
@@ -60,37 +60,55 @@ export function fillPixelData(
   } else {
     x = 0
     y = 0
-    w = dst.w
-    h = dst.h
+    w = dstW
+    h = dstH
   }
 
-  const clip = resolveRectClipping(
-    x,
-    y,
-    w,
-    h,
-    dst.w,
-    dst.h,
-    SCRATCH_RECT,
-  )
+  // Inline bounds clipping
+  let dstX = x
+  let dstY = y
+  let fillW = w
+  let fillH = h
 
-  if (!clip.inBounds) return false
+  if (dstX < 0) {
+    fillW += dstX
+    dstX = 0
+  }
 
-  const {
-    x: finalX,
-    y: finalY,
-    w: actualW,
-    h: actualH,
-  } = clip
+  if (dstY < 0) {
+    fillH += dstY
+    dstY = 0
+  }
+
+  fillW = Math.min(fillW, dstW - dstX)
+  fillH = Math.min(fillH, dstH - dstY)
+
+  if (fillW <= 0) return false
+  if (fillH <= 0) return false
 
   const dst32 = dst.data
-  const dw = dst.w
   let hasChanged = false
 
-  for (let iy = 0; iy < actualH; iy++) {
-    const rowOffset = (finalY + iy) * dw
-    const start = rowOffset + finalX
-    const end = start + actualW
+  // Fast-path: If the area spans the full width, we can treat it as a contiguous 1D array
+  if (dstX === 0 && fillW === dstW) {
+    const start = dstY * dstW
+    const end = start + fillW * fillH
+
+    for (let i = start; i < end; i++) {
+      if (dst32[i] !== color) {
+        dst32[i] = color
+        hasChanged = true
+      }
+    }
+
+    return hasChanged
+  }
+
+  // Standard path: row-by-row
+  for (let iy = 0; iy < fillH; iy++) {
+    const rowOffset = (dstY + iy) * dstW
+    const start = rowOffset + dstX
+    const end = start + fillW
 
     for (let i = start; i < end; i++) {
       if (dst32[i] !== color) {

@@ -1,4 +1,4 @@
-import { extractImageData } from '@/ImageData/extractImageData'
+import { extractImageData } from '@/index'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { getImageDataBufferPixel, pack, unpackStr } from '../_helpers'
 

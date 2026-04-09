@@ -1,9 +1,6 @@
 import type { Color32 } from '../_types'
 import type { Rect } from '../Rect/_rect-types'
-import { makeClippedRect, resolveRectClipping } from '../Rect/resolveClipping'
 import type { PixelData32 } from './_pixelData-types'
-
-const SCRATCH_RECT = makeClippedRect()
 
 /**
  * Fills a region or the {@link PixelData32} buffer with a solid color.
@@ -44,6 +41,9 @@ export function fillPixelDataFast(
   _w?: number,
   _h?: number,
 ): void {
+  const dstW = dst.w
+  const dstH = dst.h
+
   let x: number
   let y: number
   let w: number
@@ -66,31 +66,41 @@ export function fillPixelDataFast(
     h = dst.h
   }
 
-  const clip = resolveRectClipping(x, y, w, h, dst.w, dst.h, SCRATCH_RECT)
+  // Inline bounds clipping
+  let dstX = x
+  let dstY = y
+  let fillW = w
+  let fillH = h
 
-  if (!clip.inBounds) return
+  if (dstX < 0) {
+    fillW += dstX
+    dstX = 0
+  }
 
-  // Use the clipped values
-  const {
-    x: finalX,
-    y: finalY,
-    w: actualW,
-    h: actualH,
-  } = clip
+  if (dstY < 0) {
+    fillH += dstY
+    dstY = 0
+  }
+
+  fillW = Math.min(fillW, dstW - dstX)
+  fillH = Math.min(fillH, dstH - dstY)
+
+  if (fillW <= 0) return
+  if (fillH <= 0) return
 
   const dst32 = dst.data
   const dw = dst.w
 
   // Optimization: If filling the entire buffer, use the native .fill()
-  if (actualW === dw && actualH === dst.h && finalX === 0 && finalY === 0) {
+  if (fillW === dw && fillH === dst.h && dstX === 0 && dstY === 0) {
     dst32.fill(color)
     return
   }
 
   // Row-by-row fill for partial rectangles
-  for (let iy = 0; iy < actualH; iy++) {
-    const start = (finalY + iy) * dw + finalX
-    const end = start + actualW
+  for (let iy = 0; iy < fillH; iy++) {
+    const start = (dstY + iy) * dw + dstX
+    const end = start + fillW
     dst32.fill(color, start, end)
   }
 }

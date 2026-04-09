@@ -1,8 +1,3 @@
-import { MaskType } from '../Mask/_mask-types'
-import { makeClippedBlit, resolveBlitClipping } from '../Rect/resolveClipping'
-
-const SCRATCH_BLIT = makeClippedBlit()
-
 /**
  * Writes image data from a source to a target with support for clipping and alpha masking.
  *
@@ -10,88 +5,72 @@ const SCRATCH_BLIT = makeClippedBlit()
  * @param source - The source ImageData to read from.
  * @param x - The x-coordinate in the target where drawing starts.
  * @param y - The y-coordinate in the target where drawing starts.
- * @param sx - The x-coordinate in the source to start copying from.
- * @param sy - The y-coordinate in the source to start copying from.
- * @param sw - The width of the rectangle to copy.
- * @param sh - The height of the rectangle to copy.
- * @param mask - An optional Uint8Array mask (0-255). 0 is transparent, 255 is opaque.
- * @param maskType - type of mask
  */
 export function writeImageData(
   target: ImageData,
   source: ImageData,
   x: number,
   y: number,
-  sx: number = 0,
-  sy: number = 0,
-  sw: number = source.width,
-  sh: number = source.height,
-  mask: Uint8Array | null = null,
-  maskType: MaskType = MaskType.BINARY,
 ): void {
   const dstW = target.width
   const dstH = target.height
-  const dstData = target.data
+  const dst = target.data
+
   const srcW = source.width
-  const srcData = source.data
+  const srcH = source.height
+  const src = source.data
 
-  const clip = resolveBlitClipping(
-    x, y, sx, sy, sw, sh,
-    dstW, dstH, srcW, source.height,
-    SCRATCH_BLIT,
-  )
+  let dstX = x
+  let dstY = y
+  let srcX = 0
+  let srcY = 0
+  let copyW = srcW
+  let copyH = srcH
 
-  if (!clip.inBounds) return
+  if (dstX < 0) {
+    srcX = -dstX
+    copyW += dstX
+    dstX = 0
+  }
 
-  const {
-    x: dstX,
-    y: dstY,
-    sx: srcX,
-    sy: srcY,
-    w: copyW,
-    h: copyH,
-  } = clip
+  if (dstY < 0) {
+    srcY = -dstY
+    copyH += dstY
+    dstY = 0
+  }
 
-  const useMask = !!mask
+  copyW = Math.min(copyW, dstW - dstX)
+  copyH = Math.min(copyH, dstH - dstY)
 
-  for (let row = 0; row < copyH; row++) {
-    const currentDstY = dstY + row
-    const currentSrcY = srcY + row
+  if (copyW <= 0) return
+  if (copyH <= 0) return
 
-    const dstStart = (currentDstY * dstW + dstX) * 4
-    const srcStart = (currentSrcY * srcW + srcX) * 4
+  const isDstAligned = dst.byteOffset % 4 === 0
+  const isSrcAligned = src.byteOffset % 4 === 0
 
-    if (useMask && mask) {
-      for (let ix = 0; ix < copyW; ix++) {
-        const mi = currentSrcY * srcW + (srcX + ix)
-        const alpha = mask[mi]
+  if (isDstAligned && isSrcAligned) {
+    const dstLen32 = dst.byteLength / 4
+    const dst32 = new Uint32Array(dst.buffer, dst.byteOffset, dstLen32)
 
-        if (alpha === 0) {
-          continue
-        }
+    const srcLen32 = src.byteLength / 4
+    const src32 = new Uint32Array(src.buffer, src.byteOffset, srcLen32)
 
-        const di = dstStart + (ix * 4)
-        const si = srcStart + (ix * 4)
+    for (let row = 0; row < copyH; row++) {
+      const dstStart = (dstY + row) * dstW + dstX
+      const srcStart = (srcY + row) * srcW + srcX
+      const chunk = src32.subarray(srcStart, srcStart + copyW)
 
-        if (maskType === MaskType.BINARY || alpha === 255) {
-          dstData[di] = srcData[si]
-          dstData[di + 1] = srcData[si + 1]
-          dstData[di + 2] = srcData[si + 2]
-          dstData[di + 3] = srcData[si + 3]
-        } else {
-          const a = alpha / 255
-          const invA = 1 - a
+      dst32.set(chunk, dstStart)
+    }
+  } else {
+    const rowLen = copyW * 4
 
-          dstData[di] = srcData[si] * a + dstData[di] * invA
-          dstData[di + 1] = srcData[si + 1] * a + dstData[di + 1] * invA
-          dstData[di + 2] = srcData[si + 2] * a + dstData[di + 2] * invA
-          dstData[di + 3] = srcData[si + 3] * a + dstData[di + 3] * invA
-        }
-      }
-    } else {
-      const byteLen = copyW * 4
-      const sub = srcData.subarray(srcStart, srcStart + byteLen)
-      dstData.set(sub, dstStart)
+    for (let row = 0; row < copyH; row++) {
+      const dstStart = ((dstY + row) * dstW + dstX) * 4
+      const srcStart = ((srcY + row) * srcW + srcX) * 4
+      const chunk = src.subarray(srcStart, srcStart + rowLen)
+
+      dst.set(chunk, dstStart)
     }
   }
 }

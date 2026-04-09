@@ -1,8 +1,5 @@
 import type { Rect } from '../Rect/_rect-types'
-import { makeClippedBlit } from '../Rect/resolveClipping'
 import type { ImageDataLike } from './_ImageData-types'
-
-const SCRATCH_BLIT = makeClippedBlit()
 
 /**
  * Extracts a specific rectangular region of pixels from a larger {@link ImageDataLike}
