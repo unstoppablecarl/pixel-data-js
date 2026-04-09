@@ -1,5 +1,5 @@
 /**
- * Writes image data from a source to a target with support for clipping and alpha masking.
+ * Writes image data from a source to a target.
  *
  * @param target - The destination ImageData to write to.
  * @param source - The source ImageData to read from.
@@ -9,8 +9,8 @@
 export function writeImageData(
   target: ImageData,
   source: ImageData,
-  x: number,
-  y: number,
+  x = 0,
+  y = 0,
 ): void {
   const dstW = target.width
   const dstH = target.height
@@ -42,8 +42,7 @@ export function writeImageData(
   copyW = Math.min(copyW, dstW - dstX)
   copyH = Math.min(copyH, dstH - dstY)
 
-  if (copyW <= 0) return
-  if (copyH <= 0) return
+  if (copyW <= 0 || copyH <= 0) return
 
   const isDstAligned = dst.byteOffset % 4 === 0
   const isSrcAligned = src.byteOffset % 4 === 0

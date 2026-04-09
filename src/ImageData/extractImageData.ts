@@ -42,8 +42,7 @@ export function extractImageData(
     ? _x
     : { x: _x, y: _y!, w: _w!, h: _h! }
 
-  if (w <= 0) return null
-  if (h <= 0) return null
+  if (w <= 0 || h <= 0) return null
 
   const result = new ImageData(w, h)
 

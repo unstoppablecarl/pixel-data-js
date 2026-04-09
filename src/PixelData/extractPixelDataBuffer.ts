@@ -44,8 +44,7 @@ export function extractPixelDataBuffer(
   const srcH = source.h
   const srcData = source.data
 
-  if (w <= 0) return new Uint32Array(0)
-  if (h <= 0) return new Uint32Array(0)
+  if (w <= 0 || h <= 0) return new Uint32Array(0)
 
   const dstData = new Uint32Array(w * h)
 
@@ -72,8 +71,7 @@ export function extractPixelDataBuffer(
   copyW = Math.min(copyW, srcW - srcX)
   copyH = Math.min(copyH, srcH - srcY)
 
-  if (copyW <= 0) return dstData
-  if (copyH <= 0) return dstData
+  if (copyW <= 0 || copyH <= 0) return dstData
 
   for (let row = 0; row < copyH; row++) {
     const srcStart = (srcY + row) * srcW + srcX
