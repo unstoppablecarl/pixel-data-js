@@ -1,4 +1,11 @@
-import { HistoryManager, makePixelData, PixelAccumulator, type PixelData, PixelWriter } from '@/index'
+import {
+  HistoryManager,
+  makePixelData,
+  PixelAccumulator,
+  type PixelData,
+  type PixelPatchTiles,
+  PixelWriter,
+} from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('PixelWriter', () => {
@@ -114,7 +121,7 @@ describe('PixelWriter', () => {
         return new ImageData(200, 200)
       })
 
-      writer.resize(200, 200, 0, 0, undefined, undefined, undefined, mockResize)
+      writer.resize(200, 200, 0, 0, undefined, undefined, mockResize)
 
       expect(pixelData.w).toBe(200)
       expect(pixelData.h).toBe(200)
@@ -126,7 +133,7 @@ describe('PixelWriter', () => {
         return new ImageData(10, 10)
       })
 
-      writer.resize(10, 10, 0, 0, undefined, undefined, undefined, mockResize)
+      writer.resize(10, 10, 0, 0, undefined, undefined, mockResize)
       expect(pixelData.w).toBe(10)
 
       historyManager.undo()
@@ -139,17 +146,18 @@ describe('PixelWriter', () => {
     it('should execute callbacks during undo/redo', () => {
       const afterUndo = vi.fn()
       const afterRedo = vi.fn()
+      const resized = new ImageData(10, 10)
       const mockResize = vi.fn(() => {
-        return new ImageData(10, 10)
+        return resized
       })
 
-      writer.resize(10, 10, 0, 0, undefined, afterUndo, afterRedo, mockResize)
+      writer.resize(10, 10, 0, 0, afterUndo, afterRedo, mockResize)
 
       historyManager.undo()
-      expect(afterUndo).toHaveBeenCalled()
+      expect(afterUndo).toHaveBeenCalledExactlyOnceWith(writer.config.target.imageData)
 
       historyManager.redo()
-      expect(afterRedo).toHaveBeenCalled()
+      expect(afterRedo).toHaveBeenCalledExactlyOnceWith(resized)
     })
 
     it('should throw if called inside withHistory', () => {
@@ -170,73 +178,73 @@ describe('PixelWriter', () => {
     })
   })
 
-  describe('PixelWriter after callback', () => {
-    it('should trigger the "after" callback for resize on undo and redo', () => {
-      const after = vi.fn()
-      const afterImageData = new ImageData(10, 10)
-      const beforeImageData = pixelData.imageData
-      const mockResize = vi.fn(() => {
-        return afterImageData
-      })
+  it('should call the historyActionFactory correctly', () => {
+    const afterUndo = vi.fn()
+    const afterRedo = vi.fn()
+    const patch = {
+      test: 'patch',
+    }
+    writer.accumulator.extractPatch = vi.fn().mockReturnValue(patch)
 
-      // resize has 8 arguments (>= 4), so each goes on a new line
-      writer.resize(
-        10,
-        10,
-        0,
-        0,
-        after,
-        undefined,
-        undefined,
-        mockResize,
-      )
+    const factorySpy = vi.spyOn(writer, 'historyActionFactory')
 
-      // Verify undo trigger
-      historyManager.undo()
-      expect(after).toHaveBeenCalledTimes(1)
-      expect(after).toHaveBeenCalledWith(beforeImageData)
+    writer.withHistory(
+      (m) => {
+        m.setPixel(0, 0, 1)
+      },
+      afterUndo,
+      afterRedo,
+    )
 
-      // Verify redo trigger
-      historyManager.redo()
-      expect(after).toHaveBeenCalledTimes(2)
-      expect(after).toHaveBeenCalledWith(afterImageData)
+    expect(factorySpy).toHaveBeenCalledWith(
+      writer.config,
+      writer.accumulator,
+      patch,
+      afterUndo,
+      afterRedo,
+    )
+  })
+
+  it('should use the "after" callbacks', () => {
+    const afterUndo = vi.fn()
+    const afterRedo = vi.fn()
+    const patch: PixelPatchTiles = {
+      beforeTiles: [],
+      afterTiles: [],
+    }
+
+    writer.accumulator.extractPatch = vi.fn().mockReturnValue(patch)
+    
+    writer.withHistory(
+      (m) => {
+        m.setPixel(0, 0, 1)
+      },
+      afterUndo,
+      afterRedo,
+    )
+
+    expect(afterUndo).not.toHaveBeenCalled()
+    expect(afterRedo).not.toHaveBeenCalled()
+
+    historyManager.undo()
+    expect(afterUndo).toHaveBeenCalledExactlyOnceWith(patch)
+    expect(afterRedo).not.toHaveBeenCalled()
+
+    historyManager.redo()
+    expect(afterRedo).toHaveBeenCalledExactlyOnceWith(patch)
+  })
+
+  it('should create History Manager by default', () => {
+
+    const target = {} as any
+
+    const writer = new PixelWriter(target, () => {
+      return {}
+    }, {
+      maxHistorySteps: 99,
     })
 
-    it('should pass the "after" callback to the history action factory in withHistory', () => {
-      const after = vi.fn()
-      const factorySpy = vi.spyOn(writer, 'historyActionFactory')
+    expect(writer.historyManager.maxSteps).toEqual(99)
 
-      writer.withHistory(
-        (m) => {
-          m.setPixel(0, 0, 1)
-        },
-        after,
-      )
-
-      // The factory is called with (writer, patch, after, afterUndo, afterRedo)
-      // 5 arguments means they must be on separate lines
-      expect(factorySpy).toHaveBeenCalledWith(
-        writer.config,
-        writer.accumulator,
-        expect.anything(),
-        after,
-        undefined,
-        undefined,
-      )
-    })
-
-    it('should create History Manager by default', () => {
-
-      const target = {} as any
-
-      const writer = new PixelWriter(target, () => {
-        return {}
-      }, {
-        maxHistorySteps: 99,
-      })
-
-      expect(writer.historyManager.maxSteps).toEqual(99)
-
-    })
   })
 })

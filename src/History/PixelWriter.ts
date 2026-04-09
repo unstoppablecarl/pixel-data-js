@@ -8,6 +8,7 @@ import { type HistoryActionFactory, makeHistoryAction } from './HistoryAction'
 import { HistoryManager } from './HistoryManager'
 import { PixelAccumulator } from './PixelAccumulator'
 import { PixelEngineConfig } from './PixelEngineConfig'
+import type { PixelPatchTiles } from './PixelPatchTiles'
 
 export interface PixelWriterOptions {
   maxHistorySteps?: number
@@ -72,15 +73,13 @@ export class PixelWriter<M> {
    *   throw immediately to prevent silent data loss from a nested extractPatch.
    *
    * @param transaction Callback to be executed inside the transaction.
-   * @param after    Called after both undo and redo — use for generic change notifications.
-   * @param afterUndo Called after undo only — use for dimension or state changes specific to undo.
+   * @param afterUndo Called after undo only.
    * @param afterRedo Called after redo only.
    */
   withHistory(
     transaction: (mutator: M) => void,
-    after?: () => void,
-    afterUndo?: () => void,
-    afterRedo?: () => void,
+    afterUndo?: (patch: PixelPatchTiles) => void,
+    afterRedo?: (patch: PixelPatchTiles) => void,
   ): void {
     if (this._inProgress) {
       throw new Error('withHistory is not re-entrant — commit or rollback the current operation first')
@@ -100,7 +99,7 @@ export class PixelWriter<M> {
     if (this.accumulator.beforeTiles.length === 0) return
 
     const patch = this.accumulator.extractPatch()
-    const action = this.historyActionFactory(this.config, this.accumulator, patch, after, afterUndo, afterRedo)
+    const action = this.historyActionFactory(this.config, this.accumulator, patch, afterUndo, afterRedo)
 
     this.historyManager.commit(action)
   }
@@ -110,7 +109,6 @@ export class PixelWriter<M> {
     newHeight: number,
     offsetX = 0,
     offsetY = 0,
-    after?: (target: ImageData) => void,
     afterUndo?: (target: ImageData) => void,
     afterRedo?: (target: ImageData) => void,
     resizeImageDataFn = resizeImageData,
@@ -134,12 +132,10 @@ export class PixelWriter<M> {
       undo: () => {
         setPixelData(target, beforeImageData)
         afterUndo?.(beforeImageData)
-        after?.(beforeImageData)
       },
       redo: () => {
         setPixelData(target, afterImageData)
         afterRedo?.(afterImageData)
-        after?.(afterImageData)
       },
     })
   }
