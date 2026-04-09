@@ -10,6 +10,7 @@ import {
   makeAlphaMask,
   makeBinaryMask,
   makePixelData,
+  packRGBA,
   type PixelData,
   type PixelData32,
   type RGBA,
@@ -196,6 +197,17 @@ export function getPixel(
   const index = y * src.w + x
 
   return src.data[index] as Color32
+}
+
+export function getImageDataBufferPixel(buffer: Uint8ClampedArray, w: number, x: number, y: number): Color32 {
+  const index = (y * w + x) * 4
+
+  return packRGBA({
+    r: buffer[index]!,
+    g: buffer[index + 1]!,
+    b: buffer[index + 2]!,
+    a: buffer[index + 3]!,
+  })
 }
 
 export function makeComplexTestPixelData(w: number, h: number): PixelData {
