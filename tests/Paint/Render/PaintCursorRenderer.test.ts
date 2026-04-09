@@ -7,15 +7,13 @@ import {
   makePaintBinaryMask,
   makePaintCursorRenderer,
   makePixelData,
-  makeReusableCanvas,
-  MaskType,
-  type PaintCursorRenderer,
-  PaintMaskOutline,
+  makeReusableCanvas, MaskType,
+  type PaintCursorRenderer, PaintMaskOutline,
   resamplePixelDataInPlace,
 } from '@/index'
 import { createCanvas } from '@napi-rs/canvas'
 import { describe, expect, it, vi } from 'vitest'
-import { makeTestBinaryMask, makeTestPixelData, pack } from '../../_helpers'
+import { makeTestBinaryMask, makeTestPaintRect, makeTestPixelData, pack } from '../../_helpers'
 import { OffscreenCanvasMock, useOffscreenCanvasMock } from '../../_helpers/OffscreenCanvasMock'
 
 describe('PaintCursorRenderer', () => {
@@ -129,7 +127,7 @@ describe('PaintCursorRenderer', () => {
         ],
       },
     ]
-    it.each(cases)('test rect scale=$scale x=$x y=$y w=$w h=$h', (v) => {
+    it.each(cases)('test rect mask scale=$scale x=$x y=$y w=$w h=$h', (v) => {
 
       const { scale, x, y, w, h, targetW, targetH, expectedResult } = v
       const renderer = makePaintCursorRenderer(makeReusableCanvas)
@@ -152,6 +150,71 @@ describe('PaintCursorRenderer', () => {
           centerOffsetX,
           centerOffsetY,
         },
+        scale,
+        cyan,
+      )
+
+      const { toPixelData } = makeTargetCanvas(targetW, targetH)
+
+      const result = toPixelData(renderer, x, y)
+
+      blendColorPixelData(result, redTint, {
+        x: ox * scale,
+        y: oy * scale,
+        w: w * scale,
+        h: h * scale,
+      })
+
+      expect(
+        renderer.getBounds(0, 0),
+      ).toEqual({
+        x: centerOffsetX,
+        y: centerOffsetY,
+        w: w,
+        h: h,
+      })
+
+      expect(
+        renderer.getBounds(2, 3),
+      ).toEqual({
+        x: centerOffsetX + 2,
+        y: centerOffsetY + 3,
+        w: w,
+        h: h,
+      })
+
+      expect(
+        renderer.getBoundsScaled(10, 20),
+      ).toEqual({
+        x: (centerOffsetX + 10) * scale - 1,
+        y: (centerOffsetY + 20) * scale - 1,
+        w: w * scale,
+        h: h * scale,
+      })
+
+      // printPixelDataGrid(result, new Map([
+      //   [cyan, 'C'],
+      //   [redTint, 'r'],
+      // ]))
+
+      expect(result).toMatchPixelGrid(expectedResult)
+    })
+
+    it.each(cases)('test rect scale=$scale x=$x y=$y w=$w h=$h', (v) => {
+
+      const { scale, x, y, w, h, targetW, targetH, expectedResult } = v
+      const renderer = makePaintCursorRenderer(makeReusableCanvas)
+
+      // copied from _macro_paintRectCenterOffset()
+      const paintRectCenterOffset = (size: number) => -((size - 1) >> 1)
+
+      const centerOffsetX = paintRectCenterOffset(w)
+      const centerOffsetY = paintRectCenterOffset(h)
+
+      const ox = x + centerOffsetX
+      const oy = y + centerOffsetY
+
+      renderer.update(makeTestPaintRect(w, h),
         scale,
         cyan,
       )
@@ -548,13 +611,14 @@ describe('PaintCursorRenderer', () => {
     const defaults = {
       color: cyan,
       scale: 1,
-      currentMask: {
+      currentBrush: {
+        type: null,
+        data: null,
         centerOffsetX: -4,
         centerOffsetY: -4,
         outlineType: 2,
         w: 1,
         h: 1,
-        type: MaskType.BINARY,
       },
     }
 

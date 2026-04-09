@@ -11,6 +11,7 @@ import {
   makeBinaryMask,
   makePixelData,
   packRGBA,
+  PaintMaskOutline,
   type PaintRect,
   type PixelData,
   type PixelData32,
@@ -522,6 +523,9 @@ export function makeTestPaintRect(w: number, h: number): PaintRect {
   // copied from _macro_paintRectCenterOffset
   const paintRectCenterOffset = (size: number) => -((size - 1) >> 1)
   return {
+    type: null,
+    outlineType: PaintMaskOutline.RECT,
+    data: null,
     w,
     h,
     centerOffsetX: paintRectCenterOffset(w),

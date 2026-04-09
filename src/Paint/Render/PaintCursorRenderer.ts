@@ -11,7 +11,7 @@ import { makeRectBinaryMaskOutline } from '../../Mask/BinaryMask/makeRectBinaryM
 import { fillPixelDataBinaryMask } from '../../PixelData/fillPixelDataBinaryMask'
 import { makeReusablePixelData } from '../../PixelData/ReusablePixelData'
 import type { Rect } from '../../Rect/_rect-types'
-import { type PaintMask, PaintMaskOutline } from '../_paint-types'
+import { type PaintBrush, PaintMaskOutline } from '../_paint-types'
 
 export type PaintCursorRenderer = ReturnType<typeof makePaintCursorRenderer>
 
@@ -27,39 +27,42 @@ export function makePaintCursorRenderer<T extends HTMLCanvasElement | OffscreenC
   let _color = packColor(0, 255, 255, 255)
   let _scale = 1
 
-  let currentMask: PaintMask = {
-    type: MaskType.BINARY,
+  let currentBrush: PaintBrush = {
+    type: null,
     outlineType: PaintMaskOutline.RECT,
     w: 1,
     h: 1,
     centerOffsetX: _macro_paintRectCenterOffset(10),
     centerOffsetY: _macro_paintRectCenterOffset(10),
-  } as PaintMask
+    data: null,
+  }
 
   let outline: BinaryMask
 
-  function update(paintMask?: PaintMask, scale?: number, color?: Color32, alphaThreshold = 127) {
-    currentMask = paintMask ?? currentMask
+  function update(paintMask?: PaintBrush, scale?: number, color?: Color32, alphaThreshold = 127) {
+    currentBrush = paintMask ?? currentBrush
 
     _scale = scale ?? _scale
     _color = color ?? _color
 
     updateBuffer(
-      currentMask.w * _scale + 2 * _scale,
-      currentMask.h * _scale + 2 * _scale,
+      currentBrush.w * _scale + 2 * _scale,
+      currentBrush.h * _scale + 2 * _scale,
     )
 
-    if (currentMask.type === MaskType.BINARY) {
-      if (currentMask.outlineType === PaintMaskOutline.CIRCLE) {
-        outline = makeCircleBinaryMaskOutline(currentMask.w, _scale)
-      } else if (currentMask.outlineType === PaintMaskOutline.RECT) {
-        outline = makeRectBinaryMaskOutline(currentMask.w, currentMask.h, _scale)
-      } else if (currentMask.outlineType === PaintMaskOutline.MASKED) {
-        outline = makeBinaryMaskOutline(currentMask, _scale)
+    if (currentBrush.type === MaskType.BINARY) {
+      if (currentBrush.outlineType === PaintMaskOutline.CIRCLE) {
+        outline = makeCircleBinaryMaskOutline(currentBrush.w, _scale)
+      } else if (currentBrush.outlineType === PaintMaskOutline.RECT) {
+        outline = makeRectBinaryMaskOutline(currentBrush.w, currentBrush.h, _scale)
+      } else if (currentBrush.outlineType === PaintMaskOutline.MASKED) {
+        outline = makeBinaryMaskOutline(currentBrush, _scale)
       }
-    } else if (currentMask.type === MaskType.ALPHA) {
-      const mask = makeBinaryMaskFromAlphaMask(currentMask, alphaThreshold)
+    } else if (currentBrush.type === MaskType.ALPHA) {
+      const mask = makeBinaryMaskFromAlphaMask(currentBrush, alphaThreshold)
       outline = makeBinaryMaskOutline(mask, _scale)
+    } else {
+      outline = makeRectBinaryMaskOutline(currentBrush.w, currentBrush.h, _scale)
     }
 
     const pixelData = getPixelData(outline.w, outline.h)
@@ -70,10 +73,10 @@ export function makePaintCursorRenderer<T extends HTMLCanvasElement | OffscreenC
   const boundsScratch = { x: 0, y: 0, w: 0, h: 0 }
 
   function getBounds(centerX: number, centerY: number): Rect {
-    boundsScratch.x = centerX + currentMask.centerOffsetX
-    boundsScratch.y = centerY + currentMask.centerOffsetY
-    boundsScratch.w = currentMask.w
-    boundsScratch.h = currentMask.h
+    boundsScratch.x = centerX + currentBrush.centerOffsetX
+    boundsScratch.y = centerY + currentBrush.centerOffsetY
+    boundsScratch.w = currentBrush.w
+    boundsScratch.h = currentBrush.h
 
     return boundsScratch
   }
@@ -81,10 +84,10 @@ export function makePaintCursorRenderer<T extends HTMLCanvasElement | OffscreenC
   const boundsScaledScratch = { x: 0, y: 0, w: 0, h: 0 }
 
   function getOutlineBoundsScaled(centerX: number, centerY: number): Rect {
-    boundsScaledScratch.x = centerX * _scale + currentMask.centerOffsetX * _scale - 1
-    boundsScaledScratch.y = centerY * _scale + currentMask.centerOffsetY * _scale - 1
-    boundsScaledScratch.w = currentMask.w * _scale
-    boundsScaledScratch.h = currentMask.h * _scale
+    boundsScaledScratch.x = centerX * _scale + currentBrush.centerOffsetX * _scale - 1
+    boundsScaledScratch.y = centerY * _scale + currentBrush.centerOffsetY * _scale - 1
+    boundsScaledScratch.w = currentBrush.w * _scale
+    boundsScaledScratch.h = currentBrush.h * _scale
 
     return boundsScaledScratch
   }
@@ -94,8 +97,8 @@ export function makePaintCursorRenderer<T extends HTMLCanvasElement | OffscreenC
     centerX: number,
     centerY: number,
   ) {
-    const dx = centerX * _scale + currentMask.centerOffsetX * _scale - 1
-    const dy = centerY * _scale + currentMask.centerOffsetY * _scale - 1
+    const dx = centerX * _scale + currentBrush.centerOffsetX * _scale - 1
+    const dy = centerY * _scale + currentBrush.centerOffsetY * _scale - 1
 
     drawCtx.drawImage(canvas, Math.floor(dx), Math.floor(dy))
   }
@@ -104,7 +107,7 @@ export function makePaintCursorRenderer<T extends HTMLCanvasElement | OffscreenC
     return {
       color: _color,
       scale: _scale,
-      currentMask,
+      currentBrush,
     }
   }
 
