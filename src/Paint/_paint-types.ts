@@ -20,3 +20,9 @@ export interface PaintBinaryMask<T extends PaintMaskOutline = PaintMaskOutline> 
 
 export type PaintMask = PaintAlphaMask<any> | PaintBinaryMask<any>
 
+export interface PaintRect {
+  w: number,
+  h: number,
+  centerOffsetX: number,
+  centerOffsetY: number,
+}

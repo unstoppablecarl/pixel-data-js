@@ -1,11 +1,10 @@
 import { forEachLinePoint } from '../Algorithm/forEachLinePoint'
 import type { PixelEngineConfig } from '../History/PixelEngineConfig'
-import { _macro_paintRectCenterOffset } from '../Internal/macros'
 import type { Rect } from '../Rect/_rect-types'
 import { trimRectBounds } from '../Rect/trimRectBounds'
 import type { BinaryMaskTile } from '../Tile/_tile-types'
 import type { TilePool } from '../Tile/TilePool'
-import type { PaintBinaryMask } from './_paint-types'
+import type { PaintBinaryMask, PaintRect } from './_paint-types'
 import { eachTileInBounds } from './eachTileInBounds'
 
 export class BinaryMaskPaintBuffer {
@@ -104,22 +103,19 @@ export class BinaryMaskPaintBuffer {
   }
 
   paintRect(
-    brushWidth: number,
-    brushHeight: number,
+    brush: PaintRect,
     x: number,
     y: number,
   ): boolean
   paintRect(
-    brushWidth: number,
-    brushHeight: number,
+    brush: PaintRect,
     startX: number,
     startY: number,
     endX: number,
     endY: number,
   ): boolean
   paintRect(
-    brushWidth: number,
-    brushHeight: number,
+    brush: PaintRect,
     x0: number,
     y0: number,
     x1: number = x0,
@@ -133,8 +129,10 @@ export class BinaryMaskPaintBuffer {
     const tileMask = config.tileMask
     const target = config.target
 
-    const centerOffsetX = _macro_paintRectCenterOffset(brushWidth)
-    const centerOffsetY = _macro_paintRectCenterOffset(brushHeight)
+    const brushWidth = brush.w
+    const brushHeight = brush.h
+    const centerOffsetX = brush.centerOffsetX
+    const centerOffsetY = brush.centerOffsetY
 
     const trimRectBoundsFn = this.trimRectBoundsFn
     const eachTileInBoundsFn = this.eachTileInBoundsFn

@@ -10,7 +10,7 @@ import {
   writePaintBufferToPixelData,
 } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
-import { makeTestPixelData } from '../_helpers'
+import { makeTestPaintRect, makeTestPixelData } from '../_helpers'
 
 describe('ColorPaintBuffer', () => {
 
@@ -268,10 +268,11 @@ describe('ColorPaintBuffer', () => {
       const x = 2
       const y = 2
 
+      const brush = makeTestPaintRect(1, 1)
+
       const result = paintBuffer.paintRect(
         color,
-        1,
-        1,
+        brush,
         x,
         y,
       )
@@ -295,11 +296,11 @@ describe('ColorPaintBuffer', () => {
       const { paintBuffer } = makeTestPaintBuffer(tileSize)
       const x = 1
       const y = 1
+      const brush = makeTestPaintRect(1, 1)
 
       const result = paintBuffer.paintRect(
         color,
-        1,
-        1,
+        brush,
         x,
         y,
         x + 10,
@@ -337,11 +338,11 @@ describe('ColorPaintBuffer', () => {
     it('should return false if alpha is 0', () => {
       const { paintBuffer, tilePool } = makeTestPaintBuffer(8)
       vi.spyOn(tilePool, 'getTile')
+      const brush = makeTestPaintRect(1, 1)
 
       const result = paintBuffer.paintRect(
         0x00000000 as Color32,
-        1,
-        1,
+        brush,
         0,
         0,
         0,
@@ -354,12 +355,12 @@ describe('ColorPaintBuffer', () => {
 
     it('should return false if brush bounds are zero or negative', () => {
       const { paintBuffer } = makeTestPaintBuffer(8)
+      const brush = makeTestPaintRect(0,0)
 
       // Using a 0x0 brush should trigger the scratch.w <= 0 check
       const result = paintBuffer.paintRect(
         color,
-        0,
-        0,
+        brush,
         10,
         10,
         10,
@@ -375,11 +376,11 @@ describe('ColorPaintBuffer', () => {
       const { paintBuffer, tilePool } = makeTestPaintBuffer(16)
 
       vi.spyOn(tilePool, 'getTile')
+      const brush = makeTestPaintRect(1, 1)
 
       paintBuffer.paintRect(
         color,
-        1,
-        1,
+        brush,
         10,
         10,
         10,
@@ -388,8 +389,7 @@ describe('ColorPaintBuffer', () => {
 
       paintBuffer.paintRect(
         color,
-        1,
-        1,
+        brush,
         11,
         11,
         11,
@@ -404,12 +404,12 @@ describe('ColorPaintBuffer', () => {
       const { paintBuffer, tilePool } = makeTestPaintBuffer(16)
 
       vi.spyOn(tilePool, 'getTile')
+      const brush = makeTestPaintRect(1, 1)
 
       // Tile (0,0)
       paintBuffer.paintRect(
         color,
-        1,
-        1,
+        brush,
         10,
         10,
         10,
@@ -419,8 +419,7 @@ describe('ColorPaintBuffer', () => {
       // // Tile (1,1) because size is 16
       paintBuffer.paintRect(
         color,
-        1,
-        1,
+        brush,
         20,
         20,
         20,

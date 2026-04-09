@@ -11,6 +11,7 @@ import {
   makeBinaryMask,
   makePixelData,
   packRGBA,
+  type PaintRect,
   type PixelData,
   type PixelData32,
   type RGBA,
@@ -515,4 +516,15 @@ export function canvasToTestPixelData(canvas: HTMLCanvasElement | OffscreenCanva
 export function canvasCtxToTestPixelData(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D) {
   const result = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height)
   return makePixelData(result)
+}
+
+export function makeTestPaintRect(w: number, h: number): PaintRect {
+  // copied from _macro_paintRectCenterOffset
+  const paintRectCenterOffset = (size: number) => -((size - 1) >> 1)
+  return {
+    w,
+    h,
+    centerOffsetX: paintRectCenterOffset(w),
+    centerOffsetY: paintRectCenterOffset(h),
+  }
 }

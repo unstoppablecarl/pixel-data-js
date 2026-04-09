@@ -126,6 +126,7 @@ export * from './Paint/eachTileInBounds'
 export * from './Paint/makeCirclePaintMask'
 export * from './Paint/makePaintMask'
 export * from './Paint/makeRectFalloffPaintAlphaMask'
+export * from './Paint/PaintRect'
 
 export * from './Paint/Render/AlphaMaskPaintBufferCanvasRenderer'
 export * from './Paint/Render/BinaryMaskPaintBufferCanvasRenderer'

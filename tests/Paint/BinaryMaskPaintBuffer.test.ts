@@ -7,7 +7,7 @@ import {
 } from '@/index'
 import type { PaintBinaryMask } from '@/Paint/_paint-types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { makeTestBinaryMask, makeTestPixelData } from '../_helpers'
+import { makeTestBinaryMask, makeTestPaintRect, makeTestPixelData } from '../_helpers'
 
 describe('BinaryMaskPaintBuffer', () => {
   let mockConfig: PixelEngineConfig
@@ -68,15 +68,19 @@ describe('BinaryMaskPaintBuffer', () => {
         scratch.h = 10
       })
 
+      const brush = makeTestPaintRect(16, 16)
+
       // Note: No alpha arg for Binary buffer's paintRect
-      const changed = buffer.paintRect(16, 16, -100, -100)
+      const changed = buffer.paintRect(brush, -100, -100)
 
       expect(changed).toBe(false)
       expect((buffer as any).eachTileInBoundsFn).not.toHaveBeenCalled()
     })
 
     it('should correctly assign binary 1 values using injected loops', () => {
-      const changed = buffer.paintRect(16, 16, 0, 0)
+      const brush = makeTestPaintRect(16, 16)
+
+      const changed = buffer.paintRect(brush, 0, 0)
       const tile = buffer.lookup[0]
 
       expect((buffer as any).forEachLinePointFn).toHaveBeenCalled()
@@ -86,14 +90,16 @@ describe('BinaryMaskPaintBuffer', () => {
     })
 
     it('should not mutate tile or return true if the pixel is already on', () => {
+      const brush = makeTestPaintRect(16, 16)
+
       // Setup: Pre-fill with 1
-      buffer.paintRect(16, 16, 0, 0)
+      buffer.paintRect(brush, 0, 0)
       const tile = buffer.lookup[0]!
 
       expect(tile.data[0]).toBe(1)
 
       // Act: Try to paint the exact same area again
-      const changedAgain = buffer.paintRect(16, 16, 0, 0)
+      const changedAgain = buffer.paintRect(brush, 0, 0)
 
       // Assert: Should recognize no pixels were flipped
       expect(changedAgain).toBe(false)
@@ -138,8 +144,10 @@ describe('BinaryMaskPaintBuffer', () => {
     })
 
     it('should return false if brush only overlaps already-on pixels', () => {
+      const brush = makeTestPaintRect(16, 16)
+
       // Pre-fill tile area
-      buffer.paintRect(16, 16, 0, 0)
+      buffer.paintRect(brush, 0, 0)
 
       const mockBrush: PaintBinaryMask = {
         ...makeTestBinaryMask(16, 16, [1, 1]),
@@ -159,7 +167,8 @@ describe('BinaryMaskPaintBuffer', () => {
 
   describe('clear', () => {
     it('should release all active tiles to the pool', () => {
-      buffer.paintRect(16, 16, 0, 0)
+      const brush = makeTestPaintRect(16, 16)
+      buffer.paintRect(brush, 0, 0)
       expect(buffer.lookup.length).toBeGreaterThan(0)
 
       buffer.clear()

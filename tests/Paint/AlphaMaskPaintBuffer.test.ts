@@ -8,7 +8,7 @@ import {
 } from '@/index'
 import type { PaintAlphaMask, PaintBinaryMask } from '@/Paint/_paint-types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { makeTestAlphaMask, makeTestBinaryMask, makeTestPixelData } from '../_helpers'
+import { makeTestAlphaMask, makeTestBinaryMask, makeTestPaintRect, makeTestPixelData } from '../_helpers'
 
 describe('AlphaMaskPaintBuffer', () => {
   let mockConfig: PixelEngineConfig
@@ -74,7 +74,9 @@ describe('AlphaMaskPaintBuffer', () => {
         scratch.h = 10
       })
 
-      const changed = buffer.paintRect(255, 16, 16, -100, -100)
+      const brush = makeTestPaintRect(16, 16)
+
+      const changed = buffer.paintRect(255, brush, -100, -100)
 
       expect(changed).toBe(false)
       // Verify it bailed out before ever reaching the tile loop
@@ -82,7 +84,9 @@ describe('AlphaMaskPaintBuffer', () => {
     })
 
     it('should correctly assign alpha values using injected loops', () => {
-      const changed = buffer.paintRect(200, 16, 16, 0, 0)
+      const brush = makeTestPaintRect(16, 16)
+
+      const changed = buffer.paintRect(200, brush, 0, 0)
       const tile = buffer.lookup[0]
 
       expect((buffer as any).forEachLinePointFn).toHaveBeenCalled()
@@ -92,19 +96,21 @@ describe('AlphaMaskPaintBuffer', () => {
     })
 
     it('should overwrite existing data ONLY if new alpha is greater', () => {
+      const brush = makeTestPaintRect(16, 16)
+
       // Setup: Pre-fill with 100
-      buffer.paintRect(100, 16, 16, 0, 0)
+      buffer.paintRect(100, brush, 0, 0)
       const tile = buffer.lookup[0]!
 
       // Act: Try to write weaker alpha
-      const changedWeak = buffer.paintRect(50, 16, 16, 0, 0)
+      const changedWeak = buffer.paintRect(50, brush, 0, 0)
 
       // Assert: Should remain 100
       expect(changedWeak).toBe(false)
       expect(tile.data[0]).toBe(100)
 
       // Act: Try to write stronger alpha
-      const changedStrong = buffer.paintRect(255, 16, 16, 0, 0)
+      const changedStrong = buffer.paintRect(255, brush, 0, 0)
 
       // Assert: Should overwrite
       expect(changedStrong).toBe(true)
@@ -151,7 +157,9 @@ describe('AlphaMaskPaintBuffer', () => {
     })
 
     it('should ignore brush pixels with 0 alpha', () => {
-      buffer.paintRect(100, 16, 16, 0, 0)
+      const brush = makeTestPaintRect(16, 16)
+
+      buffer.paintRect(100, brush, 0, 0)
 
       const mockBrush: PaintAlphaMask = {
         ...makeTestAlphaMask(16, 16, [0, 200]),
@@ -222,7 +230,9 @@ describe('AlphaMaskPaintBuffer', () => {
 
   describe('clear', () => {
     it('should release all active tiles to the pool', () => {
-      buffer.paintRect(255, 16, 16, 0, 0)
+      const brush = makeTestPaintRect(16, 16)
+
+      buffer.paintRect(255, brush, 0, 0)
       expect(buffer.lookup.length).toBeGreaterThan(0)
 
       buffer.clear()
