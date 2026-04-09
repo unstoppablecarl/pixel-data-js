@@ -40,14 +40,12 @@ describe('makeHistoryAction', () => {
   })
 
   it('should call applyPatchTiles with beforeTiles and triggers when undo is called', () => {
-    const after = vi.fn()
     const afterUndo = vi.fn()
     const applyPatchTiles = vi.fn()
     const action = makeHistoryAction(
       config,
       accumulator,
       mockPatch,
-      after,
       afterUndo,
       undefined,
       applyPatchTiles,
@@ -60,12 +58,11 @@ describe('makeHistoryAction', () => {
       mockPatch.beforeTiles,
       tileSize,
     )
-    expect(afterUndo).toHaveBeenCalled()
-    expect(after).toHaveBeenCalled()
+
+    expect(afterUndo).toHaveBeenCalledExactlyOnceWith(mockPatch)
   })
 
   it('should call applyPatchTiles with afterTiles and triggers when redo is called', () => {
-    const after = vi.fn()
     const afterRedo = vi.fn()
     const applyPatchTiles = vi.fn()
 
@@ -73,7 +70,6 @@ describe('makeHistoryAction', () => {
       config,
       accumulator,
       mockPatch,
-      after,
       undefined,
       afterRedo,
       applyPatchTiles,
@@ -86,8 +82,7 @@ describe('makeHistoryAction', () => {
       mockPatch.afterTiles,
       tileSize,
     )
-    expect(afterRedo).toHaveBeenCalled()
-    expect(after).toHaveBeenCalled()
+    expect(afterRedo).toHaveBeenCalledExactlyOnceWith(mockPatch)
   })
 
   it('should recycle the patch when dispose is called', () => {
@@ -108,7 +103,6 @@ describe('makeHistoryAction', () => {
       config,
       accumulator,
       mockPatch,
-      undefined,
       undefined,
       undefined,
       applyPatchTiles,
