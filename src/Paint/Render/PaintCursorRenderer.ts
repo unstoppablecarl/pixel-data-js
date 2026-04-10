@@ -103,6 +103,14 @@ export function makePaintCursorRenderer<T extends HTMLCanvasElement | OffscreenC
     drawCtx.drawImage(canvas, Math.floor(dx), Math.floor(dy))
   }
 
+  function drawRaw(
+    drawCtx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+    x: number,
+    y: number,
+  ) {
+    drawCtx.drawImage(canvas, Math.floor(x * _scale), Math.floor(y * _scale))
+  }
+
   function getSettings() {
     return {
       color: _color,
@@ -116,6 +124,7 @@ export function makePaintCursorRenderer<T extends HTMLCanvasElement | OffscreenC
     getBounds,
     getBoundsScaled: getOutlineBoundsScaled,
     draw,
+    drawRaw,
     getSettings,
   }
 }
