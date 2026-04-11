@@ -1,7 +1,7 @@
-import type { PixelData } from './_pixelData-types'
+import type { PixelData, PixelData32 } from './_pixelData-types'
 import { makePixelData } from './PixelData'
 
-export function cropPixelData(src: PixelData, x: number, y: number, w: number, h: number): PixelData {
+export function cropPixelData(src: PixelData32, x: number, y: number, w: number, h: number): PixelData {
   const cx = Math.max(x, 0)
   const cy = Math.max(y, 0)
   const cw = Math.min(x + w, src.w) - cx
