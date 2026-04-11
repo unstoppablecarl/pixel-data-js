@@ -8,33 +8,49 @@ describe('mutatorBlendPixel', () => {
     accumulator,
     target,
     spyDeps,
+    reset,
   } = mockMutator(mutatorBlendPixel, { blendPixel })
 
   beforeEach(() => {
     vi.resetAllMocks()
+    reset()
   })
 
   it('should call accumulator', () => {
     const color = 0xffffffff as Color32
-    const x = 20
-    const y = 20
+    const x = 4
+    const y = 5
     const alpha = 120
     const blendFn = vi.fn()
 
-    mutator.blendPixel(x, y, color, alpha, blendFn)
+    const result = mutator.blendPixel(x, y, color, alpha, blendFn)
+    expect(result).toEqual(true)
 
-    expect(accumulator.storePixelBeforeState).toHaveBeenCalledWith(x, y)
-    expect(spyDeps.blendPixel).toHaveBeenCalledWith(target, x, y, color, alpha, blendFn)
+    expect(accumulator.storePixelBeforeState).toHaveBeenCalledExactlyOnceWith(x, y)
+    expect(spyDeps.blendPixel).toHaveBeenCalledExactlyOnceWith(target, x, y, color, alpha, blendFn)
   })
 
   it('should call accumulator with defaults', () => {
     const color = 0xffffffff as Color32
-    const x = 20
-    const y = 20
+    const x = 6
+    const y = 7
 
-    mutator.blendPixel(x, y, color)
+    const result = mutator.blendPixel(x, y, color)
+    expect(result).toEqual(true)
 
-    expect(accumulator.storePixelBeforeState).toHaveBeenCalledWith(x, y)
-    expect(spyDeps.blendPixel).toHaveBeenCalledWith(target, x, y, color, undefined, undefined)
+    expect(accumulator.storePixelBeforeState).toHaveBeenCalledExactlyOnceWith(x, y)
+    expect(spyDeps.blendPixel).toHaveBeenCalledExactlyOnceWith(target, x, y, color, undefined, undefined)
+  })
+
+  it('should return false when out of bounds', () => {
+    const color = 0xffffffff as Color32
+    const x = 6000
+    const y = 7000
+
+    const result = mutator.blendPixel(x, y, color)
+    expect(result).toEqual(false)
+
+    expect(accumulator.storePixelBeforeState).toHaveBeenCalledExactlyOnceWith(x, y)
+    expect(spyDeps.blendPixel).not.toHaveBeenCalled()
   })
 })

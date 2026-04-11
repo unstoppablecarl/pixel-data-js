@@ -9,10 +9,12 @@ describe('mutatorFillBinaryMask', () => {
     accumulator,
     target,
     spyDeps,
+    reset,
   } = mockMutator(mutatorFillBinaryMask, { fillPixelDataBinaryMask })
 
   beforeEach(() => {
     vi.resetAllMocks()
+    reset()
   })
 
   it('should call accumulator', () => {
@@ -21,10 +23,11 @@ describe('mutatorFillBinaryMask', () => {
     const y = 15
     const mask = makeTestBinaryMask(2, 3, 1)
 
-    mutator.fillBinaryMask(color, mask, x, y)
+    const result = mutator.fillBinaryMask(color, mask, x, y)
+    expect(result).toEqual(true)
 
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(x, y, mask.w, mask.h)
-    expect(spyDeps.fillPixelDataBinaryMask).toHaveBeenCalledWith(target, color, mask, x, y)
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledExactlyOnceWith(x, y, mask.w, mask.h)
+    expect(spyDeps.fillPixelDataBinaryMask).toHaveBeenCalledExactlyOnceWith(target, color, mask, x, y)
   })
 
   it('should call accumulator with defaults', () => {
@@ -39,9 +42,23 @@ describe('mutatorFillBinaryMask', () => {
       target,
     } = mockMutator(mutatorFillBinaryMask, { fillPixelDataBinaryMask: fillPixelDataBinaryMaskSpy })
 
-    mutator.fillBinaryMask(color, mask)
+    const result = mutator.fillBinaryMask(color, mask)
+    expect(result).toEqual(true)
 
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, mask.w, mask.h)
-    expect(fillPixelDataBinaryMaskSpy).toHaveBeenCalledWith(target, color, mask, 0, 0)
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledExactlyOnceWith(0, 0, mask.w, mask.h)
+    expect(fillPixelDataBinaryMaskSpy).toHaveBeenCalledExactlyOnceWith(target, color, mask, 0, 0)
+  })
+
+  it('should return false when out of bounds', () => {
+    const color = 0xFF0000FF as Color32
+    const x = 1000
+    const y = 1500
+    const mask = makeTestBinaryMask(2, 3, 1)
+
+    const result = mutator.fillBinaryMask(color, mask, x, y)
+    expect(result).toEqual(false)
+
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledExactlyOnceWith(x, y, mask.w, mask.h)
+    expect(spyDeps.fillPixelDataBinaryMask).not.toHaveBeenCalled()
   })
 })

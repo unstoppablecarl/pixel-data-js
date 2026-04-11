@@ -23,6 +23,7 @@ export const mutatorBlendPixel = ((writer: PixelWriter<any>, deps: Partial<Deps>
     ): boolean {
 
       const didChange = writer.accumulator.storePixelBeforeState(x, y)
+      if (!didChange) return false
 
       return didChange(
         blendPixel(writer.config.target, x, y, color, alpha, blendFn),

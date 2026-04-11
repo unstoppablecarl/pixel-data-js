@@ -25,6 +25,8 @@ export const mutatorBlendColor = ((writer: PixelWriter<any>, deps: Deps = defaul
       const h = opts?.h ?? target.h
 
       const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
+      if (!didChange) return false
+
       return didChange(
         blendColorPixelData(target, color, opts),
       )

@@ -8,10 +8,12 @@ describe('mutatorInvert', () => {
     accumulator,
     target,
     spyDeps,
+    reset,
   } = mockMutator(mutatorInvert, { invertPixelData })
 
   beforeEach(() => {
     vi.resetAllMocks()
+    reset()
   })
 
   it('should call accumulator', () => {
@@ -22,16 +24,33 @@ describe('mutatorInvert', () => {
       h: 33,
     }
 
-    mutator.invert(o)
+    const result = mutator.invert(o)
+    expect(result).toEqual(true)
 
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(o.x, o.y, o.w, o.h)
-    expect(spyDeps.invertPixelData).toHaveBeenCalledWith(target, o)
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledExactlyOnceWith(o.x, o.y, o.w, o.h)
+    expect(spyDeps.invertPixelData).toHaveBeenCalledExactlyOnceWith(target, o)
   })
 
   it('should call accumulator with defaults', () => {
-    mutator.invert()
+    const result = mutator.invert()
+    expect(result).toEqual(true)
 
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, target.w, target.h)
-    expect(spyDeps.invertPixelData).toHaveBeenCalledWith(target, undefined)
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledExactlyOnceWith(0, 0, target.w, target.h)
+    expect(spyDeps.invertPixelData).toHaveBeenCalledExactlyOnceWith(target, undefined)
+  })
+
+  it('should return false when out of bounds', () => {
+    const o = {
+      x: 1400,
+      y: 1500,
+      w: 30,
+      h: 33,
+    }
+
+    const result = mutator.invert(o)
+    expect(result).toEqual(false)
+
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledExactlyOnceWith(o.x, o.y, o.w, o.h)
+    expect(spyDeps.invertPixelData).not.toHaveBeenCalled()
   })
 })

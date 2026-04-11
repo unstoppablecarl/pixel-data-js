@@ -47,16 +47,16 @@ export function fillPixelData(
   let w: number
   let h: number
 
-  if (typeof _x === 'object') {
-    x = _x.x ?? 0
-    y = _x.y ?? 0
-    w = _x.w ?? dstW
-    h = _x.h ?? dstH
-  } else if (typeof _x === 'number') {
+  if (typeof _x === 'number') {
     x = _x
     y = _y!
     w = _w!
     h = _h!
+  } else if (typeof _x === 'object') {
+    x = _x.x ?? 0
+    y = _x.y ?? 0
+    w = _x.w ?? dstW
+    h = _x.h ?? dstH
   } else {
     x = 0
     y = 0

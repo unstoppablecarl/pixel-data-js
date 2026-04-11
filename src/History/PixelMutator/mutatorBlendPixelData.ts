@@ -25,6 +25,7 @@ export const mutatorBlendPixelData = ((writer: PixelWriter<any>, deps: Partial<D
       const h = opts?.h ?? src.h
 
       const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
+      if (!didChange) return false
 
       return didChange(
         blendPixelData(writer.config.target, src, opts),

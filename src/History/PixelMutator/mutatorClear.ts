@@ -18,7 +18,7 @@ export const mutatorClear = ((writer: PixelWriter<any>, deps: Deps = defaults) =
   return {
     clear(
       rect?: Partial<Rect>,
-    ) {
+    ): boolean {
       const target = writer.config.target
       const x = rect?.x ?? 0
       const y = rect?.y ?? 0
@@ -26,6 +26,7 @@ export const mutatorClear = ((writer: PixelWriter<any>, deps: Deps = defaults) =
       const h = rect?.h ?? target.h
 
       const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
+      if (!didChange) return false
       return didChange(
         fillPixelData(target, 0 as Color32, x, y, w, h),
       )

@@ -26,9 +26,17 @@ export class PixelAccumulator {
    * @param x pixel x coordinate
    * @param y pixel y coordinate
    */
-  storePixelBeforeState(x: number, y: number): DidChangeFn {
+  storePixelBeforeState(x: number, y: number): DidChangeFn | null {
     const shift = this.config.tileShift
     const columns = this.config.targetColumns
+    const targetWidth = this.config.target.w
+    const targetHeight = this.config.target.h
+
+    // Return a no-op if the pixel is outside the target boundaries
+    if (x < 0 || x >= targetWidth || y < 0 || y >= targetHeight) {
+      return null
+    }
+
     const tx = x >> shift
     const ty = y >> shift
     const id = ty * columns + tx
@@ -66,14 +74,27 @@ export class PixelAccumulator {
     y: number,
     w: number,
     h: number,
-  ): DidChangeFn {
+  ): DidChangeFn | null {
     const shift = this.config.tileShift
     const columns = this.config.targetColumns
+    const targetWidth = this.config.target.w
+    const targetHeight = this.config.target.h
 
-    const startX = x >> shift
-    const startY = y >> shift
-    const endX = (x + w - 1) >> shift
-    const endY = (y + h - 1) >> shift
+    // Clamp the bounding box to the actual canvas dimensions
+    const clipX1 = Math.max(0, x)
+    const clipY1 = Math.max(0, y)
+    const clipX2 = Math.min(targetWidth - 1, x + w - 1)
+    const clipY2 = Math.min(targetHeight - 1, y + h - 1)
+
+    // If the region is entirely off-canvas, return a no-op
+    if (clipX2 < clipX1 || clipY2 < clipY1) {
+      return null
+    }
+
+    const startX = clipX1 >> shift
+    const startY = clipY1 >> shift
+    const endX = clipX2 >> shift
+    const endY = clipY2 >> shift
 
     const startIndex = this.beforeTiles.length
 

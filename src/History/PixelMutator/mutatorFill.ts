@@ -14,44 +14,60 @@ export const mutatorFill = ((writer: PixelWriter<any>, deps: Deps = defaults) =>
     fillPixelData = defaults.fillPixelData,
   } = deps
 
-  return {
-    fill(
-      color: Color32,
-      x = 0,
-      y = 0,
-      w = writer.config.target.w,
-      h = writer.config.target.h,
-    ) {
-      const target = writer.config.target
+  const config = writer.config
 
-      const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
-      return didChange(
-        fillPixelData(target, color, x, y, w, h),
-      )
-    },
+  function fill(
+    color: Color32,
+    rect?: Partial<Rect>,
+  ): boolean
+
+  function fill(
+    color: Color32,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+  ): boolean
+  function fill(
+    color: Color32,
+    _x?: Partial<Rect> | number,
+    _y?: number,
+    _w?: number,
+    _h?: number,
+  ): boolean {
+    const target = config.target
+
+    const dstW = target.w
+    const dstH = target.h
+
+    let x: number
+    let y: number
+    let w: number
+    let h: number
+
+    if (typeof _x === 'number') {
+      x = _x
+      y = _y!
+      w = _w!
+      h = _h!
+    } else if (typeof _x === 'object') {
+      x = _x.x ?? 0
+      y = _x.y ?? 0
+      w = _x.w ?? dstW
+      h = _x.h ?? dstH
+    } else {
+      x = 0
+      y = 0
+      w = dstW
+      h = dstH
+    }
+
+    const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
+    if (!didChange) return false
+    return didChange(
+      fillPixelData(target, color, x, y, w, h),
+    )
   }
+
+  return { fill }
 }) satisfies HistoryMutator<any, Deps>
-
-/**
- * @param deps - @hidden
- */
-export const mutatorFillRect = ((writer: PixelWriter<any>, deps: Deps = defaults) => {
-  const {
-    fillPixelData = defaults.fillPixelData,
-  } = deps
-
-  return {
-    fillRect(
-      color: Color32,
-      rect: Rect,
-    ) {
-      const target = writer.config.target
-
-      const didChange = writer.accumulator.storeRegionBeforeState(rect.x, rect.y, rect.w, rect.h)
-      return didChange(
-        fillPixelData(target, color, rect.x, rect.y, rect.w, rect.h),
-      )
-    },
-  }
-}) satisfies HistoryMutator<any, Deps>
-

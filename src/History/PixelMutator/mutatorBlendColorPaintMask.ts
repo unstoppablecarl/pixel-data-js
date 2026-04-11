@@ -41,6 +41,7 @@ export const mutatorBlendColorPaintMask = ((writer: PixelWriter<any>, deps: Part
       const ty = y + mask.centerOffsetY
 
       const didChange = writer.accumulator.storeRegionBeforeState(tx, ty, mask.w, mask.h)
+      if (!didChange) return false
 
       OPTS.x = tx
       OPTS.y = ty

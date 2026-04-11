@@ -29,6 +29,7 @@ export const mutatorApplyMask = ((writer: PixelWriter<any>, deps: Deps = default
       const h = opts?.h ?? target.h
 
       const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
+      if (!didChange) return false
 
       if (mask.type === MaskType.BINARY) {
         return didChange(applyBinaryMaskToPixelData(target, mask, opts))

@@ -43,6 +43,8 @@ export const mutatorBlendColorPaintRect = ((writer: PixelWriter<any>, deps: Deps
       OPTS.alpha = alpha
 
       const didChange = writer.accumulator.storeRegionBeforeState(topLeftX, topLeftY, brushWidth, brushHeight)
+      if (!didChange) return false
+
       return didChange(
         blendColorPixelData(
           target,

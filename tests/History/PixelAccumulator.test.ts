@@ -50,8 +50,13 @@ describe('PixelAccumulator', () => {
       expect(extractSpy).toHaveBeenCalledWith(tile)
 
       // Confirm changes
-      finalizeHistory(true)
+      finalizeHistory?.(true)
       expect(accumulator.beforeTiles.length).toBe(1)
+    })
+
+    it('should return null for coords out of bounds', () => {
+      let didChange = accumulator.storePixelBeforeState(500, 500)
+      expect(didChange).toEqual(null)
     })
 
     it('should not store the same tile twice', () => {
@@ -60,8 +65,8 @@ describe('PixelAccumulator', () => {
 
       expect(accumulator.beforeTiles.length).toBe(1)
 
-      finalize1(true)
-      finalize2(true)
+      finalize1?.(true)
+      finalize2?.(true)
 
       expect(accumulator.beforeTiles.length).toBe(1)
     })
@@ -72,7 +77,7 @@ describe('PixelAccumulator', () => {
       expect(accumulator.beforeTiles.length).toBe(1)
 
       // Operation resulted in no changes, discard history state
-      finalizeHistory(false)
+      finalizeHistory?.(false)
 
       expect(accumulator.beforeTiles.length).toBe(0)
       expect(accumulator.lookup.some(t => t !== undefined)).toBe(false)
@@ -81,6 +86,16 @@ describe('PixelAccumulator', () => {
   })
 
   describe('storeRegionBeforeState', () => {
+    it('should return null for out of bounds input', () => {
+      let didChange = accumulator.storeRegionBeforeState(
+        2000,
+        2000,
+        6,
+        6,
+      )
+
+      expect(didChange).toEqual(null)
+    })
     it('should store tiles for a region spanning multiple tiles', () => {
       // Region from (2,2) to (7,7), should cover tiles (0,0), (1,0), (0,1), (1,1)
       let finalizeHistory = accumulator.storeRegionBeforeState(
@@ -98,7 +113,7 @@ describe('PixelAccumulator', () => {
       expect(coords).toContain('0,1')
       expect(coords).toContain('1,1')
 
-      finalizeHistory(true)
+      finalizeHistory?.(true)
       expect(accumulator.beforeTiles.length).toBe(4)
     })
 
@@ -114,13 +129,29 @@ describe('PixelAccumulator', () => {
       expect(accumulator.beforeTiles[0].tx).toBe(0)
       expect(accumulator.beforeTiles[0].ty).toBe(0)
 
-      finalizeHistory(true)
+      finalizeHistory?.(true)
+    })
+
+
+    it('should handle a region partially outside the upper left bounds', () => {
+      let finalizeHistory = accumulator.storeRegionBeforeState(
+        -3,
+        -3,
+        4,
+        4,
+      )
+
+      expect(accumulator.beforeTiles.length).toBe(1)
+      expect(accumulator.beforeTiles[0].tx).toBe(0)
+      expect(accumulator.beforeTiles[0].ty).toBe(0)
+
+      finalizeHistory?.(true)
     })
 
     it('should discard exactly the tiles captured in this region if closure is false', () => {
       // Setup: an existing tile from a previous committed action
       let commitFirst = accumulator.storePixelBeforeState(1, 1)
-      commitFirst(true)
+      commitFirst?.(true)
 
       expect(accumulator.beforeTiles.length).toBe(1)
 
@@ -136,7 +167,7 @@ describe('PixelAccumulator', () => {
       expect(accumulator.beforeTiles.length).toBe(4)
 
       // Cancel stroke
-      finalizeStroke(false)
+      finalizeStroke?.(false)
 
       // It should strip off exactly the 3 new ones, leaving the original 1
       expect(accumulator.beforeTiles.length).toBe(1)
@@ -287,7 +318,7 @@ describe('PixelAccumulator', () => {
     it('should extract the modified state of the target', () => {
       // 1. Store initial state
       let finalize = accumulator.storePixelBeforeState(1, 1)
-      finalize(true)
+      finalize?.(true)
 
       let originalValue = target.data[1 * IMAGE_WIDTH + 1]
 
@@ -340,8 +371,8 @@ describe('PixelAccumulator', () => {
   describe('rollback', () => {
     it('should physically restore pixels, clear arrays, and release to pool', () => {
       // 1. Store state
-      let finalize = accumulator.storePixelBeforeState(1, 1)
-      finalize(true)
+      let finalize = accumulator.storePixelBeforeState(1, 1)!
+      finalize?.(true)
 
       let originalValue = target.data[1 * IMAGE_WIDTH + 1]
 

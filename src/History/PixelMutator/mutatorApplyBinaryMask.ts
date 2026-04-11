@@ -26,7 +26,11 @@ export const mutatorApplyBinaryMask = ((writer: PixelWriter<any>, deps: Deps = d
       const h = opts?.h ?? target.h
 
       const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
-      return didChange(applyBinaryMaskToPixelData(target, mask, opts))
+      if (!didChange) return false
+
+      const b = applyBinaryMaskToPixelData(target, mask, opts)
+      console.log({b})
+      return didChange(b)
     },
   }
 }) satisfies HistoryMutator<any, Deps>
