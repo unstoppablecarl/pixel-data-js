@@ -1,4 +1,5 @@
 import {
+  blendColorPixelData,
   blendColorPixelDataAlphaMask,
   blendColorPixelDataBinaryMask,
   type Color32,
@@ -6,6 +7,8 @@ import {
   overwritePerfect,
   type PaintAlphaMask,
   type PaintBinaryMask,
+  PaintMaskOutline,
+  type PaintRect,
   sourceOverPerfect,
 } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -20,7 +23,11 @@ describe('mutatorBlendColorPaintMask', () => {
     target,
     spyDeps,
     reset,
-  } = mockMutator(mutatorBlendColorPaintMask, { blendColorPixelDataBinaryMask, blendColorPixelDataAlphaMask })
+  } = mockMutator(mutatorBlendColorPaintMask, {
+    blendColorPixelData,
+    blendColorPixelDataBinaryMask,
+    blendColorPixelDataAlphaMask,
+  })
 
   beforeEach(() => {
     vi.resetAllMocks()
@@ -213,6 +220,56 @@ describe('mutatorBlendColorPaintMask', () => {
       expect.objectContaining(expectedOpts),
     )
 
+    expect(spyDeps.blendColorPixelDataBinaryMask).not.toHaveBeenCalled()
+    expect(result).toBe(true)
+  })
+
+  it('should call PaintRect case', () => {
+    const mask: PaintRect = {
+      type: null,
+      outlineType: PaintMaskOutline.RECT,
+      w: 9,
+      h: 11,
+      centerOffsetX: -2,
+      centerOffsetY: -3,
+      data: null,
+    }
+
+    const x = 5
+    const y = 6
+
+    const result = mutator.blendColorPaintMask(
+      color,
+      mask,
+      x,
+      y,
+    )
+
+    const tx = x + mask.centerOffsetX
+    const ty = y + mask.centerOffsetY
+
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledExactlyOnceWith(
+      tx,
+      ty,
+      mask.w,
+      mask.h,
+    )
+
+    const expectedOpts = {
+      x: tx,
+      y: ty,
+      alpha: 255,
+      blendFn: sourceOverPerfect,
+      w: mask.w,
+      h: mask.h,
+    }
+
+    expect(spyDeps.blendColorPixelData).toHaveBeenCalledExactlyOnceWith(
+      target,
+      color,
+      expect.objectContaining(expectedOpts),
+    )
+    expect(spyDeps.blendColorPixelDataAlphaMask).not.toHaveBeenCalled()
     expect(spyDeps.blendColorPixelDataBinaryMask).not.toHaveBeenCalled()
     expect(result).toBe(true)
   })
