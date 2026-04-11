@@ -15,3 +15,10 @@ export interface MutablePixelData32 {
 export interface PixelData<T extends ImageDataLike = ImageData> extends PixelData32 {
   readonly imageData: T
 }
+
+export interface MutablePixelData<T extends ImageDataLike = ImageData> extends PixelData32 {
+  imageData: T
+  data: Uint32Array
+  w: number
+  h: number
+}

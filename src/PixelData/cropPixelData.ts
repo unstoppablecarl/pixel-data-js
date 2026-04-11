@@ -1,7 +1,7 @@
-import type { PixelData, PixelData32 } from './_pixelData-types'
-import { makePixelData } from './PixelData'
+import type { MutablePixelData, PixelData, PixelData32 } from './_pixelData-types'
+import { setPixelData } from './PixelData'
 
-export function cropPixelData(src: PixelData32, x: number, y: number, w: number, h: number): PixelData {
+export function cropPixelData(src: PixelData32, x: number, y: number, w: number, h: number, out?: MutablePixelData): PixelData {
   const cx = Math.max(x, 0)
   const cy = Math.max(y, 0)
   const cw = Math.min(x + w, src.w) - cx
@@ -12,7 +12,14 @@ export function cropPixelData(src: PixelData32, x: number, y: number, w: number,
   }
 
   const cropped = new ImageData(cw, ch)
-  const dst32 = new Uint32Array(cropped.data.buffer)
+
+  let dst32: Uint32Array
+  if (out) {
+    setPixelData(out, cropped)
+    dst32 = out.data
+  } else {
+    dst32 = new Uint32Array(cropped.data.buffer)
+  }
 
   for (let row = 0; row < ch; row++) {
     const srcOffset = ((cy + row) * src.w) + cx
@@ -20,5 +27,10 @@ export function cropPixelData(src: PixelData32, x: number, y: number, w: number,
     dst32.set(src.data.subarray(srcOffset, srcOffset + cw), dstOffset)
   }
 
-  return makePixelData(cropped)
+  return out ?? {
+    data: dst32,
+    imageData: cropped,
+    w: cw,
+    h: ch,
+  }
 }

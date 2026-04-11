@@ -1,7 +1,7 @@
-import type { PixelData } from '@/index'
+import type { Color32, MutablePixelData, PixelData } from '@/index'
 import { cropPixelData } from '@/index'
 import { describe, expect, it } from 'vitest'
-import { makeTestPixelData } from '../_helpers'
+import { makeTestPixelData, pack } from '../_helpers'
 
 function pixelAt(pd: PixelData, x: number, y: number): number {
   return pd.data[y * pd.w + x]
@@ -299,6 +299,156 @@ describe('cropPixelData', () => {
       const src = makeTestPixelData(8, 8)
       const result = cropPixelData(src, 2, 2, 3, 5)
       expect(result.data.length).toBe(3 * 5)
+    })
+  })
+
+  describe('out argument', () => {
+    const O = pack(0, 0, 0, 0)
+    const A = pack(255, 0, 0, 255)
+    const B = pack(0, 255, 0, 255)
+    const C = pack(0, 0, 255, 255)
+    const D = pack(255, 255, 0, 255)
+
+    function makeMutablePixelData(pixels: Color32[][]): MutablePixelData {
+      const h = pixels.length
+      const w = pixels[0].length
+      const imageData = new ImageData(w, h)
+      const view32 = new Uint32Array(imageData.data.buffer)
+
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          view32[y * w + x] = pixels[y][x]
+        }
+      }
+
+      return { data: view32, imageData, w, h } as MutablePixelData
+    }
+
+    it('writes into the out object when provided', () => {
+      const src = makeTestPixelData(4, 4, [
+        O, O, O, O,
+        O, A, B, O,
+        O, C, D, O,
+        O, O, O, O,
+      ])
+
+      const out = {} as any
+      const result = cropPixelData(src, 1, 1, 2, 2, out)
+
+      expect(out).toMatchPixelGrid([
+        A, B,
+        C, D
+      ])
+      expect(result).toBe(out)
+    })
+
+    it('returns the out object reference', () => {
+      const src = makeMutablePixelData([
+        [A, B],
+        [C, D],
+      ])
+      const out = makeMutablePixelData([[O, O], [O, O]])
+      const result = cropPixelData(src, 0, 0, 2, 2, out)
+      expect(result).toBe(out)
+    })
+
+    it('does not return out reference when out is not provided', () => {
+      const src = makeMutablePixelData([
+        [A, B],
+        [C, D],
+      ])
+      const out = makeMutablePixelData([[O, O], [O, O]])
+      const result = cropPixelData(src, 0, 0, 2, 2)
+      expect(result).not.toBe(out)
+    })
+
+    it('mutates w and h on the out object', () => {
+      const src = makeMutablePixelData([
+        [O, O, O, O, O],
+        [O, A, B, C, O],
+        [O, D, A, B, O],
+        [O, O, O, O, O],
+      ])
+      const out = makeMutablePixelData([[O, O], [O, O]])
+      cropPixelData(src, 1, 1, 3, 2, out)
+      expect(out.w).toBe(3)
+      expect(out.h).toBe(2)
+    })
+
+    it('mutates imageData dimensions on the out object', () => {
+      const src = makeMutablePixelData([
+        [O, O, O, O, O],
+        [O, A, B, C, O],
+        [O, O, O, O, O],
+      ])
+      const out = makeMutablePixelData([[O, O], [O, O]])
+      cropPixelData(src, 1, 1, 3, 1, out)
+      expect(out.imageData.width).toBe(3)
+      expect(out.imageData.height).toBe(1)
+    })
+
+    it('does not mutate the src when out is provided', () => {
+      const src = makeMutablePixelData([
+        [O, O, O, O],
+        [O, A, B, O],
+        [O, C, D, O],
+        [O, O, O, O],
+      ])
+      const originalW = src.w
+      const originalH = src.h
+      const originalData = Array.from(src.data)
+      const out = makeMutablePixelData([[O, O], [O, O]])
+
+      cropPixelData(src, 1, 1, 2, 2, out)
+
+      expect(src.w).toBe(originalW)
+      expect(src.h).toBe(originalH)
+      expect(Array.from(src.data)).toEqual(originalData)
+    })
+
+    it('out object with trimmed bounds receives trimmed result', () => {
+      const src = makeMutablePixelData([
+        [A, B, C],
+        [D, A, B],
+        [C, D, A],
+      ])
+      const out = makeMutablePixelData([[O, O], [O, O]])
+
+      // crop overhangs right and bottom
+      cropPixelData(src, 1, 1, 10, 10, out)
+
+      expect(out.w).toBe(2)
+      expect(out.h).toBe(2)
+      expect(pixelAt(out, 0, 0)).toBe(pixelAt(src, 0, 0)) // A
+      expect(pixelAt(out, 1, 0)).toBe(pixelAt(src, 1, 0)) // B
+      expect(pixelAt(out, 0, 1)).toBe(pixelAt(src, 0, 1)) // D
+      expect(pixelAt(out, 1, 1)).toBe(pixelAt(src, 1, 1)) // A
+    })
+
+    it('throws with out provided when crop does not overlap', () => {
+      const src = makeMutablePixelData([
+        [A, B],
+        [C, D],
+      ])
+      const out = makeMutablePixelData([[O, O], [O, O]])
+      expect(() => cropPixelData(src, 5, 5, 2, 2, out)).toThrow()
+    })
+
+    it('does not mutate out when crop throws', () => {
+      const src = makeMutablePixelData([
+        [A, B],
+        [C, D],
+      ])
+      const out = makeMutablePixelData([[O, O], [O, O]])
+      const originalW = out.w
+      const originalH = out.h
+      const originalData = Array.from(out.data)
+
+      expect(() => cropPixelData(src, 5, 5, 2, 2, out)).toThrow()
+
+      expect(out.w).toBe(originalW)
+      expect(out.h).toBe(originalH)
+      expect(Array.from(out.data)).toEqual(originalData)
     })
   })
 })
