@@ -132,7 +132,6 @@ describe('PixelAccumulator', () => {
       finalizeHistory?.(true)
     })
 
-
     it('should handle a region partially outside the upper left bounds', () => {
       let finalizeHistory = accumulator.storeRegionBeforeState(
         -3,

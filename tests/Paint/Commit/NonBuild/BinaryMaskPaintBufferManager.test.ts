@@ -28,7 +28,7 @@ describe('makeBinaryMaskPaintBufferManager', () => {
       paintBinaryMask: vi.fn(),
       paintRect: vi.fn(),
       config,
-      clear: vi.fn()
+      clear: vi.fn(),
     }
 
     const poolSpy = vi.spyOn(TilePoolModule, 'TilePool').mockImplementation(() => mockPoolInstance as any)

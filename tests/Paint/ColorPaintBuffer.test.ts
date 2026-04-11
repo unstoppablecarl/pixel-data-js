@@ -355,7 +355,7 @@ describe('ColorPaintBuffer', () => {
 
     it('should return false if brush bounds are zero or negative', () => {
       const { paintBuffer } = makeTestPaintBuffer(8)
-      const brush = makeTestPaintRect(0,0)
+      const brush = makeTestPaintRect(0, 0)
 
       // Using a 0x0 brush should trigger the scratch.w <= 0 check
       const result = paintBuffer.paintRect(

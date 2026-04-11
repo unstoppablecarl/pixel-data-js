@@ -3,7 +3,8 @@ import {
   makePixelTile,
   PixelAccumulator,
   PixelEngineConfig,
-  PixelWriter, setPixelData,
+  PixelWriter,
+  setPixelData,
   TilePool,
 } from '@/index'
 import { vi } from 'vitest'
@@ -51,6 +52,6 @@ export function mockMutator<T extends {}, D extends {}>(mutatorFunction: History
     tilePool,
     config,
     spyDeps,
-    reset
+    reset,
   }
 }

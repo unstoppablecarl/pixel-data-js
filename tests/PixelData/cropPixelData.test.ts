@@ -337,7 +337,7 @@ describe('cropPixelData', () => {
 
       expect(out).toMatchPixelGrid([
         A, B,
-        C, D
+        C, D,
       ])
       expect(result).toBe(out)
     })

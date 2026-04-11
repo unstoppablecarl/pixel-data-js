@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { writeImageData } from '@/index'
+import { describe, expect, it } from 'vitest'
 
 describe('writeImageData', () => {
   const createImg = (w: number, h: number, color?: number) => {
@@ -75,38 +75,38 @@ describe('writeImageData', () => {
 
   describe('Slow Path Validation', () => {
     const createUnalignedImageDataLike = (w: number, h: number, fill = 0) => {
-      const buffer = new ArrayBuffer((w * h * 4) + 1);
+      const buffer = new ArrayBuffer((w * h * 4) + 1)
       // Offset by 1 to force isAligned (byteOffset % 4 === 0) to be false
-      const data = new Uint8ClampedArray(buffer, 1, w * h * 4);
-      data.fill(fill);
+      const data = new Uint8ClampedArray(buffer, 1, w * h * 4)
+      data.fill(fill)
 
       // Return a POJO that matches the ImageDataLike interface
       return {
         width: w,
         height: h,
-        data
-      };
-    };
+        data,
+      }
+    }
 
     it('correctly copies data when target is unaligned', () => {
-      const target = createUnalignedImageDataLike(2, 2, 0) as unknown as ImageData;
-      const source = new ImageData(new Uint8ClampedArray(2 * 2 * 4).fill(128), 2, 2);
+      const target = createUnalignedImageDataLike(2, 2, 0) as unknown as ImageData
+      const source = new ImageData(new Uint8ClampedArray(2 * 2 * 4).fill(128), 2, 2)
 
-      writeImageData(target, source, 0, 0);
+      writeImageData(target, source, 0, 0)
 
-      expect(target.data[0]).toBe(128);
+      expect(target.data[0]).toBe(128)
       // This will now pass because we bypassed the ImageData constructor cloning
-      expect(target.data.byteOffset % 4).not.toBe(0);
-    });
+      expect(target.data.byteOffset % 4).not.toBe(0)
+    })
 
     it('correctly copies data when source is unaligned', () => {
-      const target = new ImageData(new Uint8ClampedArray(2 * 2 * 4), 2, 2);
-      const source = createUnalignedImageDataLike(2, 2, 64) as unknown as ImageData;
+      const target = new ImageData(new Uint8ClampedArray(2 * 2 * 4), 2, 2)
+      const source = createUnalignedImageDataLike(2, 2, 64) as unknown as ImageData
 
-      writeImageData(target, source, 0, 0);
+      writeImageData(target, source, 0, 0)
 
-      expect(target.data[0]).toBe(64);
-      expect(source.data.byteOffset % 4).not.toBe(0);
-    });
-  });
+      expect(target.data[0]).toBe(64)
+      expect(source.data.byteOffset % 4).not.toBe(0)
+    })
+  })
 })
