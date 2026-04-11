@@ -1,4 +1,4 @@
-import { makePaintRect } from '@/index'
+import { makePaintRect, PaintMaskOutline } from '@/index'
 import { describe, expect, it } from 'vitest'
 
 describe('makePaintRect', () => {
@@ -11,6 +11,9 @@ describe('makePaintRect', () => {
     const rect = makePaintRect(w, h)
 
     expect(rect).toEqual({
+      type: null,
+      outlineType: PaintMaskOutline.RECT,
+      data: null,
       w,
       h,
       centerOffsetX: paintRectCenterOffset(w),
