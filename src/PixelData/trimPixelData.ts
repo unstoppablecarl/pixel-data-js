@@ -1,5 +1,5 @@
 import type { Rect } from '../Rect/_rect-types'
-import type { PixelData, PixelData32 } from './_pixelData-types'
+import type { MutablePixelData, PixelData, PixelData32 } from './_pixelData-types'
 import { cropPixelData } from './cropPixelData'
 
 export function getPixelDataTransparentTrimmedBounds(target: PixelData32): Rect | null {
@@ -37,4 +37,13 @@ export function trimTransparentPixelData(target: PixelData32): PixelData {
   }
 
   return cropPixelData(target, r.x, r.y, r.w, r.h)
+}
+
+export function trimTransparentPixelDataInPlace(target: MutablePixelData) {
+  const r = getPixelDataTransparentTrimmedBounds(target)
+  if (!r) {
+    throw new Error('PixelData is fully transparent — no crop bounds found')
+  }
+
+  cropPixelData(target, r.x, r.y, r.w, r.h, target)
 }

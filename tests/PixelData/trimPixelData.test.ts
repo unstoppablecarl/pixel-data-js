@@ -1,5 +1,9 @@
-import type { PixelData, PixelData32 } from '@/index'
-import { getPixelDataTransparentTrimmedBounds, trimTransparentPixelData } from '@/index'
+import {
+  getPixelDataTransparentTrimmedBounds,
+  type PixelData,
+  trimTransparentPixelData,
+  trimTransparentPixelDataInPlace,
+} from '@/index'
 import { describe, expect, it } from 'vitest'
 
 // Builds a PixelData32 from a 2D array of [r,g,b,a] tuples
@@ -374,3 +378,74 @@ describe('trimTransparentPixelData', () => {
     })
   })
 })
+
+describe('trimTransparentPixelDataInPlace', () => {
+  describe('throws on fully transparent', () => {
+    it('throws for a fully transparent image', () => {
+      const src = makePixelData32([
+        [O, O, O],
+        [O, O, O],
+        [O, O, O],
+      ])
+      expect(() => trimTransparentPixelDataInPlace(src)).toThrow()
+    })
+
+    it('throws for a 1x1 transparent pixel', () => {
+      const src = makePixelData32([[O]])
+      expect(() => trimTransparentPixelDataInPlace(src)).toThrow()
+    })
+  })
+
+  describe('correct output dimensions', () => {
+    it('returns full size when no trimming needed', () => {
+      const src = makePixelData32([
+        [X, X, X],
+        [X, X, X],
+        [X, X, X],
+      ])
+      trimTransparentPixelDataInPlace(src)
+      expect(src.w).toBe(3)
+      expect(src.h).toBe(3)
+    })
+
+    it('trims transparent border to correct size', () => {
+      const src = makePixelData32([
+        [O, O, O, O, O],
+        [O, X, X, X, O],
+        [O, X, X, X, O],
+        [O, X, X, X, O],
+        [O, O, O, O, O],
+      ])
+      trimTransparentPixelDataInPlace(src)
+      expect(src.w).toBe(3)
+      expect(src.h).toBe(3)
+    })
+
+    it('trims to a single opaque pixel', () => {
+      const src = makePixelData32([
+        [O, O, O],
+        [O, X, O],
+        [O, O, O],
+      ])
+      trimTransparentPixelDataInPlace(src)
+      expect(src.w).toBe(1)
+      expect(src.h).toBe(1)
+    })
+  })
+
+  describe('result metadata', () => {
+    it('result imageData dimensions match w/h', () => {
+      const src = makePixelData32([
+        [O, O, O, O, O],
+        [O, X, X, X, O],
+        [O, X, X, X, O],
+        [O, O, O, O, O],
+      ])
+      trimTransparentPixelDataInPlace(src)
+      expect(src.imageData.width).toBe(src.w)
+      expect(src.imageData.height).toBe(src.h)
+      expect(src.data.length).toBe(src.w * src.h)
+    })
+  })
+})
+
