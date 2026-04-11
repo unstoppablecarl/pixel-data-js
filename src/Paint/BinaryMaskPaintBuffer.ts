@@ -3,7 +3,8 @@ import type { PixelEngineConfig } from '../History/PixelEngineConfig'
 import type { Rect } from '../Rect/_rect-types'
 import { trimRectBounds } from '../Rect/trimRectBounds'
 import type { BinaryMaskTile } from '../Tile/_tile-types'
-import type { TilePool } from '../Tile/TilePool'
+import { makeBinaryMaskTile } from '../Tile/MaskTile'
+import { TilePool } from '../Tile/TilePool'
 import type { PaintBinaryMask, PaintRect } from './_paint-types'
 import { eachTileInBounds } from './eachTileInBounds'
 
@@ -17,7 +18,7 @@ export class BinaryMaskPaintBuffer {
 
   constructor(
     readonly config: PixelEngineConfig,
-    readonly tilePool: TilePool<BinaryMaskTile>,
+    readonly tilePool: TilePool<BinaryMaskTile> = new TilePool(config, makeBinaryMaskTile),
   ) {
     this.lookup = []
   }
