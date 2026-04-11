@@ -29,7 +29,7 @@ export const mutatorApplyBinaryMask = ((writer: PixelWriter<any>, deps: Deps = d
       if (!didChange) return false
 
       const b = applyBinaryMaskToPixelData(target, mask, opts)
-      console.log({b})
+      console.log({ b })
       return didChange(b)
     },
   }
