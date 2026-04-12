@@ -13,7 +13,7 @@ export function makeTileTargetConfig(
 
 export function makeTileTargetMeta(
   tileSize: number,
-  target: PixelData,
+  target: { w: number, h: number },
 ): TileTargetMeta {
   return {
     targetWidth: target.w,
