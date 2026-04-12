@@ -15,6 +15,8 @@ export function makePixelTile(
     id,
     tx,
     ty,
+    x: tx * tileSize,
+    y: ty * tileSize,
     w: tileSize,
     h: tileSize,
     data: data32,

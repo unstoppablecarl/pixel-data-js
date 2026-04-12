@@ -19,7 +19,7 @@ export function makeColorPaintBufferManager(
   writer: Pick<PixelWriter<any>, 'accumulator' | 'config'>,
   canvasFactory: CanvasObjectFactory<any> = DEFAULT_CANVAS_FACTORY,
 ): ColorPaintBufferManager {
-  const pool = new TilePool(writer.config, makePixelTile)
+  const pool = new TilePool(writer.config.tileSize, makePixelTile)
   const buffer = new ColorPaintBuffer(writer.config, pool)
   const draw = makeColorPaintBufferCanvasRenderer(buffer, canvasFactory)
 

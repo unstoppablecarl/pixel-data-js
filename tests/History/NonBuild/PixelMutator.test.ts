@@ -1,8 +1,8 @@
 import {
   makeFullPixelMutator,
   makePixelTile,
+  makeTileTargetConfig,
   PixelAccumulator,
-  PixelEngineConfig,
   PixelWriter,
   TilePool,
 } from '@/index'
@@ -27,8 +27,8 @@ async function getMutatorsByName() {
 describe('PixelMutator Sync', () => {
   it('sync with PixelMutators dir', async () => {
     const target = makeTestPixelData(5, 5)
-    const config = new PixelEngineConfig(8, target)
-    const tilePool = new TilePool(config, makePixelTile)
+    const config = makeTileTargetConfig(8, target)
+    const tilePool = new TilePool(config.tileSize, makePixelTile)
     const accumulator = new PixelAccumulator(config, tilePool)
 
     const mutatorsByName = await getMutatorsByName()

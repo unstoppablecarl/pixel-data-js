@@ -1,19 +1,18 @@
 import {
   AlphaMaskPaintBuffer,
   type AlphaMaskTile,
+  makePixelTile,
   PaintMaskOutline,
-  type PixelAccumulator,
-  type PixelEngineConfig,
   TilePool,
+  type TileTargetConfig,
 } from '@/index'
 import type { PaintAlphaMask, PaintBinaryMask } from '@/Paint/_paint-types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeTestAlphaMask, makeTestBinaryMask, makeTestPaintRect, makeTestPixelData } from '../_helpers'
 
 describe('AlphaMaskPaintBuffer', () => {
-  let mockConfig: PixelEngineConfig
+  let mockConfig: TileTargetConfig
   let mockPool: TilePool<AlphaMaskTile>
-  let mockAccumulator: PixelAccumulator
   let buffer: AlphaMaskPaintBuffer
 
   beforeEach(() => {
@@ -23,15 +22,11 @@ describe('AlphaMaskPaintBuffer', () => {
       tileMask: 15,
       tileSize: 16,
       tileArea: 256,
-    } as unknown as PixelEngineConfig
+    } as unknown as TileTargetConfig
 
     mockPool = {
       releaseTiles: vi.fn(),
     } as unknown as TilePool<AlphaMaskTile>
-
-    mockAccumulator = {
-      storeTileBeforeState: vi.fn(() => vi.fn()),
-    } as unknown as PixelAccumulator
 
     buffer = new AlphaMaskPaintBuffer(mockConfig, mockPool)
 
@@ -49,14 +44,13 @@ describe('AlphaMaskPaintBuffer', () => {
       // Inject a fake 16x16 tile into the lookup if empty
       let tile = lookup[0]
       if (!tile) {
-        tile = {
-          data: new Uint8Array(256),
-          id: 1,
-          tx: 0,
-          ty: 0,
-          w: 16,
-          h: 16,
-        }
+        tile = makePixelTile(
+          1,
+          0,
+          0,
+          16,
+          16 * 16,
+        )
         lookup[0] = tile
       }
       // Execute the buffer's inner loops over the fake tile

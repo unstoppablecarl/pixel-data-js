@@ -4,7 +4,7 @@ import {
   makeCirclePaintAlphaMask,
   makeCirclePaintBinaryMask,
   makePixelTile,
-  PixelEngineConfig,
+  makeTileTargetConfig,
   type PixelTile,
   TilePool,
   writePaintBufferToPixelData,
@@ -16,8 +16,8 @@ describe('ColorPaintBuffer', () => {
 
   function makeTestPaintBuffer(tileSize: number, w = 2, h = 2) {
     const target = makeTestPixelData(tileSize * w, tileSize * h)
-    const config = new PixelEngineConfig(tileSize, target)
-    const tilePool = new TilePool(config, makePixelTile)
+    const config = makeTileTargetConfig(tileSize, target)
+    const tilePool = new TilePool(config.tileSize, makePixelTile)
     const paintBuffer = new ColorPaintBuffer(config, tilePool)
 
     return {

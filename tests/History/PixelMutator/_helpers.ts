@@ -1,8 +1,8 @@
 import {
   type HistoryMutator,
   makePixelTile,
+  makeTileTargetConfig,
   PixelAccumulator,
-  PixelEngineConfig,
   PixelWriter,
   setPixelData,
   TilePool,
@@ -12,8 +12,8 @@ import { makeTestPixelDataLike, pack } from '../../_helpers'
 
 export function mockMutator<T extends {}, D extends {}>(mutatorFunction: HistoryMutator<T, D>, deps: D, tw = 16, th = 16, tileSize = 8, fill = pack(255, 255, 0, 255)) {
   const target = makeTestPixelDataLike(tw, th, fill)
-  const config = new PixelEngineConfig(tileSize, target)
-  const tilePool = new TilePool(config, makePixelTile)
+  const config = makeTileTargetConfig(tileSize, target)
+  const tilePool = new TilePool(config.tileSize, makePixelTile)
   const accumulator = new PixelAccumulator(config, tilePool)
 
   // Mock the accumulator methods

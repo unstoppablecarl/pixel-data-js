@@ -13,7 +13,6 @@ export function makeAlphaMaskPaintBufferCanvasRenderer(
 ) {
   const config = paintBuffer.config
   const tileSize = config.tileSize
-  const tileShift = config.tileShift
   const tileArea = config.tileArea
   const lookup = paintBuffer.lookup
 
@@ -64,11 +63,8 @@ export function makeAlphaMaskPaintBufferCanvasRenderer(
           }
         }
 
-        const dx = tile.tx << tileShift
-        const dy = tile.ty << tileShift
-
         ctx.putImageData(bridge.imageData, 0, 0)
-        targetCtx.drawImage(canvas, dx, dy)
+        targetCtx.drawImage(canvas, tile.x, tile.y)
       }
     }
 

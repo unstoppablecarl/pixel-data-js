@@ -11,6 +11,8 @@ interface BaseTile {
   id: number
   tx: number
   ty: number
+  x: number
+  y: number
 }
 
 export interface PixelTile extends PixelData, BaseTile {
@@ -31,3 +33,17 @@ export type TileFactory<T extends Tile> = (
   tileSize: number,
   tileArea: number,
 ) => T
+
+export interface TileTargetMeta {
+  readonly tileArea: number
+  readonly targetColumns: number
+  readonly targetRows: number
+  readonly targetWidth: number
+  readonly targetHeight: number
+  readonly tileSize: number
+  readonly invTileSize: number
+}
+
+export interface TileTargetConfig extends TileTargetMeta {
+  readonly target: PixelData
+}

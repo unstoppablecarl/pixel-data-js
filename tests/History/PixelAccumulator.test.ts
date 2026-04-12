@@ -1,11 +1,19 @@
-import { makePixelTile, PixelAccumulator, type PixelData, PixelEngineConfig, type PixelTile, TilePool } from '@/index'
+import {
+  makePixelTile,
+  makeTileTargetConfig,
+  PixelAccumulator,
+  type PixelData,
+  type PixelTile,
+  TilePool,
+  type TileTargetConfig,
+} from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeTestPixelData } from '../_helpers'
 
 describe('PixelAccumulator', () => {
   let accumulator: PixelAccumulator
   let target: PixelData
-  let config: PixelEngineConfig
+  let config: TileTargetConfig
   let tilePool: TilePool<PixelTile>
 
   const TILE_SIZE = 4
@@ -13,8 +21,8 @@ describe('PixelAccumulator', () => {
 
   beforeEach(() => {
     target = makeTestPixelData(10, 10)
-    config = new PixelEngineConfig(TILE_SIZE, target)
-    tilePool = new TilePool(config, makePixelTile)
+    config = makeTileTargetConfig(TILE_SIZE, target)
+    tilePool = new TilePool(config.tileSize, makePixelTile)
     accumulator = new PixelAccumulator(config, tilePool)
 
     let imageData = target.imageData

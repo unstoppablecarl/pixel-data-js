@@ -1,33 +1,32 @@
 import {
   BinaryMaskPaintBuffer,
   type BinaryMaskTile,
+  makePixelTile,
+  makeTileTargetMeta,
   PaintMaskOutline,
-  type PixelEngineConfig,
   TilePool,
+  type TileTargetMeta,
 } from '@/index'
 import type { PaintBinaryMask } from '@/Paint/_paint-types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeTestBinaryMask, makeTestPaintRect, makeTestPixelData } from '../_helpers'
 
 describe('BinaryMaskPaintBuffer', () => {
-  let mockConfig: PixelEngineConfig
-  let mockPool: TilePool<BinaryMaskTile>
+  let config: TileTargetMeta
+  let pool: TilePool<BinaryMaskTile>
   let buffer: BinaryMaskPaintBuffer
 
   beforeEach(() => {
-    mockConfig = {
-      target: makeTestPixelData(100, 100),
-      tileShift: 4,
-      tileMask: 15,
-      tileSize: 16,
-      tileArea: 256,
-    } as unknown as PixelEngineConfig
+    config = makeTileTargetMeta(
+      16,
+      makeTestPixelData(100, 100),
+    )
 
-    mockPool = {
+    pool = {
       releaseTiles: vi.fn(),
     } as unknown as TilePool<BinaryMaskTile>
 
-    buffer = new BinaryMaskPaintBuffer(mockConfig, mockPool)
+    buffer = new BinaryMaskPaintBuffer(config, pool)
 
     // --- Dependency Injection for Testing ---
     ;(buffer as any).forEachLinePointFn = vi.fn((x0, y0, x1, y1, cb) => {
@@ -44,21 +43,20 @@ describe('BinaryMaskPaintBuffer', () => {
       // Inject a fake 16x16 tile into the lookup if empty
       let tile = lookup[0]
       if (!tile) {
-        tile = {
-          data: new Uint8Array(256),
-          id: 1,
-          tx: 0,
-          ty: 0,
-          w: 16,
-          h: 16,
-        }
+        tile = makePixelTile(
+          1,
+          0,
+          0,
+          16,
+          16 * 16,
+        )
         lookup[0] = tile
       }
       // Execute the buffer's inner loops over the fake tile
       cb(tile, 0, 0, 16, 16)
     })
 
-    ;(buffer as any).blendColorPixelDataBinaryMaskFn = vi.fn(() => true)
+    // ;(buffer as any).blendColorPixelDataBinaryMaskFn = vi.fn(() => true)
   })
 
   describe('paintRect', () => {
@@ -173,7 +171,7 @@ describe('BinaryMaskPaintBuffer', () => {
 
       buffer.clear()
 
-      expect(mockPool.releaseTiles).toHaveBeenCalledWith(buffer.lookup)
+      expect(pool.releaseTiles).toHaveBeenCalledWith(buffer.lookup)
     })
   })
 })

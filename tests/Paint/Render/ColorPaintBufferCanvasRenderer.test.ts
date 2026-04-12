@@ -1,4 +1,4 @@
-import { ERRORS, makeColorPaintBufferCanvasRenderer } from '@/index'
+import { ERRORS, makeColorPaintBufferCanvasRenderer, makePixelTile } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
 
 describe('ColorPaintBufferCanvasRenderer', () => {
@@ -46,26 +46,29 @@ describe('ColorPaintBufferCanvasRenderer', () => {
   })
 
   it('safely skips empty tiles and accurately draws valid tiles to the target using bitwise shifts', () => {
-    const mockImageData = new ImageData(256, 256)
 
-    const tileA = {
-      tx: 1,
-      ty: 2,
-      imageData: mockImageData,
-    }
+    const tileSize = 256
+    const tileA = makePixelTile(
+      98,
+      1,
+      2,
+      tileSize,
+      tileSize * tileSize
+    )
 
     const tileB = undefined
 
-    const tileC = {
-      tx: 3,
-      ty: 0,
-      imageData: mockImageData,
-    }
+    const tileC = makePixelTile(
+      99,
+      3,
+      0,
+      tileSize,
+      tileSize * tileSize
+    )
 
     const mockBuffer = {
       config: {
-        tileSize: 256,
-        tileShift: 8,
+        tileSize,
       },
       lookup: [
         tileA,
@@ -93,10 +96,10 @@ describe('ColorPaintBufferCanvasRenderer', () => {
 
     drawPaintBuffer(targetCtx as any)
 
-    expect(internalCtx.putImageData).toHaveBeenNthCalledWith(1, mockImageData, 0, 0)
+    expect(internalCtx.putImageData).toHaveBeenNthCalledWith(1, tileA.imageData, 0, 0)
     expect(targetCtx.drawImage).toHaveBeenNthCalledWith(1, internalCanvasInstance, 256, 512)
 
-    expect(internalCtx.putImageData).toHaveBeenNthCalledWith(2, mockImageData, 0, 0)
+    expect(internalCtx.putImageData).toHaveBeenNthCalledWith(2, tileC.imageData, 0, 0)
     expect(targetCtx.drawImage).toHaveBeenNthCalledWith(2, internalCanvasInstance, 768, 0)
 
     expect(targetCtx.drawImage).toHaveBeenCalledTimes(2)

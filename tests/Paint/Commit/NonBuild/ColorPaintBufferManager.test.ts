@@ -44,7 +44,7 @@ describe('makeColorPaintBufferManager', () => {
 
     const manager = makeColorPaintBufferManager(writer, canvasFactory)
 
-    expect(poolSpy).toHaveBeenCalledExactlyOnceWith(config, makePixelTile)
+    expect(poolSpy).toHaveBeenCalledExactlyOnceWith(config.tileSize, makePixelTile)
     expect(bufferSpy).toHaveBeenCalledExactlyOnceWith(config, mockPoolInstance)
     expect(committerSpy).toHaveBeenCalledExactlyOnceWith(accumulator, mockBufferInstance)
 

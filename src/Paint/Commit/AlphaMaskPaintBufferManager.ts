@@ -19,7 +19,7 @@ export function makeAlphaMaskPaintBufferManager(
   writer: Pick<PixelWriter<any>, 'accumulator' | 'config'>,
   canvasFactory: CanvasObjectFactory<any> = DEFAULT_CANVAS_FACTORY,
 ): AlphaMaskPaintBufferManager {
-  const pool = new TilePool(writer.config, makeAlphaMaskTile)
+  const pool = new TilePool(writer.config.tileSize, makeAlphaMaskTile)
   const buffer = new AlphaMaskPaintBuffer(writer.config, pool)
   const draw = makeAlphaMaskPaintBufferCanvasRenderer(buffer, canvasFactory)
 

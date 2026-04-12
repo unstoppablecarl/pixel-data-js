@@ -42,7 +42,6 @@ export function commitMaskPaintBuffer(
   blendColorPixelDataMaskFn: any,
 ) {
   const config = accumulator.config
-  const tileShift = config.tileShift
   const lookup = paintBuffer.lookup
 
   SCRATCH_OPTS.alpha = alpha
@@ -54,11 +53,8 @@ export function commitMaskPaintBuffer(
     if (tile) {
       const didChange = accumulator.storeTileBeforeState(tile.id, tile.tx, tile.ty)
 
-      const dx = tile.tx << tileShift
-      const dy = tile.ty << tileShift
-
-      SCRATCH_OPTS.x = dx
-      SCRATCH_OPTS.y = dy
+      SCRATCH_OPTS.x = tile.x
+      SCRATCH_OPTS.y = tile.y
       SCRATCH_OPTS.w = tile.w
       SCRATCH_OPTS.h = tile.h
 

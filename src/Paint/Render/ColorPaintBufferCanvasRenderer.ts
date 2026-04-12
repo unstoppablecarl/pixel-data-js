@@ -9,9 +9,7 @@ export function makeColorPaintBufferCanvasRenderer(
   paintBuffer: ColorPaintBuffer,
   canvasFactory: CanvasObjectFactory<any> = DEFAULT_CANVAS_FACTORY,
 ) {
-  const config = paintBuffer.config
-  const tileSize = config.tileSize
-  const tileShift = config.tileShift
+  const tileSize = paintBuffer.config.tileSize
   const lookup = paintBuffer.lookup
 
   const canvas = canvasFactory(tileSize, tileSize)
@@ -32,12 +30,9 @@ export function makeColorPaintBufferCanvasRenderer(
       const tile = lookup[i]
 
       if (tile) {
-        const dx = tile.tx << tileShift
-        const dy = tile.ty << tileShift
-
         ctx.putImageData(tile.imageData, 0, 0)
 
-        targetCtx.drawImage(canvas, dx, dy)
+        targetCtx.drawImage(canvas, tile.x, tile.y)
       }
     }
 

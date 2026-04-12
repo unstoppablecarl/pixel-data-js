@@ -43,7 +43,7 @@ describe('makeBinaryMaskPaintBufferManager', () => {
 
     const manager = makeBinaryMaskPaintBufferManager(writer, canvasFactory)
 
-    expect(poolSpy).toHaveBeenCalledExactlyOnceWith(config, makeBinaryMaskTile)
+    expect(poolSpy).toHaveBeenCalledExactlyOnceWith(config.tileSize, makeBinaryMaskTile)
     expect(bufferSpy).toHaveBeenCalledExactlyOnceWith(config, mockPoolInstance)
     expect(committerSpy).toHaveBeenCalledExactlyOnceWith(accumulator, mockBufferInstance)
 

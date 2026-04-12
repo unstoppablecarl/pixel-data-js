@@ -1,5 +1,5 @@
 import type { Color32 } from '@/_types'
-import { ERRORS, makeBinaryMaskPaintBufferCanvasRenderer } from '@/index'
+import { ERRORS, makeBinaryMaskPaintBufferCanvasRenderer, makeBinaryMaskTile } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { offscreenCanvasMockContext, useOffscreenCanvasMock } from '../../_helpers/OffscreenCanvasMock'
 
@@ -163,11 +163,13 @@ describe('BinaryMaskPaintBufferCanvasRenderer', () => {
     it('should calculate draw offsets using tileShift', () => {
       const render = makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer)
 
-      mockLookup[0] = {
-        data: new Uint8Array(16),
-        tx: 5,
-        ty: 10,
-      }
+      mockLookup[0] = makeBinaryMaskTile(
+        99,
+        5,
+        10,
+        4,
+        4 * 4,
+      )
 
       render(mockTargetCtx, 0xFFFFFFFF as Color32)
 

@@ -17,7 +17,7 @@ export function makeBinaryMaskPaintBufferManager(
   writer: Pick<PixelWriter<any>, 'accumulator' | 'config'>,
   canvasFactory: CanvasObjectFactory<any> = DEFAULT_CANVAS_FACTORY,
 ): BinaryMaskPaintBufferManager {
-  const pool = new TilePool(writer.config, makeBinaryMaskTile)
+  const pool = new TilePool(writer.config.tileSize, makeBinaryMaskTile)
   const buffer = new BinaryMaskPaintBuffer(writer.config, pool)
   const draw = makeBinaryMaskPaintBufferCanvasRenderer(buffer, canvasFactory)
 

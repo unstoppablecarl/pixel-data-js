@@ -1,35 +1,42 @@
 import type { Color32 } from '@/_types'
-import { AlphaMaskPaintBuffer, ERRORS, makeAlphaMaskPaintBufferCanvasRenderer } from '@/index'
+import {
+  AlphaMaskPaintBuffer,
+  ERRORS,
+  makeAlphaMaskPaintBufferCanvasRenderer,
+  makeAlphaMaskTile,
+  makeBinaryMaskTile,
+  makeTileTargetMeta,
+} from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { makeTestPixelData } from '../../_helpers'
 import { offscreenCanvasMockContext, useOffscreenCanvasMock } from '../../_helpers/OffscreenCanvasMock'
 
 describe('AlphaMaskPaintBufferCanvasRenderer', () => {
   const tileSize = 8
 
-  let mockConfig: any
-  let mockLookup: any[]
-  let mockPaintBuffer: AlphaMaskPaintBuffer
-  let mockTargetCtx: any
+  let config: any
+  let lookup: any[]
+  let paintBuffer: AlphaMaskPaintBuffer
+  let targetCtx: any
 
   beforeEach(() => {
     offscreenCanvasMockContext.putImageData.mockClear()
     offscreenCanvasMockContext.drawImage.mockClear()
     offscreenCanvasMockContext.clearRect.mockClear()
 
-    mockConfig = {
-      tileSize: tileSize,
-      tileShift: 4,
-      tileArea: tileSize * tileSize,
-    }
+    config = makeTileTargetMeta(
+      tileSize,
+      makeTestPixelData(5, 5),
+    )
 
-    mockLookup = []
+    lookup = []
 
-    mockPaintBuffer = {
-      config: mockConfig,
-      lookup: mockLookup,
+    paintBuffer = {
+      config: config,
+      lookup: lookup,
     } as unknown as AlphaMaskPaintBuffer
 
-    mockTargetCtx = {
+    targetCtx = {
       globalAlpha: 1,
       globalCompositeOperation: 'source-over',
       drawImage: vi.fn(),
@@ -49,13 +56,13 @@ describe('AlphaMaskPaintBufferCanvasRenderer', () => {
       }
 
       expect(() => {
-        makeAlphaMaskPaintBufferCanvasRenderer(mockPaintBuffer, BadCanvasFactory as any)
+        makeAlphaMaskPaintBufferCanvasRenderer(paintBuffer, BadCanvasFactory as any)
       }).toThrowError(ERRORS.CANVAS_CTX_FAILED)
     })
 
     it('should disable imageSmoothingEnabled on the internal canvas', () => {
       // Because OffscreenCanvas is stubbed globally, we don't even need to pass the 2nd arg
-      makeAlphaMaskPaintBufferCanvasRenderer(mockPaintBuffer)
+      makeAlphaMaskPaintBufferCanvasRenderer(paintBuffer)
 
       expect((offscreenCanvasMockContext as any).imageSmoothingEnabled).toBe(false)
     })
@@ -66,7 +73,7 @@ describe('AlphaMaskPaintBufferCanvasRenderer', () => {
         getContext: vi.fn().mockReturnValue(ctx),
       }
       const customFactory = vi.fn().mockReturnValue(canvas)
-      makeAlphaMaskPaintBufferCanvasRenderer(mockPaintBuffer, customFactory as any)
+      makeAlphaMaskPaintBufferCanvasRenderer(paintBuffer, customFactory as any)
 
       expect(customFactory).toHaveBeenCalledOnce()
       expect(canvas.getContext).toHaveBeenCalledExactlyOnceWith('2d')
@@ -75,7 +82,7 @@ describe('AlphaMaskPaintBufferCanvasRenderer', () => {
 
   describe('drawPaintBuffer Rendering Logic', () => {
     it('should temporarily mutate and safely restore targetCtx global states', () => {
-      const render = makeAlphaMaskPaintBufferCanvasRenderer(mockPaintBuffer)
+      const render = makeAlphaMaskPaintBufferCanvasRenderer(paintBuffer)
 
       const color = 0xffffffff as Color32
       const alpha = 128
@@ -106,7 +113,7 @@ describe('AlphaMaskPaintBufferCanvasRenderer', () => {
     })
 
     it('should accurately translate 8-bit masks to 32-bit colors using bitwise math', () => {
-      const render = makeAlphaMaskPaintBufferCanvasRenderer(mockPaintBuffer)
+      const render = makeAlphaMaskPaintBufferCanvasRenderer(paintBuffer)
 
       const data8 = new Uint8Array(256)
       data8[0] = 0   // Transparent
@@ -118,11 +125,11 @@ describe('AlphaMaskPaintBufferCanvasRenderer', () => {
         tx: 0,
         ty: 0,
       }
-      mockLookup[0] = tile
+      lookup[0] = tile
 
       const color = 0xff0000ff as Color32
 
-      render(mockTargetCtx, color, 255, 'source-over')
+      render(targetCtx, color, 255, 'source-over')
 
       expect(offscreenCanvasMockContext.putImageData).toHaveBeenCalled()
 
@@ -141,7 +148,7 @@ describe('AlphaMaskPaintBufferCanvasRenderer', () => {
     })
 
     it('should clear memory bridge between tiles to prevent ghost pixels', () => {
-      const render = makeAlphaMaskPaintBufferCanvasRenderer(mockPaintBuffer)
+      const render = makeAlphaMaskPaintBufferCanvasRenderer(paintBuffer)
 
       const tileA = {
         data: new Uint8Array(256),
@@ -156,12 +163,12 @@ describe('AlphaMaskPaintBufferCanvasRenderer', () => {
         ty: 0,
       }
 
-      mockLookup[0] = tileA
-      mockLookup[1] = tileB
+      lookup[0] = tileA
+      lookup[1] = tileB
 
       const color = 0xffffffff as Color32
 
-      render(mockTargetCtx, color, 255, 'source-over')
+      render(targetCtx, color, 255, 'source-over')
 
       expect(offscreenCanvasMockContext.putImageData).toHaveBeenCalledTimes(2)
 
@@ -174,60 +181,59 @@ describe('AlphaMaskPaintBufferCanvasRenderer', () => {
     })
 
     it('should correctly calculate drawing offsets based on tile space geometry', () => {
-      const render = makeAlphaMaskPaintBufferCanvasRenderer(mockPaintBuffer)
+      const render = makeAlphaMaskPaintBufferCanvasRenderer(paintBuffer)
 
-      const tile = {
-        data: new Uint8Array(256),
-        tx: 2,
-        ty: 3,
-      }
-      mockLookup[0] = tile
+      const tile = makeAlphaMaskTile(
+        99,
+        2,
+        3,
+        tileSize,
+        tileSize * tileSize,
+      )
+      lookup[0] = tile
 
       const color = 0xffffffff as Color32
 
-      render(mockTargetCtx, color, 255, 'source-over')
+      render(targetCtx, color, 255, 'source-over')
 
-      const expectedDx = 32
-      const expectedDy = 48
-
-      expect(mockTargetCtx.drawImage).toHaveBeenCalledWith(
+      expect(targetCtx.drawImage).toHaveBeenCalledExactlyOnceWith(
         expect.objectContaining({ width: 8, height: 8 }),
-        expectedDx,
-        expectedDy,
+        tile.x,
+        tile.y,
       )
     })
   })
 
   it('should return early if alpha is zero', () => {
-    const render = makeAlphaMaskPaintBufferCanvasRenderer(mockPaintBuffer)
+    const render = makeAlphaMaskPaintBufferCanvasRenderer(paintBuffer)
 
     const tile = {
       data: new Uint8Array(256),
       tx: 2,
       ty: 3,
     }
-    mockLookup[0] = tile
+    lookup[0] = tile
 
     const color = 0xffffffff as Color32
 
-    render(mockTargetCtx, color, 0, 'source-over')
-    expect(mockTargetCtx.drawImage).not.toHaveBeenCalled()
+    render(targetCtx, color, 0, 'source-over')
+    expect(targetCtx.drawImage).not.toHaveBeenCalled()
   })
 
   it('should return early if color alpha is zero', () => {
-    const render = makeAlphaMaskPaintBufferCanvasRenderer(mockPaintBuffer)
+    const render = makeAlphaMaskPaintBufferCanvasRenderer(paintBuffer)
 
     const tile = {
       data: new Uint8Array(256),
       tx: 2,
       ty: 3,
     }
-    mockLookup[0] = tile
+    lookup[0] = tile
 
     const color = 0x00ffffff as Color32
 
-    render(mockTargetCtx, color, 255, 'source-over')
-    expect(mockTargetCtx.drawImage).not.toHaveBeenCalled()
+    render(targetCtx, color, 255, 'source-over')
+    expect(targetCtx.drawImage).not.toHaveBeenCalled()
   })
 
   it('should apply a mask to a color and render the full data array to target', () => {
@@ -248,12 +254,16 @@ describe('AlphaMaskPaintBufferCanvasRenderer', () => {
     data8[3] = 1
 
     const mockLookup = [
-      {
-        data: data8,
-        tx: 0,
-        ty: 0,
-      },
-    ]
+      makeBinaryMaskTile(
+        99,
+        0,
+        0,
+        tileSize,
+        tileSize * tileSize,
+      ),
+    ];
+
+    (mockLookup[0] as any).data = data8
 
     const mockPaintBuffer = {
       config: mockConfig,
@@ -267,7 +277,7 @@ describe('AlphaMaskPaintBufferCanvasRenderer', () => {
     const color = 0xFF0000FF as Color32
 
     // We want to capture the final pixels that go to the internal canvas
-    render(mockTargetCtx, color, 255, 'source-over')
+    render(targetCtx, color, 255, 'source-over')
 
     const putImageDataCall = offscreenCanvasMockContext.putImageData.mock.calls[0]
     const imageDataArg = putImageDataCall[0] as ImageData
@@ -288,7 +298,7 @@ describe('AlphaMaskPaintBufferCanvasRenderer', () => {
     expect(output32).toEqual(expected)
 
     // Verify it was drawn at the correct coordinates (tx:0, ty:0)
-    expect(mockTargetCtx.drawImage).toHaveBeenCalledWith(
+    expect(targetCtx.drawImage).toHaveBeenCalledWith(
       expect.anything(),
       0,
       0,

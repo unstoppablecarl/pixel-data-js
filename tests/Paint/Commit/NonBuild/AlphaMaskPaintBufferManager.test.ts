@@ -44,7 +44,7 @@ describe('makeAlphaMaskPaintBufferManager', () => {
 
     const manager = makeAlphaMaskPaintBufferManager(writer, canvasFactory)
 
-    expect(poolSpy).toHaveBeenCalledExactlyOnceWith(config, makeAlphaMaskTile)
+    expect(poolSpy).toHaveBeenCalledExactlyOnceWith(config.tileSize, makeAlphaMaskTile)
     expect(bufferSpy).toHaveBeenCalledExactlyOnceWith(config, mockPoolInstance)
     expect(committerSpy).toHaveBeenCalledExactlyOnceWith(accumulator, mockBufferInstance)
 

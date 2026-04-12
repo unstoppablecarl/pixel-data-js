@@ -1,5 +1,10 @@
-import type { ColorPaintBuffer, PixelData32, PixelTile } from '@/index'
-import { blendPixelDataPaintBuffer } from '@/index'
+import {
+  blendPixelDataPaintBuffer,
+  type ColorPaintBuffer,
+  makePixelTile,
+  type PixelData32,
+  type PixelTile,
+} from '@/index'
 import { describe, expect, it, vi } from 'vitest'
 
 describe('blendPixelDataPaintBuffer', () => {
@@ -20,19 +25,12 @@ describe('blendPixelDataPaintBuffer', () => {
   })
 
   it('skips empty slots and calculates correct bitwise coordinates with default options', () => {
-    const tileA = {
-      tx: 1,
-      ty: 2,
-    } as PixelTile
-
-    const tileC = {
-      tx: 3,
-      ty: 0,
-    } as PixelTile
+    const tileSize = 256
+    const tileA = makePixelTile(98, 1, 2, tileSize, tileSize * tileSize)
+    const tileC = makePixelTile(99, 3, 0, tileSize, tileSize * tileSize)
 
     const mockPaintBuffer = {
       config: {
-        tileShift: 8,
       },
       lookup: [
         tileA,

@@ -5,7 +5,7 @@ import {
   commitMaskPaintBuffer,
   MaskType,
   type PixelAccumulator,
-  type PixelEngineConfig,
+  type TileTargetConfig,
   TileType,
 } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
@@ -20,7 +20,7 @@ describe('MaskPaintBufferCommit', () => {
       tileMask: 15,
       tileSize: 16,
       tileArea: 256,
-    } as unknown as PixelEngineConfig
+    } as unknown as TileTargetConfig
 
     const didChange = vi.fn()
     const accumulator = {

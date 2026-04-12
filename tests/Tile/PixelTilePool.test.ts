@@ -1,25 +1,25 @@
-import { makePixelTile, type PixelEngineConfig, type PixelTile, TilePool } from '@/index'
+import { makePixelTile, type TileTargetConfig, type PixelTile, TilePool } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('TilePool', () => {
   const mockConfig = {
     tileSize: 256,
     tileArea: 65536,
-  } as unknown as PixelEngineConfig
+  } as unknown as TileTargetConfig
 
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it('initializes with an empty pool and correct config values', () => {
-    let tilePool = new TilePool(mockConfig, makePixelTile)
+    let tilePool = new TilePool(mockConfig.tileSize, makePixelTile)
 
     expect(tilePool.pool.length).toBe(0)
   })
 
   describe('getTile', () => {
     it('creates a new PixelTile when the pool is empty', () => {
-      let tilePool = new TilePool(mockConfig, makePixelTile)
+      let tilePool = new TilePool(mockConfig.tileSize, makePixelTile)
 
       let tile = tilePool.getTile(1, 5, 10)
 
@@ -32,7 +32,7 @@ describe('TilePool', () => {
     })
 
     it('reuses an existing tile from the pool', () => {
-      let tilePool = new TilePool(mockConfig, makePixelTile)
+      let tilePool = new TilePool(mockConfig.tileSize, makePixelTile)
 
       // Populate the pool
       let initialTile = tilePool.getTile(1, 5, 10)
@@ -51,7 +51,7 @@ describe('TilePool', () => {
     })
 
     it('clears the dirty data32 memory when reusing a tile', () => {
-      let tilePool = new TilePool(mockConfig, makePixelTile)
+      let tilePool = new TilePool(mockConfig.tileSize, makePixelTile)
 
       let initialTile = tilePool.getTile(1, 0, 0)
       initialTile.data.fill(1)
@@ -65,7 +65,7 @@ describe('TilePool', () => {
 
   describe('releaseTile', () => {
     it('adds a single tile back to the pool', () => {
-      let tilePool = new TilePool(mockConfig, makePixelTile)
+      let tilePool = new TilePool(mockConfig.tileSize, makePixelTile)
       let tile = tilePool.getTile(1, 0, 0)
 
       expect(tilePool.pool.length).toBe(0)
@@ -79,7 +79,7 @@ describe('TilePool', () => {
 
   describe('releaseTiles', () => {
     it('adds an array of tiles back to the pool and clears the input array', () => {
-      let tilePool = new TilePool(mockConfig, makePixelTile)
+      let tilePool = new TilePool(mockConfig.tileSize, makePixelTile)
       let tile1 = tilePool.getTile(1, 0, 0)
       let tile2 = tilePool.getTile(2, 1, 0)
 
@@ -97,7 +97,7 @@ describe('TilePool', () => {
     })
 
     it('handles arrays with undefined or null entries gracefully', () => {
-      let tilePool = new TilePool(mockConfig, makePixelTile)
+      let tilePool = new TilePool(mockConfig.tileSize, makePixelTile)
       let tile1 = tilePool.getTile(1, 0, 0)
 
       let sparseArray = [

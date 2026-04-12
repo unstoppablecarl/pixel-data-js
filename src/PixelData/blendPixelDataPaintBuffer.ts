@@ -17,14 +17,13 @@ export function blendPixelDataPaintBuffer(
   blendFn?: BlendColor32,
   blendPixelDataFn = blendPixelData,
 ): void {
-  const tileShift = paintBuffer.config.tileShift
   const lookup = paintBuffer.lookup
   for (let i = 0; i < lookup.length; i++) {
     const tile = lookup[i]
 
     if (tile) {
-      const x = tile.tx << tileShift
-      const y = tile.ty << tileShift
+      const x = tile.x
+      const y = tile.y
 
       SCRATCH_OPTS.x = x
       SCRATCH_OPTS.y = y

@@ -1,6 +1,5 @@
-import type { PixelTile } from '../Tile/_tile-types'
+import type { PixelTile, TileTargetConfig } from '../Tile/_tile-types'
 import type { TilePool } from '../Tile/TilePool'
-import type { PixelEngineConfig } from './PixelEngineConfig'
 import { applyPatchTiles, type PixelPatchTiles } from './PixelPatchTiles'
 
 export type DidChangeFn = (didChange: boolean) => boolean
@@ -10,7 +9,7 @@ export class PixelAccumulator {
   public beforeTiles: PixelTile[]
 
   constructor(
-    readonly config: PixelEngineConfig,
+    readonly config: TileTargetConfig,
     readonly pixelTilePool: TilePool<PixelTile>,
   ) {
     this.lookup = []
@@ -27,18 +26,17 @@ export class PixelAccumulator {
    * @param y pixel y coordinate
    */
   storePixelBeforeState(x: number, y: number): DidChangeFn | null {
-    const shift = this.config.tileShift
     const columns = this.config.targetColumns
-    const targetWidth = this.config.target.w
-    const targetHeight = this.config.target.h
+    const targetWidth = this.config.targetWidth
+    const targetHeight = this.config.targetHeight
 
     // Return a no-op if the pixel is outside the target boundaries
     if (x < 0 || x >= targetWidth || y < 0 || y >= targetHeight) {
       return null
     }
 
-    const tx = x >> shift
-    const ty = y >> shift
+    const tx = (x * this.config.invTileSize) | 0
+    const ty = (y * this.config.invTileSize) | 0
     const id = ty * columns + tx
 
     let tile = this.lookup[id]
@@ -75,10 +73,10 @@ export class PixelAccumulator {
     w: number,
     h: number,
   ): DidChangeFn | null {
-    const shift = this.config.tileShift
     const columns = this.config.targetColumns
-    const targetWidth = this.config.target.w
-    const targetHeight = this.config.target.h
+    const targetWidth = this.config.targetWidth
+    const targetHeight = this.config.targetHeight
+    const invTileSize = this.config.invTileSize
 
     // Clamp the bounding box to the actual canvas dimensions
     const clipX1 = Math.max(0, x)
@@ -91,10 +89,10 @@ export class PixelAccumulator {
       return null
     }
 
-    const startX = clipX1 >> shift
-    const startY = clipY1 >> shift
-    const endX = clipX2 >> shift
-    const endY = clipY2 >> shift
+    const startX = (clipX1 * invTileSize) | 0
+    const startY = (clipY1 * invTileSize) | 0
+    const endX = (clipX2 * invTileSize) | 0
+    const endY = (clipY2 * invTileSize) | 0
 
     const startIndex = this.beforeTiles.length
 
