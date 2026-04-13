@@ -3,11 +3,11 @@ import type { Tile, TileFactory } from './_tile-types'
 export class TilePool<T extends Tile> {
   public pool: T[]
 
-  private tileArea: number
+  protected tileArea: number
 
   constructor(
-    private tileSize: number,
-    private tileFactory: TileFactory<T>,
+    protected tileSize: number,
+    protected tileFactory: TileFactory<T>,
   ) {
     this.pool = []
     this.tileSize = tileSize
