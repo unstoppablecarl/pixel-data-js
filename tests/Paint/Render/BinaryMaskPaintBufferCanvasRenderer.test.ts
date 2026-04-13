@@ -1,32 +1,34 @@
 import type { Color32 } from '@/_types'
-import { ERRORS, makeBinaryMaskPaintBufferCanvasRenderer, makeBinaryMaskTile } from '@/index'
+import { makeBinaryMaskPaintBufferCanvasRenderer, makeBinaryMaskTile } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { offscreenCanvasMockContext, useOffscreenCanvasMock } from '../../_helpers/OffscreenCanvasMock'
 
 describe('BinaryMaskPaintBufferCanvasRenderer', () => {
   const tileSize = 4
+
   let mockConfig: any
   let mockLookup: any[]
   let mockPaintBuffer: any
   let mockTargetCtx: any
 
+  function makeFactory() {
+    const ctx = { putImageData: vi.fn(), imageSmoothingEnabled: true }
+    const canvas = {}
+    const getBuffer = vi.fn().mockReturnValue({ ctx, canvas })
+    const factory = vi.fn().mockReturnValue(getBuffer)
+    return { factory, getBuffer, ctx, canvas }
+  }
+
   beforeEach(() => {
-    useOffscreenCanvasMock()
-    offscreenCanvasMockContext.putImageData.mockClear()
-    offscreenCanvasMockContext.drawImage.mockClear()
-
     mockConfig = {
-      tileSize: tileSize,
+      tileSize,
       tileShift: 2,
-      tileArea: 16,
+      tileArea: tileSize * tileSize,
     }
-
     mockLookup = []
     mockPaintBuffer = {
       config: mockConfig,
       lookup: mockLookup,
     }
-
     mockTargetCtx = {
       globalAlpha: 1,
       globalCompositeOperation: 'source-over',
@@ -35,78 +37,73 @@ describe('BinaryMaskPaintBufferCanvasRenderer', () => {
   })
 
   describe('Factory Initialization', () => {
-    it('should throw CANVAS_CTX_FAILED if getContext returns null', () => {
-      const BadCanvasFactory = () => {
-        return {
-          getContext() {
-            return null
-          },
-        }
-      }
+    it('calls the outer factory once on construction', () => {
+      const { factory } = makeFactory()
+      makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer, factory as any)
 
-      expect(() => {
-        makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer, BadCanvasFactory as any)
-      }).toThrowError(ERRORS.CANVAS_CTX_FAILED)
+      expect(factory).toHaveBeenCalledOnce()
     })
 
-    it('should disable imageSmoothingEnabled on the internal canvas', () => {
-      // Because OffscreenCanvas is stubbed globally, we don't even need to pass the 2nd arg
-      makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer)
+    it('calls getBuffer with tileSize x tileSize during initial setBuffer', () => {
+      const { factory, getBuffer } = makeFactory()
+      makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer, factory as any)
 
-      expect((offscreenCanvasMockContext as any).imageSmoothingEnabled).toBe(false)
-    })
-
-    it('should handle custom canvas factory', () => {
-      const ctx = vi.fn()
-      const canvas = {
-        getContext: vi.fn().mockReturnValue(ctx),
-      }
-      const customFactory = vi.fn().mockReturnValue(canvas)
-      makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer, customFactory as any)
-
-      expect(customFactory).toHaveBeenCalledOnce()
-      expect(canvas.getContext).toHaveBeenCalledExactlyOnceWith('2d')
+      expect(getBuffer).toHaveBeenCalledWith(tileSize, tileSize)
     })
   })
 
   describe('Guard Clauses', () => {
-    it('should return early if alpha is 0', () => {
-      const render = makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer)
-      const color = 0xFFFFFFFF as Color32
+    it('returns early if alpha parameter is 0', () => {
+      const { factory } = makeFactory()
+      const renderer = makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer, factory as any)
 
-      render(mockTargetCtx, color, 0)
+      mockLookup[0] = makeBinaryMaskTile(1, 0, 0, tileSize, tileSize * tileSize)
+
+      renderer.draw(mockTargetCtx, 0xFFFFFFFF as Color32, 0)
 
       expect(mockTargetCtx.drawImage).not.toHaveBeenCalled()
     })
 
-    it('should return early if color alpha is 0', () => {
-      const render = makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer)
-      const transparentColor = 0x00FFFFFF as Color32
+    it('returns early if color alpha component is 0', () => {
+      const { factory } = makeFactory()
+      const renderer = makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer, factory as any)
 
-      render(mockTargetCtx, transparentColor)
+      mockLookup[0] = makeBinaryMaskTile(1, 0, 0, tileSize, tileSize * tileSize)
 
+      renderer.draw(mockTargetCtx, 0x00FFFFFF as Color32)
+
+      expect(mockTargetCtx.drawImage).not.toHaveBeenCalled()
+    })
+
+    it('skips undefined tiles in the lookup', () => {
+      const { factory, ctx } = makeFactory()
+      const renderer = makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer, factory as any)
+
+      mockLookup[0] = undefined
+      mockLookup[1] = undefined
+
+      renderer.draw(mockTargetCtx, 0xFFFFFFFF as Color32)
+
+      expect(ctx.putImageData).not.toHaveBeenCalled()
       expect(mockTargetCtx.drawImage).not.toHaveBeenCalled()
     })
   })
 
   describe('Rendering Logic', () => {
-    it('should only fill pixels where mask value is exactly 1', () => {
-      const render = makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer)
-      const data8 = new Uint8Array(16)
-      data8[0] = 1
-      data8[1] = 0
-      data8[5] = 1
+    it('fills pixels where mask value is 1 and leaves others at 0', () => {
+      const { factory, ctx } = makeFactory()
+      const renderer = makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer, factory as any)
 
-      mockLookup[0] = {
-        data: data8,
-        tx: 0,
-        ty: 0,
-      }
+      const tile = makeBinaryMaskTile(1, 0, 0, tileSize, tileSize * tileSize)
+      tile.data[0] = 1
+      tile.data[1] = 0
+      tile.data[5] = 1
+      mockLookup[0] = tile
 
       const color = 0xABCDEF12 as Color32
-      render(mockTargetCtx, color)
+      renderer.draw(mockTargetCtx, color)
 
-      const imageData = offscreenCanvasMockContext.putImageData.mock.calls[0][0]
+      const imageData = ctx.putImageData.mock.calls[0][0] as ImageData
       const view32 = new Uint32Array(imageData.data.buffer)
 
       expect(view32[0]).toBe(color)
@@ -114,71 +111,93 @@ describe('BinaryMaskPaintBufferCanvasRenderer', () => {
       expect(view32[5]).toBe(color)
     })
 
-    it('should set and restore targetCtx global states', () => {
-      const render = makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer)
-      mockLookup[0] = {
-        data: new Uint8Array(16).fill(1),
-        tx: 0,
-        ty: 0,
-      }
+    it('clears bridge memory between tiles to prevent ghost pixels', () => {
+      const { factory, ctx } = makeFactory()
+      const renderer = makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer, factory as any)
 
-      const alpha = 127.5
-      const compOp = 'xor'
+      const tileA = makeBinaryMaskTile(1, 0, 0, tileSize, tileSize * tileSize)
+      tileA.data[0] = 1
 
-      render(mockTargetCtx, 0xFFFFFFFF as Color32, alpha, compOp)
+      const tileB = makeBinaryMaskTile(2, 1, 1, tileSize, tileSize * tileSize)
+      // tileB.data[0] intentionally left at 0
 
-      // Verify the math for globalAlpha setter
-      expect(mockTargetCtx.globalAlpha).toBe(1)
-      expect(mockTargetCtx.globalCompositeOperation).toBe('source-over')
-    })
+      mockLookup[0] = tileA
+      mockLookup[1] = tileB
 
-    it('should clear the bridge memory between tiles', () => {
-      const render = makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer)
+      renderer.draw(mockTargetCtx, 0xFFFFFFFF as Color32)
 
-      const dataA = new Uint8Array(16)
-      dataA[0] = 1
-
-      const dataB = new Uint8Array(16)
-      dataB[0] = 0 // Should be empty even though dataA had a pixel here
-
-      mockLookup[0] = {
-        data: dataA,
-        tx: 0,
-        ty: 0,
-      }
-      mockLookup[1] = {
-        data: dataB,
-        tx: 1,
-        ty: 1,
-      }
-
-      render(mockTargetCtx, 0xFFFFFFFF as Color32)
-
-      const secondCall = offscreenCanvasMockContext.putImageData.mock.calls[1][0]
-      const view32 = new Uint32Array(secondCall.data.buffer)
+      const tileBImageData = ctx.putImageData.mock.calls[1][0] as ImageData
+      const view32 = new Uint32Array(tileBImageData.data.buffer)
 
       expect(view32[0]).toBe(0)
     })
 
-    it('should calculate draw offsets using tileShift', () => {
-      const render = makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer)
+    it('draws each tile at tile.x and tile.y coordinates', () => {
+      const { factory, canvas } = makeFactory()
+      const renderer = makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer, factory as any)
 
-      mockLookup[0] = makeBinaryMaskTile(
-        99,
-        5,
-        10,
-        4,
-        4 * 4,
-      )
+      const tileA = makeBinaryMaskTile(1, 1, 2, tileSize, tileSize * tileSize)
+      const tileB = makeBinaryMaskTile(2, 3, 0, tileSize, tileSize * tileSize)
+      mockLookup[0] = tileA
+      mockLookup[1] = tileB
 
-      render(mockTargetCtx, 0xFFFFFFFF as Color32)
+      renderer.draw(mockTargetCtx, 0xFFFFFFFF as Color32)
 
-      // 5 << 2 = 20, 10 << 2 = 40
-      expect(mockTargetCtx.drawImage).toHaveBeenCalledWith(
-        expect.anything(),
-        20,
-        40,
-      )
+      expect(mockTargetCtx.drawImage).toHaveBeenNthCalledWith(1, canvas, tileA.x, tileA.y)
+      expect(mockTargetCtx.drawImage).toHaveBeenNthCalledWith(2, canvas, tileB.x, tileB.y)
+      expect(mockTargetCtx.drawImage).toHaveBeenCalledTimes(2)
+    })
+
+    it('temporarily mutates and safely restores targetCtx global state', () => {
+      const { factory } = makeFactory()
+      const renderer = makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer, factory as any)
+
+      mockLookup[0] = makeBinaryMaskTile(1, 0, 0, tileSize, tileSize * tileSize)
+      mockLookup[0].data.fill(1)
+
+      const globalAlphaSetter = vi.fn()
+      const globalCompSetter = vi.fn()
+
+      const trackableCtx = {
+        set globalAlpha(val: number) { globalAlphaSetter(val) },
+        set globalCompositeOperation(val: string) { globalCompSetter(val) },
+        drawImage: vi.fn(),
+      } as unknown as CanvasRenderingContext2D
+
+      renderer.draw(trackableCtx, 0xFFFFFFFF as Color32, 128, 'destination-out')
+
+      expect(globalAlphaSetter).toHaveBeenNthCalledWith(1, 128 / 255)
+      expect(globalCompSetter).toHaveBeenNthCalledWith(1, 'destination-out')
+      expect(globalAlphaSetter).toHaveBeenLastCalledWith(1)
+      expect(globalCompSetter).toHaveBeenLastCalledWith('source-over')
+    })
+  })
+
+  describe('setBuffer', () => {
+    it('reflects the updated lookup after setBuffer is called', () => {
+      const { factory } = makeFactory()
+      const renderer = makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer, factory as any)
+
+      renderer.draw(mockTargetCtx, 0xFFFFFFFF as Color32)
+      expect(mockTargetCtx.drawImage).not.toHaveBeenCalled()
+
+      const tile = makeBinaryMaskTile(1, 0, 0, tileSize, tileSize * tileSize)
+      tile.data.fill(1)
+
+      renderer.setBuffer({ config: mockConfig, lookup: [tile] } as any)
+      renderer.draw(mockTargetCtx, 0xFFFFFFFF as Color32)
+
+      expect(mockTargetCtx.drawImage).toHaveBeenCalledOnce()
+    })
+
+    it('reallocates getBuffer when the new buffer has a different tileSize', () => {
+      const { factory, getBuffer } = makeFactory()
+      const renderer = makeBinaryMaskPaintBufferCanvasRenderer(mockPaintBuffer, factory as any)
+
+      const largerConfig = { tileSize: 512, tileShift: 9, tileArea: 512 * 512 }
+      renderer.setBuffer({ config: largerConfig, lookup: [] } as any)
+
+      expect(getBuffer).toHaveBeenCalledWith(512, 512)
     })
   })
 })

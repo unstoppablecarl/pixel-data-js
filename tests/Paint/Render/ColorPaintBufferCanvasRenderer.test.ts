@@ -1,127 +1,96 @@
-import { ERRORS, makeColorPaintBufferCanvasRenderer, makePixelTile } from '@/index'
+import { makeColorPaintBufferCanvasRenderer, makePixelTile } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
 
 describe('ColorPaintBufferCanvasRenderer', () => {
-  it('throws an error if the context cannot be initialized', () => {
+  it('calls the factory once on initialization and defers getBuffer until draw', () => {
     const mockBuffer = {
-      config: {
-        tileSize: 256,
-        tileShift: 8,
-      },
+      config: { tileSize: 256 },
       lookup: [],
     }
 
-    const badFactory = () => ({
-      getContext() {
-        return null
-      },
-    })
+    const mockGetBuffer = vi.fn().mockReturnValue({ ctx: {}, canvas: {} })
+    const mockFactory = vi.fn().mockReturnValue(mockGetBuffer)
 
-    expect(() => makeColorPaintBufferCanvasRenderer(mockBuffer as any, badFactory as any)).toThrowError(ERRORS.CANVAS_CTX_FAILED)
+    makeColorPaintBufferCanvasRenderer(mockBuffer as any, mockFactory as any)
+
+    expect(mockFactory).toHaveBeenCalledOnce()
+    expect(mockGetBuffer).not.toHaveBeenCalled()
   })
 
-  it('initializes the offscreen canvas with correct dimensions and disables smoothing', () => {
-    const mockBuffer = {
-      config: {
-        tileSize: 256,
-        tileShift: 8,
-      },
-      lookup: [],
-    }
-
-    const mockCtx = {
-      imageSmoothingEnabled: true,
-    }
-
-    const getContextSpy = vi.fn(() => mockCtx)
-    const mockCanvasFactory = vi.fn().mockReturnValue({
-      getContext: getContextSpy,
-    })
-
-    makeColorPaintBufferCanvasRenderer(mockBuffer as any, mockCanvasFactory as any)
-
-    expect(mockCanvasFactory).toHaveBeenCalledWith(256, 256)
-    expect(getContextSpy).toHaveBeenCalledWith('2d')
-    expect(mockCtx.imageSmoothingEnabled).toBe(false)
-  })
-
-  it('safely skips empty tiles and accurately draws valid tiles to the target using bitwise shifts', () => {
-
+  it('calls getBuffer with tileSize x tileSize dimensions on each draw call', () => {
     const tileSize = 256
-    const tileA = makePixelTile(
-      98,
-      1,
-      2,
-      tileSize,
-      tileSize * tileSize
-    )
+    const mockBuffer = {
+      config: { tileSize },
+      lookup: [],
+    }
 
+    const mockGetBuffer = vi.fn().mockReturnValue({ ctx: { putImageData: vi.fn() }, canvas: {} })
+    const mockFactory = vi.fn().mockReturnValue(mockGetBuffer)
+
+    const renderer = makeColorPaintBufferCanvasRenderer(mockBuffer as any, mockFactory as any)
+    renderer.draw({ drawImage: vi.fn() } as any)
+
+    expect(mockGetBuffer).toHaveBeenCalledWith(tileSize, tileSize)
+  })
+
+  it('safely skips empty tiles and draws valid tiles using tile.x and tile.y directly', () => {
+    const tileSize = 256
+    const tileA = makePixelTile(98, 1, 2, tileSize, tileSize * tileSize)
     const tileB = undefined
-
-    const tileC = makePixelTile(
-      99,
-      3,
-      0,
-      tileSize,
-      tileSize * tileSize
-    )
+    const tileC = makePixelTile(99, 3, 0, tileSize, tileSize * tileSize)
 
     const mockBuffer = {
-      config: {
-        tileSize,
-      },
-      lookup: [
-        tileA,
-        tileB,
-        tileC,
-      ],
+      config: { tileSize },
+      lookup: [tileA, tileB, tileC],
     }
 
-    const internalCtx = {
-      putImageData: vi.fn(),
-      imageSmoothingEnabled: true,
-    }
+    const internalCtx = { putImageData: vi.fn() }
+    const internalCanvas = {}
+    const mockGetBuffer = vi.fn().mockReturnValue({ ctx: internalCtx, canvas: internalCanvas })
+    const canvasFactory = vi.fn().mockReturnValue(mockGetBuffer)
 
-    const internalCanvasInstance = {
-      getContext: vi.fn(() => internalCtx),
-    }
+    const renderer = makeColorPaintBufferCanvasRenderer(mockBuffer as any, canvasFactory as any)
+    const targetCtx = { drawImage: vi.fn() }
 
-    const canvasFactory = () => internalCanvasInstance
-
-    const drawPaintBuffer = makeColorPaintBufferCanvasRenderer(mockBuffer as any, canvasFactory as any)
-
-    const targetCtx = {
-      drawImage: vi.fn(),
-    }
-
-    drawPaintBuffer(targetCtx as any)
+    renderer.draw(targetCtx as any)
 
     expect(internalCtx.putImageData).toHaveBeenNthCalledWith(1, tileA.imageData, 0, 0)
-    expect(targetCtx.drawImage).toHaveBeenNthCalledWith(1, internalCanvasInstance, 256, 512)
+    expect(targetCtx.drawImage).toHaveBeenNthCalledWith(1, internalCanvas, tileA.x, tileA.y)
 
     expect(internalCtx.putImageData).toHaveBeenNthCalledWith(2, tileC.imageData, 0, 0)
-    expect(targetCtx.drawImage).toHaveBeenNthCalledWith(2, internalCanvasInstance, 768, 0)
+    expect(targetCtx.drawImage).toHaveBeenNthCalledWith(2, internalCanvas, tileC.x, tileC.y)
 
     expect(targetCtx.drawImage).toHaveBeenCalledTimes(2)
   })
 
-  it('should handle custom canvas factory', () => {
-    const ctx = vi.fn()
-    const canvas = {
-      getContext: vi.fn().mockReturnValue(ctx),
-    }
-    const customFactory = vi.fn().mockReturnValue(canvas)
+  it('reflects the updated buffer after setBuffer is called', () => {
+    const tileSize = 256
+    const tile = makePixelTile(1, 0, 0, tileSize, tileSize * tileSize)
 
+    const initialBuffer = { config: { tileSize }, lookup: [] }
+    const updatedBuffer = { config: { tileSize }, lookup: [tile] }
+
+    const internalCtx = { putImageData: vi.fn() }
+    const mockGetBuffer = vi.fn().mockReturnValue({ ctx: internalCtx, canvas: {} })
+    const canvasFactory = vi.fn().mockReturnValue(mockGetBuffer)
+
+    const renderer = makeColorPaintBufferCanvasRenderer(initialBuffer as any, canvasFactory as any)
+    const targetCtx = { drawImage: vi.fn() }
+
+    renderer.draw(targetCtx as any)
+    expect(targetCtx.drawImage).not.toHaveBeenCalled()
+
+    renderer.setBuffer(updatedBuffer as any)
+    renderer.draw(targetCtx as any)
+    expect(targetCtx.drawImage).toHaveBeenCalledOnce()
+  })
+
+  it('constructs without throwing when no custom factory is provided', () => {
     const mockBuffer = {
-      config: {
-        tileSize: 256,
-        tileShift: 8,
-      },
+      config: { tileSize: 256 },
       lookup: [],
     }
-    makeColorPaintBufferCanvasRenderer(mockBuffer as any, customFactory as any)
 
-    expect(customFactory).toHaveBeenCalledOnce()
-    expect(canvas.getContext).toHaveBeenCalledExactlyOnceWith('2d')
+    expect(() => makeColorPaintBufferCanvasRenderer(mockBuffer as any)).not.toThrow()
   })
 })

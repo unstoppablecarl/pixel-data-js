@@ -50,7 +50,7 @@ describe('makeColorPaintBufferManager', () => {
 
     expect(manager.commit).toBe(mockCommitFn)
     expect(typeof manager.clear).toBe('function')
-    expect(typeof manager.draw).toBe('function')
+    expect(typeof manager.renderer).toBe('object')
     expect(typeof manager.paintRect).toBe('function')
     expect(typeof manager.paintAlphaMask).toBe('function')
     expect(typeof manager.paintBinaryMask).toBe('function')

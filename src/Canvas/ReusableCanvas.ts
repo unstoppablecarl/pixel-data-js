@@ -63,11 +63,6 @@ function makeReusableCanvasMeta<T extends HTMLCanvasElement | OffscreenCanvas>(
       canvas.width = width
       canvas.height = height
       ctx!.imageSmoothingEnabled = false
-    } else {
-      // Always reset transform before clearing to ensure the whole buffer is wiped
-      ctx!.setTransform(1, 0, 0, 1, 0, 0)
-      // Same size → manually clear
-      ctx!.clearRect(0, 0, width, height)
     }
 
     return result
