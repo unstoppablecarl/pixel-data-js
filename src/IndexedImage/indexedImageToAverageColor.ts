@@ -1,5 +1,6 @@
-import type { Color32 } from '../_types'
-import { packColor } from '../color'
+import type { Color32 } from '../Color/_color-types'
+
+import { packColor } from '../Color/pack-color'
 import type { IndexedImage } from './_indexedImage-types'
 
 /**

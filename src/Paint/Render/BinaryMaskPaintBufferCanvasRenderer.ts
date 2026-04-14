@@ -1,6 +1,6 @@
-import type { Color32 } from '../../_types'
 import type { ReusableCanvasFactory } from '../../Canvas/_canvas-types'
 import { makeReusableOffscreenCanvas } from '../../Canvas/ReusableCanvas'
+import type { Color32 } from '../../Color/_color-types'
 import type { PixelData } from '../../PixelData/_pixelData-types'
 import { makeReusablePixelData } from '../../PixelData/ReusablePixelData'
 import type { BinaryMaskTile, TileTargetMeta } from '../../Tile/_tile-types'

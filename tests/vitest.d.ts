@@ -1,5 +1,6 @@
 import 'vitest'
-import type { Color32 } from '@/_types'
+
+import type { Color32 } from '@/Color/_color-types'
 
 interface CustomMatchers<R = unknown> {
   toMatchPngBufferSnapshot(snapshotName?: string, message?: string): Promise<R>

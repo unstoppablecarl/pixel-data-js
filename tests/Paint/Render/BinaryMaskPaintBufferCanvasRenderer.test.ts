@@ -1,4 +1,4 @@
-import type { Color32 } from '@/_types'
+import type { Color32 } from '@/Color/_color-types'
 import { makeBinaryMaskPaintBufferCanvasRenderer, makeBinaryMaskTile } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 

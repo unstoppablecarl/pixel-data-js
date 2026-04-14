@@ -1,5 +1,5 @@
-import type { Color32 } from '../_types'
 import { forEachLinePoint } from '../Algorithm/forEachLinePoint'
+import type { Color32 } from '../Color/_color-types'
 import type { Rect } from '../Rect/_rect-types'
 import { trimRectBounds } from '../Rect/trimRectBounds'
 import type { PixelTile, TileTargetMeta } from '../Tile/_tile-types'

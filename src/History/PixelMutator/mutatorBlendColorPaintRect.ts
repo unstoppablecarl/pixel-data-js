@@ -1,5 +1,6 @@
-import type { BlendColor32, Color32 } from '../../_types'
+import type { BlendColor32 } from '../../_types'
 import { sourceOverPerfect } from '../../BlendModes/blend-modes-perfect'
+import type { Color32 } from '../../Color/_color-types'
 import { _macro_paintRectCenterOffset } from '../../Internal/macros'
 import { blendColorPixelData } from '../../PixelData/blendColorPixelData'
 import { type HistoryMutator, PixelWriter } from '../PixelWriter'

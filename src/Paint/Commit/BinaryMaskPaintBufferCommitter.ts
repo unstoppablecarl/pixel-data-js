@@ -1,5 +1,5 @@
-import type { Color32 } from '../../_types'
 import { sourceOverPerfect } from '../../BlendModes/blend-modes-perfect'
+import type { Color32 } from '../../Color/_color-types'
 import type { PixelAccumulator } from '../../History/PixelAccumulator'
 import { blendColorPixelDataBinaryMask } from '../../PixelData/blendColorPixelDataBinaryMask'
 import type { BinaryMaskPaintBuffer } from '../BinaryMaskPaintBuffer'

@@ -1,4 +1,5 @@
-import type { BlendColor32, Color32 } from '../../_types'
+import type { BlendColor32 } from '../../_types'
+import type { Color32 } from '../../Color/_color-types'
 import { blendPixel } from '../../PixelData/blendPixel'
 import { type HistoryMutator, PixelWriter } from '../PixelWriter'
 

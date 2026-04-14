@@ -1,4 +1,4 @@
-import type { Color32 } from '../_types'
+import type { Color32 } from '../Color/_color-types'
 import type { IndexedImage } from './_indexedImage-types'
 
 export function makeIndexedImage(
