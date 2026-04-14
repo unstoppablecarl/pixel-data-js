@@ -4,7 +4,7 @@ import {
   color32ToCssRGBAString,
   color32ToHex,
   type CssRGBA,
-  CssRGBAToColor32,
+  cssRGBAToColor32,
   packColor,
 } from '@/index'
 import { describe, expect, it } from 'vitest'
@@ -126,7 +126,7 @@ describe('Color Conversions', () => {
         b: 0,
         a: 1,
       } as CssRGBA
-      const result = CssRGBAToColor32(css)
+      const result = cssRGBAToColor32(css)
 
       // Expected: 0xFF00A5FF
       expect(result).toBe(0xFF00A5FF >>> 0)
@@ -139,7 +139,7 @@ describe('Color Conversions', () => {
         b: 0,
         a: 0.5,
       } as CssRGBA
-      const result = CssRGBAToColor32(css)
+      const result = cssRGBAToColor32(css)
       const alphaPart = (result >>> 24) & 0xFF
 
       expect(alphaPart).toBe(127)
@@ -150,7 +150,7 @@ describe('Color Conversions', () => {
     it('should maintain consistency when converted back and forth', () => {
       const originalColor = 0x7A2FBF44 >>> 0
       const css = color32ToCssRGBA(originalColor as Color32)
-      const roundTrip = CssRGBAToColor32(css)
+      const roundTrip = cssRGBAToColor32(css)
 
       expect(roundTrip).toBe(originalColor)
     })

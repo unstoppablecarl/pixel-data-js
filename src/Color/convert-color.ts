@@ -38,6 +38,6 @@ export function color32ToCssRGBA(color: Color32): CssRGBA {
   } as CssRGBA
 }
 
-export function CssRGBAToColor32({ r, g, b, a }: CssRGBA): Color32 {
+export function cssRGBAToColor32({ r, g, b, a }: CssRGBA): Color32 {
   return (((a * 255) << 24) | (b << 16) | (g << 8) | r) >>> 0 as Color32
 }
