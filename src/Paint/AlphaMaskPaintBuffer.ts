@@ -1,9 +1,9 @@
 import { forEachLinePoint } from '../Algorithm/forEachLinePoint'
-import type { PixelEngineConfig } from '../History/PixelEngineConfig'
 import type { Rect } from '../Rect/_rect-types'
 import { trimRectBounds } from '../Rect/trimRectBounds'
-import type { AlphaMaskTile } from '../Tile/_tile-types'
-import type { TilePool } from '../Tile/TilePool'
+import type { AlphaMaskTile, TileTargetMeta } from '../Tile/_tile-types'
+import { makeAlphaMaskTile } from '../Tile/MaskTile'
+import { TilePool } from '../Tile/TilePool'
 import type { PaintAlphaMask, PaintBinaryMask, PaintRect } from './_paint-types'
 import { eachTileInBounds } from './eachTileInBounds'
 
@@ -16,8 +16,8 @@ export class AlphaMaskPaintBuffer {
   private eachTileInBoundsFn = eachTileInBounds
 
   constructor(
-    readonly config: PixelEngineConfig,
-    readonly tilePool: TilePool<AlphaMaskTile>,
+    readonly config: TileTargetMeta,
+    readonly tilePool: TilePool<AlphaMaskTile> = new TilePool(config.tileSize, makeAlphaMaskTile),
   ) {
     this.lookup = []
   }
@@ -46,9 +46,9 @@ export class AlphaMaskPaintBuffer {
     const lookup = this.lookup
     const tilePool = this.tilePool
     const config = this.config
-    const tileShift = config.tileShift
-    const tileMask = config.tileMask
-    const target = config.target
+    const targetW = config.targetWidth
+    const targetH = config.targetHeight
+    const tileSize = config.tileSize
 
     const { w: bW, h: bH, data: bD, centerOffsetX, centerOffsetY } = brush
 
@@ -66,8 +66,8 @@ export class AlphaMaskPaintBuffer {
         topLeftY,
         bW,
         bH,
-        target.w,
-        target.h,
+        targetW,
+        targetH,
         scratch,
       )
 
@@ -80,8 +80,8 @@ export class AlphaMaskPaintBuffer {
         for (let i = 0; i < bH_t; i++) {
           const canvasY = bY + i
           const bOff = (canvasY - topLeftY) * bW
-          const tOff = (canvasY & tileMask) << tileShift
-          const dS = tOff + (bX & tileMask)
+          const tOff = (canvasY - tile.y) * tileSize
+          const dS = tOff + (bX - tile.x)
 
           for (let j = 0; j < bW_t; j++) {
             const canvasX = bX + j
@@ -130,9 +130,9 @@ export class AlphaMaskPaintBuffer {
     const lookup = this.lookup
     const tilePool = this.tilePool
     const config = this.config
-    const tileShift = config.tileShift
-    const tileMask = config.tileMask
-    const target = config.target
+    const targetW = config.targetWidth
+    const targetH = config.targetHeight
+    const tileSize = config.tileSize
 
     const { w: bW, h: bH, data: bD, centerOffsetX, centerOffsetY } = brush
     let changed = false
@@ -149,8 +149,8 @@ export class AlphaMaskPaintBuffer {
         topLeftY,
         bW,
         bH,
-        target.w,
-        target.h,
+        targetW,
+        targetH,
         scratch,
       )
 
@@ -163,8 +163,8 @@ export class AlphaMaskPaintBuffer {
         for (let i = 0; i < bH_t; i++) {
           const canvasY = bY + i
           const bOff = (canvasY - topLeftY) * bW
-          const tOff = (canvasY & tileMask) << tileShift
-          const dS = tOff + (bX & tileMask)
+          const tOff = (canvasY - tile.y) * tileSize
+          const dS = tOff + (bX - tile.x)
 
           for (let j = 0; j < bW_t; j++) {
             const canvasX = bX + j
@@ -210,9 +210,9 @@ export class AlphaMaskPaintBuffer {
     const lookup = this.lookup
     const tilePool = this.tilePool
     const config = this.config
-    const tileShift = config.tileShift
-    const tileMask = config.tileMask
-    const target = config.target
+    const targetW = config.targetWidth
+    const targetH = config.targetHeight
+    const tileSize = config.tileSize
 
     const brushWidth = brush.w
     const brushHeight = brush.h
@@ -237,8 +237,8 @@ export class AlphaMaskPaintBuffer {
           topLeftY,
           brushWidth,
           brushHeight,
-          target.w,
-          target.h,
+          targetW,
+          targetH,
           scratch,
         )
 
@@ -250,8 +250,8 @@ export class AlphaMaskPaintBuffer {
 
             for (let i = 0; i < bH_t; i++) {
               const canvasY = bY + i
-              const tOff = (canvasY & tileMask) << tileShift
-              const dS = tOff + (bX & tileMask)
+              const tOff = (canvasY - tile.y) * tileSize
+              const dS = tOff + (bX - tile.x)
 
               for (let j = 0; j < bW_t; j++) {
                 const idx = dS + j

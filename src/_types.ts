@@ -1,10 +1,5 @@
+import type { Color32 } from './Color/_color-types'
 import type { BinaryMask } from './Mask/_mask-types'
-
-/** ALL values are 0-255 (including alpha which in CSS is 0-1) */
-export type RGBA = { r: number, g: number, b: number, a: number }
-
-/** Represents a 32-bit color in 0xAABBGGRR (Little endian) */
-export type Color32 = number & { readonly __brandColor32: unique symbol }
 
 /**
  * A function that defines how to combine a source color with a destination color.

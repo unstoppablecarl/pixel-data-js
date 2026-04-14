@@ -1,9 +1,8 @@
-import type { PixelTile } from '@/index'
-import { eachTileInBounds, PixelEngineConfig } from '@/index'
+import { eachTileInBounds, makeTileTargetMeta, type PixelTile, type TileTargetMeta } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('eachTileInBounds', () => {
-  let config: PixelEngineConfig
+  let config: TileTargetMeta
   let tilePool: any
 
   const tileSize = 256
@@ -15,7 +14,7 @@ describe('eachTileInBounds', () => {
     } as any
 
     // 256px tile size (tileShift = 8)
-    config = new PixelEngineConfig(
+    config = makeTileTargetMeta(
       tileSize,
       target,
     )

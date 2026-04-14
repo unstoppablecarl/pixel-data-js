@@ -27,6 +27,7 @@ export const mutatorBlendBinaryMask = ((writer: PixelWriter<any>, deps: Partial<
       const h = opts?.h ?? src.h
 
       const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
+      if (!didChange) return false
 
       return didChange(
         blendPixelDataBinaryMask(writer.config.target, src, mask, opts),

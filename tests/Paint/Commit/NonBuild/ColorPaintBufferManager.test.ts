@@ -44,13 +44,13 @@ describe('makeColorPaintBufferManager', () => {
 
     const manager = makeColorPaintBufferManager(writer, canvasFactory)
 
-    expect(poolSpy).toHaveBeenCalledExactlyOnceWith(config, makePixelTile)
+    expect(poolSpy).toHaveBeenCalledExactlyOnceWith(config.tileSize, makePixelTile)
     expect(bufferSpy).toHaveBeenCalledExactlyOnceWith(config, mockPoolInstance)
     expect(committerSpy).toHaveBeenCalledExactlyOnceWith(accumulator, mockBufferInstance)
 
     expect(manager.commit).toBe(mockCommitFn)
     expect(typeof manager.clear).toBe('function')
-    expect(typeof manager.draw).toBe('function')
+    expect(typeof manager.renderer).toBe('object')
     expect(typeof manager.paintRect).toBe('function')
     expect(typeof manager.paintAlphaMask).toBe('function')
     expect(typeof manager.paintBinaryMask).toBe('function')

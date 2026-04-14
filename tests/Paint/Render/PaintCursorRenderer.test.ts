@@ -7,9 +7,13 @@ import {
   makePaintBinaryMask,
   makePaintCursorRenderer,
   makePixelData,
-  makeReusableCanvas, MaskType,
-  type PaintCursorRenderer, PaintMaskOutline,
+  makeReusableCanvas,
+  MaskType,
+  type PaintCursorRenderer,
+  PaintMaskOutline,
   resamplePixelDataInPlace,
+  trimTransparentPixelData,
+  writePixelData,
 } from '@/index'
 import { createCanvas } from '@napi-rs/canvas'
 import { describe, expect, it, vi } from 'vitest'
@@ -154,9 +158,9 @@ describe('PaintCursorRenderer', () => {
         cyan,
       )
 
-      const { toPixelData } = makeTargetCanvas(targetW, targetH)
+      const { toDrawPixelData, toDrawRawPixelData } = makeTargetCanvas(targetW, targetH)
 
-      const result = toPixelData(renderer, x, y)
+      const result = toDrawPixelData(renderer, x, y)
 
       blendColorPixelData(result, redTint, {
         x: ox * scale,
@@ -198,6 +202,21 @@ describe('PaintCursorRenderer', () => {
       // ]))
 
       expect(result).toMatchPixelGrid(expectedResult)
+
+      const offset = 1
+      const rawResult = toDrawRawPixelData(renderer, offset, offset)
+
+      const expectedRawResult = makeTestPixelData(targetW, targetH)
+      const expectedResultPixelDataTrimmed = trimTransparentPixelData(makeTestPixelData(targetW, targetH, expectedResult))
+      blendColorPixelData(rawResult, redTint, {
+        x: (offset * scale) + 1,
+        y: (offset * scale) + 1,
+        w: w * scale,
+        h: h * scale,
+      })
+      writePixelData(expectedRawResult, expectedResultPixelDataTrimmed, offset * scale, offset * scale)
+
+      expect(rawResult).toMatchPixelGrid(Array.from(expectedRawResult.data))
     })
 
     it.each(cases)('test rect scale=$scale x=$x y=$y w=$w h=$h', (v) => {
@@ -219,9 +238,9 @@ describe('PaintCursorRenderer', () => {
         cyan,
       )
 
-      const { toPixelData } = makeTargetCanvas(targetW, targetH)
+      const { toDrawPixelData } = makeTargetCanvas(targetW, targetH)
 
-      const result = toPixelData(renderer, x, y)
+      const result = toDrawPixelData(renderer, x, y)
 
       blendColorPixelData(result, redTint, {
         x: ox * scale,
@@ -385,9 +404,9 @@ describe('PaintCursorRenderer', () => {
 
       renderer.update(mask, scale, cyan)
 
-      const { toPixelData } = makeTargetCanvas(targetW, targetH)
+      const { toDrawPixelData, toDrawRawPixelData } = makeTargetCanvas(targetW, targetH)
 
-      const result = toPixelData(renderer, x, y)
+      const result = toDrawPixelData(renderer, x, y)
 
       const maskPixelData = makeTestPixelData(mask.w, mask.h)
       blendColorPixelDataBinaryMask(maskPixelData, redTint, mask)
@@ -430,6 +449,19 @@ describe('PaintCursorRenderer', () => {
       //   [redTint, 'r'],
       // ]))
       expect(result).toMatchPixelGrid(expectedResult)
+
+      const offset = 1
+      const rawResult = toDrawRawPixelData(renderer, offset, offset)
+
+      const expectedRawResult = makeTestPixelData(targetW, targetH)
+      const expectedResultPixelDataTrimmed = trimTransparentPixelData(makeTestPixelData(targetW, targetH, expectedResult))
+      blendPixelData(rawResult, maskPixelData, {
+        x: (offset * scale) + 1,
+        y: (offset * scale) + 1,
+      })
+      writePixelData(expectedRawResult, expectedResultPixelDataTrimmed, offset * scale, offset * scale)
+
+      expect(rawResult).toMatchPixelGrid(Array.from(expectedRawResult.data))
     })
   })
 
@@ -455,9 +487,9 @@ describe('PaintCursorRenderer', () => {
 
     renderer.update(mask, scale, cyan)
 
-    const { toPixelData } = makeTargetCanvas(targetW, targetH)
+    const { toDrawPixelData } = makeTargetCanvas(targetW, targetH)
 
-    const result = toPixelData(renderer, x, y)
+    const result = toDrawPixelData(renderer, x, y)
 
     const maskPixelData = makeTestPixelData(mask.w, mask.h)
 
@@ -545,9 +577,9 @@ describe('PaintCursorRenderer', () => {
 
     renderer.update(mask, scale, cyan)
 
-    const { toPixelData } = makeTargetCanvas(targetW, targetH)
+    const { toDrawPixelData } = makeTargetCanvas(targetW, targetH)
 
-    const result = toPixelData(renderer, x, y)
+    const result = toDrawPixelData(renderer, x, y)
 
     const maskPixelData = makeTestPixelData(mask.w, mask.h)
 
@@ -687,8 +719,16 @@ function makeTargetCanvas(w = 100, h = 100) {
   return {
     targetCanvas,
     targetCtx,
-    toPixelData: (renderer: PaintCursorRenderer, x: number, y: number) => {
+    toDrawPixelData: (renderer: PaintCursorRenderer, x: number, y: number) => {
+      targetCtx.clearRect(0, 0, w, h)
       renderer.draw(targetCtx, x, y)
+
+      const result = targetCtx.getImageData(0, 0, targetCanvas.width, targetCanvas.height)
+      return makePixelData(result)
+    },
+    toDrawRawPixelData: (renderer: PaintCursorRenderer, x: number, y: number) => {
+      targetCtx.clearRect(0, 0, w, h)
+      renderer.drawRaw(targetCtx, x, y)
 
       const result = targetCtx.getImageData(0, 0, targetCanvas.width, targetCanvas.height)
       return makePixelData(result)

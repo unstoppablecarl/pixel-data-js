@@ -214,7 +214,7 @@ describe('PixelWriter', () => {
     }
 
     writer.accumulator.extractPatch = vi.fn().mockReturnValue(patch)
-    
+
     writer.withHistory(
       (m) => {
         m.setPixel(0, 0, 1)

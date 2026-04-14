@@ -1,4 +1,4 @@
-import type { Color32 } from '@/_types'
+import type { Color32 } from '@/Color/_color-types'
 import type { PixelData, PixelData32 } from '@/PixelData/_pixelData-types'
 import { getColorListFromUint32Array, printPixelDataGridColor, unpackStr } from '../_helpers'
 

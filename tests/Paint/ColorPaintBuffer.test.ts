@@ -4,7 +4,7 @@ import {
   makeCirclePaintAlphaMask,
   makeCirclePaintBinaryMask,
   makePixelTile,
-  PixelEngineConfig,
+  makeTileTargetConfig,
   type PixelTile,
   TilePool,
   writePaintBufferToPixelData,
@@ -16,8 +16,8 @@ describe('ColorPaintBuffer', () => {
 
   function makeTestPaintBuffer(tileSize: number, w = 2, h = 2) {
     const target = makeTestPixelData(tileSize * w, tileSize * h)
-    const config = new PixelEngineConfig(tileSize, target)
-    const tilePool = new TilePool(config, makePixelTile)
+    const config = makeTileTargetConfig(tileSize, target)
+    const tilePool = new TilePool(config.tileSize, makePixelTile)
     const paintBuffer = new ColorPaintBuffer(config, tilePool)
 
     return {
@@ -355,7 +355,7 @@ describe('ColorPaintBuffer', () => {
 
     it('should return false if brush bounds are zero or negative', () => {
       const { paintBuffer } = makeTestPaintBuffer(8)
-      const brush = makeTestPaintRect(0,0)
+      const brush = makeTestPaintRect(0, 0)
 
       // Using a 0x0 brush should trigger the scratch.w <= 0 check
       const result = paintBuffer.paintRect(

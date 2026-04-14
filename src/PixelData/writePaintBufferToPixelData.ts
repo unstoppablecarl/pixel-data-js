@@ -10,17 +10,13 @@ export function writePaintBufferToPixelData(
   paintBuffer: ColorPaintBuffer,
   writePixelDataBufferFn = writePixelDataBuffer,
 ) {
-  const tileShift = paintBuffer.config.tileShift
   const lookup = paintBuffer.lookup
 
   for (let i = 0; i < lookup.length; i++) {
     const tile = lookup[i]
 
     if (tile) {
-      const dx = tile.tx << tileShift
-      const dy = tile.ty << tileShift
-
-      writePixelDataBufferFn(target, tile.data, dx, dy, tile.w, tile.h)
+      writePixelDataBufferFn(target, tile.data, tile.x, tile.y, tile.w, tile.h)
     }
   }
 }

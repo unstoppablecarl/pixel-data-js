@@ -1,13 +1,13 @@
 import { resizeImageData } from '../ImageData/resizeImageData'
 import type { PixelData } from '../PixelData/_pixelData-types'
 import { setPixelData } from '../PixelData/PixelData'
-import type { PixelTile } from '../Tile/_tile-types'
+import type { PixelTile, TileTargetConfig } from '../Tile/_tile-types'
 import { makePixelTile } from '../Tile/PixelTile'
 import { TilePool } from '../Tile/TilePool'
+import { makeTileTargetConfig } from '../Tile/TileTargetConfig'
 import { type HistoryActionFactory, makeHistoryAction } from './HistoryAction'
 import { HistoryManager } from './HistoryManager'
 import { PixelAccumulator } from './PixelAccumulator'
-import { PixelEngineConfig } from './PixelEngineConfig'
 import type { PixelPatchTiles } from './PixelPatchTiles'
 
 export interface PixelWriterOptions {
@@ -44,7 +44,7 @@ export class PixelWriter<M> {
   readonly historyManager: HistoryManager
   readonly accumulator: PixelAccumulator
   readonly historyActionFactory: HistoryActionFactory
-  readonly config: PixelEngineConfig
+  readonly config: TileTargetConfig
   readonly pixelTilePool: TilePool<PixelTile>
   readonly mutator: M
 
@@ -54,10 +54,10 @@ export class PixelWriter<M> {
     const tileSize = options?.tileSize ?? 256
     const maxHistorySteps = options?.maxHistorySteps ?? 50
 
-    this.config = new PixelEngineConfig(tileSize, target)
+    this.config = makeTileTargetConfig(tileSize, target)
     this.historyManager = options?.historyManager ?? new HistoryManager(maxHistorySteps)
     this.historyActionFactory = options?.historyActionFactory ?? makeHistoryAction
-    this.pixelTilePool = options?.pixelTilePool ?? new TilePool(this.config, makePixelTile)
+    this.pixelTilePool = options?.pixelTilePool ?? new TilePool(this.config.tileSize, makePixelTile)
     this.accumulator = options?.accumulator ?? new PixelAccumulator(this.config, this.pixelTilePool)
     this.mutator = mutatorFactory(this)
   }

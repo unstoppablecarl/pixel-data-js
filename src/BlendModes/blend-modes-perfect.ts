@@ -1,4 +1,5 @@
-import type { BlendColor32, Color32 } from '../_types'
+import type { BlendColor32 } from '../_types'
+import type { Color32 } from '../Color/_color-types'
 import { BaseBlendMode, overwriteBase } from './blend-modes'
 import { makeBlendModeRegistry } from './BlendModeRegistry'
 

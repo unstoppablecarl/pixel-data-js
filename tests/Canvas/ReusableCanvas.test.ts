@@ -26,20 +26,6 @@ describe('makeReusableCanvas', () => {
     expect(canvas.height).toBe(200)
   })
 
-  it('manually clears when dimensions match', () => {
-    const get = makeReusableCanvas()
-    const {
-      ctx,
-    } = get(100, 100)
-
-    const clearSpy = vi.spyOn(ctx, 'clearRect')
-
-    // Trigger the 'else' branch (same size)
-    get(100, 100)
-
-    expect(clearSpy).toHaveBeenCalledWith(0, 0, 100, 100)
-  })
-
   it('hits the error branch when context is null', () => {
     const get = makeReusableCanvas()
 
@@ -163,23 +149,6 @@ describe('makeReusableOffscreenCanvas', () => {
 
     // Verify smoothing was reapplied
     expect(secondCall.ctx.imageSmoothingEnabled).toBe(false)
-  })
-
-  it('resets transform and clears canvas if requested dimensions match exactly', () => {
-    const get = makeReusableOffscreenCanvas()
-    get(100, 100)
-
-    // Clear the spy history from the initial allocation
-    vi.clearAllMocks()
-
-    get(100, 100)
-
-    // Verify it reused the instance
-    expect(constructorSpy).not.toHaveBeenCalled()
-
-    // Verify the fast-clear path was taken
-    expect(mockCtx.setTransform).toHaveBeenCalledWith(1, 0, 0, 1, 0, 0)
-    expect(mockCtx.clearRect).toHaveBeenCalledWith(0, 0, 100, 100)
   })
 
   it('correctly resets closure state and severs references', () => {

@@ -1,5 +1,6 @@
-import { type Color32, type PixelBlendOptions } from '../_types'
+import { type PixelBlendOptions } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
+import type { Color32 } from '../Color/_color-types'
 import type { PixelData32 } from './_pixelData-types'
 
 /**

@@ -1,5 +1,6 @@
-import { type Color32, type PixelBlendMaskOptions } from '../_types'
+import { type PixelBlendMaskOptions } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
+import type { Color32 } from '../Color/_color-types'
 import type { AlphaMask } from '../Mask/_mask-types'
 import type { PixelData32 } from './_pixelData-types'
 

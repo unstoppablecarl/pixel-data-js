@@ -14,7 +14,7 @@ export const mutatorInvert = ((writer: PixelWriter<any>, deps: Deps = defaults) 
   } = deps
 
   return {
-    invert(opts?: PixelMutateOptions) {
+    invert(opts?: PixelMutateOptions): boolean {
       const target = writer.config.target
       const x = opts?.x ?? 0
       const y = opts?.y ?? 0
@@ -22,8 +22,9 @@ export const mutatorInvert = ((writer: PixelWriter<any>, deps: Deps = defaults) 
       const h = opts?.h ?? target.h
 
       const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
+      if (!didChange) return false
 
-      return didChange(
+      return didChange?.(
         invertPixelData(target, opts),
       )
     },

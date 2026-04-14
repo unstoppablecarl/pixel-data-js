@@ -1,17 +1,21 @@
-import { type Color32 } from '@/_types'
-import { sourceOverPerfect } from '@/BlendModes/blend-modes-perfect'
+import { multiplyPerfect, sourceOverPerfect } from '@/BlendModes/blend-modes-perfect'
+import type { Color32 } from '@/Color/_color-types'
 import { MaskType } from '@/Mask/_mask-types'
-import type { PaintMask } from '@/Paint/_paint-types'
+import { type PaintMask, PaintMaskOutline, type PaintRect } from '@/Paint/_paint-types'
 import type { PixelData32 } from '@/PixelData/_pixelData-types'
+import * as BlendModule from '@/PixelData/blendColorPixelData'
 import * as AlphaModule from '@/PixelData/blendColorPixelDataAlphaMask'
 import * as BinaryModule from '@/PixelData/blendColorPixelDataBinaryMask'
+
 import { blendColorPixelDataPaintMask } from '@/PixelData/blendColorPixelDataPaintMask'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { makeTestPixelData, pack } from '../../_helpers'
 
 describe('blendColorPixelDataPaintMask', () => {
   beforeEach(() => {
     vi.spyOn(BinaryModule, 'blendColorPixelDataBinaryMask')
     vi.spyOn(AlphaModule, 'blendColorPixelDataAlphaMask')
+    vi.spyOn(BlendModule, 'blendColorPixelData')
   })
 
   afterEach(() => {
@@ -22,12 +26,16 @@ describe('blendColorPixelDataPaintMask', () => {
     const blendColorPixelDataBinaryMask = BinaryModule.blendColorPixelDataBinaryMask
 
     const mockDst: PixelData32 = {} as PixelData32
-    const mockColor: Color32 = 0xFF0000FF as Color32
+    const mockColor = 0xFF0000FF as Color32
     const mockMask: PaintMask = {
+      data: new Uint8Array(9).fill(1),
       type: MaskType.BINARY,
       centerOffsetX: 15,
       centerOffsetY: 25,
-    } as PaintMask
+      w: 10,
+      h: 10,
+      outlineType: PaintMaskOutline.RECT,
+    }
 
     const x = 100
     const y = 200
@@ -44,8 +52,7 @@ describe('blendColorPixelDataPaintMask', () => {
       alpha,
     )
 
-    expect(blendColorPixelDataBinaryMask).toHaveBeenCalledOnce()
-    expect(blendColorPixelDataBinaryMask).toHaveBeenCalledWith(
+    expect(blendColorPixelDataBinaryMask).toHaveBeenCalledExactlyOnceWith(
       mockDst,
       mockColor,
       mockMask,
@@ -57,7 +64,7 @@ describe('blendColorPixelDataPaintMask', () => {
       }),
     )
 
-    // expect(blendColorPixelDataAlphaMask).not.toHaveBeenCalled()
+    expect(AlphaModule.blendColorPixelDataAlphaMask).not.toHaveBeenCalled()
     expect(result).toBe(true)
   })
 
@@ -65,59 +72,106 @@ describe('blendColorPixelDataPaintMask', () => {
     const blendColorPixelDataBinaryMask = BinaryModule.blendColorPixelDataBinaryMask
     const blendColorPixelDataAlphaMask = AlphaModule.blendColorPixelDataAlphaMask
 
-    const mockDst: PixelData32 = {} as PixelData32
-    const mockColor: Color32 = 0x00FF00FF as Color32
-    const mockMask: PaintMask = {
-      type: MaskType.ALPHA,           // or any non-BINARY type
-      centerOffsetX: 8,
-      centerOffsetY: 12,
-    } as PaintMask;
+    const target = makeTestPixelData(10, 10, pack(0, 0, 255, 255))
+    const color = pack(255, 0, 0, 255)
 
-    (blendColorPixelDataAlphaMask as any).mockReturnValue(false)
+    const mask: PaintMask = {
+      data: new Uint8Array(100).fill(255),
+      type: MaskType.ALPHA,
+      centerOffsetX: -1,
+      centerOffsetY: -1,
+      w: 10,
+      h: 10,
+      outlineType: PaintMaskOutline.RECT,
+    }
 
-    const result = blendColorPixelDataPaintMask(mockDst, mockColor, mockMask, 50, 60)
+    const x = 2
+    const y = 3
 
-    expect(blendColorPixelDataAlphaMask).toHaveBeenCalledOnce()
-    expect(blendColorPixelDataAlphaMask).toHaveBeenCalledWith(
-      mockDst,
-      mockColor,
-      mockMask,
+    const result = blendColorPixelDataPaintMask(target, color, mask, x, y)
+
+    expect(blendColorPixelDataAlphaMask).toHaveBeenCalledExactlyOnceWith(
+      target,
+      color,
+      mask,
       expect.objectContaining({
-        x: 58,   // 50 + 8
-        y: 72,   // 60 + 12
+        x: x + mask.centerOffsetX,
+        y: y + mask.centerOffsetY,
         alpha: 255,                 // default
         blendFn: sourceOverPerfect, // default
+        w: undefined,
+        h: undefined,
       }),
     )
 
     expect(blendColorPixelDataBinaryMask).not.toHaveBeenCalled()
-    expect(result).toBe(false)
+    expect(result).toBe(true)
   })
 
   it('should use default alpha and blendFn when not provided', () => {
     const blendColorPixelDataBinaryMask = BinaryModule.blendColorPixelDataBinaryMask
+    const color = pack(255, 0, 0, 255)
 
-    const mockDst: PixelData32 = {} as PixelData32
-    const mockMask: PaintMask = {
+    const target = makeTestPixelData(20, 20, pack(0, 0, 255, 255))
+    const mask: PaintMask = {
+      data: new Uint8Array(9).fill(1),
       type: MaskType.BINARY,
-      centerOffsetX: 0,
-      centerOffsetY: 0,
-    } as PaintMask;
+      centerOffsetX: -3,
+      centerOffsetY: -4,
+      w: 10,
+      h: 10,
+      outlineType: PaintMaskOutline.RECT,
+    }
 
-    (blendColorPixelDataBinaryMask as any).mockReturnValue(true)
+    const x = 10
+    const y = 11
 
-    const result = blendColorPixelDataPaintMask(mockDst, 0xFFFFFFFF as Color32, mockMask, 300, 400)
+    const result = blendColorPixelDataPaintMask(target, color, mask, x, y)
 
     expect(result).toEqual(true)
     expect(blendColorPixelDataBinaryMask).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.anything(),
-      expect.anything(),
+      target,
+      color,
+      mask,
       expect.objectContaining({
-        x: 300,
-        y: 400,
+        x: x + mask.centerOffsetX,
+        y: y + mask.centerOffsetY,
         alpha: 255,
         blendFn: sourceOverPerfect,
+      }),
+    )
+  })
+
+  it('should handle PaintRect', () => {
+    const blendColorPixelData = BlendModule.blendColorPixelData
+    const color = pack(255, 0, 0, 255)
+
+    const target = makeTestPixelData(20, 20, pack(0, 0, 255, 255))
+    const mask: PaintRect = {
+      centerOffsetX: -2,
+      centerOffsetY: -3,
+      w: 10,
+      h: 11,
+      data: null,
+      type: null,
+      outlineType: PaintMaskOutline.RECT,
+    }
+
+    const x = 3
+    const y = 5
+    const result = blendColorPixelDataPaintMask(target, color, mask, x, y)
+
+    expect(result).toEqual(true)
+    expect(blendColorPixelData).toHaveBeenCalledExactlyOnceWith(
+      target,
+      color,
+      expect.objectContaining({
+        x: x + mask.centerOffsetX,
+        y: y + mask.centerOffsetY,
+        alpha: 255,
+        blendFn: sourceOverPerfect,
+        w: mask.w,
+        h: mask.h,
       }),
     )
   })
@@ -125,33 +179,40 @@ describe('blendColorPixelDataPaintMask', () => {
   it('should correctly override alpha and blendFn when provided', () => {
     const blendColorPixelDataAlphaMask = AlphaModule.blendColorPixelDataAlphaMask
 
-    const mockDst: PixelData32 = {} as PixelData32
-    const mockMask: PaintMask = {
+    const target = makeTestPixelData(10, 10, pack(0, 0, 255, 255))
+    const color = pack(255, 0, 0, 255)
+
+    const mask: PaintMask = {
+      data: new Uint8Array(100).fill(255),
       type: MaskType.ALPHA,
-      centerOffsetX: 0,
-      centerOffsetY: 0,
-    } as PaintMask
+      centerOffsetX: -1,
+      centerOffsetY: -1,
+      w: 10,
+      h: 10,
+      outlineType: PaintMaskOutline.RECT,
+    }
 
-    const customBlendFn = vi.fn();
+    const customBlendFn = multiplyPerfect
 
-    (blendColorPixelDataAlphaMask as any).mockReturnValue(true)
-
+    const x = 10
+    const y = 13
+    const alpha = 128
     blendColorPixelDataPaintMask(
-      mockDst,
-      0x0000FFFF as Color32,
-      mockMask,
-      10,
-      20,
-      128,
+      target,
+      color,
+      mask,
+      x,
+      y,
+      alpha,
       customBlendFn,
     )
 
-    expect(blendColorPixelDataAlphaMask).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.anything(),
-      expect.anything(),
+    expect(blendColorPixelDataAlphaMask).toHaveBeenCalledExactlyOnceWith(
+      target,
+      color,
+      mask,
       expect.objectContaining({
-        alpha: 128,
+        alpha,
         blendFn: customBlendFn,
       }),
     )
@@ -161,15 +222,28 @@ describe('blendColorPixelDataPaintMask', () => {
     const blendColorPixelDataBinaryMask = BinaryModule.blendColorPixelDataBinaryMask
     const blendColorPixelDataAlphaMask = AlphaModule.blendColorPixelDataAlphaMask
 
-    const mockDst: PixelData32 = {} as PixelData32
-    const mockBinaryMask: PaintMask = { type: MaskType.BINARY, centerOffsetX: 0, centerOffsetY: 0 } as PaintMask
-    const mockAlphaMask: PaintMask = { type: MaskType.ALPHA, centerOffsetX: 0, centerOffsetY: 0 } as PaintMask;
+    const target: PixelData32 = {} as PixelData32
+    const binaryMask: PaintMask = {
+      type: MaskType.BINARY,
+      outlineType: PaintMaskOutline.RECT,
+      data: new Uint8Array(100).fill(1),
+      centerOffsetX: 0,
+      centerOffsetY: 0,
+      w: 10,
+      h: 10,
+    }
+    const alphaMask: PaintMask = {
+      type: MaskType.ALPHA,
+      outlineType: PaintMaskOutline.RECT,
+      data: new Uint8Array(100).fill(255),
+      centerOffsetX: 0,
+      centerOffsetY: 0,
+      w: 10,
+      h: 10,
+    }
 
-    (blendColorPixelDataBinaryMask as any).mockReturnValue(true);
-    (blendColorPixelDataAlphaMask as any).mockReturnValue(true)
-
-    blendColorPixelDataPaintMask(mockDst, 0xFF0000FF as Color32, mockBinaryMask, 5, 5)
-    blendColorPixelDataPaintMask(mockDst, 0x00FF00FF as Color32, mockAlphaMask, 50, 60, 200)
+    blendColorPixelDataPaintMask(target, 0xFF0000FF as Color32, binaryMask, 5, 5)
+    blendColorPixelDataPaintMask(target, 0x00FF00FF as Color32, alphaMask, 50, 60, 200)
 
     const firstOpts = (blendColorPixelDataBinaryMask as any).mock.calls[0][3]
     const secondOpts = (blendColorPixelDataAlphaMask as any).mock.calls[0][3]

@@ -4,15 +4,18 @@ import { makeTestAlphaMask } from '../../_helpers'
 import { mockMutator } from './_helpers'
 
 describe('mutatorApplyAlphaMask', () => {
+
   const {
     mutator,
     accumulator,
     target,
     spyDeps,
+    reset,
   } = mockMutator(mutatorApplyAlphaMask, { applyAlphaMaskToPixelData })
 
   beforeEach(() => {
     vi.resetAllMocks()
+    reset()
   })
 
   it('should call accumulator', () => {
@@ -24,16 +27,35 @@ describe('mutatorApplyAlphaMask', () => {
       h: 2,
     }
 
-    mutator.applyAlphaMask(mask, o)
+    const result = mutator.applyAlphaMask(mask, o)
 
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(o.x, o.y, o.w, o.h)
-    expect(spyDeps.applyAlphaMaskToPixelData).toHaveBeenCalledWith(target, mask, o)
+    expect(result).toEqual(true)
+
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledExactlyOnceWith(o.x, o.y, o.w, o.h)
+    expect(spyDeps.applyAlphaMaskToPixelData).toHaveBeenCalledExactlyOnceWith(target, mask, o)
   })
 
   it('should call accumulator with defaults', () => {
     const mask = makeTestAlphaMask(2, 2, 1)
     mutator.applyAlphaMask(mask)
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(0, 0, target.w, target.h)
-    expect(spyDeps.applyAlphaMaskToPixelData).toHaveBeenCalledWith(target, mask, undefined)
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledExactlyOnceWith(0, 0, target.w, target.h)
+    expect(spyDeps.applyAlphaMaskToPixelData).toHaveBeenCalledExactlyOnceWith(target, mask, undefined)
+  })
+
+  it('should return false on out of bounds region', () => {
+    const mask = makeTestAlphaMask(2, 2, 1)
+    const o = {
+      x: 5000,
+      y: 5000,
+      w: 2,
+      h: 2,
+    }
+
+    const result = mutator.applyAlphaMask(mask, o)
+
+    expect(result).toEqual(false)
+
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledExactlyOnceWith(o.x, o.y, o.w, o.h)
+    expect(spyDeps.applyAlphaMaskToPixelData).not.toHaveBeenCalled()
   })
 })

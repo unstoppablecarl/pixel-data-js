@@ -1,7 +1,8 @@
-import { type Color32 } from '../../_types'
 import { sourceOverPerfect } from '../../BlendModes/blend-modes-perfect'
+import type { Color32 } from '../../Color/_color-types'
 import { MaskType } from '../../Mask/_mask-types'
-import type { PaintMask } from '../../Paint/_paint-types'
+import type { PaintMask, PaintRect } from '../../Paint/_paint-types'
+import { blendColorPixelData } from '../../PixelData/blendColorPixelData'
 import { blendColorPixelDataAlphaMask } from '../../PixelData/blendColorPixelDataAlphaMask'
 import { blendColorPixelDataBinaryMask } from '../../PixelData/blendColorPixelDataBinaryMask'
 import { type HistoryMutator, PixelWriter } from '../PixelWriter'
@@ -9,6 +10,7 @@ import { type HistoryMutator, PixelWriter } from '../PixelWriter'
 const defaults = {
   blendColorPixelDataAlphaMask,
   blendColorPixelDataBinaryMask,
+  blendColorPixelData,
 }
 type Deps = Partial<typeof defaults>
 
@@ -19,6 +21,7 @@ export const mutatorBlendColorPaintMask = ((writer: PixelWriter<any>, deps: Part
   const {
     blendColorPixelDataBinaryMask = defaults.blendColorPixelDataBinaryMask,
     blendColorPixelDataAlphaMask = defaults.blendColorPixelDataAlphaMask,
+    blendColorPixelData = defaults.blendColorPixelData,
   } = deps
 
   const OPTS = {
@@ -26,12 +29,14 @@ export const mutatorBlendColorPaintMask = ((writer: PixelWriter<any>, deps: Part
     y: 0,
     blendFn: sourceOverPerfect,
     alpha: 255,
+    w: undefined as number | undefined,
+    h: undefined as number | undefined,
   }
 
   return {
     blendColorPaintMask(
       color: Color32,
-      mask: PaintMask,
+      mask: PaintMask | PaintRect,
       x: number,
       y: number,
       alpha = 255,
@@ -41,21 +46,32 @@ export const mutatorBlendColorPaintMask = ((writer: PixelWriter<any>, deps: Part
       const ty = y + mask.centerOffsetY
 
       const didChange = writer.accumulator.storeRegionBeforeState(tx, ty, mask.w, mask.h)
+      if (!didChange) return false
 
       OPTS.x = tx
       OPTS.y = ty
       OPTS.alpha = alpha
       OPTS.blendFn = blendFn
+      OPTS.w = undefined
+      OPTS.h = undefined
 
-      if (mask.type === MaskType.BINARY) {
-        return didChange(
-          blendColorPixelDataBinaryMask(writer.config.target, color, mask, OPTS),
-        )
-      } else {
+      if (mask.data) {
+        if (mask.type === MaskType.BINARY) {
+          return didChange(
+            blendColorPixelDataBinaryMask(writer.config.target, color, mask, OPTS),
+          )
+        }
         return didChange(
           blendColorPixelDataAlphaMask(writer.config.target, color, mask, OPTS),
         )
       }
+
+      OPTS.w = mask.w
+      OPTS.h = mask.h
+
+      return didChange(
+        blendColorPixelData(writer.config.target, color, OPTS),
+      )
     },
   }
 }) satisfies HistoryMutator<any, Deps>

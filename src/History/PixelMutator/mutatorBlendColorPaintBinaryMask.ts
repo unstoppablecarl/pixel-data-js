@@ -1,5 +1,5 @@
-import { type Color32 } from '../../_types'
 import { sourceOverPerfect } from '../../BlendModes/blend-modes-perfect'
+import type { Color32 } from '../../Color/_color-types'
 import type { PaintBinaryMask } from '../../Paint/_paint-types'
 import { blendColorPixelDataBinaryMask } from '../../PixelData/blendColorPixelDataBinaryMask'
 import { type HistoryMutator, PixelWriter } from '../PixelWriter'
@@ -37,6 +37,7 @@ export const mutatorBlendColorPaintBinaryMask = ((writer: PixelWriter<any>, deps
       const ty = y + mask.centerOffsetY
 
       const didChange = writer.accumulator.storeRegionBeforeState(tx, ty, mask.w, mask.h)
+      if (!didChange) return false
 
       OPTS.x = tx
       OPTS.y = ty

@@ -1,4 +1,5 @@
 import {
+  blendColorPixelData,
   blendColorPixelDataAlphaMask,
   blendColorPixelDataBinaryMask,
   type Color32,
@@ -6,6 +7,8 @@ import {
   overwritePerfect,
   type PaintAlphaMask,
   type PaintBinaryMask,
+  PaintMaskOutline,
+  type PaintRect,
   sourceOverPerfect,
 } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -19,10 +22,16 @@ describe('mutatorBlendColorPaintMask', () => {
     accumulator,
     target,
     spyDeps,
-  } = mockMutator(mutatorBlendColorPaintMask, { blendColorPixelDataBinaryMask, blendColorPixelDataAlphaMask })
+    reset,
+  } = mockMutator(mutatorBlendColorPaintMask, {
+    blendColorPixelData,
+    blendColorPixelDataBinaryMask,
+    blendColorPixelDataAlphaMask,
+  })
 
   beforeEach(() => {
     vi.resetAllMocks()
+    reset()
   })
 
   const color = pack(255, 0, 0, 255) as Color32
@@ -51,7 +60,7 @@ describe('mutatorBlendColorPaintMask', () => {
     const tx = x + mask.centerOffsetX
     const ty = y + mask.centerOffsetY
 
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledExactlyOnceWith(
       tx,
       ty,
       mask.w,
@@ -65,7 +74,7 @@ describe('mutatorBlendColorPaintMask', () => {
       blendFn,
     }
 
-    expect(spyDeps.blendColorPixelDataBinaryMask).toHaveBeenCalledWith(
+    expect(spyDeps.blendColorPixelDataBinaryMask).toHaveBeenCalledExactlyOnceWith(
       target,
       color,
       mask,
@@ -96,7 +105,7 @@ describe('mutatorBlendColorPaintMask', () => {
     const tx = x + mask.centerOffsetX
     const ty = y + mask.centerOffsetY
 
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledExactlyOnceWith(
       tx,
       ty,
       mask.w,
@@ -110,7 +119,7 @@ describe('mutatorBlendColorPaintMask', () => {
       blendFn: sourceOverPerfect,
     }
 
-    expect(spyDeps.blendColorPixelDataBinaryMask).toHaveBeenCalledWith(
+    expect(spyDeps.blendColorPixelDataBinaryMask).toHaveBeenCalledExactlyOnceWith(
       target,
       color,
       mask,
@@ -145,7 +154,7 @@ describe('mutatorBlendColorPaintMask', () => {
     const tx = x + mask.centerOffsetX
     const ty = y + mask.centerOffsetY
 
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledExactlyOnceWith(
       tx,
       ty,
       mask.w,
@@ -159,7 +168,7 @@ describe('mutatorBlendColorPaintMask', () => {
       blendFn,
     }
 
-    expect(spyDeps.blendColorPixelDataAlphaMask).toHaveBeenCalledWith(
+    expect(spyDeps.blendColorPixelDataAlphaMask).toHaveBeenCalledExactlyOnceWith(
       target,
       color,
       mask,
@@ -190,7 +199,7 @@ describe('mutatorBlendColorPaintMask', () => {
     const tx = x + mask.centerOffsetX
     const ty = y + mask.centerOffsetY
 
-    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledWith(
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledExactlyOnceWith(
       tx,
       ty,
       mask.w,
@@ -204,7 +213,7 @@ describe('mutatorBlendColorPaintMask', () => {
       blendFn: sourceOverPerfect,
     }
 
-    expect(spyDeps.blendColorPixelDataAlphaMask).toHaveBeenCalledWith(
+    expect(spyDeps.blendColorPixelDataAlphaMask).toHaveBeenCalledExactlyOnceWith(
       target,
       color,
       mask,
@@ -215,4 +224,85 @@ describe('mutatorBlendColorPaintMask', () => {
     expect(result).toBe(true)
   })
 
+  it('should call PaintRect case', () => {
+    const mask: PaintRect = {
+      type: null,
+      outlineType: PaintMaskOutline.RECT,
+      w: 9,
+      h: 11,
+      centerOffsetX: -2,
+      centerOffsetY: -3,
+      data: null,
+    }
+
+    const x = 5
+    const y = 6
+
+    const result = mutator.blendColorPaintMask(
+      color,
+      mask,
+      x,
+      y,
+    )
+
+    const tx = x + mask.centerOffsetX
+    const ty = y + mask.centerOffsetY
+
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledExactlyOnceWith(
+      tx,
+      ty,
+      mask.w,
+      mask.h,
+    )
+
+    const expectedOpts = {
+      x: tx,
+      y: ty,
+      alpha: 255,
+      blendFn: sourceOverPerfect,
+      w: mask.w,
+      h: mask.h,
+    }
+
+    expect(spyDeps.blendColorPixelData).toHaveBeenCalledExactlyOnceWith(
+      target,
+      color,
+      expect.objectContaining(expectedOpts),
+    )
+    expect(spyDeps.blendColorPixelDataAlphaMask).not.toHaveBeenCalled()
+    expect(spyDeps.blendColorPixelDataBinaryMask).not.toHaveBeenCalled()
+    expect(result).toBe(true)
+  })
+
+  it('should return false when out of bounds', () => {
+    const mask = {
+      ...makeTestAlphaMask(4, 4, 255),
+      centerOffsetX: -1,
+      centerOffsetY: -2,
+    } as PaintAlphaMask
+
+    const x = 1000
+    const y = 2000
+
+    const result = mutator.blendColorPaintMask(
+      color,
+      mask,
+      x,
+      y,
+    )
+
+    const tx = x + mask.centerOffsetX
+    const ty = y + mask.centerOffsetY
+
+    expect(accumulator.storeRegionBeforeState).toHaveBeenCalledExactlyOnceWith(
+      tx,
+      ty,
+      mask.w,
+      mask.h,
+    )
+
+    expect(spyDeps.blendColorPixelDataAlphaMask).not.toHaveBeenCalled()
+    expect(spyDeps.blendColorPixelDataBinaryMask).not.toHaveBeenCalled()
+    expect(result).toBe(false)
+  })
 })

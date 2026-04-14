@@ -1,7 +1,8 @@
-import { type Color32 } from '../../_types'
 import type { ReusableCanvasFactory } from '../../Canvas/_canvas-types'
 import { makeReusableOffscreenCanvas } from '../../Canvas/ReusableCanvas'
-import { packColor } from '../../color'
+import type { Color32 } from '../../Color/_color-types'
+
+import { packColor } from '../../Color/pack-color'
 import { _macro_paintRectCenterOffset } from '../../Internal/macros'
 import { type BinaryMask, MaskType } from '../../Mask/_mask-types'
 import { makeBinaryMaskFromAlphaMask } from '../../Mask/BinaryMask/makeBinaryMaskFromAlphaMask'

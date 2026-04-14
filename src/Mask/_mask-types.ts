@@ -64,6 +64,15 @@ export type NullableBinaryMaskRect = Rect & ({
   type?: null
   data?: null
 })
+
+export type NullableAlphaMaskRect = Rect & ({
+  type: MaskType.ALPHA
+  data: Uint8Array
+} | {
+  type?: null
+  data?: null
+})
+
 export type NullableMaskRect = Rect & ({
   type: MaskType
   data: Uint8Array

@@ -1,32 +1,31 @@
-import type { PixelEngineConfig } from '../History/PixelEngineConfig'
 import type { Rect } from '../Rect/_rect-types'
-import type { Tile } from '../Tile/_tile-types'
+import type { Tile, TileTargetMeta } from '../Tile/_tile-types'
 import type { TilePool } from '../Tile/TilePool'
 
 export function eachTileInBounds<T extends Tile>(
-  config: PixelEngineConfig,
+  config: TileTargetMeta,
   lookup: (T | undefined)[],
   tilePool: TilePool<T>,
   bounds: Rect,
   callback: (tile: T, bX: number, bY: number, bW: number, bH: number) => void,
 ): void {
-  const { tileShift, targetColumns, targetRows, tileSize } = config
+  const { targetRows, targetColumns, tileSize } = config
 
-  const x1 = Math.max(0, bounds.x >> tileShift)
-  const y1 = Math.max(0, bounds.y >> tileShift)
-  const x2 = Math.min(targetColumns - 1, (bounds.x + bounds.w - 1) >> tileShift)
-  const y2 = Math.min(targetRows - 1, (bounds.y + bounds.h - 1) >> tileShift)
+  const x1 = Math.max(0, Math.floor(bounds.x / tileSize))
+  const y1 = Math.max(0, Math.floor(bounds.y / tileSize))
+  const x2 = Math.min(targetColumns - 1, Math.floor((bounds.x + bounds.w - 1) / tileSize))
+  const y2 = Math.min(targetRows - 1, Math.floor((bounds.y + bounds.h - 1) / tileSize))
 
   if (x1 > x2 || y1 > y2) return
 
   for (let ty = y1; ty <= y2; ty++) {
     const rowOffset = ty * targetColumns
-    const tileTop = ty << tileShift
+    const tileTop = ty * tileSize
 
     for (let tx = x1; tx <= x2; tx++) {
       const id = rowOffset + tx
       const tile = lookup[id] ?? (lookup[id] = tilePool.getTile(id, tx, ty))
-      const tileLeft = tx << tileShift
+      const tileLeft = tx * tileSize
 
       const startX = bounds.x > tileLeft ? bounds.x : tileLeft
       const startY = bounds.y > tileTop ? bounds.y : tileTop

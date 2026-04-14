@@ -1,11 +1,11 @@
-import { makeHistoryAction, PixelAccumulator, type PixelData32, PixelEngineConfig } from '@/index'
+import { makeHistoryAction, PixelAccumulator, type PixelData32, type TileTargetConfig } from '@/index'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeTestPixelData } from '../_helpers'
 
 describe('makeHistoryAction', () => {
   let target: PixelData32
   const tileSize = 16
-  let config: PixelEngineConfig
+  let config: TileTargetConfig
   let accumulator: PixelAccumulator
 
   const mockPatch = {

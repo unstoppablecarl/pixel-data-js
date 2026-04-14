@@ -1,5 +1,5 @@
-import type { Color32 } from '@/_types'
 import { toBlendModeIndexAndName } from '@/BlendModes/toBlendModeIndexAndName'
+import type { Color32 } from '@/Color/_color-types'
 import { command } from 'cmd-ts'
 import { bench, do_not_optimize, group } from 'mitata-ts'
 import { typeToDistRegistry } from '../../_dist-loaders'

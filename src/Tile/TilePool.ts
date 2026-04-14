@@ -1,19 +1,17 @@
-import type { PixelEngineConfig } from '../History/PixelEngineConfig'
 import type { Tile, TileFactory } from './_tile-types'
 
 export class TilePool<T extends Tile> {
   public pool: T[]
 
-  private tileSize: number
-  private tileArea: number
+  protected tileArea: number
 
   constructor(
-    config: PixelEngineConfig,
-    private tileFactory: TileFactory<T>,
+    protected tileSize: number,
+    protected tileFactory: TileFactory<T>,
   ) {
     this.pool = []
-    this.tileSize = config.tileSize
-    this.tileArea = config.tileArea
+    this.tileSize = tileSize
+    this.tileArea = tileSize * tileSize
   }
 
   getTile(
@@ -22,11 +20,14 @@ export class TilePool<T extends Tile> {
     ty: number,
   ): T {
     let tile = this.pool.pop()
+    const tileSize = this.tileSize
 
     if (tile) {
       tile.id = id
       tile.tx = tx
       tile.ty = ty
+      tile.x = tx * tileSize
+      tile.y = ty * tileSize
 
       // Wipe dirty memory from previous uses before handing it out
       tile.data.fill(0)
@@ -38,7 +39,7 @@ export class TilePool<T extends Tile> {
       id,
       tx,
       ty,
-      this.tileSize,
+      tileSize,
       this.tileArea,
     )
   }

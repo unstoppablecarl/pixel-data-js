@@ -1,5 +1,6 @@
-import { type Color32 } from '../_types'
-import { colorDistance } from '../color'
+import type { Color32 } from '../Color/_color-types'
+
+import { colorDistance } from '../Color/colorDistance'
 import { extractImageDataBuffer } from '../ImageData/extractImageDataBuffer'
 import { type BinaryMaskRect, MaskType } from '../Mask/_mask-types'
 import type { PixelData } from '../PixelData/_pixelData-types'

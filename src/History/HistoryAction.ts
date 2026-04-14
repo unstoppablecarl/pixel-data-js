@@ -1,5 +1,5 @@
+import type { TileTargetConfig } from '../Tile/_tile-types'
 import type { PixelAccumulator } from './PixelAccumulator'
-import type { PixelEngineConfig } from './PixelEngineConfig'
 import { applyPatchTiles, type PixelPatchTiles } from './PixelPatchTiles'
 
 export interface HistoryAction {
@@ -11,7 +11,7 @@ export interface HistoryAction {
 export type HistoryActionFactory = typeof makeHistoryAction
 
 export function makeHistoryAction(
-  config: PixelEngineConfig,
+  config: TileTargetConfig,
   accumulator: PixelAccumulator,
   patch: PixelPatchTiles,
   afterUndo?: (patch: PixelPatchTiles) => void,

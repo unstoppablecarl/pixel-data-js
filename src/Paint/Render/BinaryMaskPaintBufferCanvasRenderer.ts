@@ -1,31 +1,46 @@
-import type { Color32 } from '../../_types'
-import type { CanvasObjectFactory } from '../../Canvas/_canvas-types'
-import { DEFAULT_CANVAS_FACTORY } from '../../Internal/_constants'
-import { CANVAS_CTX_FAILED } from '../../Internal/_errors'
-import { makePixelData } from '../../PixelData/PixelData'
+import type { ReusableCanvasFactory } from '../../Canvas/_canvas-types'
+import { makeReusableOffscreenCanvas } from '../../Canvas/ReusableCanvas'
+import type { Color32 } from '../../Color/_color-types'
+import type { PixelData } from '../../PixelData/_pixelData-types'
+import { makeReusablePixelData } from '../../PixelData/ReusablePixelData'
+import type { BinaryMaskTile, TileTargetMeta } from '../../Tile/_tile-types'
 import type { BinaryMaskPaintBuffer } from '../BinaryMaskPaintBuffer'
 
 export type BinaryMaskPaintBufferCanvasRenderer = ReturnType<typeof makeBinaryMaskPaintBufferCanvasRenderer>
 
-export function makeBinaryMaskPaintBufferCanvasRenderer(
+export function makeBinaryMaskPaintBufferCanvasRenderer<T extends HTMLCanvasElement | OffscreenCanvas>(
   paintBuffer: BinaryMaskPaintBuffer,
-  canvasFactory: CanvasObjectFactory<any> = DEFAULT_CANVAS_FACTORY,
+  reusableCanvasFactory?: () => ReusableCanvasFactory<T>,
 ) {
-  const config = paintBuffer.config
-  const tileSize = config.tileSize
-  const tileShift = config.tileShift
-  const tileArea = config.tileArea
-  const lookup = paintBuffer.lookup
+  const factory = (reusableCanvasFactory ?? makeReusableOffscreenCanvas) as unknown as () => ReusableCanvasFactory<T>
+  const getBuffer = factory()
+  const getBridge = makeReusablePixelData()
 
-  const canvas = canvasFactory(tileSize, tileSize)
-  const ctx = canvas.getContext('2d')
-  if (!ctx) throw new Error(CANVAS_CTX_FAILED)
-  ctx.imageSmoothingEnabled = false
+  let config: TileTargetMeta
+  let tileSize: number
+  let tileArea: number
+  let lookup: (BinaryMaskTile | undefined)[]
+  let view32: Uint32Array
+  let bridge: PixelData
+  let canvas: HTMLCanvasElement | OffscreenCanvas
+  let ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D
 
-  const bridge = makePixelData(new ImageData(tileSize, tileSize))
-  const view32 = bridge.data
+  setBuffer(paintBuffer)
 
-  return function drawPaintBuffer(
+  function setBuffer(value: BinaryMaskPaintBuffer) {
+    paintBuffer = value
+    config = paintBuffer.config
+    tileSize = config.tileSize
+    tileArea = config.tileArea
+    lookup = paintBuffer.lookup
+    bridge = getBridge(tileSize, tileSize)
+    view32 = bridge.data
+    const buff = getBuffer(tileSize, tileSize)
+    canvas = buff.canvas
+    ctx = buff.ctx
+  }
+
+  function draw(
     targetCtx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
     color: Color32,
     alpha = 255,
@@ -47,21 +62,22 @@ export function makeBinaryMaskPaintBufferCanvasRenderer(
         view32.fill(0)
 
         for (let p = 0; p < tileArea; p++) {
-          // If mask is solid, the final pixel is just the unmodified color
           if (data8[p] === 1) {
             view32[p] = color
           }
         }
 
-        const dx = tile.tx << tileShift
-        const dy = tile.ty << tileShift
-
         ctx.putImageData(bridge.imageData, 0, 0)
-        targetCtx.drawImage(canvas, dx, dy)
+        targetCtx.drawImage(canvas, tile.x, tile.y)
       }
     }
 
     targetCtx.globalAlpha = 1
     targetCtx.globalCompositeOperation = 'source-over'
+  }
+
+  return {
+    draw,
+    setBuffer,
   }
 }

@@ -1,4 +1,4 @@
-import type { Color32 } from '@/_types'
+import type { Color32 } from '@/Color/_color-types'
 import type { PixelData } from '@/PixelData/_pixelData-types'
 import { command } from 'cmd-ts'
 import { bench, do_not_optimize } from 'mitata-ts'

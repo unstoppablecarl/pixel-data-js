@@ -93,8 +93,8 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
       unplugin-inline:
-        specifier: ^1.15.0
-        version: 1.15.0(esbuild@0.27.3)(rollup@4.57.1)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: ^1.16.0
+        version: 1.16.0(esbuild@0.27.3)(rollup@4.57.1)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))
       vite-tsconfig-paths:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))
@@ -2335,8 +2335,8 @@ packages:
     resolution: {integrity: sha512-+QBBXBCvifc56fsbuxZQ6Sic3wqqc3WWaqxs58gvJrcOuN83HGTCwz3oS5phzU9LthRNE9VrJCFCLUgHeeFnfA==}
     engines: {node: '>=18'}
 
-  unplugin-inline@1.15.0:
-    resolution: {integrity: sha512-Tz/xxeFwaSRJRYjPGtGVREHotWaeNTZa2js4hSJrp06Ec7kFxc/8fit+Lf5qe8z0ZEmCoBjFUTsw7dn/J0T9kA==}
+  unplugin-inline@1.16.0:
+    resolution: {integrity: sha512-0Ese0D4ORiCA4l9Yo62hvnJI0d7LBL3f26gkhSOgdP+WaCFbb9HC01WMzT3zqmgSRqNgPE3wkBPpTVpesODVAg==}
     peerDependencies:
       esbuild: '>=0.14.0'
       rollup: ^3.0.0 || ^4.0.0
@@ -4652,7 +4652,7 @@ snapshots:
 
   unicorn-magic@0.3.0: {}
 
-  unplugin-inline@1.15.0(esbuild@0.27.3)(rollup@4.57.1)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2)):
+  unplugin-inline@1.16.0(esbuild@0.27.3)(rollup@4.57.1)(vite@7.3.1(@types/node@25.2.3)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2)):
     dependencies:
       '@babel/generator': 7.29.1
       '@babel/parser': 7.29.0

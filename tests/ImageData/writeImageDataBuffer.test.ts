@@ -209,7 +209,10 @@ describe('writeImageDataBuffer', () => {
 
       const sourceData = createUnalignedBuffer(2, 2)
       // P0: 10, P1: 20, P2: 30, P3: 40 (Red channel markers)
-      sourceData[0] = 10; sourceData[4] = 20; sourceData[8] = 30; sourceData[12] = 40
+      sourceData[0] = 10
+      sourceData[4] = 20
+      sourceData[8] = 30
+      sourceData[12] = 40
 
       // Write at (-1, -1). Only Source P3 (bottom-right) should land at Target (0,0).
       writeImageDataBuffer(target, sourceData, -1, -1, 2, 2)

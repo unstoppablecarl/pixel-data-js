@@ -1,4 +1,4 @@
-import type { Color32 } from '../_types'
+import type { Color32 } from '../Color/_color-types'
 import type { BinaryMaskRect } from '../Mask/_mask-types'
 import type { PixelData32 } from './_pixelData-types'
 import { fillPixelDataFast } from './fillPixelDataFast'

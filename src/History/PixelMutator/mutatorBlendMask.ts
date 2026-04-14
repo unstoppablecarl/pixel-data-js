@@ -29,6 +29,7 @@ export const mutatorBlendMask = ((writer: PixelWriter<any>, deps: Partial<Deps> 
       const h = opts?.h ?? src.h
 
       const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
+      if (!didChange) return false
 
       if (mask.type === MaskType.BINARY) {
         return didChange(

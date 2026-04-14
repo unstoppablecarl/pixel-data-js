@@ -1,5 +1,5 @@
-import { type Color32 } from '../_types'
 import { sourceOverPerfect } from '../BlendModes/blend-modes-perfect'
+import type { Color32 } from '../Color/_color-types'
 import type { PaintBinaryMask } from '../Paint/_paint-types'
 import type { PixelData32 } from './_pixelData-types'
 import { blendColorPixelDataBinaryMask } from './blendColorPixelDataBinaryMask'

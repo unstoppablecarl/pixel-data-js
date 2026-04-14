@@ -26,6 +26,8 @@ export const mutatorApplyAlphaMask = ((writer: PixelWriter<any>, deps: Deps = de
       const h = opts?.h ?? target.h
 
       const didChange = writer.accumulator.storeRegionBeforeState(x, y, w, h)
+      if (!didChange) return false
+
       return didChange(applyAlphaMaskToPixelData(target, mask, opts))
     },
   }

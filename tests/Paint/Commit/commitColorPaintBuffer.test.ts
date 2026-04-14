@@ -1,11 +1,10 @@
 import {
   blendPixelData,
-  type Color32,
   ColorPaintBuffer,
   commitColorPaintBuffer,
   MaskType,
   type PixelAccumulator,
-  type PixelEngineConfig,
+  type TileTargetConfig,
   TileType,
 } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
@@ -20,7 +19,7 @@ describe('commitColorPaintBuffer', () => {
       tileMask: 15,
       tileSize: 16,
       tileArea: 256,
-    } as unknown as PixelEngineConfig
+    } as unknown as TileTargetConfig
 
     const didChange = vi.fn()
     const accumulator = {
@@ -54,7 +53,6 @@ describe('commitColorPaintBuffer', () => {
       clear: vi.fn(),
       lookup: [tile1, undefined, tile2],
     } as unknown as ColorPaintBuffer
-    const color = 0xff0000ff as Color32
     const alpha = 128
     const mockBlendFn = vi.fn()
 
