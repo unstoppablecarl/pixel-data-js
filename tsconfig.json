@@ -22,6 +22,6 @@
     "tests/**/*",
     "benchmark/**/*",
     "_scripts/**/*",
-    "rollup.config.mjs"
+    "tsup.config.ts"
   ]
 }
