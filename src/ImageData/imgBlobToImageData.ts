@@ -1,3 +1,5 @@
+import { CANVAS_CTX_FAILED } from '../Internal/_errors'
+
 /**
  * Decodes a {@link Blob} (typically PNG) back into an {@link ImageData} object.
  *
@@ -35,7 +37,7 @@ export async function imgBlobToImageData(
     const ctx = canvas.getContext('2d')
 
     if (!ctx) {
-      throw new Error('Failed to get 2D context')
+      throw new Error(CANVAS_CTX_FAILED)
     }
 
     ctx.drawImage(bitmap, 0, 0)

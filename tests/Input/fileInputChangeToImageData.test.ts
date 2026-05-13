@@ -1,6 +1,6 @@
-import * as fileModule from '@/index'
 import { fileInputChangeToImageData } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
+import * as fileToImageDataModule from '../../src/Input/fileToImageData'
 
 describe('fileInputChangeToImageData', () => {
   it('should return null if no file is selected', async () => {
@@ -22,7 +22,7 @@ describe('fileInputChangeToImageData', () => {
       data: new Uint8ClampedArray(40000),
     } as ImageData
 
-    const spy = vi.spyOn(fileModule, 'fileToImageData')
+    const spy = vi.spyOn(fileToImageDataModule, 'fileToImageData')
 
     spy.mockResolvedValue(mockImageData)
 

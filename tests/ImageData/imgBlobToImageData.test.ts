@@ -74,6 +74,6 @@ describe('pngBlobToImageData', () => {
 
     const blob = new Blob()
 
-    await expect(imgBlobToImageData(blob)).rejects.toThrow('Failed to get 2D context')
+    await expect(imgBlobToImageData(blob)).rejects.toThrow('Failed to create Canvas context')
   })
 })
