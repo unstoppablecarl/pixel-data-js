@@ -34,7 +34,8 @@
       "Uint8Array": "#",
       "Uint8ClampedArray": "#",
       "createImageBitmap": "#",
-      "OffscreenCanvasRenderingContext2D":"#"
+      "OffscreenCanvasRenderingContext2D":"#",
+      "HTMLImageElement": "#"
     }
   }
 }

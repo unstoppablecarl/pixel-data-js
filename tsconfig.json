@@ -15,7 +15,8 @@
     "strict": true,
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
-    "noEmit": true
+    "noEmit": true,
+    "skipLibCheck": true,
   },
   "include": [
     "src/**/*",
