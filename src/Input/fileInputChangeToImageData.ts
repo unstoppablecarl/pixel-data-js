@@ -1,4 +1,4 @@
-import { fileToImageData } from '../../src'
+import { fileToImageData } from './fileToImageData'
 
 /**
  * A convenience wrapper that extracts the first {@link File} from an
