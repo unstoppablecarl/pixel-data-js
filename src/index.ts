@@ -20,7 +20,7 @@ export * from './Canvas/CanvasPixelDataRenderer'
 export * from './Canvas/PixelCanvas'
 export * from './Canvas/ReusableCanvas'
 
-export * from './Clipboard/getImageDataFromClipboard'
+export * from './Clipboard/getImageDataFromClipboardPasteEvent'
 export * from './Clipboard/writeImageDataToClipboard'
 export * from './Clipboard/writeImgBlobToClipboard'
 

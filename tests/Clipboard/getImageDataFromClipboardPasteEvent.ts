@@ -1,12 +1,12 @@
-import { getImageDataFromClipboard } from '@/index'
+import { getImageDataFromClipboardPasteEvent } from '@/index'
 import { describe, expect, it, vi } from 'vitest'
 import * as imageModule from '../../src/ImageData/imgBlobToImageData'
 
-describe('getImageDataFromClipboard', () => {
+describe('getImageDataFromClipboardPasteEvent', () => {
   it('should return null if clipboardData is missing', async () => {
     const event = {} as ClipboardEvent
 
-    const result = await getImageDataFromClipboard(event)
+    const result = await getImageDataFromClipboardPasteEvent(event)
 
     expect(result).toBeNull()
   })
@@ -36,7 +36,7 @@ describe('getImageDataFromClipboard', () => {
       },
     } as unknown as ClipboardEvent
 
-    const result = await getImageDataFromClipboard(event)
+    const result = await getImageDataFromClipboardPasteEvent(event)
 
     expect(spy).toHaveBeenCalledWith(mockBlob)
 
@@ -54,7 +54,7 @@ describe('getImageDataFromClipboard', () => {
       },
     } as unknown as ClipboardEvent
 
-    const result = await getImageDataFromClipboard(event)
+    const result = await getImageDataFromClipboardPasteEvent(event)
 
     expect(result).toBeNull()
   })
@@ -96,7 +96,7 @@ describe('getImageDataFromClipboard', () => {
       },
     } as unknown as ClipboardEvent
 
-    const result = await getImageDataFromClipboard(event)
+    const result = await getImageDataFromClipboardPasteEvent(event)
 
     // Verify it skipped the first and processed the second
     expect(spy).toHaveBeenCalledTimes(1)

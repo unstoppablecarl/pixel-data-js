@@ -21,7 +21,7 @@ import { imgBlobToImageData } from '../ImageData/imgBlobToImageData'
  * });
  * ```
  */
-export async function getImageDataFromClipboard(clipboardEvent: ClipboardEvent) {
+export async function getImageDataFromClipboardPasteEvent(clipboardEvent: ClipboardEvent) {
   const items = clipboardEvent?.clipboardData?.items
   if (!items?.length) return null
 
